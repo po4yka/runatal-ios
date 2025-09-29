@@ -15,6 +15,7 @@ Primary goals:
 - Switch scripts and fonts at runtime.
 - See quotes in widgets.
 - Maintain clean architecture and great testability.
+- Deliver a premium black/white liquid glass aesthetic.
 
 ---
 
@@ -43,13 +44,29 @@ Primary goals:
 **Fonts / Runic Rendering**
 - Noto Sans Runic (Unicode Runic block)
 - BabelStone Runic (Unicode Runic block, historically styled)
-- Custom Cirth font (PUA-mapped for Tolkien’s Cirth / Angerthas)
+- Custom Cirth font (PUA-mapped for Tolkien's Cirth / Angerthas)
 
 **Missing tech for runic text rendering**
 - Custom fonts bundled in app + widget targets via `UIAppFonts`.
 - SwiftUI `.font(.custom("FontName", size:))` usage for Text.
 - Runic transliteration module mapping Latin text to runic Unicode (and PUA for Cirth).
 - (Optional) CoreText/CGPath helpers if advanced glyph rendering is needed later.
+
+**Design System (Liquid Glass / Glassmorphism)**
+- **Grayscale Palette**: Full spectrum from black to white
+  - Pure Black: `#000000`
+  - Dark Grays: `#1A1A1A`, `#2D2D2D`, `#404040`
+  - Mid Grays: `#666666`, `#808080`, `#999999`
+  - Light Grays: `#B3B3B3`, `#CCCCCC`, `#E6E6E6`
+  - Pure White: `#FFFFFF`
+- **Gradients**: Smooth transitions for depth
+  - Radial gradients for glass highlights
+  - Linear gradients for backgrounds and cards
+  - Subtle noise overlay for texture
+- **Transparency & Opacity Levels**: 100%, 90%, 80%, 70%, 60%, 50%, 40%, 30%, 20%, 10%, 5%
+- **Blur Effects**: SwiftUI materials (`.ultraThinMaterial`, `.thinMaterial`, `.regularMaterial`, `.thickMaterial`)
+- **Visual Hierarchy**: Achieved through layering, blur intensity, and opacity
+- **Animations**: Smooth, fluid 60fps transitions with spring physics
 
 ---
 
@@ -389,33 +406,98 @@ Lock Screen widgets may need shorter text or truncated versions.
 
 ---
 
-## 7. Usage & UX
+## 7. Usage & UX (Liquid Glass Design)
 
-### 7.1 Main Screen
+### 7.1 Main Screen (Glassmorphism)
 
-- Centered runic quote text
-- Author label below (Latin, optional)
-- UI controls:
-  - Script selector (segmented control: Elder / Younger / Cirth)
-  - (Optional) Font selector (Noto / BabelStone / Cirth)
-  - "Next quote" button
+**Visual Hierarchy:**
+- Background: Dark gradient (`#000000` → `#1A1A1A` radial from center)
+- Frosted glass card containing quote (`.ultraThinMaterial`)
+  - Background: Gradient overlay (white 10% → transparent)
+  - White runic text (100% opacity) centered
+  - Author label below (70% opacity, light gray `#CCCCCC`)
+  - Border: 1px gradient (white 30% → transparent)
+  - Corner radius: 24px
+  - Soft shadow: Black 40% opacity, 20px blur, 8px offset
+  - Subtle inner glow: White 5% opacity
 
-### 7.2 Settings Screen
+**UI Controls:**
+- Glass script selector (custom segmented control)
+  - Background: `.thinMaterial` with gradient overlay
+  - Three segments: Elder / Younger / Cirth
+  - Selected state: White gradient fill (100% → 80%)
+  - Unselected: Transparent with gray border (`#666666`, 50% opacity)
+  - Smooth sliding indicator animation
+- Glass "Next Quote" button
+  - Gradient background: Gray `#404040` → `#2D2D2D`
+  - Border: White 20% opacity
+  - Scale animation on press (0.95x with spring damping)
+  - Haptic feedback (.medium impact)
+- Settings icon (top right)
+  - Glass circle button with gradient fill
+  - Gray `#666666` 30% opacity
 
-- Preferred script
-- Preferred font
-- Widget behavior (daily/random)
-- About/credits (fonts, sources, etc.)
+**Animations:**
+- Quote transition: Cross-fade with subtle scale (1.0 → 0.98 → 1.0)
+- Glass card entrance: Blur-in + fade + slide up
+- Background gradient: Subtle breathing animation (slow radial shift)
+- Smooth, fluid 60fps with spring physics
 
-### 7.3 Widgets
+### 7.2 Settings Screen (Glass Cards)
 
-- Home screen widget:
-  - Quote in runes
-  - Optional author
-- Lock screen widget:
-  - Short quote or runic symbol
-- Tapping widget:
-  - Deep-links to app (optionally to that specific quote)
+**Layout:**
+- Background: Dark gradient (`#000000` → `#2D2D2D` linear top to bottom)
+- Each setting group in separate glass card with spacing:
+  - **Script Preference** (Picker with glass segments)
+  - **Font Preference** (Picker with preview, gradient backgrounds)
+  - **Widget Behavior** (Toggle with gradient track)
+  - **Glass Intensity** (Slider with gradient fill)
+  - **About/Credits** (Text with varied gray shades)
+
+**Glass Card Style:**
+- Background: `.thinMaterial` with gradient overlay (white 8% → transparent)
+- Border: 1px gradient (gray `#666666` 40% → transparent)
+- Corner radius: 20px
+- Padding: 16px
+- Shadow: Black 30% opacity, 16px blur, 4px offset
+- Separator lines: Gray `#404040` 50% opacity
+
+**Interactive Elements:**
+- Toggle track: Gray gradient `#2D2D2D` → `#404040`
+- Toggle knob: White gradient with shadow
+- Slider track: Gray `#404040` with gradient fill
+- Slider thumb: White gradient with glow effect
+
+### 7.3 Widgets (Glass on Home/Lock Screen)
+
+**Home Screen Widget:**
+- Background: Dark gradient (`#1A1A1A` → `#000000`)
+- Frosted glass overlay (`.ultraThinMaterial`)
+- Card with gradient border (white 20% → gray `#666666` 10%)
+- Content:
+  - White runic text (100% opacity) with subtle glow
+  - Author in light gray `#CCCCCC` (70% opacity)
+  - Gradient vignette around edges for depth
+- Sizes:
+  - Small: Single large rune with gradient background
+  - Medium: Short quote (2-3 words) with gradient card
+  - Large: Full quote with author, gradient separators
+
+**Lock Screen Widget:**
+- Adapts to iOS lock screen blur
+- Circular: Single rune with radial gradient background
+- Inline: Short text with subtle gray gradient
+- Respects system tinting and wallpaper colors
+
+**Visual Effects:**
+- Subtle noise texture overlay (5% opacity)
+- Gradient borders that shimmer slightly
+- Shadow depth appropriate to widget size
+
+**Interaction:**
+- Tapping widget: Smooth transition with matched gradient animation
+- Deep-links to quote with cross-fade
+- Maintains glass aesthetic throughout navigation
 
 ---
 
@@ -647,43 +729,77 @@ Lock Screen widgets may need shorter text or truncated versions.
   - Persist changes via @AppStorage or SwiftData
   - **File**: `RunicQuotes/ViewModels/SettingsViewModel.swift`
 
-#### 2.3 UI Components
+#### 2.3 Liquid Glass UI Components
+- [ ] Implement `GlassCard.swift` base component
+  - Reusable frosted glass container
+  - Properties: blur intensity, gradient overlay, border style, corner radius
+  - Background: `.ultraThinMaterial` or `.thinMaterial`
+  - Gradient overlay: White/gray with low opacity (configurable)
+  - Border: 1px gradient (white → gray with opacity, default 30% → 10%)
+  - Corner radius: 20-24px (configurable)
+  - Soft shadow: Black with blur (30-40% opacity, 16-20px blur)
+  - Optional inner glow: White 5% opacity
+  - **File**: `RunicQuotes/Views/Components/GlassCard.swift`
+
+- [ ] Implement `GlassButton.swift`
+  - Button with glassmorphism effect
+  - Background: Gray gradient (`#404040` → `#2D2D2D`)
+  - Border: White gradient with opacity
+  - Scale animation on press (0.95x with spring damping)
+  - Haptic feedback (.medium impact)
+  - States: normal, pressed (darker gradient), disabled (lower opacity)
+  - Optional glow effect on press
+  - **File**: `RunicQuotes/Views/Components/GlassButton.swift`
+
 - [ ] Implement `RunicQuoteText.swift`
   - SwiftUI view displaying text in custom runic font
   - Parameters: `text`, `script`, `font`
-  - Styling: center-aligned, multiline, readable size
+  - Styling: white color, center-aligned, multiline
+  - Inside GlassCard container
   - **File**: `RunicQuotes/Views/Components/RunicQuoteText.swift`
 
-- [ ] Implement `ScriptSelector.swift`
-  - SwiftUI Picker/SegmentedControl for RunicScript
+- [ ] Implement `GlassScriptSelector.swift`
+  - Custom segmented control with glass effect
+  - Three segments: Elder / Younger / Cirth
+  - Selected: white fill, Unselected: transparent with border
+  - Smooth animation between selections
   - Binding to selected script
-  - **File**: `RunicQuotes/Views/Components/ScriptSelector.swift`
+  - **File**: `RunicQuotes/Views/Components/GlassScriptSelector.swift`
 
-- [ ] Implement `FontSelector.swift`
-  - SwiftUI Picker for RunicFont
+- [ ] Implement `GlassFontSelector.swift`
+  - Picker with glass styling
+  - Font preview in each row
   - Binding to selected font
-  - **File**: `RunicQuotes/Views/Components/FontSelector.swift`
+  - **File**: `RunicQuotes/Views/Components/GlassFontSelector.swift`
 
-#### 2.4 Main Views
-- [ ] Implement `QuoteView.swift`
-  - Main screen layout:
-    - RunicQuoteText in center
-    - Author label below (Latin)
-    - ScriptSelector at top or bottom
-    - "Next Quote" button
-    - Settings button (navigation link)
+#### 2.4 Main Views (Liquid Glass Design)
+- [ ] Implement `QuoteView.swift` with glassmorphism
+  - Background: Dark radial gradient (`#000000` → `#1A1A1A`)
+  - GlassCard containing:
+    - RunicQuoteText (white, centered, 100% opacity)
+    - Author label (light gray `#CCCCCC`, 70% opacity)
+    - Gradient overlay and border
+  - GlassScriptSelector at bottom (gradient segments)
+  - GlassButton for "Next Quote" with gradient background
+  - Settings icon (glass circle button with gradient, top right)
   - Wire to QuoteViewModel
   - `.task { await viewModel.loadQuoteOfTheDay() }`
+  - Smooth animations: cross-fade, scale, blur transitions
+  - Subtle background gradient animation
   - **File**: `RunicQuotes/Views/QuoteView.swift`
-  - **Acceptance**: UI displays quote, script switching works
+  - **Acceptance**: Premium glass aesthetic with gradients, quote display works
 
-- [ ] Implement `SettingsView.swift`
-  - Form with sections:
-    - Script preference (Picker)
-    - Font preference (Picker)
-    - Widget mode (Picker: daily/random)
-    - About section (app version, credits)
+- [ ] Implement `SettingsView.swift` with glass cards
+  - Background: Linear gradient (`#000000` → `#2D2D2D` top to bottom)
+  - Multiple GlassCards for sections (each with gradient overlays):
+    - Script preference (GlassScriptSelector with gradients)
+    - Font preference (GlassFontSelector with gradient backgrounds)
+    - Widget mode (Toggle with gradient track)
+    - Glass intensity (Slider with gradient fill)
+    - About section (Text with varied gray shades)
   - Wire to SettingsViewModel
+  - Smooth scroll with glass cards
+  - Separator lines: Gray `#404040` 50% opacity
   - **File**: `RunicQuotes/Views/SettingsView.swift`
 
 - [ ] Update `RunicQuotesApp.swift`
@@ -866,22 +982,60 @@ Lock Screen widgets may need shorter text or truncated versions.
 ### Phase 5 – Polish & Finalization (Week 5)
 
 #### 5.1 Visual Design
-- [ ] Design app icon
+- [ ] Design app icon with liquid glass aesthetic
   - Create icon in multiple sizes (1024x1024 base)
-  - Use runic theme (e.g., rune on parchment background)
+  - Dark gradient background (`#000000` → `#2D2D2D`)
+  - White/light gray rune with frosted glass effect
+  - Subtle radial gradient highlight
+  - Glassmorphism: gradient borders, soft glow
   - **Tool**: Figma, Sketch, or SF Symbols app
   - **File**: Add to `Assets.xcassets/AppIcon`
 
-- [ ] Create launch screen
-  - Simple design: app name + single rune
+- [ ] Create liquid glass launch screen
+  - Dark gradient background (`#000000` → `#1A1A1A`)
+  - Frosted glass card with gradient overlay
+  - Single white rune with subtle glow and blur
+  - Gradient border effect
   - Use `LaunchScreen.storyboard` or SwiftUI launch screen
   - **File**: `RunicQuotes/Resources/LaunchScreen.storyboard`
 
-- [ ] Design color palette
-  - Define primary colors (e.g., stone gray, parchment beige, runic blue)
-  - Add to `Assets.xcassets` as color sets
-  - Support dark mode variants
-  - **Acceptance**: App looks cohesive in light/dark mode
+- [ ] Implement glassmorphism UI components
+  - Create `GlassCard.swift` reusable component
+    - Background: `.ultraThinMaterial` or `.thinMaterial`
+    - Gradient overlay (white/gray with low opacity)
+    - Border: 1px gradient (white → gray with opacity)
+    - Shadow: Black with configurable opacity (30-40%)
+    - Corner radius: 20-24px
+    - Optional inner glow effect
+  - Create `GlassButton.swift` component
+    - Frosted background with gradient overlay
+    - Gray gradient fill (`#404040` → `#2D2D2D`)
+    - Scale animation on press (0.95x spring)
+    - Haptic feedback (.medium impact)
+    - States: normal, pressed, disabled (with opacity)
+  - Create `GradientBackground.swift` helper
+    - Radial and linear gradient support
+    - Animated gradients (subtle breathing effect)
+  - **Files**: `RunicQuotes/Views/Components/GlassCard.swift`, `GlassButton.swift`, `GradientBackground.swift`
+  - **Acceptance**: All UI uses glassmorphism consistently
+
+- [ ] Design grayscale liquid glass color palette
+  - **Grayscale spectrum**:
+    - Pure Black: `#000000`
+    - Dark Grays: `#1A1A1A`, `#2D2D2D`, `#404040`
+    - Mid Grays: `#666666`, `#808080`, `#999999`
+    - Light Grays: `#B3B3B3`, `#CCCCCC`, `#E6E6E6`
+    - Pure White: `#FFFFFF`
+  - **Opacity levels**: 100%, 90%, 80%, 70%, 60%, 50%, 40%, 30%, 20%, 10%, 5%
+  - **Gradients**:
+    - Linear gradients for backgrounds
+    - Radial gradients for highlights/glows
+    - Angular gradients for borders
+  - **Blur intensities**: ultraThin, thin, regular, thick
+  - Add all colors and gradients to `Assets.xcassets`
+  - Create `ColorPalette.swift` with semantic color definitions
+  - **File**: `RunicQuotes/Design/ColorPalette.swift`
+  - **Acceptance**: App achieves premium glassmorphism with rich grayscale depth
 
 #### 5.2 Accessibility
 - [ ] Implement Dynamic Type support
@@ -1015,26 +1169,17 @@ Lock Screen widgets may need shorter text or truncated versions.
   - Flag to distinguish user quotes from preloaded
   - **Acceptance**: User can add custom quotes
 
-#### 7.3 Theming (v1.2)
-- [ ] Implement theme system
-  - Themes: Parchment, Dark Stone, Minimalist, etc.
-  - Background images/colors
-  - Custom text colors
-  - **File**: `RunicQuotes/Models/Theme.swift`
+#### 7.3 Liquid Glass Refinements (v1.2)
+- [ ] Enhance glassmorphism effects
+  - Add subtle parallax on scroll
+  - Implement smooth blur transitions
+  - Add micro-interactions (hover states, ripple effects)
+  - **File**: `RunicQuotes/Views/Components/AnimatedGlass.swift`
 
-- [ ] Add theme selector in Settings
-  - Preview of each theme
-  - **Acceptance**: User can switch themes
-
-#### 7.4 Runic Keyboard Extension (v2.0)
-- [ ] Create Keyboard Extension target
-  - Custom keyboard layout with runes
-  - Support Elder Futhark input
-  - **Acceptance**: User can type runes system-wide
-
-- [ ] Implement keyboard UI
-  - Rune keys with Latin transliteration hints
-  - Switch between Elder/Younger/Cirth
+- [ ] Add glass intensity preference
+  - User can adjust blur strength (subtle/medium/strong)
+  - Persist preference
+  - **Acceptance**: Users can customize glass effect intensity
 
 ---
 
@@ -1151,7 +1296,7 @@ The Runic Quotes app development is structured around iterative releases, each a
 - Widget uses bundled data (no App Group sync in v1.0)
 - Limited to 30 preloaded quotes
 - No user-generated content
-- Single theme (dark minimalist)
+- Grayscale only (by design constraint - no colors beyond black/white/gray spectrum)
 
 ---
 
@@ -1162,8 +1307,11 @@ The Runic Quotes app development is structured around iterative releases, each a
 #### Features
 - **Quote Sharing**
   - Export quote as stylized image (ImageRenderer)
-  - Customizable backgrounds: parchment, stone, minimalist
-  - Include runic text + author + app watermark
+  - Liquid glass card design with gradients and blur effects
+  - Dark gradient background with frosted glass card
+  - White runic text with subtle glow effect
+  - Author in light gray with gradient separators
+  - Include subtle app watermark (gray with low opacity)
   - ShareSheet integration (share to Instagram, Twitter, Messages)
   - Copy runic text to clipboard
 
@@ -1207,11 +1355,11 @@ The Runic Quotes app development is structured around iterative releases, each a
   - Filter view: All / Preloaded / My Quotes
   - Quote validation (min/max length, profanity filter optional)
 
-- **Themes & Visual Customization**
-  - Theme system: Parchment, Dark Stone, Minimalist, Nord
-  - Custom background images per theme
-  - Adjustable text color and contrast
-  - Widget theme sync (match app theme)
+- **Visual Customization**
+  - Glass intensity adjustment (subtle/medium/strong blur)
+  - Animation speed preference (reduced motion support)
+  - Contrast adjustment for accessibility
+  - Widget visual sync (match app glass intensity)
 
 - **Localization**
   - Full English localization (baseline)
@@ -1231,13 +1379,13 @@ The Runic Quotes app development is structured around iterative releases, each a
 - ✅ 4.5+ star rating
 
 #### Technical Challenges
-- Theme asset bundle size management
 - User content moderation (if adding cloud sync later)
 - Localized quote quality/curation
+- Maintaining glassmorphism performance on older devices
 
 ---
 
-### v1.3 – Cloud Sync & Collections (Optional)
+### v1.3 – Cloud Sync & Collections
 **Target Release:** 3-4 months after v1.2
 **Focus:** Cross-device experience and organization
 
@@ -1246,102 +1394,24 @@ The Runic Quotes app development is structured around iterative releases, each a
   - Sync user quotes across iPhone, iPad, Mac
   - CloudKit integration for preferences
   - Conflict resolution for edits
+  - Maintain liquid glass design across all platforms
 
 - **Quote Collections**
   - Organize quotes into custom collections (folders/tags)
   - Predefined collections: Favorites, Daily Rotation, Shared
   - Widget can pull from specific collection
+  - Glass card UI for collection browsing
 
 - **Advanced Widget Customization**
   - Configure widget to show specific collection
   - Manual widget refresh button
   - Widget intent configuration (iOS intents framework)
+  - Glass effect intensity matches app settings
 
 #### Success Metrics
 - ✅ 50%+ of multi-device users enable sync
 - ✅ Collections used by 30%+ of users
-
----
-
-### v2.0 – Advanced & Experimental
-**Target Release:** 6+ months after v1.0
-**Focus:** Innovation and differentiation
-
-#### Features
-- **Runic Keyboard Extension**
-  - System-wide custom keyboard for typing runes
-  - Keyboard layouts: Elder Futhark, Younger Futhark, Cirth
-  - Transliteration mode: type Latin, output runes
-  - Key press haptics and sound effects
-  - Educational mode: show rune names on long-press
-
-- **Expanded Script Support**
-  - Anglo-Saxon Futhorc (extended runic alphabet)
-  - Tengwar (Tolkien's Elvish script, via PUA font)
-  - Ogham (ancient Irish script, U+1680–U+169C)
-  - Medieval runes
-
-- **Interactive Learning Mode**
-  - Flashcards for rune meanings and phonetics
-  - Quiz mode: match runes to sounds
-  - Pronunciation guide (audio clips for Old Norse)
-  - Gamification: earn achievements for learning
-
-- **AR/VR Experiments (visionOS)**
-  - Display floating runic quotes in AR
-  - 3D carved stone effect with depth
-  - Spatial audio for Old Norse recitations
-  - visionOS widget support
-
-- **Animation & Visual Effects**
-  - Animated rune drawing (stroke order)
-  - Particle effects (glowing runes, stone dust)
-  - Seasonal themes (winter: ice runes, summer: fire runes)
-
-#### Success Metrics
-- ✅ Keyboard extension adopted by 10%+ of users
-- ✅ Learning mode completed by 5%+ of users
-- ✅ Featured on App Store "New & Noteworthy"
-- ✅ 10K+ downloads in first 3 months of v2.0
-
-#### Technical Challenges
-- Keyboard extension requires separate target and approval
-- AR features need LiDAR-capable devices (limit audience)
-- Audio assets increase app bundle size
-- visionOS development requires Xcode 15.2+ and Vision Pro device/simulator
-
----
-
-### v2.1+ – Community & Marketplace (Future Vision)
-**Target Release:** 12+ months after v1.0
-**Focus:** Platform and community building
-
-#### Potential Features
-- **Community Quote Library**
-  - User-submitted quote repository (cloud-based)
-  - Upvote/downvote system for curation
-  - Moderation tools (report inappropriate content)
-  - Featured quotes of the week
-
-- **Custom Font Marketplace**
-  - Allow users to import 3rd-party runic fonts
-  - In-app font store (free + paid fonts)
-  - Font creator tools (web-based editor)
-
-- **Educational Partnerships**
-  - Collaborate with museums/universities for authentic content
-  - Historical context for each rune
-  - Interactive timeline of runic usage
-
-- **Subscription Model (Optional)**
-  - Free tier: 30 quotes, basic fonts, standard widgets
-  - Premium tier: unlimited quotes, all fonts, custom themes, cloud sync
-  - Price: $1.99/month or $14.99/year
-
-#### Success Metrics
-- ✅ 1000+ community-submitted quotes
-- ✅ 5%+ conversion to premium tier
-- ✅ Educational partnership with 1+ institution
+- ✅ Consistent glassmorphism across platforms
 
 ---
 
@@ -1377,37 +1447,37 @@ The Runic Quotes app development is structured around iterative releases, each a
 ### Feature Prioritization Framework
 
 **MoSCoW Method:**
-- **Must Have (v1.0):** Core quote display, transliteration, widgets
-- **Should Have (v1.1-1.2):** Sharing, themes, user quotes
-- **Could Have (v2.0):** Keyboard, AR, learning mode
-- **Won't Have (for now):** Social network integration, AI-generated quotes
+- **Must Have (v1.0):** Core quote display, transliteration, widgets, liquid glass design with gradients
+- **Should Have (v1.1-1.2):** Sharing with gradient effects, visual customization, user quotes
+- **Could Have (v1.3):** iCloud sync, collections
+- **Won't Have:** Keyboard extensions, AR/VR, learning mode, community features, color themes (grayscale only)
 
 **User Impact vs. Effort Matrix:**
 ```
-High Impact, Low Effort → v1.1 (Sharing, widget modes)
-High Impact, High Effort → v2.0 (Keyboard, AR)
-Low Impact, Low Effort → v1.2 (Additional themes)
-Low Impact, High Effort → Deferred (Complex AI features)
+High Impact, Low Effort → v1.1 (Sharing, widget modes, glassmorphism)
+High Impact, High Effort → v1.2-1.3 (User quotes, iCloud sync)
+Low Impact, Low Effort → v1.2 (Glass intensity customization)
+Low Impact, High Effort → Won't Have (Keyboard, AR, community features)
 ```
 
 ---
 
-### Long-Term Vision (3-5 Years)
+### Long-Term Vision (2-3 Years)
 
-**Mission:** Become the definitive iOS app for runic scripts and ancient writing systems.
+**Mission:** Create the most beautiful and functional iOS app for displaying quotes in runic scripts with a premium liquid glass aesthetic.
 
 **Goals:**
-1. **Reach:** 100K+ downloads, featured in 50+ countries
-2. **Education:** Partner with 5+ museums/universities for content
-3. **Platform:** Support 10+ ancient scripts (runes, Ogham, Tengwar, hieroglyphs)
-4. **Community:** Active user-generated content library with 10K+ quotes
-5. **Ecosystem:** Expand to macOS, watchOS, visionOS with cross-platform sync
+1. **Design Excellence:** Set the standard for glassmorphism in iOS quote apps
+2. **Reach:** 50K+ downloads, 4.5+ star rating
+3. **User Engagement:** 10K+ user-created quotes in community
+4. **Platform:** Expand to macOS, watchOS with consistent liquid glass design
+5. **Scripts:** Maintain focus on Elder Futhark, Younger Futhark, and Cirth
 
 **Sustainability:**
-- Freemium model with premium features
-- One-time "Pro" unlock option (no subscription required)
-- Respectful ads in free tier (opt-out with Pro)
-- Educational licensing for schools
+- One-time "Pro" unlock for premium features ($4.99)
+- Free tier: 30 quotes, basic widgets, standard glass effects
+- Pro tier: unlimited quotes, iCloud sync, collections, glass customization
+- No ads, no subscription - just beautiful, distraction-free design
 
 ---
 
