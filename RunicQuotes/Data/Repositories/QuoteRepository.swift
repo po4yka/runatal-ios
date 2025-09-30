@@ -1,0 +1,173 @@
+//
+//  QuoteRepository.swift
+//  RunicQuotes
+//
+//  Created by Claude on 2025-11-15.
+//
+
+import Foundation
+import SwiftData
+
+/// Protocol defining the quote repository interface
+protocol QuoteRepository {
+    /// Seed the database with initial quotes if needed
+    func seedIfNeeded() async throws
+
+    /// Get the quote of the day for a specific script
+    func quoteOfTheDay(for script: RunicScript) async throws -> Quote
+
+    /// Get a random quote for a specific script
+    func randomQuote(for script: RunicScript) async throws -> Quote
+
+    /// Get all quotes
+    func allQuotes() async throws -> [Quote]
+}
+
+/// SwiftData implementation of the QuoteRepository
+final class SwiftDataQuoteRepository: QuoteRepository {
+    private let modelContext: ModelContext
+    private let transliterator = RunicTransliterator.self
+
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+    }
+
+    // MARK: - Seeding
+
+    func seedIfNeeded() async throws {
+        // Check if database is already seeded
+        let descriptor = FetchDescriptor<Quote>()
+        let existingQuotes = try modelContext.fetch(descriptor)
+
+        guard existingQuotes.isEmpty else {
+            print("✓ Database already seeded with \(existingQuotes.count) quotes")
+            return
+        }
+
+        print("⏳ Seeding database with quotes...")
+
+        // Load quotes from JSON
+        guard let url = Bundle.main.url(forResource: "quotes", withExtension: "json", subdirectory: "Resources/SeedData"),
+              let data = try? Data(contentsOf: url) else {
+            throw QuoteRepositoryError.seedDataNotFound
+        }
+
+        struct QuoteData: Codable {
+            let textLatin: String
+            let author: String
+        }
+
+        let quoteDataArray = try JSONDecoder().decode([QuoteData].self, from: data)
+
+        // Create Quote objects and transliterate
+        for quoteData in quoteDataArray {
+            let quote = Quote(
+                textLatin: quoteData.textLatin,
+                author: quoteData.author
+            )
+
+            // Precompute runic transliterations
+            quote.runicElder = transliterator.transliterate(quoteData.textLatin, to: .elder)
+            quote.runicYounger = transliterator.transliterate(quoteData.textLatin, to: .younger)
+            quote.runicCirth = transliterator.transliterate(quoteData.textLatin, to: .cirth)
+
+            modelContext.insert(quote)
+        }
+
+        try modelContext.save()
+        print("✓ Database seeded with \(quoteDataArray.count) quotes")
+    }
+
+    // MARK: - Quote Retrieval
+
+    func quoteOfTheDay(for script: RunicScript) async throws -> Quote {
+        // Use a deterministic algorithm based on the current date
+        // This ensures all users see the same quote on the same day
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let daysSinceEpoch = calendar.dateComponents([.day], from: Date(timeIntervalSince1970: 0), to: today).day ?? 0
+
+        let allQuotes = try await self.allQuotes()
+
+        guard !allQuotes.isEmpty else {
+            throw QuoteRepositoryError.noQuotesAvailable
+        }
+
+        // Use day count as seed for deterministic "random" selection
+        let index = daysSinceEpoch % allQuotes.count
+        let quote = allQuotes[index]
+
+        // Ensure the quote has the runic transliteration for the requested script
+        try ensureTransliteration(for: quote, script: script)
+
+        return quote
+    }
+
+    func randomQuote(for script: RunicScript) async throws -> Quote {
+        let allQuotes = try await self.allQuotes()
+
+        guard !allQuotes.isEmpty else {
+            throw QuoteRepositoryError.noQuotesAvailable
+        }
+
+        let randomIndex = Int.random(in: 0..<allQuotes.count)
+        let quote = allQuotes[randomIndex]
+
+        // Ensure the quote has the runic transliteration for the requested script
+        try ensureTransliteration(for: quote, script: script)
+
+        return quote
+    }
+
+    func allQuotes() async throws -> [Quote] {
+        let descriptor = FetchDescriptor<Quote>(
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+
+    // MARK: - Private Helpers
+
+    /// Ensure a quote has transliteration for the requested script
+    private func ensureTransliteration(for quote: Quote, script: RunicScript) throws {
+        var needsSave = false
+
+        switch script {
+        case .elder:
+            if quote.runicElder == nil {
+                quote.runicElder = transliterator.transliterate(quote.textLatin, to: .elder)
+                needsSave = true
+            }
+        case .younger:
+            if quote.runicYounger == nil {
+                quote.runicYounger = transliterator.transliterate(quote.textLatin, to: .younger)
+                needsSave = true
+            }
+        case .cirth:
+            if quote.runicCirth == nil {
+                quote.runicCirth = transliterator.transliterate(quote.textLatin, to: .cirth)
+                needsSave = true
+            }
+        }
+
+        if needsSave {
+            try modelContext.save()
+        }
+    }
+}
+
+// MARK: - Errors
+
+enum QuoteRepositoryError: LocalizedError {
+    case seedDataNotFound
+    case noQuotesAvailable
+
+    var errorDescription: String? {
+        switch self {
+        case .seedDataNotFound:
+            return "Could not find seed data file (quotes.json)"
+        case .noQuotesAvailable:
+            return "No quotes available in the database"
+        }
+    }
+}

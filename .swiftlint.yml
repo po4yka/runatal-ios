@@ -1,0 +1,92 @@
+# SwiftLint Configuration for Runic Quotes
+# Documentation: https://realm.github.io/SwiftLint/
+
+# Paths to include/exclude
+included:
+  - RunicQuotes
+
+excluded:
+  - Pods
+  - .build
+  - DerivedData
+  - RunicQuotesTests/Generated
+
+# Rules
+opt_in_rules:
+  - array_init
+  - closure_end_indentation
+  - closure_spacing
+  - contains_over_first_not_nil
+  - empty_count
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - literal_expression_end_indentation
+  - multiline_parameters
+  - overridden_super_call
+  - private_outlet
+  - prohibited_super_call
+  - redundant_nil_coalescing
+  - sorted_first_last
+  - vertical_parameter_alignment_on_call
+
+disabled_rules:
+  - trailing_whitespace
+  - line_length # We'll handle this manually
+  - identifier_name # Allow short names like 'id', 'i', etc.
+
+# Rule Configuration
+line_length:
+  warning: 120
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+
+file_length:
+  warning: 500
+  error: 1000
+
+function_body_length:
+  warning: 60
+  error: 100
+
+type_body_length:
+  warning: 300
+  error: 500
+
+cyclomatic_complexity:
+  warning: 15
+  error: 25
+
+nesting:
+  type_level:
+    warning: 2
+  statement_level:
+    warning: 5
+
+# Custom Rules
+custom_rules:
+  no_print:
+    name: "Print Usage"
+    regex: '(?<!os_log\()print\('
+    match_kinds:
+      - identifier
+    message: "Use os_log instead of print for production code"
+    severity: warning
+
+  mark_comment_spacing:
+    name: "MARK Comment Spacing"
+    regex: '\/\/MARK:'
+    message: "Add a space after // in MARK comments: // MARK:"
+    severity: warning
+
+# Analyzer Rules (requires full project analysis)
+analyzer_rules:
+  - explicit_self
+  - unused_declaration
+  - unused_import
+
+# Reporter
+reporter: "xcode"
