@@ -1,0 +1,173 @@
+//
+//  GlassCard.swift
+//  RunicQuotes
+//
+//  Created by Claude on 2025-11-15.
+//
+
+import SwiftUI
+
+/// A card component with liquid glass/glassmorphism design
+struct GlassCard<Content: View>: View {
+    // MARK: - Properties
+
+    let content: Content
+    let opacity: GlassOpacity
+    let blur: Material
+    let cornerRadius: CGFloat
+    let borderWidth: CGFloat
+    let shadowRadius: CGFloat
+
+    // MARK: - Initialization
+
+    init(
+        opacity: GlassOpacity = .mediumLow,
+        blur: Material = .ultraThinMaterial,
+        cornerRadius: CGFloat = 20,
+        borderWidth: CGFloat = 1,
+        shadowRadius: CGFloat = 10,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.content = content()
+        self.opacity = opacity
+        self.blur = blur
+        self.cornerRadius = cornerRadius
+        self.borderWidth = borderWidth
+        self.shadowRadius = shadowRadius
+    }
+
+    // MARK: - Body
+
+    var body: some View {
+        content
+            .padding()
+            .background {
+                ZStack {
+                    // Glass blur effect
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(blur)
+                        .opacity(opacity.value)
+
+                    // Gradient border
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    .white.opacity(0.3),
+                                    .white.opacity(0.1),
+                                    .white.opacity(0.05)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: borderWidth
+                        )
+                }
+            }
+            .shadow(
+                color: .black.opacity(0.3),
+                radius: shadowRadius,
+                x: 0,
+                y: 4
+            )
+    }
+}
+
+// MARK: - Convenience Variants
+
+extension GlassCard {
+    /// Create a glass card with default settings
+    static func `default`<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> GlassCard<Content> {
+        GlassCard(content: content)
+    }
+
+    /// Create a glass card with light opacity
+    static func light<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> GlassCard<Content> {
+        GlassCard(
+            opacity: .veryLow,
+            blur: .ultraThinMaterial,
+            content: content
+        )
+    }
+
+    /// Create a glass card with heavy opacity
+    static func heavy<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> GlassCard<Content> {
+        GlassCard(
+            opacity: .medium,
+            blur: .regularMaterial,
+            content: content
+        )
+    }
+
+    /// Create a glass card with custom opacity
+    static func custom<Content: View>(
+        opacity: GlassOpacity,
+        blur: Material = .thinMaterial,
+        @ViewBuilder content: () -> Content
+    ) -> GlassCard<Content> {
+        GlassCard(
+            opacity: opacity,
+            blur: blur,
+            content: content
+        )
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    ZStack {
+        // Background gradient
+        LinearGradient(
+            colors: [.black, Color(white: 0.1), .black],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+
+        VStack(spacing: 30) {
+            // Default glass card
+            GlassCard {
+                VStack(spacing: 10) {
+                    Text("Default Glass Card")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("Medium-low opacity with ultra-thin material")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+            }
+
+            // Light glass card
+            GlassCard.light {
+                VStack(spacing: 10) {
+                    Text("Light Glass Card")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("Very low opacity with ultra-thin material")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+            }
+
+            // Heavy glass card
+            GlassCard.heavy {
+                VStack(spacing: 10) {
+                    Text("Heavy Glass Card")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("Medium opacity with regular material")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+            }
+        }
+        .padding()
+    }
+}
