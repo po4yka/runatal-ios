@@ -97,12 +97,14 @@ struct MainTabView: View {
                     Label("Quote", systemImage: "quote.bubble.fill")
                 }
                 .tag(0)
+                .accessibilityIdentifier("quote_tab")
 
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
                 .tag(1)
+                .accessibilityIdentifier("settings_tab")
         }
         .tint(.white)
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SwitchToQuoteTab"))) { _ in

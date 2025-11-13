@@ -21,6 +21,7 @@ struct GlassButton: View {
     let borderWidth: CGFloat
 
     @State private var isPressed = false
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
 
     // MARK: - Initialization
 
@@ -56,10 +57,13 @@ struct GlassButton: View {
                 if let icon = icon {
                     Image(systemName: icon)
                         .font(.body.weight(.medium))
+                        .accessibilityHidden(true)
                 }
 
-                Text(title)
-                    .font(.body.weight(.medium))
+                if !title.isEmpty {
+                    Text(title)
+                        .font(.body.weight(.medium))
+                }
             }
             .foregroundColor(.white)
             .padding(.horizontal, 20)
@@ -99,16 +103,25 @@ struct GlassButton: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
-                    withAnimation(.easeInOut(duration: 0.1)) {
+                    if reduceMotion {
                         isPressed = true
+                    } else {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isPressed = true
+                        }
                     }
                 }
                 .onEnded { _ in
-                    withAnimation(.easeInOut(duration: 0.1)) {
+                    if reduceMotion {
                         isPressed = false
+                    } else {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isPressed = false
+                        }
                     }
                 }
         )
+        .accessibilityAddTraits(.isButton)
     }
 }
 

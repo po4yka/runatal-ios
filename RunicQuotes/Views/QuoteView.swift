@@ -73,11 +73,16 @@ struct QuoteView: View {
             ProgressView()
                 .tint(.white)
                 .scaleEffect(1.5)
+                .accessibilityLabel("Loading")
+                .accessibilityIdentifier("quote_loading_indicator")
 
             Text("Loading quote...")
                 .font(.caption)
                 .foregroundColor(.white.opacity(0.7))
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Loading quote")
+        .accessibilityIdentifier("quote_loading_view")
     }
 
     // MARK: - Error View
@@ -88,6 +93,7 @@ struct QuoteView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.largeTitle)
                     .foregroundColor(.red.opacity(0.8))
+                    .accessibilityLabel("Error")
 
                 Text("Error")
                     .font(.headline)
@@ -101,10 +107,15 @@ struct QuoteView: View {
                 GlassButton.primary("Try Again", icon: "arrow.clockwise") {
                     viewModel.refresh()
                 }
+                .accessibilityLabel("Retry loading quote")
+                .accessibilityHint("Double tap to try loading the quote again")
+                .accessibilityIdentifier("quote_retry_button")
             }
             .padding()
         }
         .padding()
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("quote_error_view")
     }
 
     // MARK: - Quote Content
@@ -123,6 +134,10 @@ struct QuoteView: View {
                     )
                 )
                 .padding(.horizontal)
+                .accessibilityLabel("Runic script selector")
+                .accessibilityValue(viewModel.state.currentScript.rawValue)
+                .accessibilityHint("Select which runic script to display")
+                .accessibilityIdentifier("quote_script_selector")
 
                 // Quote card
                 quoteCard
@@ -142,17 +157,20 @@ struct QuoteView: View {
             VStack(spacing: 24) {
                 // Runic text
                 Text(viewModel.state.runicText)
-                    .font(.custom(
-                        RunicFontConfiguration.fontName(
-                            for: viewModel.state.currentScript,
-                            font: viewModel.state.currentFont
-                        ),
-                        size: 32
-                    ))
+                    .runicTextStyle(
+                        script: viewModel.state.currentScript,
+                        font: viewModel.state.currentFont,
+                        style: .title,
+                        minSize: 24,
+                        maxSize: 48
+                    )
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
                     .padding()
+                    .accessibilityLabel("Runic text")
+                    .accessibilityValue(viewModel.state.runicText)
+                    .accessibilityHint("The quote displayed in \(viewModel.state.currentScript.rawValue)")
 
                 Divider()
                     .background(
@@ -166,6 +184,7 @@ struct QuoteView: View {
                             endPoint: .trailing
                         )
                     )
+                    .accessibilityHidden(true)
 
                 // Latin text
                 Text(viewModel.state.latinText)
@@ -173,16 +192,21 @@ struct QuoteView: View {
                     .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
+                    .accessibilityLabel("Quote")
+                    .accessibilityValue(viewModel.state.latinText)
 
                 // Author
                 Text("— \(viewModel.state.author)")
                     .font(.callout)
                     .foregroundColor(.white.opacity(0.7))
                     .italic()
+                    .accessibilityLabel("Author")
+                    .accessibilityValue(viewModel.state.author)
             }
         }
         .padding(.horizontal)
-    }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("quote_card")
 
     // MARK: - Action Buttons
 
@@ -192,11 +216,17 @@ struct QuoteView: View {
             GlassButton.primary("Next Quote", icon: "arrow.forward.circle.fill") {
                 viewModel.onNextQuoteTapped()
             }
+            .accessibilityLabel("Next quote")
+            .accessibilityHint("Double tap to load the next quote")
+            .accessibilityIdentifier("quote_next_button")
 
             // Shuffle button
             GlassButton("Shuffle", icon: "shuffle") {
                 viewModel.onNextQuoteTapped()
             }
+            .accessibilityLabel("Random quote")
+            .accessibilityHint("Double tap to load a random quote")
+            .accessibilityIdentifier("quote_shuffle_button")
         }
         .padding(.horizontal)
     }

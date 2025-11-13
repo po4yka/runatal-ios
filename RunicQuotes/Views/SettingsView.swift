@@ -88,6 +88,7 @@ struct SettingsView: View {
             Image(systemName: "gear")
                 .font(.system(size: 50))
                 .foregroundColor(.white.opacity(0.8))
+                .accessibilityHidden(true)
 
             Text("Settings")
                 .font(.largeTitle.bold())
@@ -98,6 +99,9 @@ struct SettingsView: View {
                 .foregroundColor(.white.opacity(0.7))
         }
         .padding(.top, 20)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Settings - Customize your runic experience")
+        .accessibilityIdentifier("settings_header")
     }
 
     // MARK: - Script Section
@@ -118,8 +122,13 @@ struct SettingsView: View {
                 .onChange(of: viewModel.selectedScript) { _, newValue in
                     viewModel.updateScript(newValue)
                 }
+                .accessibilityLabel("Select runic script")
+                .accessibilityValue(viewModel.selectedScript.rawValue)
+                .accessibilityHint("Choose between Elder Futhark, Younger Futhark, or Cirth")
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings_script_section")
     }
 
     // MARK: - Font Section
@@ -141,15 +150,21 @@ struct SettingsView: View {
                 .onChange(of: viewModel.selectedFont) { _, newValue in
                     viewModel.updateFont(newValue)
                 }
+                .accessibilityLabel("Select font style")
+                .accessibilityValue(viewModel.selectedFont.rawValue)
+                .accessibilityHint("Choose the font used to display runic text")
 
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .font(.caption)
                         .foregroundColor(.red.opacity(0.8))
                         .padding(.top, 8)
+                        .accessibilityLabel("Error: \(error)")
                 }
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings_font_section")
     }
 
     // MARK: - Widget Section
@@ -171,6 +186,9 @@ struct SettingsView: View {
                 }
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Widget settings")
+        .accessibilityIdentifier("settings_widget_section")
     }
 
     private func widgetModeButton(_ mode: WidgetMode) -> some View {
@@ -196,6 +214,7 @@ struct SettingsView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.white)
                         .font(.title3)
+                        .accessibilityLabel("Selected")
                 }
             }
             .padding()
@@ -206,6 +225,10 @@ struct SettingsView: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel("\(mode.displayName) mode")
+        .accessibilityValue(viewModel.widgetMode == mode ? "Selected" : "Not selected")
+        .accessibilityHint("Double tap to select \(mode.displayName) mode. \(mode.description)")
+        .accessibilityIdentifier("settings_widget_mode_\(mode.rawValue)")
     }
 
     // MARK: - About Section
@@ -229,6 +252,8 @@ struct SettingsView: View {
                     .padding(.top, 8)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings_about_section")
     }
 
     private func aboutRow(_ label: String, value: String) -> some View {
