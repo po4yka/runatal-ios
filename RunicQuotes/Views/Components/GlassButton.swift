@@ -190,27 +190,27 @@ extension GlassButton {
         VStack(spacing: 30) {
             // Default button
             GlassButton("Default Button", icon: "star.fill") {
-                print("Default button tapped")
+                // Preview action
             }
 
             // Primary button
             GlassButton.primary("Primary Button", icon: "arrow.right.circle.fill") {
-                print("Primary button tapped")
+                // Preview action
             }
 
             // Secondary button
             GlassButton.secondary("Secondary Button", icon: "gear") {
-                print("Secondary button tapped")
+                // Preview action
             }
 
             // Compact button
             GlassButton.compact("Compact Button") {
-                print("Compact button tapped")
+                // Preview action
             }
 
             // Icon-only button
             GlassButton("", icon: "shuffle") {
-                print("Shuffle tapped")
+                // Preview action
             }
         }
         .padding()

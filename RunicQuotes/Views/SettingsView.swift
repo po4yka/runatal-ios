@@ -20,7 +20,7 @@ struct SettingsView: View {
         // Initialize with a placeholder - will be replaced in onAppear
         _viewModel = StateObject(wrappedValue: SettingsViewModel(
             modelContext: ModelContext(
-                try! ModelContainer(for: Quote.self, UserPreferences.self)
+                ModelContainerHelper.createPlaceholderContainer()
             )
         ))
     }
@@ -295,10 +295,7 @@ struct SettingsView: View {
 }
 
 #Preview("With Data") {
-    let container = try! ModelContainer(
-        for: Quote.self, UserPreferences.self,
-        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-    )
+    let container = ModelContainerHelper.createPlaceholderContainer()
 
     // Create preferences
     let prefs = UserPreferences(

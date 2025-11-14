@@ -17,11 +17,10 @@ struct QuoteView: View {
     // MARK: - Initialization
 
     init() {
-        // Initialize with a placeholder - will be replaced in onAppear
+        // Initialize with a placeholder - will be replaced in .task with environment's context
+        let placeholderContainer = ModelContainerHelper.createPlaceholderContainer()
         _viewModel = StateObject(wrappedValue: QuoteViewModel(
-            modelContext: ModelContext(
-                try! ModelContainer(for: Quote.self, UserPreferences.self)
-            )
+            modelContext: ModelContext(placeholderContainer)
         ))
     }
 
@@ -207,6 +206,7 @@ struct QuoteView: View {
         .padding(.horizontal)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("quote_card")
+    }
 
     // MARK: - Action Buttons
 
@@ -240,10 +240,7 @@ struct QuoteView: View {
 }
 
 #Preview("With Sample Data") {
-    let container = try! ModelContainer(
-        for: Quote.self, UserPreferences.self,
-        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-    )
+    let container = ModelContainerHelper.createPlaceholderContainer()
 
     // Add sample quote
     let quote = Quote(

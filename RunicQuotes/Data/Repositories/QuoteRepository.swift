@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import os
 
 /// Protocol defining the quote repository interface
 protocol QuoteRepository {
@@ -27,6 +28,7 @@ protocol QuoteRepository {
 final class SwiftDataQuoteRepository: QuoteRepository {
     private let modelContext: ModelContext
     private let transliterator = RunicTransliterator.self
+    private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Repository")
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -40,11 +42,11 @@ final class SwiftDataQuoteRepository: QuoteRepository {
         let existingQuotes = try modelContext.fetch(descriptor)
 
         guard existingQuotes.isEmpty else {
-            print("✓ Database already seeded with \(existingQuotes.count) quotes")
+            logger.info("Database already seeded with \(existingQuotes.count) quotes")
             return
         }
 
-        print("⏳ Seeding database with quotes...")
+        logger.info("Seeding database with quotes...")
 
         // Load quotes from JSON
         guard let url = Bundle.main.url(forResource: "quotes", withExtension: "json", subdirectory: "Resources/SeedData"),
@@ -75,7 +77,7 @@ final class SwiftDataQuoteRepository: QuoteRepository {
         }
 
         try modelContext.save()
-        print("✓ Database seeded with \(quoteDataArray.count) quotes")
+        logger.info("Database seeded with \(quoteDataArray.count) quotes")
     }
 
     // MARK: - Quote Retrieval

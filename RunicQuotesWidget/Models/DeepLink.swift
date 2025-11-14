@@ -18,13 +18,33 @@ enum DeepLink {
     var url: URL {
         switch self {
         case .openApp:
-            return URL(string: "runicquotes://")!
+            guard let url = URL(string: "runicquotes://") else {
+                preconditionFailure("Invalid hardcoded URL")
+            }
+            return url
+
         case .openQuote(let script):
-            return URL(string: "runicquotes://quote?script=\(script.rawValue)")!
+            var components = URLComponents()
+            components.scheme = "runicquotes"
+            components.host = "quote"
+            components.queryItems = [URLQueryItem(name: "script", value: script.rawValue)]
+
+            guard let url = components.url else {
+                preconditionFailure("Failed to construct URL for script: \(script.rawValue)")
+            }
+            return url
+
         case .openSettings:
-            return URL(string: "runicquotes://settings")!
+            guard let url = URL(string: "runicquotes://settings") else {
+                preconditionFailure("Invalid hardcoded URL")
+            }
+            return url
+
         case .nextQuote:
-            return URL(string: "runicquotes://next")!
+            guard let url = URL(string: "runicquotes://next") else {
+                preconditionFailure("Invalid hardcoded URL")
+            }
+            return url
         }
     }
 

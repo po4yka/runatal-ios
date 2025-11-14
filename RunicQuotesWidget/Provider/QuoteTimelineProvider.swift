@@ -8,9 +8,12 @@
 import WidgetKit
 import SwiftUI
 import SwiftData
+import os
 
 /// Timeline provider for the runic quotes widget
 struct QuoteTimelineProvider: TimelineProvider {
+    private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Widget")
+
     // MARK: - TimelineProvider Methods
 
     /// Provide a placeholder entry for widget gallery
@@ -32,7 +35,7 @@ struct QuoteTimelineProvider: TimelineProvider {
                 let timeline = Timeline(entries: entries, policy: .atEnd)
                 completion(timeline)
             } catch {
-                print("❌ Widget timeline error: \(error)")
+                Self.logger.error("Widget timeline error: \(error.localizedDescription)")
                 // Fallback to placeholder
                 let entry = RunicQuoteEntry.placeholder()
                 let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(3600)))
@@ -163,7 +166,7 @@ struct QuoteTimelineProvider: TimelineProvider {
 // MARK: - Supporting Types
 
 /// User preferences data (non-SwiftData)
-struct UserPreferencesData {
+struct UserPreferencesData: Sendable {
     let selectedScript: RunicScript
     let selectedFont: RunicFont
     let widgetMode: WidgetMode

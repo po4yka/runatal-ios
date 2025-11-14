@@ -172,10 +172,7 @@ final class QuoteViewModel: ObservableObject {
 extension QuoteViewModel {
     /// Create a view model for SwiftUI previews
     static func preview() -> QuoteViewModel {
-        let container = try! ModelContainer(
-            for: Quote.self, UserPreferences.self,
-            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-        )
+        let container = ModelContainerHelper.createPlaceholderContainer()
         return QuoteViewModel(modelContext: container.mainContext)
     }
 }

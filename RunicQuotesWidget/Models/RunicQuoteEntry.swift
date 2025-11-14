@@ -38,7 +38,7 @@ struct RunicQuoteEntry: TimelineEntry {
 }
 
 /// Simplified quote data for widgets (non-SwiftData)
-struct QuoteData: Codable {
+struct QuoteData: Codable, Sendable {
     let textLatin: String
     let author: String
     let runicElder: String?

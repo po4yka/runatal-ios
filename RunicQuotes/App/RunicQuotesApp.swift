@@ -7,42 +7,43 @@
 
 import SwiftUI
 import SwiftData
+import os
 
 @main
 struct RunicQuotesApp: App {
-    // MARK: - SwiftData Model Container
+    // MARK: - Properties
+
+    private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "App")
 
     let modelContainer: ModelContainer
+    @State private var showDatabaseError = false
+    @State private var databaseErrorMessage = ""
 
     // MARK: - Initialization
 
     init() {
         do {
-            // Configure the SwiftData model container with App Group
-            let schema = Schema([
-                Quote.self,
-                UserPreferences.self
-            ])
-
-            let modelConfiguration = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                groupContainer: .identifier("group.com.po4yka.runicquotes")
-            )
-
-            modelContainer = try ModelContainer(
-                for: schema,
-                configurations: [modelConfiguration]
-            )
+            modelContainer = try ModelContainerHelper.createMainContainer()
 
             // Seed database on first launch
             Task {
-                let context = ModelContext(modelContainer)
-                let repository = SwiftDataQuoteRepository(modelContext: context)
-                try await repository.seedIfNeeded()
+                do {
+                    try await DatabaseActor.shared.seedIfNeeded(using: modelContainer)
+                } catch {
+                    Self.logger.error("Failed to seed database: \(error.localizedDescription)")
+                }
             }
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            Self.logger.critical("Failed to create ModelContainer: \(error.localizedDescription)")
+
+            // Fallback to in-memory container
+            do {
+                Self.logger.info("Attempting to create fallback in-memory container")
+                let placeholderContainer = ModelContainerHelper.createPlaceholderContainer()
+                modelContainer = placeholderContainer
+                databaseErrorMessage = "Using temporary database. Data will not be saved."
+                showDatabaseError = true
+            }
         }
     }
 
@@ -50,18 +51,39 @@ struct RunicQuotesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView()
-                .modelContainer(modelContainer)
-                .onOpenURL { url in
-                    handleDeepLink(url)
+            ZStack {
+                MainTabView()
+                    .modelContainer(modelContainer)
+                    .onOpenURL { url in
+                        handleDeepLink(url)
+                    }
+
+                // Show error banner if database initialization failed
+                if showDatabaseError {
+                    VStack {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.yellow)
+                            Text(databaseErrorMessage)
+                                .font(.caption)
+                                .foregroundColor(.white)
+                        }
+                        .padding()
+                        .background(Color.black.opacity(0.8))
+                        .cornerRadius(8)
+                        .padding(.top, 50)
+
+                        Spacer()
+                    }
                 }
+            }
         }
     }
 
     // MARK: - Deep Link Handling
 
     private func handleDeepLink(_ url: URL) {
-        guard url.scheme == "runicquotes" else { return }
+        guard url.scheme == AppConstants.urlScheme else { return }
 
         let host = url.host
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
@@ -70,16 +92,16 @@ struct RunicQuotesApp: App {
         case "quote":
             // Open quote tab and optionally change script
             NotificationCenter.default.post(
-                name: Notification.Name("SwitchToQuoteTab"),
+                name: .switchToQuoteTab,
                 object: nil,
                 userInfo: ["script": components?.queryItems?.first(where: { $0.name == "script" })?.value ?? ""]
             )
         case "settings":
             // Open settings tab
-            NotificationCenter.default.post(name: Notification.Name("SwitchToSettingsTab"), object: nil)
+            NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
         case "next":
             // Load next quote
-            NotificationCenter.default.post(name: Notification.Name("LoadNextQuote"), object: nil)
+            NotificationCenter.default.post(name: .loadNextQuote, object: nil)
         default:
             break
         }
@@ -107,10 +129,10 @@ struct MainTabView: View {
                 .accessibilityIdentifier("settings_tab")
         }
         .tint(.white)
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SwitchToQuoteTab"))) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { _ in
             selectedTab = 0
         }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SwitchToSettingsTab"))) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .switchToSettingsTab)) { _ in
             selectedTab = 1
         }
     }

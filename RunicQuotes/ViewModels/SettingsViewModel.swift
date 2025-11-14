@@ -125,10 +125,7 @@ final class SettingsViewModel: ObservableObject {
 extension SettingsViewModel {
     /// Create a view model for SwiftUI previews
     static func preview() -> SettingsViewModel {
-        let container = try! ModelContainer(
-            for: Quote.self, UserPreferences.self,
-            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-        )
+        let container = ModelContainerHelper.createPlaceholderContainer()
         return SettingsViewModel(modelContext: container.mainContext)
     }
 }

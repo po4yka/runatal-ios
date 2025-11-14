@@ -193,10 +193,7 @@ final class QuoteViewModelTests: XCTestCase {
 
     func testErrorStateWhenNoQuotes() {
         // Given: Empty repository (no seeding)
-        let emptyContainer = try! ModelContainer(
-            for: Schema([Quote.self, UserPreferences.self]),
-            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-        )
+        let emptyContainer = ModelContainerHelper.createPlaceholderContainer()
         let emptyContext = ModelContext(emptyContainer)
         let emptyViewModel = QuoteViewModel(modelContext: emptyContext)
 
