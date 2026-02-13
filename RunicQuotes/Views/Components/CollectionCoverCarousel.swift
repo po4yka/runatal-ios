@@ -37,8 +37,9 @@ struct CollectionCoverCarousel: View {
                         coverCard(cover)
                     }
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, 6)
             }
+            .scrollClipDisabled()
         }
         .padding(.horizontal)
     }
