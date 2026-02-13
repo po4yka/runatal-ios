@@ -118,9 +118,6 @@ struct QuoteView: View {
                 searchQuery = ""
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            bottomActionBar
-        }
         .sheet(isPresented: $isShareSheetPresented) {
 #if canImport(UIKit)
             ActivityViewController(activityItems: shareItems)
@@ -264,6 +261,7 @@ struct QuoteView: View {
                 quoteCard
 
                 Spacer()
+                    .frame(height: 20)
             }
             .background(
                 GeometryReader { proxy in
@@ -529,6 +527,17 @@ struct QuoteView: View {
 
         ToolbarItemGroup(placement: .primaryAction) {
             Button {
+                Haptics.trigger(.newQuote)
+                viewModel.onNextQuoteTapped()
+            } label: {
+                Image(systemName: "sparkles")
+                    .symbolRenderingMode(.monochrome)
+            }
+            .accessibilityLabel("New quote")
+            .accessibilityHint("Double tap to load a new random quote")
+            .accessibilityIdentifier("quote_next_button")
+
+            Button {
                 Haptics.trigger(.saveOrShare)
                 viewModel.onToggleSaveTapped()
             } label: {
@@ -563,69 +572,6 @@ struct QuoteView: View {
             }
             .accessibilityLabel("More actions")
         }
-    }
-
-    // MARK: - Bottom Accessory
-
-    private var bottomActionBar: some View {
-        HStack(spacing: 12) {
-            Button {
-                Haptics.trigger(.newQuote)
-                viewModel.onNextQuoteTapped()
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "sparkles")
-                        .font(.caption.weight(.semibold))
-                    Text("New Quote")
-                }
-                .font(.subheadline.weight(.medium))
-                .foregroundColor(themePalette.primaryText.opacity(0.92))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(
-                    Capsule()
-                        .fill(.ultraThinMaterial)
-                        .opacity(0.8)
-                )
-                .shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 3)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .accessibilityLabel("New quote")
-            .accessibilityHint("Double tap to load a new random quote")
-            .accessibilityIdentifier("quote_next_button")
-
-            Button {
-                Haptics.trigger(.saveOrShare)
-                viewModel.onToggleSaveTapped()
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: viewModel.state.isCurrentQuoteSaved ? "bookmark.slash" : "bookmark")
-                        .font(.caption.weight(.semibold))
-                    Text(viewModel.state.isCurrentQuoteSaved ? "Unsave" : "Save")
-                }
-                .font(.subheadline.weight(.medium))
-                .foregroundColor(themePalette.primaryText.opacity(0.92))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(
-                    Capsule()
-                        .fill(.ultraThinMaterial)
-                        .opacity(0.5)
-                )
-            }
-            .buttonStyle(PlainButtonStyle())
-            .accessibilityLabel(viewModel.state.isCurrentQuoteSaved ? "Unsave quote" : "Save quote")
-            .accessibilityIdentifier("quote_bottom_save_button")
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 18)
-                .fill(.ultraThinMaterial)
-        )
-        .shadow(color: .black.opacity(0.22), radius: 8, x: 0, y: -2)
-        .padding(.horizontal)
-        .padding(.bottom, 6)
     }
 
     // MARK: - Script Morph Animation
