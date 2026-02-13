@@ -97,7 +97,7 @@ struct SettingsView: View {
     // MARK: - Live Preview
 
     private var livePreviewSection: some View {
-        GlassCard(opacity: .medium, blur: .regularMaterial) {
+        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
                     Label("Live Preview", systemImage: "eye")
@@ -120,7 +120,7 @@ struct SettingsView: View {
                         maxSize: 40
                     )
                     .foregroundColor(themePalette.primaryText)
-                    .shadow(color: themePalette.accent.opacity(0.15), radius: 4, x: 0, y: 0)
+                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 0)
                     .lineSpacing(5)
                     .frame(maxWidth: .infinity, alignment: .center)
 
@@ -166,7 +166,7 @@ struct SettingsView: View {
     // MARK: - Reading Group
 
     private var readingSection: some View {
-        GlassCard {
+        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
             VStack(alignment: .leading, spacing: 16) {
                 sectionHeader("Reading", icon: "book.closed")
 
@@ -275,7 +275,7 @@ struct SettingsView: View {
 
                 if viewModel.selectedTheme == theme {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(themePalette.accent)
+                        .foregroundColor(.white.opacity(0.55))
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -286,14 +286,11 @@ struct SettingsView: View {
                     .fill(.thinMaterial)
                     .opacity(viewModel.selectedTheme == theme ? 0.5 : 0.2)
             }
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(
-                        viewModel.selectedTheme == theme
-                            ? palette.accent.opacity(0.5)
-                            : Color.clear,
-                        lineWidth: 1.2
-                    )
+            .shadow(
+                color: .black.opacity(viewModel.selectedTheme == theme ? 0.22 : 0),
+                radius: 4,
+                x: 0,
+                y: 2
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -306,7 +303,7 @@ struct SettingsView: View {
     // MARK: - Typography Group
 
     private var typographySection: some View {
-        GlassCard {
+        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
             VStack(alignment: .leading, spacing: 16) {
                 sectionHeader("Typography", icon: "textformat.size")
 
@@ -374,7 +371,7 @@ struct SettingsView: View {
 
                     if isActive {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(themePalette.accent)
+                            .foregroundColor(.white.opacity(0.55))
                             .font(.caption)
                     }
                 }
@@ -413,9 +410,11 @@ struct SettingsView: View {
                     .fill(.thinMaterial)
                     .opacity(isActive ? 0.5 : 0.2)
             }
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(themePalette.divider, lineWidth: isActive ? 1.2 : 0.7)
+            .shadow(
+                color: .black.opacity(isActive ? 0.22 : 0),
+                radius: 4,
+                x: 0,
+                y: 2
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -425,7 +424,7 @@ struct SettingsView: View {
     // MARK: - Widget Group
 
     private var widgetSection: some View {
-        GlassCard {
+        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
             VStack(alignment: .leading, spacing: 16) {
                 sectionHeader("Widget", icon: "rectangle.on.rectangle")
 
@@ -492,7 +491,7 @@ struct SettingsView: View {
 
                 if viewModel.widgetMode == mode {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(themePalette.accent)
+                        .foregroundColor(.white.opacity(0.55))
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -532,7 +531,7 @@ struct SettingsView: View {
 
                 if viewModel.widgetStyle == style {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(themePalette.accent)
+                        .foregroundColor(.white.opacity(0.55))
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -598,7 +597,7 @@ struct SettingsView: View {
     private func sectionHeader(_ title: String, icon: String) -> some View {
         HStack(spacing: 8) {
             RoundedRectangle(cornerRadius: 1.5)
-                .fill(themePalette.accent)
+                .fill(Color.white.opacity(0.15))
                 .frame(width: 3, height: 20)
 
             Image(systemName: icon)

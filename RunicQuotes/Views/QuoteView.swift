@@ -219,7 +219,7 @@ struct QuoteView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(themePalette.accent)
+                .tint(themePalette.ctaAccent)
                 .accessibilityLabel("Retry loading quote")
                 .accessibilityHint("Double tap to try loading the quote again")
                 .accessibilityIdentifier("quote_retry_button")
@@ -362,10 +362,26 @@ struct QuoteView: View {
 
     private var quoteCard: some View {
         GlassCard(
-            opacity: .mediumLow,
-            blur: .thinMaterial
+            opacity: .high,
+            blur: .ultraThinMaterial
         ) {
-            VStack(spacing: 0) {
+            ZStack(alignment: .bottom) {
+                // Inner dimming gradient for text legibility
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .clear, location: 0.35),
+                                .init(color: .black.opacity(0.28), location: 1.0)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .allowsHitTesting(false)
+
+                VStack(spacing: 0) {
                 // Hero zone: dominant runic text
                 Text(viewModel.state.runicText)
                     .runicTextStyle(
@@ -395,9 +411,9 @@ struct QuoteView: View {
                         LinearGradient(
                             colors: [
                                 .clear,
-                                themePalette.accent.opacity(0.3),
-                                themePalette.divider,
-                                themePalette.accent.opacity(0.3),
+                                Color.white.opacity(0.08),
+                                Color.white.opacity(0.12),
+                                Color.white.opacity(0.08),
                                 .clear
                             ],
                             startPoint: .leading,
@@ -441,12 +457,13 @@ struct QuoteView: View {
                 .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                 .background(themePalette.footerBackground)
             }
+            }
             .frame(maxWidth: .infinity, minHeight: 360, alignment: .top)
             .overlay(alignment: .topTrailing) {
                 Text(decorativeGlyph)
                     .font(.system(size: 60))
                     .foregroundColor(themePalette.primaryText)
-                    .opacity(0.06)
+                    .opacity(0.03)
                     .rotationEffect(.degrees(-12))
                     .padding(.top, 12)
                     .padding(.trailing, 16)
@@ -565,7 +582,7 @@ struct QuoteView: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .tint(themePalette.accent)
+            .tint(themePalette.ctaAccent)
             .accessibilityLabel("New quote")
             .accessibilityHint("Double tap to load a new random quote")
             .accessibilityIdentifier("quote_next_button")
@@ -591,10 +608,7 @@ struct QuoteView: View {
             RoundedRectangle(cornerRadius: 18)
                 .fill(.ultraThinMaterial)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(themePalette.divider.opacity(0.6), lineWidth: 0.7)
-        )
+        .shadow(color: .black.opacity(0.22), radius: 8, x: 0, y: -2)
         .padding(.horizontal)
         .padding(.bottom, 6)
     }

@@ -22,15 +22,12 @@ struct RunicAtmosphere: View {
     private var glyphs: [PlacedGlyph] {
         let chars = Self.glyphCharacters(for: script)
         // Deterministic layout per script -- fixed positions at edges/corners
+        // Corners only -- clear of the card area in the centre.
         let layouts: [(size: CGFloat, opacity: Double, rotation: Double, x: CGFloat, y: CGFloat)] = [
-            (80, 0.03, -12, 0.05, 0.08),
-            (55, 0.025, 8, 0.92, 0.05),
-            (70, 0.035, -5, 0.08, 0.88),
-            (45, 0.02, 14, 0.90, 0.92),
-            (60, 0.03, -10, 0.04, 0.48),
-            (50, 0.025, 6, 0.94, 0.52),
-            (90, 0.02, -15, 0.88, 0.35),
-            (65, 0.03, 11, 0.06, 0.72)
+            (80, 0.018, -12, 0.05, 0.06),
+            (55, 0.015, 8, 0.93, 0.04),
+            (70, 0.02, -5, 0.07, 0.92),
+            (45, 0.012, 14, 0.91, 0.94)
         ]
 
         return layouts.enumerated().map { index, layout in

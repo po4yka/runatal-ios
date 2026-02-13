@@ -112,7 +112,7 @@ struct CollectionCoverCarousel: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
                     .stroke(
-                        isSelected ? palette.accent : palette.divider,
+                        Color.white.opacity(isSelected ? 0.15 : 0.08),
                         lineWidth: isSelected ? 1.3 : 0.8
                     )
             )

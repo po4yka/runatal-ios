@@ -15,7 +15,6 @@ struct GlassCard<Content: View>: View {
     let opacity: GlassOpacity
     let blur: Material
     let cornerRadius: CGFloat
-    let borderWidth: CGFloat
     let shadowRadius: CGFloat
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
@@ -25,7 +24,6 @@ struct GlassCard<Content: View>: View {
         opacity: GlassOpacity = .mediumLow,
         blur: Material = .ultraThinMaterial,
         cornerRadius: CGFloat = 20,
-        borderWidth: CGFloat = 1,
         shadowRadius: CGFloat = 10,
         @ViewBuilder content: () -> Content
     ) {
@@ -33,7 +31,6 @@ struct GlassCard<Content: View>: View {
         self.opacity = opacity
         self.blur = blur
         self.cornerRadius = cornerRadius
-        self.borderWidth = borderWidth
         self.shadowRadius = shadowRadius
     }
 
@@ -67,42 +64,11 @@ struct GlassCard<Content: View>: View {
                                 )
                             )
                             .allowsHitTesting(false)
-
-                        // Inner shadow -- bottom-right depth
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [
-                                        .clear,
-                                        .black.opacity(0.08)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1.5
-                            )
-                            .allowsHitTesting(false)
                     }
-
-                    // Gradient border
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    .white.opacity(0.3),
-                                    .white.opacity(0.1),
-                                    .white.opacity(0.05),
-                                    AppTheme.obsidian.palette.accent.opacity(0.06)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: borderWidth
-                        )
                 }
             }
             .shadow(
-                color: .black.opacity(0.3),
+                color: .black.opacity(0.22),
                 radius: shadowRadius,
                 x: 0,
                 y: 4

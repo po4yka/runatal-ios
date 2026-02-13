@@ -81,25 +81,10 @@ private struct ScriptButton: View {
             .padding(.horizontal, 8)
             .background {
                 if isSelected {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .fill(.thinMaterial)
-                            .opacity(0.5)
-
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        .white.opacity(0.5),
-                                        .white.opacity(0.2)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                    }
-                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(.thinMaterial)
+                        .opacity(0.5)
+                        .shadow(color: .black.opacity(0.22), radius: 4, x: 0, y: 2)
                 }
             }
         }
@@ -186,27 +171,16 @@ private struct FontButton: View {
             }
             .padding()
             .background {
-                ZStack {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(.thinMaterial)
-                        .opacity(isSelected ? 0.5 : 0.2)
-
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        .white.opacity(0.4),
-                                        .white.opacity(0.2)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                    }
-                }
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(.thinMaterial)
+                    .opacity(isSelected ? 0.5 : 0.2)
             }
+            .shadow(
+                color: .black.opacity(isSelected ? 0.22 : 0),
+                radius: 4,
+                x: 0,
+                y: 2
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }

@@ -19,7 +19,6 @@ struct GlassButton: View {
     let opacity: GlassOpacity
     let blur: Material
     let cornerRadius: CGFloat
-    let borderWidth: CGFloat
 
     @State private var isPressed = false
     @Environment(\.accessibilityReduceMotion) var reduceMotion
@@ -33,7 +32,6 @@ struct GlassButton: View {
         opacity: GlassOpacity = .low,
         blur: Material = .thinMaterial,
         cornerRadius: CGFloat = 12,
-        borderWidth: CGFloat = 1,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -42,7 +40,6 @@ struct GlassButton: View {
         self.opacity = opacity
         self.blur = blur
         self.cornerRadius = cornerRadius
-        self.borderWidth = borderWidth
         self.action = action
     }
 
@@ -71,30 +68,12 @@ struct GlassButton: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
             .background {
-                ZStack {
-                    // Glass blur effect
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(blur)
-                        .opacity(isPressed ? opacity.value * 1.3 : opacity.value)
-
-                    // Gradient border
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    .white.opacity(0.4),
-                                    .white.opacity(0.2),
-                                    .white.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: borderWidth
-                        )
-                }
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(blur)
+                    .opacity(isPressed ? opacity.value * 1.3 : opacity.value)
             }
             .shadow(
-                color: .black.opacity(0.2),
+                color: .black.opacity(0.22),
                 radius: isPressed ? 4 : 8,
                 x: 0,
                 y: isPressed ? 2 : 4

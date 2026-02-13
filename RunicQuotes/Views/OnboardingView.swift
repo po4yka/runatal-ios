@@ -67,6 +67,7 @@ struct OnboardingView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
+                topNavBar
                 header
                 progressDots
                 ScrollView(.vertical, showsIndicators: false) {
@@ -86,46 +87,56 @@ struct OnboardingView: View {
         }
     }
 
-    private var header: some View {
+    private var topNavBar: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Welcome to Runic Quotes")
-                    .font(.title2.bold())
-                    .foregroundColor(.white)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.9)
-
-                Text("Choose your script and default widget style.")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.9))
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
+            if currentPage != .elder {
+                Button {
+                    moveBackward()
+                } label: {
+                    Label("Back", systemImage: "chevron.left")
+                }
+                .font(.body.weight(.medium))
+                .foregroundColor(.white.opacity(0.96))
+                .transition(.move(edge: .leading).combined(with: .opacity))
             }
 
             Spacer()
 
-            Button("Skip") {
+            Button("Use Defaults") {
                 savePreferencesAndFinish()
             }
-            .font(.headline.weight(.medium))
-            .foregroundColor(.white.opacity(0.96))
+            .font(.caption.weight(.medium))
+            .foregroundColor(.white.opacity(0.7))
         }
+        .frame(minHeight: 28)
+        .animation(AnimationPresets.smoothEase, value: currentPage)
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Welcome to Runic Quotes")
+                .font(.title2.bold())
+                .foregroundColor(.white)
+                .lineLimit(2)
+                .minimumScaleFactor(0.9)
+
+            Text(currentPage == .style
+                 ? "Pick your default widget style."
+                 : "Choose your script.")
+                .font(.subheadline)
+                .foregroundColor(.white.opacity(0.9))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .animation(.none, value: currentPage)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var progressDots: some View {
-        let accent = AppTheme.obsidian.palette.accent
-        return HStack(spacing: 8) {
-            ForEach(Page.allCases, id: \.rawValue) { page in
-                Capsule()
-                    .fill(page == currentPage ? accent : Color.white.opacity(0.46))
-                    .frame(width: page == currentPage ? 28 : 8, height: 8)
-                    .shadow(
-                        color: page == currentPage ? accent.opacity(0.5) : .clear,
-                        radius: 4
-                    )
-                    .animation(.easeInOut(duration: 0.2), value: currentPage)
-            }
-        }
+        NativePageControl(
+            numberOfPages: Page.allCases.count,
+            currentPage: currentPage.rawValue
+        )
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -151,18 +162,35 @@ struct OnboardingView: View {
         let runic = RunicTransliterator.transliterate(story.sampleLatin, to: story.script)
         let isSelected = selectedScript == story.script
         let recommendedFont = RunicFontConfiguration.recommendedFont(for: story.script)
+        return GlassCard(opacity: .high, blur: .ultraThinMaterial) {
+            VStack(alignment: .leading, spacing: 20) {
+                // -- Title block --
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(story.script.displayName)
+                            .font(.title3.bold())
+                            .foregroundColor(.white)
 
-        return GlassCard(opacity: .medium, blur: .regularMaterial) {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(story.script.displayName)
-                    .font(.title3.bold())
-                    .foregroundColor(.white)
+                        if isSelected {
+                            Label("Default", systemImage: "checkmark")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundColor(.white.opacity(0.55))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(
+                                    Capsule().fill(Color.white.opacity(0.10))
+                                )
+                                .transition(.scale.combined(with: .opacity))
+                        }
+                    }
 
-                Text(story.subtitle)
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.9))
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(story.subtitle)
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.55))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
+                // -- Rune preview --
                 Text(runic)
                     .runicTextStyle(
                         script: story.script,
@@ -171,62 +199,64 @@ struct OnboardingView: View {
                         minSize: 24,
                         maxSize: 42
                     )
-                    .foregroundColor(.white.opacity(0.98))
+                    .foregroundColor(.white)
                     .lineSpacing(6)
                     .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, minHeight: 120, alignment: .center)
-                    .shadow(color: .black.opacity(0.38), radius: 1.5, x: 0, y: 1)
+                    .frame(maxWidth: .infinity, minHeight: 80, alignment: .center)
+                    .shadow(color: .black.opacity(0.5), radius: 6, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.35), radius: 1.5, x: 0, y: 1)
 
-                Text("“\(story.sampleLatin)”")
-                    .font(.body)
-                    .foregroundColor(.white.opacity(0.92))
-                    .fixedSize(horizontal: false, vertical: true)
+                // -- Quote + meta --
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("\u{201C}\(story.sampleLatin)\u{201D}")
+                        .font(.body.weight(.medium))
+                        .foregroundColor(.white.opacity(0.92))
+                        .fixedSize(horizontal: false, vertical: true)
 
-                Text(story.script.description)
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.8))
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Button {
-                    Haptics.trigger(.scriptSwitch)
-                    selectedScript = story.script
-                } label: {
-                    let accent = AppTheme.obsidian.palette.accent
-                    HStack(alignment: .top, spacing: 10) {
-                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(isSelected ? accent : .white.opacity(0.7))
-                            .symbolEffect(.bounce, value: isSelected)
-                            .padding(.top, 2)
-                        Text(isSelected ? "Selected as Default Script" : "Tap to Select")
-                            .fontWeight(.semibold)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                        Spacer(minLength: 8)
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 14)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(isSelected ? accent.opacity(0.15) : Color.white.opacity(0.1))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(
-                                isSelected ? accent.opacity(0.6) : Color.white.opacity(0.15),
-                                lineWidth: isSelected ? 1.2 : 0.8
-                            )
-                    )
+                    Text(story.script.description)
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.38))
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .buttonStyle(PlainButtonStyle())
+
+                // -- Tap hint --
+                if !isSelected {
+                    Text("Tap to set as default")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.30))
+                        .frame(maxWidth: .infinity)
+                        .transition(.opacity)
+                }
             }
             .padding(4)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .clear, location: 0.35),
+                                .init(color: .black.opacity(0.28), location: 1.0)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            )
         }
         .frame(maxWidth: .infinity)
+        .contentShape(RoundedRectangle(cornerRadius: 20))
+        .onTapGesture {
+            guard !isSelected else { return }
+            Haptics.trigger(.scriptSwitch)
+            withAnimation(AnimationPresets.smoothEase) {
+                selectedScript = story.script
+            }
+        }
     }
 
     private var styleSelectionCard: some View {
-        GlassCard(opacity: .medium, blur: .regularMaterial) {
+        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Pick Your Default Widget Style")
                     .font(.title3.bold())
@@ -234,7 +264,7 @@ struct OnboardingView: View {
 
                 Text("You can change this any time in Settings.")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(.white.opacity(0.55))
                     .fixedSize(horizontal: false, vertical: true)
 
                 VStack(spacing: 10) {
@@ -243,6 +273,20 @@ struct OnboardingView: View {
                 }
             }
             .padding(4)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .clear, location: 0.35),
+                                .init(color: .black.opacity(0.28), location: 1.0)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            )
         }
     }
 
@@ -257,12 +301,13 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text(style.displayName)
-                        .font(.headline)
+                        .font(.subheadline.weight(.semibold))
                         .foregroundColor(.white)
                     Spacer()
                     if isSelected {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.white)
+                        Image(systemName: "checkmark")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.white.opacity(0.55))
                     }
                 }
 
@@ -275,20 +320,20 @@ struct OnboardingView: View {
                             minSize: 18,
                             maxSize: 24
                         )
-                        .foregroundColor(.white.opacity(0.98))
+                        .foregroundColor(.white.opacity(0.92))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .shadow(color: .black.opacity(0.34), radius: 1, x: 0, y: 1)
 
                     Text(sampleLatin)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.88))
+                        .foregroundColor(.white.opacity(0.38))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
                     Text(sampleLatin)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.white)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(.white.opacity(0.92))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -300,7 +345,7 @@ struct OnboardingView: View {
                             minSize: 14,
                             maxSize: 18
                         )
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(.white.opacity(0.38))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .shadow(color: .black.opacity(0.32), radius: 1, x: 0, y: 1)
@@ -309,25 +354,14 @@ struct OnboardingView: View {
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.white.opacity(0.3) : Color.white.opacity(0.18))
+                    .fill(isSelected ? Color.white.opacity(0.22) : Color.white.opacity(0.12))
             )
         }
         .buttonStyle(PlainButtonStyle())
     }
 
     private var navigation: some View {
-        HStack(spacing: 12) {
-            if currentPage != .elder {
-                Button {
-                    moveBackward()
-                } label: {
-                    Label("Back", systemImage: "chevron.left")
-                }
-                .buttonStyle(.bordered)
-                .frame(minHeight: 44)
-                .transition(.move(edge: .leading).combined(with: .opacity))
-            }
-
+        HStack {
             Spacer()
 
             Button {
@@ -339,22 +373,16 @@ struct OnboardingView: View {
                 }
             } label: {
                 Label(
-                    currentPage == .style ? "Start Reading" : "Next",
-                    systemImage: currentPage == .style ? "checkmark.circle.fill" : "arrow.right.circle.fill"
+                    currentPage == .style ? "Done" : "Next",
+                    systemImage: currentPage == .style ? "checkmark" : "arrow.right"
                 )
-                .font(currentPage == .style ? .headline : .body)
+                .font(.subheadline.weight(.medium))
             }
             .buttonStyle(.borderedProminent)
-            .frame(minHeight: 44)
-            .shadow(
-                color: currentPage == .style
-                    ? AppTheme.obsidian.palette.accent.opacity(0.4)
-                    : .clear,
-                radius: 8
-            )
+            .tint(AppTheme.obsidian.palette.ctaAccent)
+            .controlSize(.regular)
         }
         .frame(maxWidth: .infinity)
-        .animation(AnimationPresets.smoothEase, value: currentPage)
     }
 
     private func moveForward() {
@@ -388,6 +416,38 @@ struct OnboardingView: View {
         }
 
         onComplete()
+    }
+}
+
+/// Wraps `UIPageControl` for native dot styling and VoiceOver "page X of Y".
+private struct NativePageControl: UIViewRepresentable {
+    var numberOfPages: Int
+    var currentPage: Int
+
+    func makeUIView(context: Context) -> UIPageControl {
+        let control = UIPageControl()
+        control.numberOfPages = numberOfPages
+        control.isUserInteractionEnabled = false
+        control.currentPageIndicatorTintColor = UIColor.white.withAlphaComponent(0.45)
+        control.pageIndicatorTintColor = UIColor.white.withAlphaComponent(0.18)
+        control.setContentHuggingPriority(.required, for: .vertical)
+        control.preferredCurrentPageIndicatorImage = nil
+        applyLeadingTransform(control)
+        return control
+    }
+
+    func updateUIView(_ control: UIPageControl, context: Context) {
+        control.numberOfPages = numberOfPages
+        control.currentPage = currentPage
+        applyLeadingTransform(control)
+    }
+
+    /// Scale dots down and shift so the left edge aligns with content.
+    private func applyLeadingTransform(_ control: UIPageControl) {
+        let scale: CGFloat = 0.7
+        let halfWidth = control.intrinsicContentSize.width / 2
+        control.transform = CGAffineTransform(scaleX: scale, y: scale)
+            .translatedBy(x: -halfWidth, y: 0)
     }
 }
 

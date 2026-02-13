@@ -16,6 +16,7 @@ struct AppThemePalette {
     let tertiaryText: Color
     let divider: Color
     let accent: Color
+    let ctaAccent: Color
     let footerBackground: Color
 }
 
@@ -41,6 +42,7 @@ extension AppTheme {
                 tertiaryText: Color.white.opacity(0.70),
                 divider: Color.white.opacity(0.30),
                 accent: Color(red: 0.57, green: 0.80, blue: 0.98),
+                ctaAccent: Color(red: 0.40, green: 0.58, blue: 0.75),
                 footerBackground: Color.white.opacity(0.06)
             )
         case .parchment:
@@ -62,6 +64,7 @@ extension AppTheme {
                 tertiaryText: Color(red: 0.84, green: 0.74, blue: 0.61),
                 divider: Color(red: 0.95, green: 0.88, blue: 0.75).opacity(0.35),
                 accent: Color(red: 0.96, green: 0.74, blue: 0.45),
+                ctaAccent: Color(red: 0.72, green: 0.55, blue: 0.38),
                 footerBackground: Color(red: 0.63, green: 0.44, blue: 0.27).opacity(0.35)
             )
         case .nordicDawn:
@@ -83,6 +86,7 @@ extension AppTheme {
                 tertiaryText: Color(red: 0.72, green: 0.83, blue: 0.92),
                 divider: Color(red: 0.82, green: 0.90, blue: 0.97).opacity(0.35),
                 accent: Color(red: 0.58, green: 0.86, blue: 1.00),
+                ctaAccent: Color(red: 0.42, green: 0.62, blue: 0.76),
                 footerBackground: Color(red: 0.33, green: 0.53, blue: 0.66).opacity(0.25)
             )
         }
