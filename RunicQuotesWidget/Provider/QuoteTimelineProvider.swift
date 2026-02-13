@@ -119,14 +119,15 @@ struct QuoteTimelineProvider: TimelineProvider {
         let container = try createSharedModelContainer()
         let context = ModelContext(container)
         let repository = SwiftDataQuoteRepository(modelContext: context)
-        try repository.seedIfNeeded()
+        let provider = QuoteProvider(repository: repository)
+        try await provider.seedIfNeeded()
 
         // Use the same deterministic algorithm as the app
         let calendar = Calendar.current
         let targetDay = calendar.startOfDay(for: date)
         let daysSinceEpoch = calendar.dateComponents([.day], from: Date(timeIntervalSince1970: 0), to: targetDay).day ?? 0
 
-        let allQuotes = try repository.allQuotes()
+        let allQuotes = try await provider.allQuotes()
         guard !allQuotes.isEmpty else {
             throw WidgetError.noQuotesAvailable
         }
@@ -142,9 +143,10 @@ struct QuoteTimelineProvider: TimelineProvider {
         let container = try createSharedModelContainer()
         let context = ModelContext(container)
         let repository = SwiftDataQuoteRepository(modelContext: context)
-        try repository.seedIfNeeded()
+        let provider = QuoteProvider(repository: repository)
+        try await provider.seedIfNeeded()
 
-        let quote = try repository.randomQuote(for: script)
+        let quote = try await provider.randomQuote(for: script)
         return QuoteData(from: quote)
     }
 

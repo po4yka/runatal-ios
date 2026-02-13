@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents the different runic writing systems supported by the app
-enum RunicScript: String, Codable, CaseIterable, Identifiable {
+enum RunicScript: String, Codable, CaseIterable, Identifiable, Sendable {
     case elder = "Elder Futhark"
     case younger = "Younger Futhark"
     case cirth = "Cirth (Angerthas)"

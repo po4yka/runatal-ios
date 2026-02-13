@@ -4,6 +4,10 @@
 # Paths to include/exclude
 included:
   - RunicQuotes
+  - RunicQuotesWidget
+  - RunicQuotesTests
+  - RunicQuotesWidgetTests
+  - RunicQuotesUITests
 
 excluded:
   - Pods

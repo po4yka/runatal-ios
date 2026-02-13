@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents the different fonts available for runic text rendering
-enum RunicFont: String, Codable, CaseIterable, Identifiable {
+enum RunicFont: String, Codable, CaseIterable, Identifiable, Sendable {
     case noto = "Noto Sans Runic"
     case babelstone = "BabelStone Runic"
     case cirth = "Cirth Angerthas"

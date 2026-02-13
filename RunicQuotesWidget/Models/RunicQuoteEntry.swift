@@ -66,6 +66,15 @@ struct QuoteData: Codable, Sendable {
         self.runicCirth = quote.runicCirth
     }
 
+    /// Create from a sendable quote snapshot
+    init(from quote: QuoteRecord) {
+        self.textLatin = quote.textLatin
+        self.author = quote.author
+        self.runicElder = quote.runicElder
+        self.runicYounger = quote.runicYounger
+        self.runicCirth = quote.runicCirth
+    }
+
     /// Initialize with raw values
     init(textLatin: String, author: String, runicElder: String?, runicYounger: String?, runicCirth: String?) {
         self.textLatin = textLatin

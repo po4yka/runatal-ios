@@ -17,12 +17,12 @@ actor QuoteProvider {
     }
 
     /// Get the quote of the day for a specific script
-    func quoteOfTheDay(for script: RunicScript) async throws -> Quote {
+    func quoteOfTheDay(for script: RunicScript) async throws -> QuoteRecord {
         try repository.quoteOfTheDay(for: script)
     }
 
     /// Get a random quote for a specific script
-    func randomQuote(for script: RunicScript) async throws -> Quote {
+    func randomQuote(for script: RunicScript) async throws -> QuoteRecord {
         try repository.randomQuote(for: script)
     }
 
@@ -32,7 +32,7 @@ actor QuoteProvider {
     }
 
     /// Get all quotes
-    func allQuotes() async throws -> [Quote] {
+    func allQuotes() async throws -> [QuoteRecord] {
         try repository.allQuotes()
     }
 }

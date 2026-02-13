@@ -9,23 +9,55 @@ import Foundation
 import SwiftData
 import os
 
+/// Sendable snapshot of a Quote model used across actor boundaries.
+struct QuoteRecord: Sendable {
+    let id: UUID
+    let textLatin: String
+    let author: String
+    let runicElder: String?
+    let runicYounger: String?
+    let runicCirth: String?
+    let createdAt: Date
+
+    init(from quote: Quote) {
+        id = quote.id
+        textLatin = quote.textLatin
+        author = quote.author
+        runicElder = quote.runicElder
+        runicYounger = quote.runicYounger
+        runicCirth = quote.runicCirth
+        createdAt = quote.createdAt
+    }
+
+    func runicText(for script: RunicScript) -> String? {
+        switch script {
+        case .elder:
+            return runicElder
+        case .younger:
+            return runicYounger
+        case .cirth:
+            return runicCirth
+        }
+    }
+}
+
 /// Protocol defining the quote repository interface
-protocol QuoteRepository {
+protocol QuoteRepository: Sendable {
     /// Seed the database with initial quotes if needed
     func seedIfNeeded() throws
 
     /// Get the quote of the day for a specific script
-    func quoteOfTheDay(for script: RunicScript) throws -> Quote
+    func quoteOfTheDay(for script: RunicScript) throws -> QuoteRecord
 
     /// Get a random quote for a specific script
-    func randomQuote(for script: RunicScript) throws -> Quote
+    func randomQuote(for script: RunicScript) throws -> QuoteRecord
 
     /// Get all quotes
-    func allQuotes() throws -> [Quote]
+    func allQuotes() throws -> [QuoteRecord]
 }
 
 /// SwiftData implementation of the QuoteRepository
-final class SwiftDataQuoteRepository: QuoteRepository {
+final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     private let modelContext: ModelContext
     private let transliterator = RunicTransliterator.self
     private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Repository")
@@ -82,14 +114,14 @@ final class SwiftDataQuoteRepository: QuoteRepository {
 
     // MARK: - Quote Retrieval
 
-    func quoteOfTheDay(for script: RunicScript) throws -> Quote {
+    func quoteOfTheDay(for script: RunicScript) throws -> QuoteRecord {
         // Use a deterministic algorithm based on the current date
         // This ensures all users see the same quote on the same day
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let daysSinceEpoch = calendar.dateComponents([.day], from: Date(timeIntervalSince1970: 0), to: today).day ?? 0
 
-        let allQuotes = try allQuotes()
+        let allQuotes = try fetchAllQuotes()
 
         guard !allQuotes.isEmpty else {
             throw QuoteRepositoryError.noQuotesAvailable
@@ -102,11 +134,11 @@ final class SwiftDataQuoteRepository: QuoteRepository {
         // Ensure the quote has the runic transliteration for the requested script
         try ensureTransliteration(for: quote, script: script)
 
-        return quote
+        return QuoteRecord(from: quote)
     }
 
-    func randomQuote(for script: RunicScript) throws -> Quote {
-        let allQuotes = try allQuotes()
+    func randomQuote(for script: RunicScript) throws -> QuoteRecord {
+        let allQuotes = try fetchAllQuotes()
 
         guard !allQuotes.isEmpty else {
             throw QuoteRepositoryError.noQuotesAvailable
@@ -118,10 +150,14 @@ final class SwiftDataQuoteRepository: QuoteRepository {
         // Ensure the quote has the runic transliteration for the requested script
         try ensureTransliteration(for: quote, script: script)
 
-        return quote
+        return QuoteRecord(from: quote)
     }
 
-    func allQuotes() throws -> [Quote] {
+    func allQuotes() throws -> [QuoteRecord] {
+        try fetchAllQuotes().map(QuoteRecord.init(from:))
+    }
+
+    private func fetchAllQuotes() throws -> [Quote] {
         let descriptor = FetchDescriptor<Quote>(
             sortBy: [SortDescriptor(\.createdAt)]
         )

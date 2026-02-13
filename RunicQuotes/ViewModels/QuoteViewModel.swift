@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftData
 
 /// UI state for the quote view
-struct QuoteUiState {
+struct QuoteUiState: Sendable {
     var runicText: String = ""
     var latinText: String = ""
     var author: String = ""
@@ -30,7 +30,7 @@ final class QuoteViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private var modelContext: ModelContext
-    private var repository: QuoteRepository
+    private var quoteProvider: QuoteProvider
     private var preferences: UserPreferences?
     private var isConfiguredWithEnvironmentContext = false
 
@@ -38,7 +38,8 @@ final class QuoteViewModel: ObservableObject {
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
-        self.repository = SwiftDataQuoteRepository(modelContext: modelContext)
+        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
+        quoteProvider = QuoteProvider(repository: repository)
     }
 
     // MARK: - Public API
@@ -56,7 +57,8 @@ final class QuoteViewModel: ObservableObject {
         guard !isConfiguredWithEnvironmentContext else { return }
 
         self.modelContext = modelContext
-        repository = SwiftDataQuoteRepository(modelContext: modelContext)
+        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
+        quoteProvider = QuoteProvider(repository: repository)
         isConfiguredWithEnvironmentContext = true
     }
 
@@ -107,7 +109,7 @@ final class QuoteViewModel: ObservableObject {
         state.errorMessage = nil
 
         do {
-            let quote = try repository.quoteOfTheDay(for: state.currentScript)
+            let quote = try await quoteProvider.quoteOfTheDay(for: state.currentScript)
             updateState(with: quote)
             state.isLoading = false
         } catch {
@@ -121,7 +123,7 @@ final class QuoteViewModel: ObservableObject {
         state.errorMessage = nil
 
         do {
-            let quote = try repository.randomQuote(for: state.currentScript)
+            let quote = try await quoteProvider.randomQuote(for: state.currentScript)
             updateState(with: quote)
             state.isLoading = false
         } catch {
@@ -163,7 +165,7 @@ final class QuoteViewModel: ObservableObject {
         state.currentFont = font
     }
 
-    private func updateState(with quote: Quote) {
+    private func updateState(with quote: QuoteRecord) {
         state.latinText = quote.textLatin
         state.author = quote.author
 

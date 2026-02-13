@@ -8,7 +8,7 @@
 import Foundation
 
 /// Determines how the widget selects quotes to display
-enum WidgetMode: String, Codable, CaseIterable, Identifiable {
+enum WidgetMode: String, Codable, CaseIterable, Identifiable, Sendable {
     case daily = "Daily"
     case random = "Random"
 
