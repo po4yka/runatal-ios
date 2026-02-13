@@ -20,7 +20,8 @@ Custom runic fonts bundled with the app and widget.
 
 ### Cirth Angerthas
 - **Style:** Tolkien's Elvish runes
-- **Coverage:** Private Use Area (PUA) codepoints, requires `CirthMap.swift` mapping
+- **Internal font name:** `Angerthas Moria` (used in `.custom()` calls)
+- **Coverage:** Latin-substitution font; rune glyphs at ASCII positions (a-z, A-Z) plus Latin-1 supplement (thorn, eth, ntilde, ccedilla) for digraph sounds
 - **Source:** [dafont](https://www.dafont.com/angerthas-erebor.font)
 - **File:** `CirthAngerthas.ttf`
 

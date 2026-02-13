@@ -104,9 +104,9 @@ struct RunicTransliterator {
         return result
     }
 
-    // MARK: - Cirth (Private Use Area)
+    // MARK: - Cirth (Latin-substitution font)
 
-    /// Transliterate to Cirth/Angerthas runes (using PUA codepoints)
+    /// Transliterate to Cirth/Angerthas runes (ASCII mapped via Angerthas Moria font)
     private static func latinToCirth(_ text: String) -> String {
         var result = ""
         let normalized = text.lowercased()
