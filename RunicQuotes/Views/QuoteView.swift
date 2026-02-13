@@ -158,13 +158,13 @@ struct QuoteView: View {
         .overlay {
             ZStack {
                 Circle()
-                    .fill(themePalette.accent.opacity(0.12))
+                    .fill(Color.white.opacity(0.04))
                     .frame(width: 240, height: 240)
                     .blur(radius: 32)
                     .offset(x: 120, y: -220)
 
                 Circle()
-                    .fill(themePalette.divider.opacity(0.10))
+                    .fill(Color.white.opacity(0.03))
                     .frame(width: 280, height: 280)
                     .blur(radius: 44)
                     .offset(x: -140, y: 260)
@@ -215,11 +215,23 @@ struct QuoteView: View {
                     viewModel.refresh()
                 }
                 label: {
-                    Label("Try Again", systemImage: "arrow.clockwise")
-                        .frame(maxWidth: .infinity)
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.caption.weight(.semibold))
+                        Text("Try Again")
+                    }
+                    .font(.subheadline.weight(.medium))
+                    .foregroundColor(themePalette.primaryText.opacity(0.92))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        Capsule()
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.8)
+                    )
+                    .shadow(color: .black.opacity(0.22), radius: 8, x: 0, y: 4)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(themePalette.ctaAccent)
+                .buttonStyle(PlainButtonStyle())
                 .accessibilityLabel("Retry loading quote")
                 .accessibilityHint("Double tap to try loading the quote again")
                 .accessibilityIdentifier("quote_retry_button")
@@ -347,7 +359,7 @@ struct QuoteView: View {
                             .padding(.vertical, 10)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(.thinMaterial)
+                                    .fill(.ultraThinMaterial)
                             )
                         }
                         .buttonStyle(.plain)
@@ -365,23 +377,7 @@ struct QuoteView: View {
             opacity: .high,
             blur: .ultraThinMaterial
         ) {
-            ZStack(alignment: .bottom) {
-                // Inner dimming gradient for text legibility
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(
-                        LinearGradient(
-                            stops: [
-                                .init(color: .clear, location: 0),
-                                .init(color: .clear, location: 0.35),
-                                .init(color: .black.opacity(0.28), location: 1.0)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .allowsHitTesting(false)
-
-                VStack(spacing: 0) {
+            VStack(spacing: 0) {
                 // Hero zone: dominant runic text
                 Text(viewModel.state.runicText)
                     .runicTextStyle(
@@ -457,7 +453,6 @@ struct QuoteView: View {
                 .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                 .background(themePalette.footerBackground)
             }
-            }
             .frame(maxWidth: .infinity, minHeight: 360, alignment: .top)
             .overlay(alignment: .topTrailing) {
                 Text(decorativeGlyph)
@@ -528,7 +523,7 @@ struct QuoteView: View {
                 .padding(.vertical, 5)
                 .background(
                     Capsule()
-                        .fill(.thinMaterial)
+                        .fill(.ultraThinMaterial)
                 )
         }
 
@@ -578,11 +573,23 @@ struct QuoteView: View {
                 Haptics.trigger(.newQuote)
                 viewModel.onNextQuoteTapped()
             } label: {
-                Label("New Quote", systemImage: "sparkles")
-                    .frame(maxWidth: .infinity)
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkles")
+                        .font(.caption.weight(.semibold))
+                    Text("New Quote")
+                }
+                .font(.subheadline.weight(.medium))
+                .foregroundColor(themePalette.primaryText.opacity(0.92))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                        .opacity(0.8)
+                )
+                .shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 3)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(themePalette.ctaAccent)
+            .buttonStyle(PlainButtonStyle())
             .accessibilityLabel("New quote")
             .accessibilityHint("Double tap to load a new random quote")
             .accessibilityIdentifier("quote_next_button")
@@ -591,14 +598,22 @@ struct QuoteView: View {
                 Haptics.trigger(.saveOrShare)
                 viewModel.onToggleSaveTapped()
             } label: {
-                Label(
-                    viewModel.state.isCurrentQuoteSaved ? "Unsave" : "Save",
-                    systemImage: viewModel.state.isCurrentQuoteSaved ? "bookmark.slash" : "bookmark"
-                )
+                HStack(spacing: 6) {
+                    Image(systemName: viewModel.state.isCurrentQuoteSaved ? "bookmark.slash" : "bookmark")
+                        .font(.caption.weight(.semibold))
+                    Text(viewModel.state.isCurrentQuoteSaved ? "Unsave" : "Save")
+                }
+                .font(.subheadline.weight(.medium))
+                .foregroundColor(themePalette.primaryText.opacity(0.92))
                 .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                        .opacity(0.5)
+                )
             }
-            .buttonStyle(.bordered)
-            .tint(themePalette.secondaryText)
+            .buttonStyle(PlainButtonStyle())
             .accessibilityLabel(viewModel.state.isCurrentQuoteSaved ? "Unsave quote" : "Save quote")
             .accessibilityIdentifier("quote_bottom_save_button")
         }

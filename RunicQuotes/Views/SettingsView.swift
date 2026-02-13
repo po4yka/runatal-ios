@@ -124,8 +124,9 @@ struct SettingsView: View {
                     .lineSpacing(5)
                     .frame(maxWidth: .infinity, alignment: .center)
 
-                Divider()
-                    .overlay(themePalette.divider)
+                Rectangle()
+                    .fill(Color.white.opacity(0.08))
+                    .frame(height: 1)
 
                 Text(viewModel.livePreviewLatinText)
                     .font(.callout)
@@ -158,7 +159,7 @@ struct SettingsView: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(.thinMaterial)
+                .fill(.ultraThinMaterial)
                 .opacity(0.35)
         )
     }
@@ -213,11 +214,23 @@ struct SettingsView: View {
                         }
                     }
                     label: {
-                        Label("Reset to Defaults", systemImage: "arrow.counterclockwise")
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.counterclockwise")
+                                .font(.caption.weight(.semibold))
+                            Text("Reset to Defaults")
+                        }
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(themePalette.primaryText.opacity(viewModel.isAtDefaults ? 0.3 : 0.92))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(.ultraThinMaterial)
+                                .opacity(viewModel.isAtDefaults ? 0.15 : 0.35)
+                        )
                     }
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .buttonStyle(PlainButtonStyle())
                     .disabled(viewModel.isAtDefaults)
                     .accessibilityIdentifier("settings_reset_defaults_button")
 
@@ -228,11 +241,23 @@ struct SettingsView: View {
                         }
                     }
                     label: {
-                        Label("Restore Last Preset", systemImage: "wand.and.stars")
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(spacing: 6) {
+                            Image(systemName: "wand.and.stars")
+                                .font(.caption.weight(.semibold))
+                            Text("Restore Last Preset")
+                        }
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(themePalette.primaryText.opacity(viewModel.canRestoreLastPreset ? 0.92 : 0.3))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(.ultraThinMaterial)
+                                .opacity(viewModel.canRestoreLastPreset ? 0.35 : 0.15)
+                        )
                     }
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .buttonStyle(PlainButtonStyle())
                     .disabled(!viewModel.canRestoreLastPreset)
                     .accessibilityIdentifier("settings_restore_preset_button")
                 }
@@ -283,7 +308,7 @@ struct SettingsView: View {
             .padding()
             .background {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(.thinMaterial)
+                    .fill(.ultraThinMaterial)
                     .opacity(viewModel.selectedTheme == theme ? 0.5 : 0.2)
             }
             .shadow(
@@ -407,7 +432,7 @@ struct SettingsView: View {
             .frame(width: 250, alignment: .leading)
             .background {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(.thinMaterial)
+                    .fill(.ultraThinMaterial)
                     .opacity(isActive ? 0.5 : 0.2)
             }
             .shadow(
@@ -499,7 +524,7 @@ struct SettingsView: View {
             .padding()
             .background {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(.thinMaterial)
+                    .fill(.ultraThinMaterial)
                     .opacity(viewModel.widgetMode == mode ? 0.5 : 0.2)
             }
         }
@@ -539,7 +564,7 @@ struct SettingsView: View {
             .padding()
             .background {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(.thinMaterial)
+                    .fill(.ultraThinMaterial)
                     .opacity(viewModel.widgetStyle == style ? 0.5 : 0.2)
             }
         }
@@ -553,10 +578,7 @@ struct SettingsView: View {
     // MARK: - About Group
 
     private var aboutSection: some View {
-        GlassCard(
-            opacity: .veryLow,
-            blur: .ultraThinMaterial
-        ) {
+        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
             VStack(spacing: 12) {
                 sectionHeader("About", icon: "info.circle")
 

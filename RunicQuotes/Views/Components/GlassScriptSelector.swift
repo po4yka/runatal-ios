@@ -82,7 +82,7 @@ private struct ScriptButton: View {
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(.thinMaterial)
+                        .fill(.ultraThinMaterial)
                         .opacity(0.5)
                         .shadow(color: .black.opacity(0.22), radius: 4, x: 0, y: 2)
                 }
@@ -158,21 +158,21 @@ private struct FontButton: View {
 
                     Text(font.description)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(.white.opacity(0.55))
                 }
 
                 Spacer()
 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.white)
+                        .foregroundColor(.white.opacity(0.55))
                         .font(.title3)
                 }
             }
             .padding()
             .background {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(.thinMaterial)
+                    .fill(.ultraThinMaterial)
                     .opacity(isSelected ? 0.5 : 0.2)
             }
             .shadow(
