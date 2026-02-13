@@ -120,6 +120,7 @@ struct SettingsView: View {
                         maxSize: 40
                     )
                     .foregroundColor(themePalette.primaryText)
+                    .shadow(color: themePalette.accent.opacity(0.15), radius: 4, x: 0, y: 0)
                     .lineSpacing(5)
                     .frame(maxWidth: .infinity, alignment: .center)
 
@@ -285,6 +286,15 @@ struct SettingsView: View {
                     .fill(.thinMaterial)
                     .opacity(viewModel.selectedTheme == theme ? 0.5 : 0.2)
             }
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(
+                        viewModel.selectedTheme == theme
+                            ? palette.accent.opacity(0.5)
+                            : Color.clear,
+                        lineWidth: 1.2
+                    )
+            )
         }
         .buttonStyle(PlainButtonStyle())
         .accessibilityLabel("\(theme.displayName) theme")
@@ -587,6 +597,10 @@ struct SettingsView: View {
 
     private func sectionHeader(_ title: String, icon: String) -> some View {
         HStack(spacing: 8) {
+            RoundedRectangle(cornerRadius: 1.5)
+                .fill(themePalette.accent)
+                .frame(width: 3, height: 20)
+
             Image(systemName: icon)
                 .font(.headline)
                 .foregroundColor(themePalette.secondaryText)

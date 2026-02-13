@@ -53,6 +53,37 @@ struct GlassCard<Content: View>: View {
                         )
                         .opacity(reduceTransparency ? 1.0 : opacity.value)
 
+                    // Inner highlight -- simulates top-left light source
+                    if !reduceTransparency {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        .white.opacity(0.07),
+                                        .clear
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .center
+                                )
+                            )
+                            .allowsHitTesting(false)
+
+                        // Inner shadow -- bottom-right depth
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        .clear,
+                                        .black.opacity(0.08)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                            .allowsHitTesting(false)
+                    }
+
                     // Gradient border
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(
@@ -60,7 +91,8 @@ struct GlassCard<Content: View>: View {
                                 colors: [
                                     .white.opacity(0.3),
                                     .white.opacity(0.1),
-                                    .white.opacity(0.05)
+                                    .white.opacity(0.05),
+                                    AppTheme.obsidian.palette.accent.opacity(0.06)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing

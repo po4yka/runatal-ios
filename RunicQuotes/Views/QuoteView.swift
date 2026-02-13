@@ -26,7 +26,10 @@ struct QuoteView: View {
     @State private var shareItems: [Any] = []
     @State private var searchQuery = ""
     @State private var lastKnownScrollOffset: CGFloat = 0
+    @State private var quoteCardAppearScale: CGFloat = 1.0
+    @State private var quoteCardAppearOpacity: Double = 1.0
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - Initialization
 
@@ -44,6 +47,9 @@ struct QuoteView: View {
         ZStack {
             // Liquid glass background
             backgroundGradient
+
+            RunicAtmosphere(script: viewModel.state.currentScript)
+                .ignoresSafeArea()
 
             // Content
             if viewModel.state.isLoading {
@@ -127,6 +133,14 @@ struct QuoteView: View {
 
     private var themePalette: AppThemePalette {
         viewModel.state.currentTheme.palette
+    }
+
+    private var decorativeGlyph: String {
+        switch viewModel.state.currentScript {
+        case .elder: return "\u{16A0}"
+        case .younger: return "\u{16A2}"
+        case .cirth: return "\u{16CB}"
+        }
     }
 
     private var searchResults: [QuoteSearchResult] {
@@ -376,18 +390,22 @@ struct QuoteView: View {
                     .accessibilityValue(viewModel.state.runicText)
                     .accessibilityHint("The quote displayed in \(viewModel.state.currentScript.rawValue)")
 
-                Divider()
-                    .background(
+                Rectangle()
+                    .fill(
                         LinearGradient(
                             colors: [
                                 .clear,
+                                themePalette.accent.opacity(0.3),
                                 themePalette.divider,
+                                themePalette.accent.opacity(0.3),
                                 .clear
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
+                    .frame(height: 1.5)
+                    .padding(.horizontal, 8)
                     .accessibilityHidden(true)
 
                 // Secondary zone: translation
@@ -424,8 +442,30 @@ struct QuoteView: View {
                 .background(themePalette.footerBackground)
             }
             .frame(maxWidth: .infinity, minHeight: 360, alignment: .top)
+            .overlay(alignment: .topTrailing) {
+                Text(decorativeGlyph)
+                    .font(.system(size: 60))
+                    .foregroundColor(themePalette.primaryText)
+                    .opacity(0.06)
+                    .rotationEffect(.degrees(-12))
+                    .padding(.top, 12)
+                    .padding(.trailing, 16)
+                    .accessibilityHidden(true)
+                    .allowsHitTesting(false)
+            }
         }
         .padding(.horizontal)
+        .scaleEffect(quoteCardAppearScale)
+        .opacity(quoteCardAppearOpacity)
+        .onChange(of: viewModel.state.latinText) { _, _ in
+            guard !reduceMotion else { return }
+            quoteCardAppearScale = 0.97
+            quoteCardAppearOpacity = 0.6
+            withAnimation(AnimationPresets.cardAppear) {
+                quoteCardAppearScale = 1.0
+                quoteCardAppearOpacity = 1.0
+            }
+        }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("quote_card")
         .contextMenu {
@@ -482,6 +522,7 @@ struct QuoteView: View {
             } label: {
                 Image(systemName: viewModel.state.isCurrentQuoteSaved ? "bookmark.fill" : "bookmark")
                     .symbolRenderingMode(.monochrome)
+                    .symbolEffect(.bounce, value: viewModel.state.isCurrentQuoteSaved)
             }
             .accessibilityLabel(viewModel.state.isCurrentQuoteSaved ? "Unsave quote" : "Save quote")
             .accessibilityIdentifier("quote_save_button")

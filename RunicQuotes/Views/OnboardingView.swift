@@ -25,9 +25,14 @@ struct OnboardingView: View {
 
     @Environment(\.modelContext) private var modelContext
 
+    private enum NavigationDirection {
+        case forward, backward
+    }
+
     @State private var currentPage: Page = .elder
     @State private var selectedScript: RunicScript = .elder
     @State private var selectedStyle: WidgetStyle = .runeFirst
+    @State private var navigationDirection: NavigationDirection = .forward
 
     let onComplete: () -> Void
 
@@ -58,14 +63,26 @@ struct OnboardingView: View {
             )
             .ignoresSafeArea()
 
+            RunicAtmosphere(script: selectedScript)
+                .ignoresSafeArea()
+
             VStack(spacing: 20) {
                 header
                 progressDots
-                pageContent
+                ScrollView(.vertical, showsIndicators: false) {
+                    pageContent
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 2)
+                        .padding(.bottom, 8)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .frame(maxHeight: .infinity)
                 navigation
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.horizontal, 20)
-            .padding(.vertical, 24)
+            .padding(.top, 24)
+            .padding(.bottom, 16)
         }
     }
 
@@ -75,10 +92,14 @@ struct OnboardingView: View {
                 Text("Welcome to Runic Quotes")
                     .font(.title2.bold())
                     .foregroundColor(.white)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.9)
 
                 Text("Choose your script and default widget style.")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.78))
+                    .foregroundColor(.white.opacity(0.9))
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer()
@@ -86,16 +107,22 @@ struct OnboardingView: View {
             Button("Skip") {
                 savePreferencesAndFinish()
             }
-            .foregroundColor(.white.opacity(0.85))
+            .font(.headline.weight(.medium))
+            .foregroundColor(.white.opacity(0.96))
         }
     }
 
     private var progressDots: some View {
-        HStack(spacing: 8) {
+        let accent = AppTheme.obsidian.palette.accent
+        return HStack(spacing: 8) {
             ForEach(Page.allCases, id: \.rawValue) { page in
                 Capsule()
-                    .fill(page == currentPage ? Color.white : Color.white.opacity(0.28))
-                    .frame(width: page == currentPage ? 24 : 8, height: 8)
+                    .fill(page == currentPage ? accent : Color.white.opacity(0.46))
+                    .frame(width: page == currentPage ? 28 : 8, height: 8)
+                    .shadow(
+                        color: page == currentPage ? accent.opacity(0.5) : .clear,
+                        radius: 4
+                    )
                     .animation(.easeInOut(duration: 0.2), value: currentPage)
             }
         }
@@ -104,13 +131,20 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private var pageContent: some View {
-        if currentPage == .style {
-            styleSelectionCard
-        } else {
-            if let story = stories[safe: currentPage.rawValue] {
-                scriptStoryCard(story)
+        Group {
+            if currentPage == .style {
+                styleSelectionCard
+            } else {
+                if let story = stories[safe: currentPage.rawValue] {
+                    scriptStoryCard(story)
+                }
             }
         }
+        .id(currentPage)
+        .transition(.asymmetric(
+            insertion: .move(edge: navigationDirection == .forward ? .trailing : .leading).combined(with: .opacity),
+            removal: .move(edge: navigationDirection == .forward ? .leading : .trailing).combined(with: .opacity)
+        ))
     }
 
     private func scriptStoryCard(_ story: ScriptStory) -> some View {
@@ -126,7 +160,8 @@ struct OnboardingView: View {
 
                 Text(story.subtitle)
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.white.opacity(0.9))
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(runic)
                     .runicTextStyle(
@@ -136,33 +171,51 @@ struct OnboardingView: View {
                         minSize: 24,
                         maxSize: 42
                     )
-                    .foregroundColor(.white)
+                    .foregroundColor(.white.opacity(0.98))
                     .lineSpacing(6)
-                    .frame(maxWidth: .infinity, minHeight: 140, alignment: .center)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, minHeight: 120, alignment: .center)
+                    .shadow(color: .black.opacity(0.38), radius: 1.5, x: 0, y: 1)
 
                 Text("“\(story.sampleLatin)”")
                     .font(.body)
-                    .foregroundColor(.white.opacity(0.86))
+                    .foregroundColor(.white.opacity(0.92))
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(story.script.description)
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.66))
+                    .foregroundColor(.white.opacity(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Button {
+                    Haptics.trigger(.scriptSwitch)
                     selectedScript = story.script
                 } label: {
-                    HStack {
+                    let accent = AppTheme.obsidian.palette.accent
+                    HStack(alignment: .top, spacing: 10) {
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        Text(isSelected ? "Selected as Default Script" : "Use as Default Script")
+                            .foregroundColor(isSelected ? accent : .white.opacity(0.7))
+                            .symbolEffect(.bounce, value: isSelected)
+                            .padding(.top, 2)
+                        Text(isSelected ? "Selected as Default Script" : "Tap to Select")
                             .fontWeight(.semibold)
-                        Spacer()
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                        Spacer(minLength: 8)
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 14)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(isSelected ? Color.white.opacity(0.24) : Color.white.opacity(0.12))
+                            .fill(isSelected ? accent.opacity(0.15) : Color.white.opacity(0.1))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(
+                                isSelected ? accent.opacity(0.6) : Color.white.opacity(0.15),
+                                lineWidth: isSelected ? 1.2 : 0.8
+                            )
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -181,7 +234,8 @@ struct OnboardingView: View {
 
                 Text("You can change this any time in Settings.")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.78))
+                    .foregroundColor(.white.opacity(0.9))
+                    .fixedSize(horizontal: false, vertical: true)
 
                 VStack(spacing: 10) {
                     styleOption(.runeFirst)
@@ -221,18 +275,22 @@ struct OnboardingView: View {
                             minSize: 18,
                             maxSize: 24
                         )
-                        .foregroundColor(.white)
-                        .lineLimit(1)
+                        .foregroundColor(.white.opacity(0.98))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .shadow(color: .black.opacity(0.34), radius: 1, x: 0, y: 1)
 
                     Text(sampleLatin)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
-                        .lineLimit(1)
+                        .foregroundColor(.white.opacity(0.88))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                 } else {
                     Text(sampleLatin)
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.white)
-                        .lineLimit(1)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Text(sampleRunic)
                         .runicTextStyle(
@@ -242,14 +300,16 @@ struct OnboardingView: View {
                             minSize: 14,
                             maxSize: 18
                         )
-                        .foregroundColor(.white.opacity(0.82))
-                        .lineLimit(1)
+                        .foregroundColor(.white.opacity(0.9))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .shadow(color: .black.opacity(0.32), radius: 1, x: 0, y: 1)
                 }
             }
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.white.opacity(0.24) : Color.white.opacity(0.12))
+                    .fill(isSelected ? Color.white.opacity(0.3) : Color.white.opacity(0.18))
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -260,12 +320,15 @@ struct OnboardingView: View {
             if currentPage != .elder {
                 Button {
                     moveBackward()
-                }
-                label: {
+                } label: {
                     Label("Back", systemImage: "chevron.left")
                 }
                 .buttonStyle(.bordered)
+                .frame(minHeight: 44)
+                .transition(.move(edge: .leading).combined(with: .opacity))
             }
+
+            Spacer()
 
             Button {
                 Haptics.trigger(.newQuote)
@@ -274,28 +337,38 @@ struct OnboardingView: View {
                 } else {
                     moveForward()
                 }
-            }
-            label: {
+            } label: {
                 Label(
                     currentPage == .style ? "Start Reading" : "Next",
                     systemImage: currentPage == .style ? "checkmark.circle.fill" : "arrow.right.circle.fill"
                 )
+                .font(currentPage == .style ? .headline : .body)
             }
             .buttonStyle(.borderedProminent)
+            .frame(minHeight: 44)
+            .shadow(
+                color: currentPage == .style
+                    ? AppTheme.obsidian.palette.accent.opacity(0.4)
+                    : .clear,
+                radius: 8
+            )
         }
-        .frame(maxWidth: .infinity, alignment: .trailing)
+        .frame(maxWidth: .infinity)
+        .animation(AnimationPresets.smoothEase, value: currentPage)
     }
 
     private func moveForward() {
         guard let next = Page(rawValue: currentPage.rawValue + 1) else { return }
-        withAnimation(.easeInOut(duration: 0.2)) {
+        navigationDirection = .forward
+        withAnimation(AnimationPresets.smoothEase) {
             currentPage = next
         }
     }
 
     private func moveBackward() {
         guard let previous = Page(rawValue: currentPage.rawValue - 1) else { return }
-        withAnimation(.easeInOut(duration: 0.2)) {
+        navigationDirection = .backward
+        withAnimation(AnimationPresets.smoothEase) {
             currentPage = previous
         }
     }

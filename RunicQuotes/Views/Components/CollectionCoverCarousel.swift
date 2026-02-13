@@ -129,12 +129,14 @@ struct CollectionCoverCarousel: View {
                     .padding(.top, 9)
                     .padding(.leading, 10)
             }
+            .opacity(isSelected ? 1.0 : 0.75)
             .shadow(
                 color: .black.opacity(isSelected ? 0.28 : 0.16),
                 radius: isSelected ? 12 : 7,
                 x: 0,
                 y: 5
             )
+            .animation(AnimationPresets.gentleSpring, value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
         .accessibilityIdentifier("collection_cover_\(cover.collection.rawValue)")
