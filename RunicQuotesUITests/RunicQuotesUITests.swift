@@ -90,16 +90,16 @@ final class RunicQuotesUITests: XCTestCase {
         XCTAssertTrue(nextButton.exists, "Next button should still exist")
     }
 
-    func testShuffleButton() {
+    func testSaveButton() {
         // Given: App loaded
-        let shuffleButton = app.buttons["quote_shuffle_button"]
+        let saveButton = app.buttons["quote_save_button"]
 
-        if shuffleButton.waitForExistence(timeout: 5) {
-            // When: Tapping shuffle
-            shuffleButton.tap()
+        if saveButton.waitForExistence(timeout: 5) {
+            // When: Tapping save
+            saveButton.tap()
 
             // Then: Should trigger action
-            XCTAssertTrue(shuffleButton.exists, "Shuffle button should still exist")
+            XCTAssertTrue(saveButton.exists, "Save button should still exist")
         }
     }
 

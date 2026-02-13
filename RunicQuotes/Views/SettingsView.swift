@@ -31,28 +31,15 @@ struct SettingsView: View {
 
     var body: some View {
         ZStack {
-            // Background
             backgroundGradient
 
-            // Content
             ScrollView {
-                VStack(spacing: 30) {
-                    // Header
+                VStack(spacing: 24) {
                     header
-
-                    // Script selection
-                    scriptSection
-
-                    // Font selection
-                    fontSection
-
-                    // Theme selection
-                    themeSection
-
-                    // Widget settings
+                    livePreviewSection
+                    readingSection
+                    typographySection
                     widgetSection
-
-                    // About section
                     aboutSection
 
                     Spacer()
@@ -107,90 +94,144 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings_header")
     }
 
-    // MARK: - Script Section
+    // MARK: - Live Preview
 
-    private var scriptSection: some View {
-        GlassCard {
-            VStack(alignment: .leading, spacing: 16) {
-                sectionHeader("Runic Script", icon: "textformat")
+    private var livePreviewSection: some View {
+        GlassCard(opacity: .medium, blur: .regularMaterial) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Label("Live Preview", systemImage: "eye")
+                        .font(.headline)
+                        .foregroundColor(themePalette.primaryText)
 
-                Text(viewModel.selectedScript.description)
-                    .font(.caption)
-                    .foregroundColor(themePalette.tertiaryText)
-                    .padding(.bottom, 8)
+                    Spacer()
 
-                GlassScriptSelector(
-                    selectedScript: $viewModel.selectedScript
-                )
-                .onChange(of: viewModel.selectedScript) { _, newValue in
-                    viewModel.updateScript(newValue)
-                }
-                .accessibilityLabel("Select runic script")
-                .accessibilityValue(viewModel.selectedScript.rawValue)
-                .accessibilityHint("Choose between Elder Futhark, Younger Futhark, or Cirth")
-            }
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("settings_script_section")
-    }
-
-    // MARK: - Font Section
-
-    private var fontSection: some View {
-        GlassCard {
-            VStack(alignment: .leading, spacing: 16) {
-                sectionHeader("Font Style", icon: "textformat.size")
-
-                Text("Choose your preferred runic font")
-                    .font(.caption)
-                    .foregroundColor(themePalette.tertiaryText)
-                    .padding(.bottom, 8)
-
-                GlassFontSelector(
-                    selectedFont: $viewModel.selectedFont,
-                    availableFonts: viewModel.availableFonts
-                )
-                .onChange(of: viewModel.selectedFont) { _, newValue in
-                    viewModel.updateFont(newValue)
-                }
-                .accessibilityLabel("Select font style")
-                .accessibilityValue(viewModel.selectedFont.rawValue)
-                .accessibilityHint("Choose the font used to display runic text")
-
-                if let error = viewModel.errorMessage {
-                    Text(error)
+                    Text(viewModel.selectedTheme.displayName)
                         .font(.caption)
-                        .foregroundColor(.red.opacity(0.8))
-                        .padding(.top, 8)
-                        .accessibilityLabel("Error: \(error)")
+                        .foregroundColor(themePalette.tertiaryText)
+                }
+
+                Text(viewModel.livePreviewRunicText)
+                    .runicTextStyle(
+                        script: viewModel.selectedScript,
+                        font: viewModel.selectedFont,
+                        style: .title2,
+                        minSize: 22,
+                        maxSize: 40
+                    )
+                    .foregroundColor(themePalette.primaryText)
+                    .lineSpacing(5)
+                    .frame(maxWidth: .infinity, alignment: .center)
+
+                Divider()
+                    .overlay(themePalette.divider)
+
+                Text(viewModel.livePreviewLatinText)
+                    .font(.callout)
+                    .foregroundColor(themePalette.secondaryText)
+                    .frame(maxWidth: .infinity, alignment: .center)
+
+                HStack(spacing: 10) {
+                    previewPill(label: "Script", value: viewModel.selectedScript.displayName)
+                    previewPill(label: "Font", value: viewModel.selectedFont.displayName)
                 }
             }
+            .padding(2)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("settings_font_section")
+        .accessibilityIdentifier("settings_live_preview")
     }
 
-    // MARK: - Theme Section
+    private func previewPill(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(themePalette.tertiaryText)
 
-    private var themeSection: some View {
+            Text(value)
+                .font(.caption.weight(.semibold))
+                .foregroundColor(themePalette.primaryText)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.thinMaterial)
+                .opacity(0.35)
+        )
+    }
+
+    // MARK: - Reading Group
+
+    private var readingSection: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 16) {
-                sectionHeader("Theme", icon: "paintpalette")
+                sectionHeader("Reading", icon: "book.closed")
 
-                Text(viewModel.selectedTheme.description)
+                Text("Choose your script and visual atmosphere.")
                     .font(.caption)
                     .foregroundColor(themePalette.tertiaryText)
-                    .padding(.bottom, 8)
 
-                VStack(spacing: 12) {
-                    ForEach(AppTheme.allCases) { theme in
-                        themeButton(theme)
+                VStack(alignment: .leading, spacing: 10) {
+                    subsectionTitle("Runic Script")
+
+                    GlassScriptSelector(
+                        selectedScript: $viewModel.selectedScript
+                    )
+                    .onChange(of: viewModel.selectedScript) { _, newValue in
+                        viewModel.updateScript(newValue)
+                    }
+                    .accessibilityLabel("Select runic script")
+                    .accessibilityValue(viewModel.selectedScript.rawValue)
+                    .accessibilityHint("Choose between Elder Futhark, Younger Futhark, or Cirth")
+                }
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("settings_script_section")
+
+                VStack(alignment: .leading, spacing: 10) {
+                    subsectionTitle("Theme")
+
+                    VStack(spacing: 10) {
+                        ForEach(AppTheme.allCases) { theme in
+                            themeButton(theme)
+                        }
                     }
                 }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    subsectionTitle("Quick Actions")
+
+                    GlassButton.secondary(
+                        "Reset to Defaults",
+                        icon: "arrow.counterclockwise",
+                        hapticTier: .saveOrShare
+                    ) {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.resetToDefaults()
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .disabled(viewModel.isAtDefaults)
+                    .accessibilityIdentifier("settings_reset_defaults_button")
+
+                    GlassButton.secondary(
+                        "Restore Last Preset",
+                        icon: "wand.and.stars",
+                        hapticTier: .saveOrShare
+                    ) {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.restoreLastUsedPreset()
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .disabled(!viewModel.canRestoreLastPreset)
+                    .accessibilityIdentifier("settings_restore_preset_button")
+                }
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("settings_theme_section")
+        .accessibilityIdentifier("settings_reading_section")
     }
 
     private func themeButton(_ theme: AppTheme) -> some View {
@@ -245,17 +286,135 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings_theme_\(theme.rawValue.replacingOccurrences(of: " ", with: "_"))")
     }
 
-    // MARK: - Widget Section
+    // MARK: - Typography Group
+
+    private var typographySection: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 16) {
+                sectionHeader("Typography", icon: "textformat.size")
+
+                Text("Adjust font details and use curated script/font combinations.")
+                    .font(.caption)
+                    .foregroundColor(themePalette.tertiaryText)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    subsectionTitle("Font")
+
+                    GlassFontSelector(
+                        selectedFont: $viewModel.selectedFont,
+                        availableFonts: viewModel.availableFonts
+                    )
+                    .onChange(of: viewModel.selectedFont) { _, newValue in
+                        viewModel.updateFont(newValue)
+                    }
+                    .accessibilityLabel("Select font style")
+                    .accessibilityValue(viewModel.selectedFont.rawValue)
+                    .accessibilityHint("Choose the font used to display runic text")
+                }
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("settings_font_section")
+
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red.opacity(0.8))
+                        .accessibilityLabel("Error: \(error)")
+                }
+
+                VStack(alignment: .leading, spacing: 10) {
+                    subsectionTitle("Recommended Combinations")
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(viewModel.recommendedPresets) { preset in
+                                presetCard(preset)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings_typography_section")
+    }
+
+    private func presetCard(_ preset: ReadingPreset) -> some View {
+        let isActive = viewModel.selectedScript == preset.script && viewModel.selectedFont == preset.font
+
+        return Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                viewModel.applyPreset(preset)
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top) {
+                    Text(preset.displayName)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(themePalette.primaryText)
+
+                    Spacer(minLength: 8)
+
+                    if isActive {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(themePalette.accent)
+                            .font(.caption)
+                    }
+                }
+
+                Text("\(preset.script.displayName) + \(preset.font.displayName)")
+                    .font(.caption2)
+                    .foregroundColor(themePalette.tertiaryText)
+                    .lineLimit(1)
+
+                Text(viewModel.presetPreviewRunicText(for: preset))
+                    .runicTextStyle(
+                        script: preset.script,
+                        font: preset.font,
+                        style: .body,
+                        minSize: 16,
+                        maxSize: 24
+                    )
+                    .foregroundColor(themePalette.primaryText)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Text(preset.previewLatinText)
+                    .font(.caption)
+                    .foregroundColor(themePalette.secondaryText)
+                    .lineLimit(2)
+
+                Text(preset.description)
+                    .font(.caption2)
+                    .foregroundColor(themePalette.tertiaryText)
+                    .lineLimit(2)
+            }
+            .padding(12)
+            .frame(width: 250, alignment: .leading)
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.thinMaterial)
+                    .opacity(isActive ? 0.5 : 0.2)
+            }
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(themePalette.divider, lineWidth: isActive ? 1.2 : 0.7)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .accessibilityIdentifier("settings_preset_\(preset.rawValue.replacingOccurrences(of: " ", with: "_"))")
+    }
+
+    // MARK: - Widget Group
 
     private var widgetSection: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 16) {
-                sectionHeader("Widget Settings", icon: "rectangle.on.rectangle")
+                sectionHeader("Widget", icon: "rectangle.on.rectangle")
 
                 Text("How should the widget display quotes?")
                     .font(.caption)
                     .foregroundColor(themePalette.tertiaryText)
-                    .padding(.bottom, 8)
 
                 VStack(spacing: 12) {
                     ForEach(WidgetMode.allCases) { mode in
@@ -309,7 +468,7 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings_widget_mode_\(mode.rawValue)")
     }
 
-    // MARK: - About Section
+    // MARK: - About Group
 
     private var aboutSection: some View {
         GlassCard(
@@ -351,7 +510,7 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Section Header
+    // MARK: - Shared UI
 
     private func sectionHeader(_ title: String, icon: String) -> some View {
         HStack(spacing: 8) {
@@ -365,6 +524,12 @@ struct SettingsView: View {
 
             Spacer()
         }
+    }
+
+    private func subsectionTitle(_ title: String) -> some View {
+        Text(title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundColor(themePalette.secondaryText)
     }
 }
 
@@ -382,7 +547,9 @@ struct SettingsView: View {
     let prefs = UserPreferences(
         selectedScript: .cirth,
         selectedFont: .cirth,
-        widgetMode: .random
+        widgetMode: .random,
+        selectedTheme: .nordicDawn,
+        lastUsedPreset: .cirthLore
     )
     container.mainContext.insert(prefs)
 

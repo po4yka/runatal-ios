@@ -18,6 +18,7 @@ final class SettingsViewModel: ObservableObject {
     @Published var selectedFont: RunicFont = .noto
     @Published var widgetMode: WidgetMode = .daily
     @Published var selectedTheme: AppTheme = .obsidian
+    @Published private(set) var lastUsedPreset: ReadingPreset?
 
     @Published private(set) var errorMessage: String?
     @Published private(set) var isLoading: Bool = false
@@ -42,6 +43,34 @@ final class SettingsViewModel: ObservableObject {
         RunicFontConfiguration.fontName(for: selectedScript, font: selectedFont)
     }
 
+    /// Curated presets for quick setup.
+    var recommendedPresets: [ReadingPreset] {
+        ReadingPreset.allCases
+    }
+
+    /// Static text used for the live preview panel.
+    var livePreviewLatinText: String {
+        "The old paths still whisper."
+    }
+
+    /// Runic transliteration for the live preview panel.
+    var livePreviewRunicText: String {
+        RunicTransliterator.transliterate(livePreviewLatinText, to: selectedScript)
+    }
+
+    /// Whether reset action should be active.
+    var isAtDefaults: Bool {
+        selectedScript == .elder &&
+        selectedFont == .noto &&
+        widgetMode == .daily &&
+        selectedTheme == .obsidian
+    }
+
+    /// Whether last preset restore action can run.
+    var canRestoreLastPreset: Bool {
+        lastUsedPreset != nil
+    }
+
     // MARK: - Initialization
 
     init(modelContext: ModelContext) {
@@ -52,6 +81,7 @@ final class SettingsViewModel: ObservableObject {
 
     /// Load preferences when view appears
     func onAppear() {
+        isLoading = true
         Task {
             await loadPreferences()
         }
@@ -99,6 +129,36 @@ final class SettingsViewModel: ObservableObject {
         savePreferences()
     }
 
+    /// Apply a curated script/font preset.
+    func applyPreset(_ preset: ReadingPreset) {
+        selectedScript = preset.script
+        selectedFont = preset.font
+        lastUsedPreset = preset
+        errorMessage = nil
+        savePreferences()
+    }
+
+    /// Restore the most recently used preset.
+    func restoreLastUsedPreset() {
+        guard let lastUsedPreset else { return }
+        applyPreset(lastUsedPreset)
+    }
+
+    /// Reset settings to default values.
+    func resetToDefaults() {
+        selectedScript = .elder
+        selectedFont = .noto
+        selectedTheme = .obsidian
+        widgetMode = .daily
+        errorMessage = nil
+        savePreferences()
+    }
+
+    /// Preview text for a specific preset card.
+    func presetPreviewRunicText(for preset: ReadingPreset) -> String {
+        RunicTransliterator.transliterate(preset.previewLatinText, to: preset.script)
+    }
+
     // MARK: - Private Methods
 
     private func loadPreferences() async {
@@ -113,6 +173,7 @@ final class SettingsViewModel: ObservableObject {
             selectedFont = preferences?.selectedFont ?? .noto
             widgetMode = preferences?.widgetMode ?? .daily
             selectedTheme = preferences?.selectedTheme ?? .obsidian
+            lastUsedPreset = preferences?.lastUsedPreset
 
             isLoading = false
         } catch {
@@ -128,6 +189,7 @@ final class SettingsViewModel: ObservableObject {
         preferences.selectedFont = selectedFont
         preferences.widgetMode = widgetMode
         preferences.selectedTheme = selectedTheme
+        preferences.lastUsedPreset = lastUsedPreset
 
         do {
             try modelContext.save()

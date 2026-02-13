@@ -26,6 +26,9 @@ final class UserPreferences {
     /// Selected visual theme
     var selectedThemeRaw: String
 
+    /// Last user-selected recommended preset
+    var lastUsedPresetRaw: String?
+
     /// Comma-separated list of saved quote UUID strings
     var savedQuoteIDsRaw: String?
 
@@ -76,6 +79,20 @@ final class UserPreferences {
         }
     }
 
+    /// Last user-selected recommended preset.
+    var lastUsedPreset: ReadingPreset? {
+        get {
+            guard let lastUsedPresetRaw, !lastUsedPresetRaw.isEmpty else {
+                return nil
+            }
+            return ReadingPreset(rawValue: lastUsedPresetRaw)
+        }
+        set {
+            lastUsedPresetRaw = newValue?.rawValue
+            lastUpdated = Date()
+        }
+    }
+
     /// Saved quote identifiers
     var savedQuoteIDs: Set<UUID> {
         get {
@@ -104,6 +121,7 @@ final class UserPreferences {
         selectedFont: RunicFont = .noto,
         widgetMode: WidgetMode = .daily,
         selectedTheme: AppTheme = .obsidian,
+        lastUsedPreset: ReadingPreset? = nil,
         savedQuoteIDs: Set<UUID> = []
     ) {
         self.id = UUID()
@@ -111,6 +129,7 @@ final class UserPreferences {
         self.selectedFontRaw = selectedFont.rawValue
         self.widgetModeRaw = widgetMode.rawValue
         self.selectedThemeRaw = selectedTheme.rawValue
+        self.lastUsedPresetRaw = lastUsedPreset?.rawValue
         self.savedQuoteIDsRaw = savedQuoteIDs
             .map(\.uuidString)
             .sorted()
