@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 /// Settings and preferences view
 struct SettingsView: View {
     // MARK: - Properties
 
     @StateObject private var viewModel: SettingsViewModel
+    @State private var didInitialize = false
     @Environment(\.modelContext) private var modelContext
 
     // MARK: - Initialization
@@ -57,9 +59,9 @@ struct SettingsView: View {
             }
         }
         .task {
-            // Reinitialize viewModel with correct context
-            let vm = SettingsViewModel(modelContext: modelContext)
-            _viewModel.wrappedValue = vm
+            guard !didInitialize else { return }
+            didInitialize = true
+            viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
         }
     }
@@ -234,7 +236,10 @@ struct SettingsView: View {
     // MARK: - About Section
 
     private var aboutSection: some View {
-        GlassCard.light {
+        GlassCard(
+            opacity: .veryLow,
+            blur: .ultraThinMaterial
+        ) {
             VStack(spacing: 12) {
                 sectionHeader("About", icon: "info.circle")
 

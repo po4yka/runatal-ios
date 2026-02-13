@@ -14,7 +14,6 @@ import os
 actor DatabaseCoordinator {
     private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "DatabaseCoordinator")
 
-    private var isSeedingInProgress = false
     private var seedingTask: Task<Void, Error>?
 
     /// Seed the database if needed, ensuring only one seeding operation runs at a time
@@ -27,26 +26,11 @@ actor DatabaseCoordinator {
             return
         }
 
-        // Check if already seeding
-        guard !isSeedingInProgress else {
-            Self.logger.debug("Seeding check bypassed - already in progress")
-            return
-        }
-
-        // Mark as in progress
-        isSeedingInProgress = true
-
-        // Create seeding task
-        seedingTask = Task {
-            defer {
-                isSeedingInProgress = false
-                seedingTask = nil
-            }
-
+        let task = Task {
             do {
                 let context = ModelContext(container)
                 let repository = SwiftDataQuoteRepository(modelContext: context)
-                try await repository.seedIfNeeded()
+                try repository.seedIfNeeded()
                 Self.logger.info("Database seeding completed successfully")
             } catch {
                 Self.logger.error("Database seeding failed: \(error.localizedDescription)")
@@ -54,8 +38,11 @@ actor DatabaseCoordinator {
             }
         }
 
+        seedingTask = task
+        defer { seedingTask = nil }
+
         // Wait for completion
-        try await seedingTask?.value
+        try await task.value
     }
 }
 

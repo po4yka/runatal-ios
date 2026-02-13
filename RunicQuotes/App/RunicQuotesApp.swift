@@ -23,12 +23,13 @@ struct RunicQuotesApp: App {
 
     init() {
         do {
-            modelContainer = try ModelContainerHelper.createMainContainer()
+            let container = try ModelContainerHelper.createMainContainer()
+            modelContainer = container
 
             // Seed database on first launch
-            Task {
+            Task { [container] in
                 do {
-                    try await DatabaseActor.shared.seedIfNeeded(using: modelContainer)
+                    try await DatabaseActor.shared.seedIfNeeded(using: container)
                 } catch {
                     Self.logger.error("Failed to seed database: \(error.localizedDescription)")
                 }

@@ -18,21 +18,21 @@ actor QuoteProvider {
 
     /// Get the quote of the day for a specific script
     func quoteOfTheDay(for script: RunicScript) async throws -> Quote {
-        try await repository.quoteOfTheDay(for: script)
+        try repository.quoteOfTheDay(for: script)
     }
 
     /// Get a random quote for a specific script
     func randomQuote(for script: RunicScript) async throws -> Quote {
-        try await repository.randomQuote(for: script)
+        try repository.randomQuote(for: script)
     }
 
     /// Seed the database if needed
     func seedIfNeeded() async throws {
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
     }
 
     /// Get all quotes
     func allQuotes() async throws -> [Quote] {
-        try await repository.allQuotes()
+        try repository.allQuotes()
     }
 }

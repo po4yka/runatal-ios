@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 /// Main view for displaying runic quotes
 struct QuoteView: View {
     // MARK: - Properties
 
     @StateObject private var viewModel: QuoteViewModel
+    @State private var didInitialize = false
     @Environment(\.modelContext) private var modelContext
 
     // MARK: - Initialization
@@ -41,9 +43,9 @@ struct QuoteView: View {
             }
         }
         .task {
-            // Reinitialize viewModel with correct context
-            let vm = QuoteViewModel(modelContext: modelContext)
-            _viewModel.wrappedValue = vm
+            guard !didInitialize else { return }
+            didInitialize = true
+            viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
         }
     }
@@ -152,7 +154,10 @@ struct QuoteView: View {
     // MARK: - Quote Card
 
     private var quoteCard: some View {
-        GlassCard.heavy {
+        GlassCard(
+            opacity: .medium,
+            blur: .regularMaterial
+        ) {
             VStack(spacing: 24) {
                 // Runic text
                 Text(viewModel.state.runicText)
@@ -193,6 +198,7 @@ struct QuoteView: View {
                     .lineSpacing(4)
                     .accessibilityLabel("Quote")
                     .accessibilityValue(viewModel.state.latinText)
+                    .accessibilityIdentifier("quoteText")
 
                 // Author
                 Text("— \(viewModel.state.author)")
@@ -201,6 +207,7 @@ struct QuoteView: View {
                     .italic()
                     .accessibilityLabel("Author")
                     .accessibilityValue(viewModel.state.author)
+                    .accessibilityIdentifier("authorText")
             }
         }
         .padding(.horizontal)

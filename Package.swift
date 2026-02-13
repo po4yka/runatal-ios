@@ -22,17 +22,23 @@ let package = Package(
             dependencies: [],
             path: "RunicQuotes",
             exclude: [
-                "Resources/SeedData",
+                "App",
                 "Resources/Fonts",
                 "Resources/Assets.xcassets",
                 "Resources/LaunchScreen.storyboard",
                 "Resources/Localizations"
+            ],
+            resources: [
+                .process("Resources/SeedData/quotes.json")
             ]
         ),
         .testTarget(
             name: "RunicQuotesTests",
             dependencies: ["RunicQuotes"],
-            path: "RunicQuotesTests"
+            path: "RunicQuotesTests",
+            exclude: [
+                "Info.plist"
+            ]
         )
     ]
 )

@@ -29,9 +29,10 @@ final class QuoteViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let modelContext: ModelContext
-    private let repository: QuoteRepository
+    private var modelContext: ModelContext
+    private var repository: QuoteRepository
     private var preferences: UserPreferences?
+    private var isConfiguredWithEnvironmentContext = false
 
     // MARK: - Initialization
 
@@ -48,6 +49,15 @@ final class QuoteViewModel: ObservableObject {
             await loadPreferences()
             await loadQuoteOfTheDay()
         }
+    }
+
+    /// Rebind dependencies to the environment-provided context once the view is mounted.
+    func configureIfNeeded(modelContext: ModelContext) {
+        guard !isConfiguredWithEnvironmentContext else { return }
+
+        self.modelContext = modelContext
+        repository = SwiftDataQuoteRepository(modelContext: modelContext)
+        isConfiguredWithEnvironmentContext = true
     }
 
     /// Load the next random quote
@@ -97,7 +107,7 @@ final class QuoteViewModel: ObservableObject {
         state.errorMessage = nil
 
         do {
-            let quote = try await repository.quoteOfTheDay(for: state.currentScript)
+            let quote = try repository.quoteOfTheDay(for: state.currentScript)
             updateState(with: quote)
             state.isLoading = false
         } catch {
@@ -111,7 +121,7 @@ final class QuoteViewModel: ObservableObject {
         state.errorMessage = nil
 
         do {
-            let quote = try await repository.randomQuote(for: state.currentScript)
+            let quote = try repository.randomQuote(for: state.currentScript)
             updateState(with: quote)
             state.isLoading = false
         } catch {

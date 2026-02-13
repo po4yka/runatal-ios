@@ -42,21 +42,23 @@ final class RunicQuotesUITests: XCTestCase {
     // MARK: - Quote View Tests
 
     func testQuoteViewDisplaysQuote() {
-        // Wait for quote to load
-        let quoteText = app.staticTexts.matching(identifier: "quoteText").firstMatch
-        let authorText = app.staticTexts.matching(identifier: "authorText").firstMatch
+        let quoteCard = app.otherElements["quote_card"]
+        let quoteText = app.staticTexts["quoteText"]
+        let authorText = app.staticTexts["authorText"]
 
-        // Then: Quote elements should eventually appear
+        XCTAssertTrue(quoteCard.waitForExistence(timeout: 5), "Quote card should appear")
         XCTAssertTrue(quoteText.waitForExistence(timeout: 5), "Quote text should appear")
         XCTAssertTrue(authorText.waitForExistence(timeout: 5), "Author should appear")
     }
 
     func testScriptSelectorExists() {
         // Then: Script selector should exist
+        let selector = app.otherElements["quote_script_selector"]
         let elderButton = app.buttons["Elder Futhark"]
         let youngerButton = app.buttons["Younger Futhark"]
         let cirthButton = app.buttons["Cirth (Angerthas)"]
 
+        XCTAssertTrue(selector.waitForExistence(timeout: 5), "Script selector should exist")
         XCTAssertTrue(elderButton.waitForExistence(timeout: 5), "Elder Futhark button should exist")
         XCTAssertTrue(youngerButton.exists, "Younger Futhark button should exist")
         XCTAssertTrue(cirthButton.exists, "Cirth button should exist")
@@ -70,39 +72,33 @@ final class RunicQuotesUITests: XCTestCase {
         // When: Tapping Younger Futhark
         youngerButton.tap()
 
-        // Then: Script should change (wait for update)
-        sleep(1)
-
-        // Verify the button is now selected (implementation may vary)
+        // Then: quote remains visible after script change
+        let quoteCard = app.otherElements["quote_card"]
+        XCTAssertTrue(quoteCard.waitForExistence(timeout: 5), "Quote card should remain visible")
         XCTAssertTrue(youngerButton.exists, "Younger Futhark button should still exist")
     }
 
     func testNextQuoteButton() {
         // Given: App loaded with quote
-        let nextButton = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Next'")).firstMatch
+        let nextButton = app.buttons["quote_next_button"]
         XCTAssertTrue(nextButton.waitForExistence(timeout: 5), "Next button should exist")
-
-        // Get initial quote text
-        sleep(1) // Wait for initial load
 
         // When: Tapping next button
         nextButton.tap()
 
-        // Then: Should trigger loading (implementation dependent)
-        sleep(1)
+        // Then: Should still be interactive
         XCTAssertTrue(nextButton.exists, "Next button should still exist")
     }
 
     func testShuffleButton() {
         // Given: App loaded
-        let shuffleButton = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Shuffle'")).firstMatch
+        let shuffleButton = app.buttons["quote_shuffle_button"]
 
         if shuffleButton.waitForExistence(timeout: 5) {
             // When: Tapping shuffle
             shuffleButton.tap()
 
             // Then: Should trigger action
-            sleep(1)
             XCTAssertTrue(shuffleButton.exists, "Shuffle button should still exist")
         }
     }
@@ -117,8 +113,8 @@ final class RunicQuotesUITests: XCTestCase {
         settingsTab.tap()
 
         // Then: Settings view should appear
-        let settingsTitle = app.staticTexts["Settings"]
-        XCTAssertTrue(settingsTitle.waitForExistence(timeout: 5), "Settings title should appear")
+        let header = app.otherElements["settings_header"]
+        XCTAssertTrue(header.waitForExistence(timeout: 5), "Settings header should appear")
     }
 
     func testSettingsViewHasScriptSelection() {
@@ -126,8 +122,7 @@ final class RunicQuotesUITests: XCTestCase {
         app.tabBars.buttons["Settings"].tap()
 
         // Then: Script selection should exist
-        sleep(1)
-        let scriptSection = app.staticTexts["Runic Script"]
+        let scriptSection = app.otherElements["settings_script_section"]
         XCTAssertTrue(scriptSection.waitForExistence(timeout: 5), "Script section should exist")
     }
 
@@ -136,8 +131,7 @@ final class RunicQuotesUITests: XCTestCase {
         app.tabBars.buttons["Settings"].tap()
 
         // Then: Font selection should exist
-        sleep(1)
-        let fontSection = app.staticTexts["Font Style"]
+        let fontSection = app.otherElements["settings_font_section"]
         XCTAssertTrue(fontSection.waitForExistence(timeout: 5), "Font section should exist")
     }
 
@@ -146,8 +140,7 @@ final class RunicQuotesUITests: XCTestCase {
         app.tabBars.buttons["Settings"].tap()
 
         // Then: Widget settings should exist
-        sleep(1)
-        let widgetSection = app.staticTexts["Widget Settings"]
+        let widgetSection = app.otherElements["settings_widget_section"]
         XCTAssertTrue(widgetSection.waitForExistence(timeout: 5), "Widget section should exist")
     }
 
@@ -156,8 +149,7 @@ final class RunicQuotesUITests: XCTestCase {
         app.tabBars.buttons["Settings"].tap()
 
         // Then: About section should exist
-        sleep(1)
-        let aboutSection = app.staticTexts["About"]
+        let aboutSection = app.otherElements["settings_about_section"]
         XCTAssertTrue(aboutSection.waitForExistence(timeout: 5), "About section should exist")
     }
 
@@ -170,18 +162,16 @@ final class RunicQuotesUITests: XCTestCase {
 
         // When: Switching to Settings
         settingsTab.tap()
-        sleep(1)
 
         // Then: Should be on Settings
-        let settingsTitle = app.staticTexts["Settings"]
-        XCTAssertTrue(settingsTitle.waitForExistence(timeout: 5), "Should show Settings")
+        let settingsHeader = app.otherElements["settings_header"]
+        XCTAssertTrue(settingsHeader.waitForExistence(timeout: 5), "Should show Settings")
 
         // When: Switching back to Quote
         quoteTab.tap()
-        sleep(1)
 
         // Then: Should be back on Quote view
-        let quoteText = app.staticTexts.matching(identifier: "quoteText").firstMatch
+        let quoteText = app.staticTexts["quoteText"]
         XCTAssertTrue(quoteText.waitForExistence(timeout: 5), "Should show quote again")
     }
 

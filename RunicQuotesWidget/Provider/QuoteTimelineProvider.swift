@@ -102,7 +102,7 @@ struct QuoteTimelineProvider: TimelineProvider {
     /// Load user preferences from shared container
     private func loadPreferences() async throws -> UserPreferencesData {
         // Access SwiftData through shared container
-        let container = try await createSharedModelContainer()
+        let container = try createSharedModelContainer()
         let context = ModelContext(container)
 
         let preferences = try UserPreferences.getOrCreate(in: context)
@@ -116,16 +116,17 @@ struct QuoteTimelineProvider: TimelineProvider {
 
     /// Get quote of the day
     private func getQuoteOfTheDay(for script: RunicScript, date: Date = Date()) async throws -> QuoteData {
-        let container = try await createSharedModelContainer()
+        let container = try createSharedModelContainer()
         let context = ModelContext(container)
         let repository = SwiftDataQuoteRepository(modelContext: context)
+        try repository.seedIfNeeded()
 
         // Use the same deterministic algorithm as the app
         let calendar = Calendar.current
         let targetDay = calendar.startOfDay(for: date)
         let daysSinceEpoch = calendar.dateComponents([.day], from: Date(timeIntervalSince1970: 0), to: targetDay).day ?? 0
 
-        let allQuotes = try await repository.allQuotes()
+        let allQuotes = try repository.allQuotes()
         guard !allQuotes.isEmpty else {
             throw WidgetError.noQuotesAvailable
         }
@@ -138,16 +139,17 @@ struct QuoteTimelineProvider: TimelineProvider {
 
     /// Get random quote
     private func getRandomQuote(for script: RunicScript) async throws -> QuoteData {
-        let container = try await createSharedModelContainer()
+        let container = try createSharedModelContainer()
         let context = ModelContext(container)
         let repository = SwiftDataQuoteRepository(modelContext: context)
+        try repository.seedIfNeeded()
 
-        let quote = try await repository.randomQuote(for: script)
+        let quote = try repository.randomQuote(for: script)
         return QuoteData(from: quote)
     }
 
     /// Create shared model container for App Group access
-    private func createSharedModelContainer() async throws -> ModelContainer {
+    private func createSharedModelContainer() throws -> ModelContainer {
         let schema = Schema([
             Quote.self,
             UserPreferences.self
@@ -156,7 +158,7 @@ struct QuoteTimelineProvider: TimelineProvider {
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
-            groupContainer: .identifier("group.com.po4yka.runicquotes")
+            groupContainer: .identifier(AppConstants.appGroupIdentifier)
         )
 
         return try ModelContainer(for: schema, configurations: [modelConfiguration])

@@ -52,6 +52,8 @@ struct RunicTransliterator {
             let char = normalized[i]
             if let runeChar = elderFutharkMap[char] {
                 result.append(runeChar)
+            } else if char.isNumber {
+                result.append(char)
             } else if char.isWhitespace {
                 result.append(" ")
             } else if char.isPunctuation {
@@ -88,6 +90,8 @@ struct RunicTransliterator {
             let char = normalized[i]
             if let runeChar = youngerFutharkMap[char] {
                 result.append(runeChar)
+            } else if char.isNumber {
+                result.append(char)
             } else if char.isWhitespace {
                 result.append(" ")
             } else if char.isPunctuation {
@@ -124,6 +128,8 @@ struct RunicTransliterator {
             let char = normalized[i]
             if let runeChar = cirthMap[char] {
                 result.append(runeChar)
+            } else if char.isNumber {
+                result.append(char)
             } else if char.isWhitespace {
                 result.append(" ")
             } else if char.isPunctuation {

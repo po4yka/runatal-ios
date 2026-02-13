@@ -12,16 +12,16 @@ import os
 /// Protocol defining the quote repository interface
 protocol QuoteRepository {
     /// Seed the database with initial quotes if needed
-    func seedIfNeeded() async throws
+    func seedIfNeeded() throws
 
     /// Get the quote of the day for a specific script
-    func quoteOfTheDay(for script: RunicScript) async throws -> Quote
+    func quoteOfTheDay(for script: RunicScript) throws -> Quote
 
     /// Get a random quote for a specific script
-    func randomQuote(for script: RunicScript) async throws -> Quote
+    func randomQuote(for script: RunicScript) throws -> Quote
 
     /// Get all quotes
-    func allQuotes() async throws -> [Quote]
+    func allQuotes() throws -> [Quote]
 }
 
 /// SwiftData implementation of the QuoteRepository
@@ -36,7 +36,7 @@ final class SwiftDataQuoteRepository: QuoteRepository {
 
     // MARK: - Seeding
 
-    func seedIfNeeded() async throws {
+    func seedIfNeeded() throws {
         // Check if database is already seeded
         let descriptor = FetchDescriptor<Quote>()
         let existingQuotes = try modelContext.fetch(descriptor)
@@ -49,7 +49,7 @@ final class SwiftDataQuoteRepository: QuoteRepository {
         logger.info("Seeding database with quotes...")
 
         // Load quotes from JSON
-        guard let url = Bundle.main.url(forResource: "quotes", withExtension: "json", subdirectory: "Resources/SeedData"),
+        guard let url = seedDataURL(),
               let data = try? Data(contentsOf: url) else {
             throw QuoteRepositoryError.seedDataNotFound
         }
@@ -82,14 +82,14 @@ final class SwiftDataQuoteRepository: QuoteRepository {
 
     // MARK: - Quote Retrieval
 
-    func quoteOfTheDay(for script: RunicScript) async throws -> Quote {
+    func quoteOfTheDay(for script: RunicScript) throws -> Quote {
         // Use a deterministic algorithm based on the current date
         // This ensures all users see the same quote on the same day
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let daysSinceEpoch = calendar.dateComponents([.day], from: Date(timeIntervalSince1970: 0), to: today).day ?? 0
 
-        let allQuotes = try await self.allQuotes()
+        let allQuotes = try allQuotes()
 
         guard !allQuotes.isEmpty else {
             throw QuoteRepositoryError.noQuotesAvailable
@@ -105,8 +105,8 @@ final class SwiftDataQuoteRepository: QuoteRepository {
         return quote
     }
 
-    func randomQuote(for script: RunicScript) async throws -> Quote {
-        let allQuotes = try await self.allQuotes()
+    func randomQuote(for script: RunicScript) throws -> Quote {
+        let allQuotes = try allQuotes()
 
         guard !allQuotes.isEmpty else {
             throw QuoteRepositoryError.noQuotesAvailable
@@ -121,7 +121,7 @@ final class SwiftDataQuoteRepository: QuoteRepository {
         return quote
     }
 
-    func allQuotes() async throws -> [Quote] {
+    func allQuotes() throws -> [Quote] {
         let descriptor = FetchDescriptor<Quote>(
             sortBy: [SortDescriptor(\.createdAt)]
         )
@@ -155,6 +155,41 @@ final class SwiftDataQuoteRepository: QuoteRepository {
         if needsSave {
             try modelContext.save()
         }
+    }
+
+    /// Locate seed data in both SwiftPM and app bundle layouts.
+    private func seedDataURL() -> URL? {
+#if SWIFT_PACKAGE
+        if let packageURL = Bundle.module.url(forResource: "quotes", withExtension: "json") {
+            return packageURL
+        }
+        if let packageSubdirectoryURL = Bundle.module.url(
+            forResource: "quotes",
+            withExtension: "json",
+            subdirectory: "SeedData"
+        ) {
+            return packageSubdirectoryURL
+        }
+#endif
+        if let appURL = Bundle.main.url(forResource: "quotes", withExtension: "json") {
+            return appURL
+        }
+        if let appSeedSubdirectoryURL = Bundle.main.url(
+            forResource: "quotes",
+            withExtension: "json",
+            subdirectory: "SeedData"
+        ) {
+            return appSeedSubdirectoryURL
+        }
+        if let appResourcesSeedURL = Bundle.main.url(
+            forResource: "quotes",
+            withExtension: "json",
+            subdirectory: "Resources/SeedData"
+        ) {
+            return appResourcesSeedURL
+        }
+
+        return nil
     }
 }
 

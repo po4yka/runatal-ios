@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// A segmented control-style selector for runic scripts with glass design
 struct GlassScriptSelector: View {
@@ -40,10 +43,7 @@ struct GlassScriptSelector: View {
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         selectedScript = script
-
-                        // Haptic feedback
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
+                        triggerHapticIfAvailable()
                     }
                 }
             }
@@ -150,10 +150,7 @@ struct GlassFontSelector: View {
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         selectedFont = font
-
-                        // Haptic feedback
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
+                        triggerHapticIfAvailable()
                     }
                 }
             }
@@ -252,4 +249,11 @@ private struct FontButton: View {
         }
         .padding()
     }
+}
+
+private func triggerHapticIfAvailable() {
+#if canImport(UIKit)
+    let impact = UIImpactFeedbackGenerator(style: .light)
+    impact.impactOccurred()
+#endif
 }

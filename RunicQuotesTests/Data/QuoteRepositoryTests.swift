@@ -37,7 +37,7 @@ final class QuoteRepositoryTests: XCTestCase {
         XCTAssertEqual(initialCount, 0, "Database should start empty")
 
         // When: Seeding
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // Then: Quotes exist
         let finalCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
@@ -46,11 +46,11 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testSeedIfNeededIdempotent() async throws {
         // Given: Already seeded database
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
         let firstCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
 
         // When: Seeding again
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // Then: Count should not change
         let secondCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
@@ -59,7 +59,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testSeededQuotesHaveTransliterations() async throws {
         // Given: Seeded database
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // When: Fetching quotes
         let quotes = try modelContext.fetch(FetchDescriptor<Quote>())
@@ -78,24 +78,24 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testQuoteOfTheDayReturnsSameQuoteOnSameDay() async throws {
         // Given: Seeded database
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // When: Fetching quote of the day multiple times
-        let quote1 = try await repository.quoteOfTheDay(for: .elder)
-        let quote2 = try await repository.quoteOfTheDay(for: .elder)
+        let quote1 = try repository.quoteOfTheDay(for: .elder)
+        let quote2 = try repository.quoteOfTheDay(for: .elder)
 
         // Then: Should return same quote
         XCTAssertEqual(quote1.id, quote2.id, "Quote of the day should be deterministic")
     }
 
-    func testQuoteOfTheDayWorksWith AllScripts() async throws {
+    func testQuoteOfTheDayWorksWithAllScripts() async throws {
         // Given: Seeded database
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // When: Fetching for each script
-        let elder = try await repository.quoteOfTheDay(for: .elder)
-        let younger = try await repository.quoteOfTheDay(for: .younger)
-        let cirth = try await repository.quoteOfTheDay(for: .cirth)
+        let elder = try repository.quoteOfTheDay(for: .elder)
+        let younger = try repository.quoteOfTheDay(for: .younger)
+        let cirth = try repository.quoteOfTheDay(for: .cirth)
 
         // Then: All should succeed
         XCTAssertFalse(elder.textLatin.isEmpty, "Elder quote should have text")
@@ -105,10 +105,10 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testQuoteOfTheDayReturnsQuoteWithCorrectScript() async throws {
         // Given: Seeded database
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // When: Fetching for Elder Futhark
-        let quote = try await repository.quoteOfTheDay(for: .elder)
+        let quote = try repository.quoteOfTheDay(for: .elder)
 
         // Then: Should have Elder Futhark transliteration
         XCTAssertNotNil(quote.runicElder, "Should have Elder transliteration")
@@ -118,10 +118,10 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testRandomQuoteReturnsQuote() async throws {
         // Given: Seeded database
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // When: Fetching random quote
-        let quote = try await repository.randomQuote(for: .elder)
+        let quote = try repository.randomQuote(for: .elder)
 
         // Then: Should return valid quote
         XCTAssertFalse(quote.textLatin.isEmpty, "Quote should have text")
@@ -130,12 +130,12 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testRandomQuoteCanReturnDifferentQuotes() async throws {
         // Given: Seeded database with multiple quotes
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // When: Fetching multiple random quotes
         var quotes = Set<UUID>()
         for _ in 0..<10 {
-            let quote = try await repository.randomQuote(for: .elder)
+            let quote = try repository.randomQuote(for: .elder)
             quotes.insert(quote.id)
         }
 
@@ -148,10 +148,10 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testAllQuotesReturnsAllQuotes() async throws {
         // Given: Seeded database
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // When: Fetching all quotes
-        let quotes = try await repository.allQuotes()
+        let quotes = try repository.allQuotes()
 
         // Then: Should return all seeded quotes
         XCTAssertGreaterThan(quotes.count, 0, "Should have quotes")
@@ -160,10 +160,10 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testAllQuotesReturnsSortedByCreatedAt() async throws {
         // Given: Seeded database
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         // When: Fetching all quotes
-        let quotes = try await repository.allQuotes()
+        let quotes = try repository.allQuotes()
 
         // Then: Should be sorted by creation date
         for i in 0..<(quotes.count - 1) {
@@ -182,7 +182,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
         // When/Then: Should throw error
         do {
-            _ = try await repository.quoteOfTheDay(for: .elder)
+            _ = try repository.quoteOfTheDay(for: .elder)
             XCTFail("Should throw error when no quotes available")
         } catch {
             // Expected
@@ -195,7 +195,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
         // When/Then: Should throw error
         do {
-            _ = try await repository.randomQuote(for: .elder)
+            _ = try repository.randomQuote(for: .elder)
             XCTFail("Should throw error when no quotes available")
         } catch {
             // Expected
@@ -206,22 +206,18 @@ final class QuoteRepositoryTests: XCTestCase {
     // MARK: - Performance Tests
 
     func testQuoteOfTheDayPerformance() async throws {
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         measure {
-            Task {
-                _ = try? await repository.quoteOfTheDay(for: .elder)
-            }
+            _ = try? repository.quoteOfTheDay(for: .elder)
         }
     }
 
     func testRandomQuotePerformance() async throws {
-        try await repository.seedIfNeeded()
+        try repository.seedIfNeeded()
 
         measure {
-            Task {
-                _ = try? await repository.randomQuote(for: .elder)
-            }
+            _ = try? repository.randomQuote(for: .elder)
         }
     }
 }

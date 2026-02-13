@@ -23,8 +23,9 @@ final class SettingsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let modelContext: ModelContext
+    private var modelContext: ModelContext
     private var preferences: UserPreferences?
+    private var isConfiguredWithEnvironmentContext = false
 
     // MARK: - Computed Properties
 
@@ -53,6 +54,13 @@ final class SettingsViewModel: ObservableObject {
         Task {
             await loadPreferences()
         }
+    }
+
+    /// Rebind dependencies to the environment-provided context once the view is mounted.
+    func configureIfNeeded(modelContext: ModelContext) {
+        guard !isConfiguredWithEnvironmentContext else { return }
+        self.modelContext = modelContext
+        isConfiguredWithEnvironmentContext = true
     }
 
     /// Update the selected script

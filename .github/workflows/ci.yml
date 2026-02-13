@@ -9,35 +9,21 @@ on:
 env:
   SCHEME: RunicQuotes
   PLATFORM: iOS Simulator,name=iPhone 15 Pro,OS=18.0
-  SWIFT_VERSION: 6.1
 
 jobs:
-  check-project:
-    name: Check Xcode Project
+  package-build-test:
+    name: Swift Package Build & Test
     runs-on: macos-15
-    outputs:
-      has_project: ${{ steps.check.outputs.has_project }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Check for Xcode project
-        id: check
-        run: |
-          if [ -d "RunicQuotes.xcodeproj" ] || [ -d "RunicQuotes.xcworkspace" ]; then
-            echo "has_project=true" >> $GITHUB_OUTPUT
-            echo "✅ Xcode project found"
-          else
-            echo "has_project=false" >> $GITHUB_OUTPUT
-            echo "⚠️ Xcode project not found"
-            echo "⚠️ CI jobs will be skipped. See XCODE_PROJECT_SETUP.md for setup instructions."
-          fi
+      - name: Build and run package tests
+        run: swift test
 
   lint:
     name: SwiftLint
     runs-on: macos-15
-    needs: check-project
-    if: needs.check-project.outputs.has_project == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -51,14 +37,16 @@ jobs:
   build:
     name: Build & Test
     runs-on: macos-15
-    needs: check-project
-    if: needs.check-project.outputs.has_project == 'true'
+    if: hashFiles('**/*.xcodeproj/project.pbxproj') != '' || hashFiles('**/*.xcworkspace/contents.xcworkspacedata') != ''
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
       - name: Select Xcode version
         run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Install xcpretty
+        run: gem install xcpretty
 
       - name: Show Xcode version
         run: xcodebuild -version
@@ -110,14 +98,16 @@ jobs:
   ui-tests:
     name: UI Tests
     runs-on: macos-15
-    needs: check-project
-    if: needs.check-project.outputs.has_project == 'true'
+    if: hashFiles('**/*.xcodeproj/project.pbxproj') != '' || hashFiles('**/*.xcworkspace/contents.xcworkspacedata') != ''
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
       - name: Select Xcode version
         run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Install xcpretty
+        run: gem install xcpretty
 
       - name: Run UI Tests
         run: |
@@ -132,14 +122,16 @@ jobs:
   widget-tests:
     name: Widget Tests
     runs-on: macos-15
-    needs: check-project
-    if: needs.check-project.outputs.has_project == 'true'
+    if: hashFiles('**/*.xcodeproj/project.pbxproj') != '' || hashFiles('**/*.xcworkspace/contents.xcworkspacedata') != ''
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
       - name: Select Xcode version
         run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Install xcpretty
+        run: gem install xcpretty
 
       - name: Run Widget Tests
         run: |
@@ -154,8 +146,7 @@ jobs:
   analyze:
     name: Static Analysis
     runs-on: macos-15
-    needs: check-project
-    if: needs.check-project.outputs.has_project == 'true'
+    if: hashFiles('**/*.xcodeproj/project.pbxproj') != '' || hashFiles('**/*.xcworkspace/contents.xcworkspacedata') != ''
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

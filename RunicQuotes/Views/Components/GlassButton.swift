@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// A button component with liquid glass/glassmorphism design
 struct GlassButton: View {
@@ -47,10 +50,7 @@ struct GlassButton: View {
 
     var body: some View {
         Button(action: {
-            // Haptic feedback
-            let impact = UIImpactFeedbackGenerator(style: .light)
-            impact.impactOccurred()
-
+            triggerHapticIfAvailable()
             action()
         }) {
             HStack(spacing: 8) {
@@ -122,6 +122,13 @@ struct GlassButton: View {
                 }
         )
         .accessibilityAddTraits(.isButton)
+    }
+
+    private func triggerHapticIfAvailable() {
+#if canImport(UIKit)
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+#endif
     }
 }
 

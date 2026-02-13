@@ -73,52 +73,6 @@ struct GlassCard<Content: View>: View {
     }
 }
 
-// MARK: - Convenience Variants
-
-extension GlassCard {
-    /// Create a glass card with default settings
-    static func `default`<Content: View>(
-        @ViewBuilder content: () -> Content
-    ) -> GlassCard<Content> {
-        GlassCard(content: content)
-    }
-
-    /// Create a glass card with light opacity
-    static func light<Content: View>(
-        @ViewBuilder content: () -> Content
-    ) -> GlassCard<Content> {
-        GlassCard(
-            opacity: .veryLow,
-            blur: .ultraThinMaterial,
-            content: content
-        )
-    }
-
-    /// Create a glass card with heavy opacity
-    static func heavy<Content: View>(
-        @ViewBuilder content: () -> Content
-    ) -> GlassCard<Content> {
-        GlassCard(
-            opacity: .medium,
-            blur: .regularMaterial,
-            content: content
-        )
-    }
-
-    /// Create a glass card with custom opacity
-    static func custom<Content: View>(
-        opacity: GlassOpacity,
-        blur: Material = .thinMaterial,
-        @ViewBuilder content: () -> Content
-    ) -> GlassCard<Content> {
-        GlassCard(
-            opacity: opacity,
-            blur: blur,
-            content: content
-        )
-    }
-}
-
 // MARK: - Preview
 
 #Preview {
@@ -145,7 +99,10 @@ extension GlassCard {
             }
 
             // Light glass card
-            GlassCard.light {
+            GlassCard(
+                opacity: .veryLow,
+                blur: .ultraThinMaterial
+            ) {
                 VStack(spacing: 10) {
                     Text("Light Glass Card")
                         .font(.headline)
@@ -157,7 +114,10 @@ extension GlassCard {
             }
 
             // Heavy glass card
-            GlassCard.heavy {
+            GlassCard(
+                opacity: .medium,
+                blur: .regularMaterial
+            ) {
                 VStack(spacing: 10) {
                     Text("Heavy Glass Card")
                         .font(.headline)
