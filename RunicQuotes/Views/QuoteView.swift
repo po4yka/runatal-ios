@@ -24,6 +24,8 @@ struct QuoteView: View {
     @State private var scriptMorphTask: Task<Void, Never>?
     @State private var isShareSheetPresented = false
     @State private var shareItems: [Any] = []
+    @State private var searchQuery = ""
+    @State private var lastKnownScrollOffset: CGFloat = 0
     @Environment(\.modelContext) private var modelContext
 
     // MARK: - Initialization
@@ -74,8 +76,44 @@ struct QuoteView: View {
             viewModel.onNextQuoteTapped()
         }
         .onDisappear {
+            NotificationCenter.default.post(
+                name: .quoteTabBarVisibilityChanged,
+                object: nil,
+                userInfo: ["hidden": false]
+            )
             scriptMorphTask?.cancel()
             scriptMorphTask = nil
+        }
+        .navigationTitle("Runic Quotes")
+#if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+#endif
+        .toolbar { quoteToolbar }
+        .searchable(text: $searchQuery, prompt: "Search quotes or authors")
+        .searchSuggestions {
+            ForEach(searchResults) { result in
+                Button {
+                    viewModel.showQuote(withID: result.id)
+                    searchQuery = ""
+                } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(result.latinText)
+                            .lineLimit(1)
+                        Text("— \(result.author)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .onSubmit(of: .search) {
+            if let firstResult = searchResults.first {
+                viewModel.showQuote(withID: firstResult.id)
+                searchQuery = ""
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            bottomActionBar
         }
         .sheet(isPresented: $isShareSheetPresented) {
 #if canImport(UIKit)
@@ -91,6 +129,10 @@ struct QuoteView: View {
         viewModel.state.currentTheme.palette
     }
 
+    private var searchResults: [QuoteSearchResult] {
+        viewModel.searchResults(for: searchQuery)
+    }
+
     // MARK: - Background
 
     private var backgroundGradient: some View {
@@ -99,6 +141,21 @@ struct QuoteView: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+        .overlay {
+            ZStack {
+                Circle()
+                    .fill(themePalette.accent.opacity(0.12))
+                    .frame(width: 240, height: 240)
+                    .blur(radius: 32)
+                    .offset(x: 120, y: -220)
+
+                Circle()
+                    .fill(themePalette.divider.opacity(0.10))
+                    .frame(width: 280, height: 280)
+                    .blur(radius: 44)
+                    .offset(x: -140, y: 260)
+            }
+        }
         .ignoresSafeArea()
     }
 
@@ -140,9 +197,15 @@ struct QuoteView: View {
                     .foregroundColor(themePalette.secondaryText)
                     .multilineTextAlignment(.center)
 
-                GlassButton.primary("Try Again", icon: "arrow.clockwise") {
+                Button {
                     viewModel.refresh()
                 }
+                label: {
+                    Label("Try Again", systemImage: "arrow.clockwise")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(themePalette.accent)
                 .accessibilityLabel("Retry loading quote")
                 .accessibilityHint("Double tap to try loading the quote again")
                 .accessibilityIdentifier("quote_retry_button")
@@ -162,30 +225,32 @@ struct QuoteView: View {
                 Spacer()
                     .frame(height: 20)
 
-                // Script selector
-                GlassScriptSelector(
-                    selectedScript: Binding(
-                        get: { viewModel.state.currentScript },
-                        set: { viewModel.onScriptChanged($0) }
-                    )
-                )
-                .padding(.horizontal)
-                .accessibilityLabel("Runic script selector")
-                .accessibilityValue(viewModel.state.currentScript.rawValue)
-                .accessibilityHint("Select which runic script to display")
-                .accessibilityIdentifier("quote_script_selector")
+                scriptPicker
 
                 // Collection cover cards
                 collectionCarousel
 
+                if !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    searchResultsSection
+                }
+
                 // Quote card
                 quoteCard
 
-                // Action buttons
-                actionButtons
-
                 Spacer()
             }
+            .background(
+                GeometryReader { proxy in
+                    Color.clear.preference(
+                        key: QuoteScrollOffsetKey.self,
+                        value: proxy.frame(in: .named("quote_scroll")).minY
+                    )
+                }
+            )
+        }
+        .coordinateSpace(name: "quote_scroll")
+        .onPreferenceChange(QuoteScrollOffsetKey.self) { offset in
+            handleScrollOffsetChange(offset)
         }
     }
 
@@ -204,12 +269,87 @@ struct QuoteView: View {
         .accessibilityIdentifier("quote_collection_carousel")
     }
 
+    private var scriptPicker: some View {
+        Picker(
+            "Runic Script",
+            selection: Binding(
+                get: { viewModel.state.currentScript },
+                set: { newScript in
+                    Haptics.trigger(.scriptSwitch)
+                    viewModel.onScriptChanged(newScript)
+                }
+            )
+        ) {
+            ForEach(RunicScript.allCases) { script in
+                Text(script.displayName).tag(script)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal)
+        .accessibilityLabel("Runic script selector")
+        .accessibilityValue(viewModel.state.currentScript.rawValue)
+        .accessibilityHint("Select which runic script to display")
+        .accessibilityIdentifier("quote_script_selector")
+    }
+
+    private var searchResultsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Search Results")
+                .font(.headline)
+                .foregroundColor(themePalette.primaryText)
+
+            if searchResults.isEmpty {
+                Text("No matches found in \(viewModel.state.currentCollection.displayName).")
+                    .font(.caption)
+                    .foregroundColor(themePalette.tertiaryText)
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(searchResults.prefix(4)) { result in
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                viewModel.showQuote(withID: result.id)
+                            }
+                        } label: {
+                            HStack(spacing: 10) {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(result.latinText)
+                                        .font(.subheadline)
+                                        .foregroundColor(themePalette.primaryText)
+                                        .lineLimit(1)
+
+                                    Text("— \(result.author)")
+                                        .font(.caption)
+                                        .foregroundColor(themePalette.tertiaryText)
+                                        .lineLimit(1)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "arrow.up.left")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundColor(themePalette.secondaryText)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.thinMaterial)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+
     // MARK: - Quote Card
 
     private var quoteCard: some View {
         GlassCard(
-            opacity: .medium,
-            blur: .regularMaterial
+            opacity: .mediumLow,
+            blur: .thinMaterial
         ) {
             VStack(spacing: 0) {
                 // Hero zone: dominant runic text
@@ -319,31 +459,103 @@ struct QuoteView: View {
         }
     }
 
-    // MARK: - Action Buttons
+    // MARK: - Toolbar
 
-    private var actionButtons: some View {
-        HStack(spacing: 16) {
-            // Primary action
-            GlassButton.primary("New Quote", icon: "sparkles", hapticTier: .newQuote) {
-                viewModel.onNextQuoteTapped()
+    @ToolbarContentBuilder
+    private var quoteToolbar: some ToolbarContent {
+        ToolbarItem(placement: .navigation) {
+            Text(viewModel.state.currentCollection.displayName)
+                .font(.caption.weight(.semibold))
+                .foregroundColor(themePalette.tertiaryText)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(
+                    Capsule()
+                        .fill(.thinMaterial)
+                )
+        }
+
+        ToolbarItemGroup(placement: .primaryAction) {
+            Button {
+                Haptics.trigger(.saveOrShare)
+                viewModel.onToggleSaveTapped()
+            } label: {
+                Image(systemName: viewModel.state.isCurrentQuoteSaved ? "bookmark.fill" : "bookmark")
+                    .symbolRenderingMode(.monochrome)
             }
+            .accessibilityLabel(viewModel.state.isCurrentQuoteSaved ? "Unsave quote" : "Save quote")
+            .accessibilityIdentifier("quote_save_button")
+
+            Menu {
+                Button {
+                    copyCurrentQuote()
+                } label: {
+                    Label("Copy Quote", systemImage: "doc.on.doc")
+                }
+
+                Button {
+                    shareCurrentQuoteAsImage()
+                } label: {
+                    Label("Share Image", systemImage: "square.and.arrow.up")
+                }
+
+                Button {
+                    NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
+                } label: {
+                    Label("Open Settings", systemImage: "gearshape")
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .symbolRenderingMode(.monochrome)
+            }
+            .accessibilityLabel("More actions")
+        }
+    }
+
+    // MARK: - Bottom Accessory
+
+    private var bottomActionBar: some View {
+        HStack(spacing: 12) {
+            Button {
+                Haptics.trigger(.newQuote)
+                viewModel.onNextQuoteTapped()
+            } label: {
+                Label("New Quote", systemImage: "sparkles")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(themePalette.accent)
             .accessibilityLabel("New quote")
             .accessibilityHint("Double tap to load a new random quote")
             .accessibilityIdentifier("quote_next_button")
 
-            // Contextual secondary action
-            GlassButton.secondary(
-                viewModel.state.isCurrentQuoteSaved ? "Unsave" : "Save",
-                icon: viewModel.state.isCurrentQuoteSaved ? "bookmark.slash" : "bookmark",
-                hapticTier: .saveOrShare
-            ) {
+            Button {
+                Haptics.trigger(.saveOrShare)
                 viewModel.onToggleSaveTapped()
+            } label: {
+                Label(
+                    viewModel.state.isCurrentQuoteSaved ? "Unsave" : "Save",
+                    systemImage: viewModel.state.isCurrentQuoteSaved ? "bookmark.slash" : "bookmark"
+                )
+                .frame(maxWidth: .infinity)
             }
+            .buttonStyle(.bordered)
+            .tint(themePalette.secondaryText)
             .accessibilityLabel(viewModel.state.isCurrentQuoteSaved ? "Unsave quote" : "Save quote")
-            .accessibilityHint("Double tap to toggle saved status for this quote")
-            .accessibilityIdentifier("quote_save_button")
+            .accessibilityIdentifier("quote_bottom_save_button")
         }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(.ultraThinMaterial)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(themePalette.divider.opacity(0.6), lineWidth: 0.7)
+        )
         .padding(.horizontal)
+        .padding(.bottom, 6)
     }
 
     // MARK: - Script Morph Animation
@@ -362,6 +574,19 @@ struct QuoteView: View {
                 isScriptMorphing = false
             }
         }
+    }
+
+    private func handleScrollOffsetChange(_ offset: CGFloat) {
+        let delta = offset - lastKnownScrollOffset
+        guard abs(delta) > 14 else { return }
+
+        let shouldHideTabBar = delta < 0 && offset < -22
+        NotificationCenter.default.post(
+            name: .quoteTabBarVisibilityChanged,
+            object: nil,
+            userInfo: ["hidden": shouldHideTabBar]
+        )
+        lastKnownScrollOffset = offset
     }
 
     private func copyCurrentQuote() {
@@ -445,6 +670,14 @@ private struct ActivityViewController: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 #endif
+
+private struct QuoteScrollOffsetKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
 
 // MARK: - Preview
 

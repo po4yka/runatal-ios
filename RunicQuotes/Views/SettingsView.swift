@@ -176,9 +176,12 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     subsectionTitle("Runic Script")
 
-                    GlassScriptSelector(
-                        selectedScript: $viewModel.selectedScript
-                    )
+                    Picker("Runic Script", selection: $viewModel.selectedScript) {
+                        ForEach(RunicScript.allCases) { script in
+                            Text(script.displayName).tag(script)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                     .onChange(of: viewModel.selectedScript) { _, newValue in
                         viewModel.updateScript(newValue)
                     }
@@ -202,28 +205,32 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     subsectionTitle("Quick Actions")
 
-                    GlassButton.secondary(
-                        "Reset to Defaults",
-                        icon: "arrow.counterclockwise",
-                        hapticTier: .saveOrShare
-                    ) {
+                    Button {
+                        Haptics.trigger(.saveOrShare)
                         withAnimation(.easeInOut(duration: 0.2)) {
                             viewModel.resetToDefaults()
                         }
                     }
+                    label: {
+                        Label("Reset to Defaults", systemImage: "arrow.counterclockwise")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .buttonStyle(.bordered)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .disabled(viewModel.isAtDefaults)
                     .accessibilityIdentifier("settings_reset_defaults_button")
 
-                    GlassButton.secondary(
-                        "Restore Last Preset",
-                        icon: "wand.and.stars",
-                        hapticTier: .saveOrShare
-                    ) {
+                    Button {
+                        Haptics.trigger(.saveOrShare)
                         withAnimation(.easeInOut(duration: 0.2)) {
                             viewModel.restoreLastUsedPreset()
                         }
                     }
+                    label: {
+                        Label("Restore Last Preset", systemImage: "wand.and.stars")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .buttonStyle(.bordered)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .disabled(!viewModel.canRestoreLastPreset)
                     .accessibilityIdentifier("settings_restore_preset_button")

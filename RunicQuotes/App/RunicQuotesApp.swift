@@ -130,29 +130,51 @@ struct RunicQuotesApp: App {
 /// Main tab view with Quote and Settings screens
 struct MainTabView: View {
     @State private var selectedTab = 0
+    @State private var isTabBarHidden = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            QuoteView()
+            NavigationStack {
+                QuoteView()
+            }
                 .tabItem {
                     Label("Quote", systemImage: "quote.bubble.fill")
                 }
                 .tag(0)
                 .accessibilityIdentifier("quote_tab")
 
-            SettingsView()
+            NavigationStack {
+                SettingsView()
+            }
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
                 .tag(1)
                 .accessibilityIdentifier("settings_tab")
         }
-        .tint(.white)
+        .toolbar(isTabBarHidden ? .hidden : .visible, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
         .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { _ in
             selectedTab = 0
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToSettingsTab)) { _ in
             selectedTab = 1
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .quoteTabBarVisibilityChanged)) { notification in
+            guard selectedTab == 0 else {
+                isTabBarHidden = false
+                return
+            }
+
+            let hidden = notification.userInfo?["hidden"] as? Bool ?? false
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isTabBarHidden = hidden
+            }
+        }
+        .onChange(of: selectedTab) { _, newTab in
+            if newTab != 0 {
+                isTabBarHidden = false
+            }
         }
     }
 }

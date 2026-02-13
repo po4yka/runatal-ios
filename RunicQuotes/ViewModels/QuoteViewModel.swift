@@ -49,6 +49,14 @@ struct QuoteCollectionCover: Identifiable, Sendable {
     }
 }
 
+/// Search suggestion item for quote discovery.
+struct QuoteSearchResult: Identifiable, Sendable {
+    let id: UUID
+    let latinText: String
+    let author: String
+    let collection: QuoteCollection
+}
+
 /// ViewModel for the main quote display screen
 @MainActor
 final class QuoteViewModel: ObservableObject {
@@ -62,6 +70,7 @@ final class QuoteViewModel: ObservableObject {
     private var quoteProvider: QuoteProvider
     private var preferences: UserPreferences?
     private var isConfiguredWithEnvironmentContext = false
+    private var cachedQuotes: [QuoteRecord] = []
 
     // MARK: - Initialization
 
@@ -138,6 +147,34 @@ final class QuoteViewModel: ObservableObject {
         }
     }
 
+    /// Search cached quotes by author or content and return compact suggestions.
+    func searchResults(for query: String) -> [QuoteSearchResult] {
+        let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedQuery.isEmpty else { return [] }
+
+        let searchScope = quotes(for: state.currentCollection, within: cachedQuotes)
+        return searchScope
+            .filter {
+                $0.textLatin.localizedCaseInsensitiveContains(normalizedQuery) ||
+                    $0.author.localizedCaseInsensitiveContains(normalizedQuery)
+            }
+            .prefix(8)
+            .map {
+                QuoteSearchResult(
+                    id: $0.id,
+                    latinText: $0.textLatin,
+                    author: $0.author,
+                    collection: $0.collection
+                )
+            }
+    }
+
+    /// Display a specific quote selected from search suggestions.
+    func showQuote(withID quoteID: UUID) {
+        guard let match = cachedQuotes.first(where: { $0.id == quoteID }) else { return }
+        updateState(with: match)
+    }
+
     /// Apply updated persisted preferences (e.g. after changes in Settings tab).
     func onPreferencesChanged() {
         Task {
@@ -211,6 +248,7 @@ final class QuoteViewModel: ObservableObject {
 
         do {
             let allQuotes = try await quoteProvider.allQuotes()
+            cachedQuotes = allQuotes
             updateCollectionCovers(using: allQuotes)
 
             let filteredQuotes = quotes(for: state.currentCollection, within: allQuotes)

@@ -17,6 +17,7 @@ struct GlassCard<Content: View>: View {
     let cornerRadius: CGFloat
     let borderWidth: CGFloat
     let shadowRadius: CGFloat
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     // MARK: - Initialization
 
@@ -45,8 +46,12 @@ struct GlassCard<Content: View>: View {
                 ZStack {
                     // Glass blur effect
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(blur)
-                        .opacity(opacity.value)
+                        .fill(
+                            reduceTransparency
+                                ? AnyShapeStyle(Color.black.opacity(0.62))
+                                : AnyShapeStyle(blur)
+                        )
+                        .opacity(reduceTransparency ? 1.0 : opacity.value)
 
                     // Gradient border
                     RoundedRectangle(cornerRadius: cornerRadius)

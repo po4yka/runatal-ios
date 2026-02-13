@@ -15,6 +15,7 @@ struct CollectionCoverCarousel: View {
     let font: RunicFont
     let palette: AppThemePalette
     let onCollectionSelected: (QuoteCollection) -> Void
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -48,7 +49,7 @@ struct CollectionCoverCarousel: View {
         return Button {
             onCollectionSelected(cover.collection)
         } label: {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 9) {
                 HStack(alignment: .top) {
                     Image(systemName: cover.collection.systemImage)
                         .font(.caption.weight(.bold))
@@ -76,13 +77,13 @@ struct CollectionCoverCarousel: View {
                         maxSize: 30
                     )
                     .foregroundColor(palette.primaryText)
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity, minHeight: 46, alignment: .topLeading)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, minHeight: 34, alignment: .topLeading)
 
                 Text(cover.latinPreview)
                     .font(.caption)
                     .foregroundColor(palette.secondaryText)
-                    .lineLimit(2)
+                    .lineLimit(1)
 
                 Text(cover.collection.displayName)
                     .font(.subheadline.weight(.semibold))
@@ -99,15 +100,13 @@ struct CollectionCoverCarousel: View {
                     .lineLimit(1)
             }
             .padding(12)
-            .frame(width: 220, alignment: .leading)
+            .frame(width: 210, alignment: .leading)
             .background {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(
-                        LinearGradient(
-                            colors: gradientColors(for: cover.collection, isSelected: isSelected),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                        reduceTransparency
+                            ? Color.black.opacity(0.45)
+                            : Color.black.opacity(isSelected ? 0.25 : 0.16)
                     )
             }
             .overlay(
@@ -117,6 +116,19 @@ struct CollectionCoverCarousel: View {
                         lineWidth: isSelected ? 1.3 : 0.8
                     )
             )
+            .overlay(alignment: .topLeading) {
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: gradientColors(for: cover.collection, isSelected: isSelected),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(width: isSelected ? 74 : 52, height: 4)
+                    .padding(.top, 9)
+                    .padding(.leading, 10)
+            }
             .shadow(
                 color: .black.opacity(isSelected ? 0.28 : 0.16),
                 radius: isSelected ? 12 : 7,

@@ -34,4 +34,5 @@ extension Notification.Name {
     static let switchToSettingsTab = Notification.Name("SwitchToSettingsTab")
     static let loadNextQuote = Notification.Name("LoadNextQuote")
     static let preferencesDidChange = Notification.Name("PreferencesDidChange")
+    static let quoteTabBarVisibilityChanged = Notification.Name("QuoteTabBarVisibilityChanged")
 }

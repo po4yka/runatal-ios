@@ -258,22 +258,30 @@ struct OnboardingView: View {
     private var navigation: some View {
         HStack(spacing: 12) {
             if currentPage != .elder {
-                GlassButton.secondary("Back", icon: "chevron.left") {
+                Button {
                     moveBackward()
                 }
+                label: {
+                    Label("Back", systemImage: "chevron.left")
+                }
+                .buttonStyle(.bordered)
             }
 
-            GlassButton.primary(
-                currentPage == .style ? "Start Reading" : "Next",
-                icon: currentPage == .style ? "checkmark.circle.fill" : "arrow.right.circle.fill",
-                hapticTier: .newQuote
-            ) {
+            Button {
+                Haptics.trigger(.newQuote)
                 if currentPage == .style {
                     savePreferencesAndFinish()
                 } else {
                     moveForward()
                 }
             }
+            label: {
+                Label(
+                    currentPage == .style ? "Start Reading" : "Next",
+                    systemImage: currentPage == .style ? "checkmark.circle.fill" : "arrow.right.circle.fill"
+                )
+            }
+            .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
     }
