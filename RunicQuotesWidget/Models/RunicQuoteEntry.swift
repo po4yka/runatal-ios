@@ -28,6 +28,12 @@ struct RunicQuoteEntry: TimelineEntry {
     /// Widget display mode
     let widgetMode: WidgetMode
 
+    /// Widget visual hierarchy style
+    let widgetStyle: WidgetStyle
+
+    /// Whether decorative identity elements are enabled
+    let showsDecorativeGlyphs: Bool
+
     /// Create a placeholder entry for widget previews
     static func placeholder() -> RunicQuoteEntry {
         RunicQuoteEntry(
@@ -36,7 +42,9 @@ struct RunicQuoteEntry: TimelineEntry {
             script: .elder,
             font: .noto,
             theme: .obsidian,
-            widgetMode: .daily
+            widgetMode: .daily,
+            widgetStyle: .runeFirst,
+            showsDecorativeGlyphs: true
         )
     }
 }

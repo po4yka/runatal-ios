@@ -23,6 +23,12 @@ final class UserPreferences {
     /// Widget display mode
     var widgetModeRaw: String
 
+    /// Widget visual style raw value
+    var widgetStyleRaw: String?
+
+    /// Whether decorative glyph identity elements are enabled in widgets
+    var widgetDecorativeGlyphsEnabledRaw: Bool?
+
     /// Selected visual theme
     var selectedThemeRaw: String
 
@@ -64,6 +70,28 @@ final class UserPreferences {
         }
         set {
             widgetModeRaw = newValue.rawValue
+            lastUpdated = Date()
+        }
+    }
+
+    /// Computed property for widget visual style
+    var widgetStyle: WidgetStyle {
+        get {
+            WidgetStyle(rawValue: widgetStyleRaw ?? "") ?? .runeFirst
+        }
+        set {
+            widgetStyleRaw = newValue.rawValue
+            lastUpdated = Date()
+        }
+    }
+
+    /// Whether decorative glyph identity elements are enabled in widgets.
+    var widgetDecorativeGlyphsEnabled: Bool {
+        get {
+            widgetDecorativeGlyphsEnabledRaw ?? true
+        }
+        set {
+            widgetDecorativeGlyphsEnabledRaw = newValue
             lastUpdated = Date()
         }
     }
@@ -120,6 +148,8 @@ final class UserPreferences {
         selectedScript: RunicScript = .elder,
         selectedFont: RunicFont = .noto,
         widgetMode: WidgetMode = .daily,
+        widgetStyle: WidgetStyle = .runeFirst,
+        widgetDecorativeGlyphsEnabled: Bool = true,
         selectedTheme: AppTheme = .obsidian,
         lastUsedPreset: ReadingPreset? = nil,
         savedQuoteIDs: Set<UUID> = []
@@ -128,6 +158,8 @@ final class UserPreferences {
         self.selectedScriptRaw = selectedScript.rawValue
         self.selectedFontRaw = selectedFont.rawValue
         self.widgetModeRaw = widgetMode.rawValue
+        self.widgetStyleRaw = widgetStyle.rawValue
+        self.widgetDecorativeGlyphsEnabledRaw = widgetDecorativeGlyphsEnabled
         self.selectedThemeRaw = selectedTheme.rawValue
         self.lastUsedPresetRaw = lastUsedPreset?.rawValue
         self.savedQuoteIDsRaw = savedQuoteIDs

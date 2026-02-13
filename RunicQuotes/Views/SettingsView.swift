@@ -421,6 +421,32 @@ struct SettingsView: View {
                         widgetModeButton(mode)
                     }
                 }
+
+                VStack(alignment: .leading, spacing: 10) {
+                    subsectionTitle("Widget Style")
+
+                    VStack(spacing: 10) {
+                        ForEach(WidgetStyle.allCases) { style in
+                            widgetStyleButton(style)
+                        }
+                    }
+                }
+
+                Toggle(isOn: Binding(
+                    get: { viewModel.widgetDecorativeGlyphsEnabled },
+                    set: { viewModel.updateWidgetDecorativeGlyphsEnabled($0) }
+                )) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Decorative Glyph Identity")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(themePalette.primaryText)
+
+                        Text("Enable glyph ring and background pattern in widgets")
+                            .font(.caption2)
+                            .foregroundColor(themePalette.tertiaryText)
+                    }
+                }
+                .tint(themePalette.accent)
             }
         }
         .accessibilityElement(children: .contain)
@@ -466,6 +492,46 @@ struct SettingsView: View {
         .accessibilityValue(viewModel.widgetMode == mode ? "Selected" : "Not selected")
         .accessibilityHint("Double tap to select \(mode.displayName) mode. \(mode.description)")
         .accessibilityIdentifier("settings_widget_mode_\(mode.rawValue)")
+    }
+
+    private func widgetStyleButton(_ style: WidgetStyle) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                viewModel.updateWidgetStyle(style)
+            }
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(style.displayName)
+                        .font(.headline)
+                        .foregroundColor(themePalette.primaryText)
+
+                    Text(style.description)
+                        .font(.caption)
+                        .foregroundColor(themePalette.tertiaryText)
+                }
+
+                Spacer()
+
+                if viewModel.widgetStyle == style {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(themePalette.accent)
+                        .font(.title3)
+                        .accessibilityLabel("Selected")
+                }
+            }
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.thinMaterial)
+                    .opacity(viewModel.widgetStyle == style ? 0.5 : 0.2)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel("\(style.displayName) style")
+        .accessibilityValue(viewModel.widgetStyle == style ? "Selected" : "Not selected")
+        .accessibilityHint("Double tap to select \(style.displayName) style. \(style.description)")
+        .accessibilityIdentifier("settings_widget_style_\(style.rawValue.replacingOccurrences(of: " ", with: "_"))")
     }
 
     // MARK: - About Group

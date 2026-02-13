@@ -17,6 +17,8 @@ final class SettingsViewModel: ObservableObject {
     @Published var selectedScript: RunicScript = .elder
     @Published var selectedFont: RunicFont = .noto
     @Published var widgetMode: WidgetMode = .daily
+    @Published var widgetStyle: WidgetStyle = .runeFirst
+    @Published var widgetDecorativeGlyphsEnabled = true
     @Published var selectedTheme: AppTheme = .obsidian
     @Published private(set) var lastUsedPreset: ReadingPreset?
 
@@ -63,6 +65,8 @@ final class SettingsViewModel: ObservableObject {
         selectedScript == .elder &&
         selectedFont == .noto &&
         widgetMode == .daily &&
+        widgetStyle == .runeFirst &&
+        widgetDecorativeGlyphsEnabled &&
         selectedTheme == .obsidian
     }
 
@@ -123,6 +127,18 @@ final class SettingsViewModel: ObservableObject {
         savePreferences()
     }
 
+    /// Update widget visual style.
+    func updateWidgetStyle(_ style: WidgetStyle) {
+        widgetStyle = style
+        savePreferences()
+    }
+
+    /// Toggle decorative glyph identity elements in widgets.
+    func updateWidgetDecorativeGlyphsEnabled(_ isEnabled: Bool) {
+        widgetDecorativeGlyphsEnabled = isEnabled
+        savePreferences()
+    }
+
     /// Update visual theme
     func updateTheme(_ theme: AppTheme) {
         selectedTheme = theme
@@ -150,6 +166,8 @@ final class SettingsViewModel: ObservableObject {
         selectedFont = .noto
         selectedTheme = .obsidian
         widgetMode = .daily
+        widgetStyle = .runeFirst
+        widgetDecorativeGlyphsEnabled = true
         errorMessage = nil
         savePreferences()
     }
@@ -172,6 +190,8 @@ final class SettingsViewModel: ObservableObject {
             selectedScript = preferences?.selectedScript ?? .elder
             selectedFont = preferences?.selectedFont ?? .noto
             widgetMode = preferences?.widgetMode ?? .daily
+            widgetStyle = preferences?.widgetStyle ?? .runeFirst
+            widgetDecorativeGlyphsEnabled = preferences?.widgetDecorativeGlyphsEnabled ?? true
             selectedTheme = preferences?.selectedTheme ?? .obsidian
             lastUsedPreset = preferences?.lastUsedPreset
 
@@ -188,6 +208,8 @@ final class SettingsViewModel: ObservableObject {
         preferences.selectedScript = selectedScript
         preferences.selectedFont = selectedFont
         preferences.widgetMode = widgetMode
+        preferences.widgetStyle = widgetStyle
+        preferences.widgetDecorativeGlyphsEnabled = widgetDecorativeGlyphsEnabled
         preferences.selectedTheme = selectedTheme
         preferences.lastUsedPreset = lastUsedPreset
 

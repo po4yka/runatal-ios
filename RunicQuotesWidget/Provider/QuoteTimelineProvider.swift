@@ -68,7 +68,9 @@ struct QuoteTimelineProvider: TimelineProvider {
             script: preferences.selectedScript,
             font: preferences.selectedFont,
             theme: preferences.selectedTheme,
-            widgetMode: preferences.widgetMode
+            widgetMode: preferences.widgetMode,
+            widgetStyle: preferences.widgetStyle,
+            showsDecorativeGlyphs: preferences.widgetDecorativeGlyphsEnabled
         )
 
         // For daily mode, update at midnight
@@ -95,7 +97,9 @@ struct QuoteTimelineProvider: TimelineProvider {
             script: preferences.selectedScript,
             font: preferences.selectedFont,
             theme: preferences.selectedTheme,
-            widgetMode: preferences.widgetMode
+            widgetMode: preferences.widgetMode,
+            widgetStyle: preferences.widgetStyle,
+            showsDecorativeGlyphs: preferences.widgetDecorativeGlyphsEnabled
         )
 
         return [entry, nextEntry]
@@ -113,7 +117,9 @@ struct QuoteTimelineProvider: TimelineProvider {
             selectedScript: preferences.selectedScript,
             selectedFont: preferences.selectedFont,
             selectedTheme: preferences.selectedTheme,
-            widgetMode: preferences.widgetMode
+            widgetMode: preferences.widgetMode,
+            widgetStyle: preferences.widgetStyle,
+            widgetDecorativeGlyphsEnabled: preferences.widgetDecorativeGlyphsEnabled
         )
     }
 
@@ -178,6 +184,8 @@ struct UserPreferencesData: Sendable {
     let selectedFont: RunicFont
     let selectedTheme: AppTheme
     let widgetMode: WidgetMode
+    let widgetStyle: WidgetStyle
+    let widgetDecorativeGlyphsEnabled: Bool
 }
 
 /// Widget-specific errors
