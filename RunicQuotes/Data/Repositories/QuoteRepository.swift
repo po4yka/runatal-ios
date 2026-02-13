@@ -77,6 +77,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
         guard existingQuotes.isEmpty else {
             try backfillCollectionsIfNeeded(for: existingQuotes)
+            try retransliterateCirthIfNeeded(for: existingQuotes)
             logger.info("Database already seeded with \(existingQuotes.count) quotes")
             return
         }
@@ -206,6 +207,27 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             logger.error("Invalid seed data format: \(error.localizedDescription)")
             throw QuoteRepositoryError.invalidSeedData
         }
+    }
+
+    /// Re-transliterate Cirth text when stale PUA codepoints are detected.
+    ///
+    /// Before commit acdc6a2 the Cirth mapping emitted Private Use Area
+    /// characters (U+E000-U+E02A) that the Angerthas Moria font does not
+    /// contain, causing emoji fallback rendering. Correct Cirth text only
+    /// contains ASCII (U+0000-U+007F) and Latin-1 Supplement digraphs
+    /// (max U+00FE). Any scalar above U+00FF signals stale data.
+    private func retransliterateCirthIfNeeded(for quotes: [Quote]) throws {
+        let needsMigration = quotes.contains { quote in
+            guard let cirth = quote.runicCirth else { return false }
+            return cirth.unicodeScalars.contains { $0.value > 0x00FF }
+        }
+        guard needsMigration else { return }
+
+        for quote in quotes {
+            quote.runicCirth = transliterator.transliterate(quote.textLatin, to: .cirth)
+        }
+        try modelContext.save()
+        logger.info("Re-transliterated Cirth text for \(quotes.count) quotes (PUA migration)")
     }
 
     private func backfillCollectionsIfNeeded(for existingQuotes: [Quote]) throws {

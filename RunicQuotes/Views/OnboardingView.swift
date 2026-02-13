@@ -30,9 +30,14 @@ struct OnboardingView: View {
     }
 
     @State private var currentPage: Page = .elder
-    @State private var selectedScript: RunicScript = .elder
+    @State private var selectedScript: RunicScript?
     @State private var selectedStyle: WidgetStyle = .runeFirst
     @State private var navigationDirection: NavigationDirection = .forward
+
+    /// Falls back to the current page's script when nothing is explicitly selected.
+    private var displayedScript: RunicScript {
+        selectedScript ?? stories[safe: currentPage.rawValue]?.script ?? .elder
+    }
 
     let onComplete: () -> Void
 
@@ -64,7 +69,7 @@ struct OnboardingView: View {
                 )
                 .ignoresSafeArea()
 
-                RunicAtmosphere(script: selectedScript)
+                RunicAtmosphere(script: displayedScript)
                     .ignoresSafeArea()
 
                 VStack(spacing: 20) {
@@ -181,24 +186,33 @@ struct OnboardingView: View {
         let runic = RunicTransliterator.transliterate(story.sampleLatin, to: story.script)
         let isSelected = selectedScript == story.script
         let recommendedFont = RunicFontConfiguration.recommendedFont(for: story.script)
-        return GlassCard(opacity: .high, blur: .ultraThinMaterial) {
+        return GlassCard(
+            opacity: .high,
+            blur: .ultraThinMaterial,
+            shadowRadius: isSelected ? 14 : 10
+        ) {
             VStack(alignment: .leading, spacing: 20) {
                 // -- Title block --
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(story.script.displayName)
-                        .font(.title3.bold())
-                        .foregroundColor(.white)
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(story.script.displayName)
+                            .font(.title3.bold())
+                            .foregroundColor(.white)
 
-                    HStack(spacing: 0) {
-                        Text(story.subtitle)
+                        Spacer()
+
                         if isSelected {
-                            Text(" \u{00B7} default")
-                                .transition(.opacity)
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(.white.opacity(0.55))
+                                .transition(.scale.combined(with: .opacity))
                         }
                     }
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.55))
-                    .fixedSize(horizontal: false, vertical: true)
+
+                    Text(story.subtitle)
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.55))
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 // -- Rune preview --
@@ -232,7 +246,7 @@ struct OnboardingView: View {
 
                 // -- Tap hint --
                 if !isSelected {
-                    Text("Tap to set as default script")
+                    Text("Tap to set as default")
                         .font(.caption2)
                         .foregroundColor(.white.opacity(0.42))
                         .frame(maxWidth: .infinity)
@@ -241,21 +255,25 @@ struct OnboardingView: View {
             }
             .padding(6)
         }
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(isSelected ? 0.06 : 0))
+                .allowsHitTesting(false)
+        )
         .frame(maxWidth: .infinity)
         .contentShape(RoundedRectangle(cornerRadius: 20))
         .onTapGesture {
-            guard !isSelected else { return }
             Haptics.trigger(.scriptSwitch)
             withAnimation(AnimationPresets.smoothEase) {
-                selectedScript = story.script
+                selectedScript = isSelected ? nil : story.script
             }
         }
     }
 
     private var styleSelectionCard: some View {
         let sampleLatin = "Wisdom travels far."
-        let sampleRunic = RunicTransliterator.transliterate(sampleLatin, to: selectedScript)
-        let recommendedFont = RunicFontConfiguration.recommendedFont(for: selectedScript)
+        let sampleRunic = RunicTransliterator.transliterate(sampleLatin, to: displayedScript)
+        let recommendedFont = RunicFontConfiguration.recommendedFont(for: displayedScript)
 
         return GlassCard(opacity: .high, blur: .ultraThinMaterial) {
             VStack(alignment: .leading, spacing: 14) {
@@ -316,7 +334,7 @@ struct OnboardingView: View {
                 if style == .runeFirst {
                     Text(sampleRunic)
                         .runicTextStyle(
-                            script: selectedScript,
+                            script: displayedScript,
                             font: recommendedFont,
                             style: .headline,
                             minSize: 18,
@@ -341,7 +359,7 @@ struct OnboardingView: View {
 
                     Text(sampleRunic)
                         .runicTextStyle(
-                            script: selectedScript,
+                            script: displayedScript,
                             font: recommendedFont,
                             style: .caption,
                             minSize: 14,
@@ -415,10 +433,10 @@ struct OnboardingView: View {
     private func savePreferencesAndFinish() {
         do {
             let preferences = try UserPreferences.getOrCreate(in: modelContext)
-            preferences.selectedScript = selectedScript
+            preferences.selectedScript = displayedScript
             preferences.widgetStyle = selectedStyle
-            if !preferences.selectedFont.isCompatible(with: selectedScript) {
-                preferences.selectedFont = RunicFontConfiguration.recommendedFont(for: selectedScript)
+            if !preferences.selectedFont.isCompatible(with: displayedScript) {
+                preferences.selectedFont = RunicFontConfiguration.recommendedFont(for: displayedScript)
             }
             try modelContext.save()
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
