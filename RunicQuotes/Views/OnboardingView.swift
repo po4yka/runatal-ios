@@ -55,74 +55,93 @@ struct OnboardingView: View {
     ]
 
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: AppTheme.obsidian.palette.appBackgroundGradient,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-
-            RunicAtmosphere(script: selectedScript)
+        NavigationStack {
+            ZStack {
+                LinearGradient(
+                    colors: AppTheme.obsidian.palette.appBackgroundGradient,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
                 .ignoresSafeArea()
 
-            VStack(spacing: 20) {
-                topNavBar
-                header
-                progressDots
-                ScrollView(.vertical, showsIndicators: false) {
-                    pageContent
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 2)
-                        .padding(.bottom, 8)
+                RunicAtmosphere(script: selectedScript)
+                    .ignoresSafeArea()
+
+                VStack(spacing: 20) {
+                    header
+
+                    ScrollView(.vertical, showsIndicators: false) {
+                        pageContent
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 2)
+                            .padding(.bottom, 8)
+                    }
+                    .scrollBounceBehavior(.basedOnSize)
+                    .gesture(
+                        DragGesture(minimumDistance: 40, coordinateSpace: .local)
+                            .onEnded { value in
+                                let horizontal = value.translation.width
+                                guard abs(horizontal) > abs(value.translation.height) else { return }
+                                if horizontal < 0 {
+                                    moveForward()
+                                } else {
+                                    moveBackward()
+                                }
+                            }
+                    )
+
+                    Spacer(minLength: 0)
+
+                    VStack(spacing: 14) {
+                        progressDots
+                        navigation
+                    }
                 }
-                .scrollBounceBehavior(.basedOnSize)
-                .frame(maxHeight: .infinity)
-                navigation
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 16)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .padding(.horizontal, 20)
-            .padding(.top, 24)
-            .padding(.bottom, 16)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbar { onboardingToolbar }
         }
     }
 
-    private var topNavBar: some View {
-        HStack {
+    @ToolbarContentBuilder
+    private var onboardingToolbar: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
             if currentPage != .elder {
                 Button {
                     moveBackward()
                 } label: {
                     Label("Back", systemImage: "chevron.left")
+                        .font(.body.weight(.medium))
                 }
-                .font(.body.weight(.medium))
-                .foregroundColor(.white.opacity(0.96))
+                .foregroundColor(.white.opacity(0.92))
                 .transition(.move(edge: .leading).combined(with: .opacity))
             }
+        }
 
-            Spacer()
-
-            Button("Use Defaults") {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button("Use defaults") {
                 savePreferencesAndFinish()
             }
-            .font(.caption.weight(.medium))
-            .foregroundColor(.white.opacity(0.7))
+            .font(.subheadline.weight(.medium))
+            .foregroundColor(.white.opacity(0.55))
         }
-        .frame(minHeight: 28)
-        .animation(AnimationPresets.smoothEase, value: currentPage)
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Welcome to Runic Quotes")
+            Text("Welcome to Runic quotes")
                 .font(.title2.bold())
                 .foregroundColor(.white)
                 .lineLimit(2)
                 .minimumScaleFactor(0.9)
 
             Text(currentPage == .style
-                 ? "Pick your default widget style."
-                 : "Choose your script.")
+                 ? "Pick your default widget style"
+                 : "Choose your script")
                 .font(.subheadline)
                 .foregroundColor(.white.opacity(0.9))
                 .lineLimit(2)
@@ -137,7 +156,7 @@ struct OnboardingView: View {
             numberOfPages: Page.allCases.count,
             currentPage: currentPage.rawValue
         )
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     @ViewBuilder
@@ -166,28 +185,20 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 20) {
                 // -- Title block --
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(story.script.displayName)
-                            .font(.title3.bold())
-                            .foregroundColor(.white)
+                    Text(story.script.displayName)
+                        .font(.title3.bold())
+                        .foregroundColor(.white)
 
+                    HStack(spacing: 0) {
+                        Text(story.subtitle)
                         if isSelected {
-                            Label("Default", systemImage: "checkmark")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundColor(.white.opacity(0.55))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(
-                                    Capsule().fill(Color.white.opacity(0.10))
-                                )
-                                .transition(.scale.combined(with: .opacity))
+                            Text(" \u{00B7} default")
+                                .transition(.opacity)
                         }
                     }
-
-                    Text(story.subtitle)
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.55))
-                        .fixedSize(horizontal: false, vertical: true)
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.55))
+                    .fixedSize(horizontal: false, vertical: true)
                 }
 
                 // -- Rune preview --
@@ -215,34 +226,20 @@ struct OnboardingView: View {
 
                     Text(story.script.description)
                         .font(.caption2)
-                        .foregroundColor(.white.opacity(0.38))
+                        .foregroundColor(.white.opacity(0.50))
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
                 // -- Tap hint --
                 if !isSelected {
-                    Text("Tap to set as default")
+                    Text("Tap to set as default script")
                         .font(.caption2)
-                        .foregroundColor(.white.opacity(0.30))
+                        .foregroundColor(.white.opacity(0.42))
                         .frame(maxWidth: .infinity)
                         .transition(.opacity)
                 }
             }
-            .padding(4)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(
-                        LinearGradient(
-                            stops: [
-                                .init(color: .clear, location: 0),
-                                .init(color: .clear, location: 0.35),
-                                .init(color: .black.opacity(0.28), location: 1.0)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            )
+            .padding(6)
         }
         .frame(maxWidth: .infinity)
         .contentShape(RoundedRectangle(cornerRadius: 20))
@@ -256,49 +253,54 @@ struct OnboardingView: View {
     }
 
     private var styleSelectionCard: some View {
-        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Pick Your Default Widget Style")
-                    .font(.title3.bold())
-                    .foregroundColor(.white)
+        let sampleLatin = "Wisdom travels far."
+        let sampleRunic = RunicTransliterator.transliterate(sampleLatin, to: selectedScript)
+        let recommendedFont = RunicFontConfiguration.recommendedFont(for: selectedScript)
 
-                Text("You can change this any time in Settings.")
+        return GlassCard(opacity: .high, blur: .ultraThinMaterial) {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("You can change this any time in settings.")
                     .font(.subheadline)
                     .foregroundColor(.white.opacity(0.55))
                     .fixedSize(horizontal: false, vertical: true)
 
-                VStack(spacing: 10) {
-                    styleOption(.runeFirst)
-                    styleOption(.translationFirst)
+                VStack(spacing: 0) {
+                    styleRow(
+                        style: .runeFirst,
+                        sampleLatin: sampleLatin,
+                        sampleRunic: sampleRunic,
+                        recommendedFont: recommendedFont
+                    )
+
+                    Rectangle()
+                        .fill(Color.white.opacity(0.08))
+                        .frame(height: 1)
+                        .padding(.horizontal, 4)
+
+                    styleRow(
+                        style: .translationFirst,
+                        sampleLatin: sampleLatin,
+                        sampleRunic: sampleRunic,
+                        recommendedFont: recommendedFont
+                    )
                 }
             }
-            .padding(4)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(
-                        LinearGradient(
-                            stops: [
-                                .init(color: .clear, location: 0),
-                                .init(color: .clear, location: 0.35),
-                                .init(color: .black.opacity(0.28), location: 1.0)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            )
+            .padding(6)
         }
     }
 
-    private func styleOption(_ style: WidgetStyle) -> some View {
+    private func styleRow(
+        style: WidgetStyle,
+        sampleLatin: String,
+        sampleRunic: String,
+        recommendedFont: RunicFont
+    ) -> some View {
         let isSelected = selectedStyle == style
-        let sampleLatin = "Wisdom travels far."
-        let sampleRunic = RunicTransliterator.transliterate(sampleLatin, to: selectedScript)
 
         return Button {
             selectedStyle = style
         } label: {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text(style.displayName)
                         .font(.subheadline.weight(.semibold))
@@ -315,7 +317,7 @@ struct OnboardingView: View {
                     Text(sampleRunic)
                         .runicTextStyle(
                             script: selectedScript,
-                            font: RunicFontConfiguration.recommendedFont(for: selectedScript),
+                            font: recommendedFont,
                             style: .headline,
                             minSize: 18,
                             maxSize: 24
@@ -327,7 +329,7 @@ struct OnboardingView: View {
 
                     Text(sampleLatin)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.38))
+                        .foregroundColor(.white.opacity(0.50))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
@@ -340,21 +342,22 @@ struct OnboardingView: View {
                     Text(sampleRunic)
                         .runicTextStyle(
                             script: selectedScript,
-                            font: RunicFontConfiguration.recommendedFont(for: selectedScript),
+                            font: recommendedFont,
                             style: .caption,
                             minSize: 14,
                             maxSize: 18
                         )
-                        .foregroundColor(.white.opacity(0.38))
+                        .foregroundColor(.white.opacity(0.50))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .shadow(color: .black.opacity(0.32), radius: 1, x: 0, y: 1)
                 }
             }
-            .padding(12)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.white.opacity(0.22) : Color.white.opacity(0.12))
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(isSelected ? 0.08 : 0))
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -372,15 +375,23 @@ struct OnboardingView: View {
                     moveForward()
                 }
             } label: {
-                Label(
-                    currentPage == .style ? "Done" : "Next",
-                    systemImage: currentPage == .style ? "checkmark" : "arrow.right"
-                )
+                HStack(spacing: 6) {
+                    Text(currentPage == .style ? "Done" : "Next")
+                    Image(systemName: currentPage == .style ? "checkmark" : "arrow.right")
+                        .font(.caption.weight(.semibold))
+                }
                 .font(.subheadline.weight(.medium))
+                .foregroundColor(.white.opacity(0.92))
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                        .opacity(0.8)
+                )
+                .shadow(color: .black.opacity(0.22), radius: 8, x: 0, y: 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(AppTheme.obsidian.palette.ctaAccent)
-            .controlSize(.regular)
+            .buttonStyle(PlainButtonStyle())
         }
         .frame(maxWidth: .infinity)
     }
@@ -432,22 +443,12 @@ private struct NativePageControl: UIViewRepresentable {
         control.pageIndicatorTintColor = UIColor.white.withAlphaComponent(0.18)
         control.setContentHuggingPriority(.required, for: .vertical)
         control.preferredCurrentPageIndicatorImage = nil
-        applyLeadingTransform(control)
         return control
     }
 
     func updateUIView(_ control: UIPageControl, context: Context) {
         control.numberOfPages = numberOfPages
         control.currentPage = currentPage
-        applyLeadingTransform(control)
-    }
-
-    /// Scale dots down and shift so the left edge aligns with content.
-    private func applyLeadingTransform(_ control: UIPageControl) {
-        let scale: CGFloat = 0.7
-        let halfWidth = control.intrinsicContentSize.width / 2
-        control.transform = CGAffineTransform(scaleX: scale, y: scale)
-            .translatedBy(x: -halfWidth, y: 0)
     }
 }
 

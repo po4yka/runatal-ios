@@ -57,6 +57,19 @@ struct RunicAtmosphere: View {
                     )
             }
         }
+        .mask {
+            RadialGradient(
+                stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .clear, location: 0.25),
+                    .init(color: .white.opacity(0.4), location: 0.5),
+                    .init(color: .white, location: 0.72)
+                ],
+                center: .center,
+                startRadius: 0,
+                endRadius: UIScreen.main.bounds.height * 0.55
+            )
+        }
         .accessibilityHidden(true)
         .allowsHitTesting(false)
     }
