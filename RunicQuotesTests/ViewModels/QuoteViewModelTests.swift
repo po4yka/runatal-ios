@@ -171,6 +171,53 @@ final class QuoteViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.state.author.isEmpty, "Should have author after tapping next quote")
     }
 
+    @MainActor
+    func testToggleSaveUpdatesState() async throws {
+        let viewModel = try makeViewModel()
+        viewModel.onAppear()
+
+        await waitUntil("initial quote loads with id") {
+            !viewModel.state.isLoading && viewModel.state.currentQuoteID != nil
+        }
+
+        XCTAssertFalse(viewModel.state.isCurrentQuoteSaved, "Quote should start unsaved")
+
+        viewModel.onToggleSaveTapped()
+        await waitUntil("quote becomes saved") {
+            viewModel.state.isCurrentQuoteSaved
+        }
+
+        viewModel.onToggleSaveTapped()
+        await waitUntil("quote becomes unsaved") {
+            !viewModel.state.isCurrentQuoteSaved
+        }
+    }
+
+    @MainActor
+    func testDeepLinkAppliesScriptAndModeContext() async throws {
+        let viewModel = try makeViewModel()
+        viewModel.onAppear()
+
+        await waitUntil("initial quote loads") {
+            !viewModel.state.isLoading
+        }
+
+        viewModel.onOpenQuoteDeepLink(
+            scriptRaw: RunicScript.younger.rawValue,
+            modeRaw: WidgetMode.random.rawValue
+        )
+
+        await waitUntil("deep link context is applied") {
+            viewModel.state.currentScript == .younger &&
+            viewModel.state.currentWidgetMode == .random &&
+            !viewModel.state.isLoading
+        }
+
+        XCTAssertEqual(viewModel.state.currentScript, .younger, "Script should switch to deep-link script")
+        XCTAssertEqual(viewModel.state.currentWidgetMode, .random, "Mode should switch to deep-link mode")
+        XCTAssertFalse(viewModel.state.latinText.isEmpty, "Quote should be loaded after deep-link handling")
+    }
+
     // MARK: - Refresh Tests
 
     @MainActor

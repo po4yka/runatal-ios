@@ -91,11 +91,17 @@ struct RunicQuotesApp: App {
 
         switch host {
         case "quote":
-            // Open quote tab and optionally change script
+            // Open quote tab and apply optional script/widget mode context.
+            let script = components?.queryItems?.first(where: { $0.name == "script" })?.value ?? ""
+            let mode = components?.queryItems?.first(where: { $0.name == "mode" })?.value ?? ""
+
             NotificationCenter.default.post(
                 name: .switchToQuoteTab,
                 object: nil,
-                userInfo: ["script": components?.queryItems?.first(where: { $0.name == "script" })?.value ?? ""]
+                userInfo: [
+                    "script": script,
+                    "mode": mode
+                ]
             )
         case "settings":
             // Open settings tab

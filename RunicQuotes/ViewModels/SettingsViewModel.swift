@@ -17,6 +17,7 @@ final class SettingsViewModel: ObservableObject {
     @Published var selectedScript: RunicScript = .elder
     @Published var selectedFont: RunicFont = .noto
     @Published var widgetMode: WidgetMode = .daily
+    @Published var selectedTheme: AppTheme = .obsidian
 
     @Published private(set) var errorMessage: String?
     @Published private(set) var isLoading: Bool = false
@@ -92,6 +93,12 @@ final class SettingsViewModel: ObservableObject {
         savePreferences()
     }
 
+    /// Update visual theme
+    func updateTheme(_ theme: AppTheme) {
+        selectedTheme = theme
+        savePreferences()
+    }
+
     // MARK: - Private Methods
 
     private func loadPreferences() async {
@@ -105,6 +112,7 @@ final class SettingsViewModel: ObservableObject {
             selectedScript = preferences?.selectedScript ?? .elder
             selectedFont = preferences?.selectedFont ?? .noto
             widgetMode = preferences?.widgetMode ?? .daily
+            selectedTheme = preferences?.selectedTheme ?? .obsidian
 
             isLoading = false
         } catch {
@@ -119,9 +127,11 @@ final class SettingsViewModel: ObservableObject {
         preferences.selectedScript = selectedScript
         preferences.selectedFont = selectedFont
         preferences.widgetMode = widgetMode
+        preferences.selectedTheme = selectedTheme
 
         do {
             try modelContext.save()
+            NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
             errorMessage = "Failed to save preferences: \(error.localizedDescription)"
         }

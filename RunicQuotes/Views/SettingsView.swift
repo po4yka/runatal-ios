@@ -46,6 +46,9 @@ struct SettingsView: View {
                     // Font selection
                     fontSection
 
+                    // Theme selection
+                    themeSection
+
                     // Widget settings
                     widgetSection
 
@@ -66,17 +69,15 @@ struct SettingsView: View {
         }
     }
 
+    private var themePalette: AppThemePalette {
+        viewModel.selectedTheme.palette
+    }
+
     // MARK: - Background
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: [
-                .pureBlack,
-                .darkGray1,
-                .darkGray2,
-                .darkGray1,
-                .pureBlack
-            ],
+            colors: themePalette.appBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -89,16 +90,16 @@ struct SettingsView: View {
         VStack(spacing: 8) {
             Image(systemName: "gear")
                 .font(.system(size: 50))
-                .foregroundColor(.white.opacity(0.8))
+                .foregroundColor(themePalette.secondaryText)
                 .accessibilityHidden(true)
 
             Text("Settings")
                 .font(.largeTitle.bold())
-                .foregroundColor(.white)
+                .foregroundColor(themePalette.primaryText)
 
             Text("Customize your runic experience")
                 .font(.subheadline)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(themePalette.tertiaryText)
         }
         .padding(.top, 20)
         .accessibilityElement(children: .combine)
@@ -115,7 +116,7 @@ struct SettingsView: View {
 
                 Text(viewModel.selectedScript.description)
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(themePalette.tertiaryText)
                     .padding(.bottom, 8)
 
                 GlassScriptSelector(
@@ -142,7 +143,7 @@ struct SettingsView: View {
 
                 Text("Choose your preferred runic font")
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(themePalette.tertiaryText)
                     .padding(.bottom, 8)
 
                 GlassFontSelector(
@@ -169,6 +170,81 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings_font_section")
     }
 
+    // MARK: - Theme Section
+
+    private var themeSection: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 16) {
+                sectionHeader("Theme", icon: "paintpalette")
+
+                Text(viewModel.selectedTheme.description)
+                    .font(.caption)
+                    .foregroundColor(themePalette.tertiaryText)
+                    .padding(.bottom, 8)
+
+                VStack(spacing: 12) {
+                    ForEach(AppTheme.allCases) { theme in
+                        themeButton(theme)
+                    }
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings_theme_section")
+    }
+
+    private func themeButton(_ theme: AppTheme) -> some View {
+        let palette = theme.palette
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                viewModel.updateTheme(theme)
+            }
+        } label: {
+            HStack(spacing: 12) {
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(palette.appBackgroundGradient.first ?? .black)
+                    Circle()
+                        .fill(palette.appBackgroundGradient.dropFirst().first ?? .gray)
+                    Circle()
+                        .fill(palette.appBackgroundGradient.last ?? .white)
+                }
+                .frame(width: 48, height: 12)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(theme.displayName)
+                        .font(.headline)
+                        .foregroundColor(themePalette.primaryText)
+
+                    Text(theme.description)
+                        .font(.caption)
+                        .foregroundColor(themePalette.tertiaryText)
+                }
+
+                Spacer()
+
+                if viewModel.selectedTheme == theme {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(themePalette.accent)
+                        .font(.title3)
+                        .accessibilityLabel("Selected")
+                }
+            }
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.thinMaterial)
+                    .opacity(viewModel.selectedTheme == theme ? 0.5 : 0.2)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel("\(theme.displayName) theme")
+        .accessibilityValue(viewModel.selectedTheme == theme ? "Selected" : "Not selected")
+        .accessibilityHint("Double tap to select the \(theme.displayName) theme")
+        .accessibilityIdentifier("settings_theme_\(theme.rawValue.replacingOccurrences(of: " ", with: "_"))")
+    }
+
     // MARK: - Widget Section
 
     private var widgetSection: some View {
@@ -178,7 +254,7 @@ struct SettingsView: View {
 
                 Text("How should the widget display quotes?")
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(themePalette.tertiaryText)
                     .padding(.bottom, 8)
 
                 VStack(spacing: 12) {
@@ -203,18 +279,18 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(mode.displayName)
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(themePalette.primaryText)
 
                     Text(mode.description)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(themePalette.tertiaryText)
                 }
 
                 Spacer()
 
                 if viewModel.widgetMode == mode {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.white)
+                        .foregroundColor(themePalette.accent)
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -252,7 +328,7 @@ struct SettingsView: View {
 
                 Text("Bringing ancient wisdom to modern devices")
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
+                    .foregroundColor(themePalette.tertiaryText)
                     .multilineTextAlignment(.center)
                     .padding(.top, 8)
             }
@@ -265,13 +341,13 @@ struct SettingsView: View {
         HStack {
             Text(label)
                 .font(.subheadline)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(themePalette.tertiaryText)
 
             Spacer()
 
             Text(value)
                 .font(.subheadline.weight(.medium))
-                .foregroundColor(.white)
+                .foregroundColor(themePalette.primaryText)
         }
     }
 
@@ -281,11 +357,11 @@ struct SettingsView: View {
         HStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.headline)
-                .foregroundColor(.white.opacity(0.8))
+                .foregroundColor(themePalette.secondaryText)
 
             Text(title)
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(themePalette.primaryText)
 
             Spacer()
         }

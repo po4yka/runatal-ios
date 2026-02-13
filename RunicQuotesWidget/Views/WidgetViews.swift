@@ -34,7 +34,7 @@ struct RunicQuoteWidgetEntryView: View {
                 SmallWidgetView(entry: entry)
             }
         }
-        .widgetURL(DeepLink.openQuote(script: entry.script).url)
+        .widgetURL(DeepLink.openQuote(script: entry.script, mode: entry.widgetMode).url)
     }
 }
 
@@ -42,6 +42,8 @@ struct RunicQuoteWidgetEntryView: View {
 
 struct SmallWidgetView: View {
     let entry: RunicQuoteEntry
+
+    private var palette: AppThemePalette { entry.theme.palette }
 
     var body: some View {
         ZStack {
@@ -55,7 +57,7 @@ struct SmallWidgetView: View {
                 // Runic text (truncated)
                 Text(entry.quote.runicText(for: entry.script))
                     .font(.custom(fontName, size: 20))
-                    .foregroundColor(.white)
+                    .foregroundColor(palette.primaryText)
                     .multilineTextAlignment(.center)
                     .lineLimit(4)
                     .minimumScaleFactor(0.7)
@@ -71,7 +73,7 @@ struct SmallWidgetView: View {
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: [.pureBlack, .darkGray1, .pureBlack],
+            colors: palette.widgetBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -80,7 +82,7 @@ struct SmallWidgetView: View {
     private var scriptIndicator: some View {
         Text(entry.script.displayName)
             .font(.caption2)
-            .foregroundColor(.white.opacity(0.5))
+            .foregroundColor(palette.tertiaryText)
     }
 
     private var fontName: String {
@@ -92,6 +94,8 @@ struct SmallWidgetView: View {
 
 struct MediumWidgetView: View {
     let entry: RunicQuoteEntry
+
+    private var palette: AppThemePalette { entry.theme.palette }
 
     var body: some View {
         ZStack {
@@ -109,7 +113,7 @@ struct MediumWidgetView: View {
                 VStack(alignment: .center, spacing: 8) {
                     Text(entry.quote.runicText(for: entry.script))
                         .font(.custom(fontName, size: 24))
-                        .foregroundColor(.white)
+                        .foregroundColor(palette.primaryText)
                         .multilineTextAlignment(.center)
                         .lineLimit(3)
                         .minimumScaleFactor(0.6)
@@ -121,7 +125,7 @@ struct MediumWidgetView: View {
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [.clear, .white.opacity(0.3), .clear],
+                            colors: [.clear, palette.divider, .clear],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -132,7 +136,7 @@ struct MediumWidgetView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(entry.quote.textLatin)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(palette.secondaryText)
                         .lineLimit(3)
                         .minimumScaleFactor(0.8)
 
@@ -140,7 +144,7 @@ struct MediumWidgetView: View {
 
                     Text("— \(entry.quote.author)")
                         .font(.caption2)
-                        .foregroundColor(.white.opacity(0.6))
+                        .foregroundColor(palette.tertiaryText)
                         .italic()
                         .lineLimit(1)
 
@@ -154,7 +158,7 @@ struct MediumWidgetView: View {
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: [.pureBlack, .darkGray1, .darkGray2, .darkGray1, .pureBlack],
+            colors: palette.widgetBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -163,7 +167,7 @@ struct MediumWidgetView: View {
     private var scriptIndicator: some View {
         Text(entry.script.displayName)
             .font(.caption2)
-            .foregroundColor(.white.opacity(0.4))
+            .foregroundColor(palette.tertiaryText)
     }
 
     private var fontName: String {
@@ -175,6 +179,8 @@ struct MediumWidgetView: View {
 
 struct LargeWidgetView: View {
     let entry: RunicQuoteEntry
+
+    private var palette: AppThemePalette { entry.theme.palette }
 
     var body: some View {
         ZStack {
@@ -192,13 +198,13 @@ struct LargeWidgetView: View {
                 HStack {
                     Text(entry.script.displayName)
                         .font(.headline)
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(palette.secondaryText)
 
                     Spacer()
 
                     Text(entry.widgetMode.displayName)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(palette.tertiaryText)
                 }
 
                 Spacer()
@@ -206,7 +212,7 @@ struct LargeWidgetView: View {
                 // Runic text (large)
                 Text(entry.quote.runicText(for: entry.script))
                     .font(.custom(fontName, size: 32))
-                    .foregroundColor(.white)
+                    .foregroundColor(palette.primaryText)
                     .multilineTextAlignment(.center)
                     .lineLimit(6)
                     .minimumScaleFactor(0.6)
@@ -221,7 +227,7 @@ struct LargeWidgetView: View {
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [.clear, .white.opacity(0.3), .clear],
+                            colors: [.clear, palette.divider, .clear],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -232,14 +238,14 @@ struct LargeWidgetView: View {
                 // Latin text
                 Text(entry.quote.textLatin)
                     .font(.body)
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(palette.secondaryText)
                     .multilineTextAlignment(.center)
                     .lineLimit(4)
 
                 // Author
                 Text("— \(entry.quote.author)")
                     .font(.callout)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(palette.tertiaryText)
                     .italic()
 
                 Spacer()
@@ -250,7 +256,7 @@ struct LargeWidgetView: View {
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: [.pureBlack, .darkGray1, .darkGray2, .darkGray1, .pureBlack],
+            colors: palette.widgetBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )

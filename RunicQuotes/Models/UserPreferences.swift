@@ -23,6 +23,12 @@ final class UserPreferences {
     /// Widget display mode
     var widgetModeRaw: String
 
+    /// Selected visual theme
+    var selectedThemeRaw: String
+
+    /// Comma-separated list of saved quote UUID strings
+    var savedQuoteIDsRaw: String?
+
     /// Last updated timestamp
     var lastUpdated: Date
 
@@ -59,17 +65,80 @@ final class UserPreferences {
         }
     }
 
+    /// Computed property for visual theme
+    var selectedTheme: AppTheme {
+        get {
+            AppTheme(rawValue: selectedThemeRaw) ?? .obsidian
+        }
+        set {
+            selectedThemeRaw = newValue.rawValue
+            lastUpdated = Date()
+        }
+    }
+
+    /// Saved quote identifiers
+    var savedQuoteIDs: Set<UUID> {
+        get {
+            guard let savedQuoteIDsRaw, !savedQuoteIDsRaw.isEmpty else {
+                return []
+            }
+
+            let parsed = savedQuoteIDsRaw
+                .split(separator: ",")
+                .compactMap { UUID(uuidString: String($0)) }
+
+            return Set(parsed)
+        }
+        set {
+            savedQuoteIDsRaw = newValue
+                .map(\.uuidString)
+                .sorted()
+                .joined(separator: ",")
+            lastUpdated = Date()
+        }
+    }
+
     /// Initialize with default preferences
     init(
         selectedScript: RunicScript = .elder,
         selectedFont: RunicFont = .noto,
-        widgetMode: WidgetMode = .daily
+        widgetMode: WidgetMode = .daily,
+        selectedTheme: AppTheme = .obsidian,
+        savedQuoteIDs: Set<UUID> = []
     ) {
         self.id = UUID()
         self.selectedScriptRaw = selectedScript.rawValue
         self.selectedFontRaw = selectedFont.rawValue
         self.widgetModeRaw = widgetMode.rawValue
+        self.selectedThemeRaw = selectedTheme.rawValue
+        self.savedQuoteIDsRaw = savedQuoteIDs
+            .map(\.uuidString)
+            .sorted()
+            .joined(separator: ",")
         self.lastUpdated = Date()
+    }
+
+    /// Check whether a quote is saved.
+    func isQuoteSaved(_ id: UUID) -> Bool {
+        savedQuoteIDs.contains(id)
+    }
+
+    /// Toggle the saved state for a quote and return the resulting state.
+    @discardableResult
+    func toggleSavedQuote(_ id: UUID) -> Bool {
+        var ids = savedQuoteIDs
+        let isNowSaved: Bool
+
+        if ids.contains(id) {
+            ids.remove(id)
+            isNowSaved = false
+        } else {
+            ids.insert(id)
+            isNowSaved = true
+        }
+
+        savedQuoteIDs = ids
+        return isNowSaved
     }
 
     /// Get or create the singleton preferences instance
@@ -97,7 +166,8 @@ extension UserPreferences {
         UserPreferences(
             selectedScript: .elder,
             selectedFont: .noto,
-            widgetMode: .daily
+            widgetMode: .daily,
+            selectedTheme: .obsidian
         )
     }
 }

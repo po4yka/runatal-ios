@@ -22,6 +22,9 @@ struct RunicQuoteEntry: TimelineEntry {
     /// Selected font
     let font: RunicFont
 
+    /// Selected visual theme
+    let theme: AppTheme
+
     /// Widget display mode
     let widgetMode: WidgetMode
 
@@ -32,6 +35,7 @@ struct RunicQuoteEntry: TimelineEntry {
             quote: QuoteData.sample,
             script: .elder,
             font: .noto,
+            theme: .obsidian,
             widgetMode: .daily
         )
     }

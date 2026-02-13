@@ -6,9 +6,6 @@
 //
 
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 /// A button component with liquid glass/glassmorphism design
 struct GlassButton: View {
@@ -16,6 +13,7 @@ struct GlassButton: View {
 
     let title: String
     let icon: String?
+    let hapticTier: HapticTier?
     let action: () -> Void
 
     let opacity: GlassOpacity
@@ -31,6 +29,7 @@ struct GlassButton: View {
     init(
         _ title: String,
         icon: String? = nil,
+        hapticTier: HapticTier? = nil,
         opacity: GlassOpacity = .low,
         blur: Material = .thinMaterial,
         cornerRadius: CGFloat = 12,
@@ -39,6 +38,7 @@ struct GlassButton: View {
     ) {
         self.title = title
         self.icon = icon
+        self.hapticTier = hapticTier
         self.opacity = opacity
         self.blur = blur
         self.cornerRadius = cornerRadius
@@ -50,7 +50,9 @@ struct GlassButton: View {
 
     var body: some View {
         Button(action: {
-            triggerHapticIfAvailable()
+            if let hapticTier {
+                Haptics.trigger(hapticTier)
+            }
             action()
         }) {
             HStack(spacing: 8) {
@@ -123,13 +125,6 @@ struct GlassButton: View {
         )
         .accessibilityAddTraits(.isButton)
     }
-
-    private func triggerHapticIfAvailable() {
-#if canImport(UIKit)
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-#endif
-    }
 }
 
 // MARK: - Convenience Variants
@@ -139,11 +134,13 @@ extension GlassButton {
     static func primary(
         _ title: String,
         icon: String? = nil,
+        hapticTier: HapticTier? = nil,
         action: @escaping () -> Void
     ) -> GlassButton {
         GlassButton(
             title,
             icon: icon,
+            hapticTier: hapticTier,
             opacity: .mediumLow,
             blur: .regularMaterial,
             action: action
@@ -154,11 +151,13 @@ extension GlassButton {
     static func secondary(
         _ title: String,
         icon: String? = nil,
+        hapticTier: HapticTier? = nil,
         action: @escaping () -> Void
     ) -> GlassButton {
         GlassButton(
             title,
             icon: icon,
+            hapticTier: hapticTier,
             opacity: .veryLow,
             blur: .ultraThinMaterial,
             action: action
@@ -169,11 +168,13 @@ extension GlassButton {
     static func compact(
         _ title: String,
         icon: String? = nil,
+        hapticTier: HapticTier? = nil,
         action: @escaping () -> Void
     ) -> GlassButton {
         GlassButton(
             title,
             icon: icon,
+            hapticTier: hapticTier,
             opacity: .low,
             blur: .thinMaterial,
             cornerRadius: 10,

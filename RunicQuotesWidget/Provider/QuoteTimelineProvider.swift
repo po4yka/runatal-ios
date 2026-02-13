@@ -67,6 +67,7 @@ struct QuoteTimelineProvider: TimelineProvider {
             quote: quote,
             script: preferences.selectedScript,
             font: preferences.selectedFont,
+            theme: preferences.selectedTheme,
             widgetMode: preferences.widgetMode
         )
 
@@ -93,6 +94,7 @@ struct QuoteTimelineProvider: TimelineProvider {
             quote: nextQuote,
             script: preferences.selectedScript,
             font: preferences.selectedFont,
+            theme: preferences.selectedTheme,
             widgetMode: preferences.widgetMode
         )
 
@@ -110,6 +112,7 @@ struct QuoteTimelineProvider: TimelineProvider {
         return UserPreferencesData(
             selectedScript: preferences.selectedScript,
             selectedFont: preferences.selectedFont,
+            selectedTheme: preferences.selectedTheme,
             widgetMode: preferences.widgetMode
         )
     }
@@ -173,6 +176,7 @@ struct QuoteTimelineProvider: TimelineProvider {
 struct UserPreferencesData: Sendable {
     let selectedScript: RunicScript
     let selectedFont: RunicFont
+    let selectedTheme: AppTheme
     let widgetMode: WidgetMode
 }
 

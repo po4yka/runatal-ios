@@ -18,7 +18,7 @@ struct RunicQuoteWidget: Widget {
                 .containerBackground(for: .widget) {
                     // Widget background
                     LinearGradient(
-                        colors: [.pureBlack, .darkGray1, .pureBlack],
+                        colors: entry.theme.palette.widgetBackgroundGradient,
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )

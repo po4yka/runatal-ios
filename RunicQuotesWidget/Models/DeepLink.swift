@@ -10,7 +10,7 @@ import Foundation
 /// Deep link URLs for widget interactions
 enum DeepLink {
     case openApp
-    case openQuote(script: RunicScript)
+    case openQuote(script: RunicScript, mode: WidgetMode)
     case openSettings
     case nextQuote
 
@@ -23,14 +23,17 @@ enum DeepLink {
             }
             return url
 
-        case .openQuote(let script):
+        case .openQuote(let script, let mode):
             var components = URLComponents()
             components.scheme = "runicquotes"
             components.host = "quote"
-            components.queryItems = [URLQueryItem(name: "script", value: script.rawValue)]
+            components.queryItems = [
+                URLQueryItem(name: "script", value: script.rawValue),
+                URLQueryItem(name: "mode", value: mode.rawValue)
+            ]
 
             guard let url = components.url else {
-                preconditionFailure("Failed to construct URL for script: \(script.rawValue)")
+                preconditionFailure("Failed to construct URL for script/mode: \(script.rawValue)/\(mode.rawValue)")
             }
             return url
 
@@ -59,7 +62,9 @@ enum DeepLink {
         case "quote":
             if let scriptParam = components?.queryItems?.first(where: { $0.name == "script" })?.value,
                let script = RunicScript(rawValue: scriptParam) {
-                return .openQuote(script: script)
+                let modeParam = components?.queryItems?.first(where: { $0.name == "mode" })?.value
+                let mode = WidgetMode(rawValue: modeParam ?? "") ?? .daily
+                return .openQuote(script: script, mode: mode)
             }
             return .openApp
         case "settings":
