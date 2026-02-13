@@ -1,0 +1,1162 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0F7465A5FBBF23B9D6B3725D /* LocalizedStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0572121338E018703DEBF99 /* LocalizedStrings.swift */; };
+		10695CE75AA38F66515EBF5B /* CirthMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E501CC20F94D2F90B7A211D /* CirthMap.swift */; };
+		10BBCE73247AE674E321BD5C /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12F8044DB7C3C929720833B /* OnboardingView.swift */; };
+		126B49736074AFEA39AEC455 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3923750024819D8496CAE6BD /* AppConstants.swift */; };
+		141F2F2192D738B66E839AB2 /* Color+Grayscale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68374746B6819E453C693058 /* Color+Grayscale.swift */; };
+		1C088E7AC2C15936D79C820C /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A760915913A7ACBEF831D3 /* Haptics.swift */; };
+		1D578B506EDB7798FB1E5CE9 /* CollectionCoverCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68668DB56EA18E37C5626B4C /* CollectionCoverCarousel.swift */; };
+		2050B7102C2065AB8792FF09 /* RunicFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7717F484AC75C90A2D3B5A01 /* RunicFont.swift */; };
+		211DDC3DF4D6EA215738AF0A /* RunicQuotesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5037407413A7D34EC185279E /* RunicQuotesUITests.swift */; };
+		220364F3938657F8DEC8194F /* RunicTransliterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF4E39481FE5CC535021F03E /* RunicTransliterator.swift */; };
+		23A0874AE79D7FFECEA0F6E2 /* QuoteTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3995C194091E379986B7FA /* QuoteTimelineProvider.swift */; };
+		25071A27E9B2F9D76C9D108E /* AppThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */; };
+		2559DBF5E8351F90F2AE81DC /* GlassScriptSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D71542EC46EEF7E2614247D /* GlassScriptSelector.swift */; };
+		2A59105385340183C91A5D40 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D66DF992AD1C9DB6BB78E142 /* LaunchScreen.storyboard */; };
+		2C66E92E3BBE29756A155BCF /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3923750024819D8496CAE6BD /* AppConstants.swift */; };
+		2DEDA57AE81BEB74809E5E2B /* WidgetMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EBB6B11964F6BFB456D402 /* WidgetMode.swift */; };
+		2F919D1D86E9E9DB98EFCBF7 /* YoungerFutharkMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936E5F0180B59B59CC6F6882 /* YoungerFutharkMap.swift */; };
+		34363C10AA37E64A010147E3 /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927908F9119D131D5B0AFA82 /* SettingsViewModelTests.swift */; };
+		3469E397AD3AD02541DEB6D0 /* QuoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C086E6B5E1D77DDAAA16CD5B /* QuoteRepository.swift */; };
+		3A0DC1F17229491ADF1BF1FC /* DynamicTypeSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA92BAFC2E41A80A9CAFBC7B /* DynamicTypeSupport.swift */; };
+		4206CF10E41D67894E0EFB8D /* RunicTransliteratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254648007D90E0C204E80CCD /* RunicTransliteratorTests.swift */; };
+		46B0A4AAD899F99EF0303A1D /* WidgetMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EBB6B11964F6BFB456D402 /* WidgetMode.swift */; };
+		46E53617063D01BD9178AB6B /* RunicQuoteWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12EDBBCEE515BC6A58EE61D7 /* RunicQuoteWidget.swift */; };
+		4718B077D321E7BE7379DD4C /* RunicFontConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E5680C9E1529A0B6D900E4 /* RunicFontConfiguration.swift */; };
+		4DF70599A0A21C753F0C1473 /* QuoteCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF971F9C0D5DF5108CFC3A02 /* QuoteCollection.swift */; };
+		50A9927028BEBA261290684D /* UserPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA53EDE9F12376E5252378D4 /* UserPreferences.swift */; };
+		5363ADAD1F44DCB98B94275C /* RunicTransliterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF4E39481FE5CC535021F03E /* RunicTransliterator.swift */; };
+		54C43A3CF875C222426A03F1 /* QuoteProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED608F00B70B2BC378B5BF3 /* QuoteProvider.swift */; };
+		558E5D11FACA438B904E5AE9 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B218CD2F98CC6AC16F46E0 /* AppTheme.swift */; };
+		59A1192416D1034623DAEFC3 /* ModelContainerHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DA227928089FE875FE01BDE /* ModelContainerHelper.swift */; };
+		59C39DC0FD287FD6272192DB /* DatabaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F516A2CACE7DDDCB2CDFBE8A /* DatabaseCoordinator.swift */; };
+		5A5F6272C576B4A932A2262E /* UserPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA53EDE9F12376E5252378D4 /* UserPreferences.swift */; };
+		5C7C726C5D5DBC763345ED96 /* QuoteCollectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4FD903EF9A52601139F16D /* QuoteCollectionTests.swift */; };
+		62ED0FBEEF754AED00705FA4 /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 810109210D1FFC4956A69626 /* GlassButton.swift */; };
+		63C3680FB7D6E17038385A71 /* DatabaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F516A2CACE7DDDCB2CDFBE8A /* DatabaseCoordinator.swift */; };
+		6A262E5F6A04E5B6A0A91A47 /* QuoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800A14271C3DC6CA765C4888 /* QuoteRepositoryTests.swift */; };
+		6A680CF7E663F46CCF1D1DF3 /* ElderFutharkMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46452B8F56C21A463E70BD0 /* ElderFutharkMap.swift */; };
+		6BD08B45794A429D3A16CFE0 /* BabelStoneRunic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 97901C0182B80CACC32A10D7 /* BabelStoneRunic.ttf */; };
+		6C6B492202A9D5A42EE274A5 /* NotoSansRunic-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 32D3BA9B28CF8FB640C23F9F /* NotoSansRunic-Regular.ttf */; };
+		72F093FA4BE11469509B80EB /* CirthAngerthas.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2904EB09440EF9C5DE602EBB /* CirthAngerthas.ttf */; };
+		730EB1B3FCAC91086FB7CE28 /* RunicQuotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBEFFAC55FDA3C9150DBDF3 /* RunicQuotesApp.swift */; };
+		7908DF1D0CE5EEEF622595F4 /* ModelContainerHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DA227928089FE875FE01BDE /* ModelContainerHelper.swift */; };
+		7A45931651C0FA816B13E696 /* Color+Grayscale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68374746B6819E453C693058 /* Color+Grayscale.swift */; };
+		7BEA39CA07995B21E739BD68 /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF06D889D3A3AC61D89E477 /* WidgetViews.swift */; };
+		7D322F8FB61E85BDBABC9664 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDFAB852621B8BDD54F7F279 /* GlassCard.swift */; };
+		804EC8C73A8B78699841AEEA /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824C528D8EA4F2613FB657E3 /* Quote.swift */; };
+		82C16CE93A91889F71DFF647 /* RunicScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FEF97BAB04EAD97712BBC0 /* RunicScript.swift */; };
+		84FCA4D0DDBE901E4B7A775F /* WidgetStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B87B33A496BEDBE1CAF18D /* WidgetStyle.swift */; };
+		884BBCB6FAB4CA94523E3222 /* QuoteTimelineProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEBD19C931369BD601AE645E /* QuoteTimelineProviderTests.swift */; };
+		90BE1FBC6EC509A80DAEE439 /* quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = E74382339680BCDC248E90D2 /* quotes.json */; };
+		90C96E80B659D13E50CBB56E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E144C9CE793AD73C6BC6040 /* SettingsView.swift */; };
+		99B35A1089034989233B4087 /* RunicFontConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E5680C9E1529A0B6D900E4 /* RunicFontConfiguration.swift */; };
+		9F5588419BD21F54A47A774C /* ReadingPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED52650A02D09999DFC1036 /* ReadingPreset.swift */; };
+		9F6BEE946B24DC67F181CDCE /* RunicScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FEF97BAB04EAD97712BBC0 /* RunicScript.swift */; };
+		A088A32763F073C1700BECDC /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F6B51B2127D3ED6FA3D88F08 /* Localizable.xcstrings */; };
+		A5B753D73A1B9CE5A1087125 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824C528D8EA4F2613FB657E3 /* Quote.swift */; };
+		A7CFEF718CDFCBAAE437D658 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B218CD2F98CC6AC16F46E0 /* AppTheme.swift */; };
+		AC66D2268BDE1AAE8F0985EA /* LocalizedStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0572121338E018703DEBF99 /* LocalizedStrings.swift */; };
+		ADE224CAB957EE2DDC38E387 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82E4001B0BFC0226B7679656 /* SettingsViewModel.swift */; };
+		AED3D2265B6E697390FF2B3B /* QuoteCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF971F9C0D5DF5108CFC3A02 /* QuoteCollection.swift */; };
+		B6A1B05386BB9F0DC118E51E /* QuoteProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED608F00B70B2BC378B5BF3 /* QuoteProvider.swift */; };
+		BA67058E31B74300E5599144 /* CirthMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E501CC20F94D2F90B7A211D /* CirthMap.swift */; };
+		C1364C06B4D1106BB9FC5F42 /* QuoteViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867E3D7B78E5CD810F554534 /* QuoteViewModelTests.swift */; };
+		C2627DFEEEEE506F9D3D9A34 /* AppThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */; };
+		C62E741B21EFE0B002211A73 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A760915913A7ACBEF831D3 /* Haptics.swift */; };
+		C63B820E9FB194419641AACC /* QuoteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C8010AE508ED00AC4CC115 /* QuoteViewModel.swift */; };
+		C909439083D8E3C938D1044F /* RunicFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7717F484AC75C90A2D3B5A01 /* RunicFont.swift */; };
+		CA3FF83FBE903B1B6FBFDB17 /* ReadingPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED52650A02D09999DFC1036 /* ReadingPreset.swift */; };
+		CBC56A42ECA5A67AE559E02B /* QuoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C086E6B5E1D77DDAAA16CD5B /* QuoteRepository.swift */; };
+		D0539195B2ED299275FA2B09 /* YoungerFutharkMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936E5F0180B59B59CC6F6882 /* YoungerFutharkMap.swift */; };
+		DFD3B5AE12A2FE8C819D15A4 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D34B8873A22AAEDA508955A /* DeepLink.swift */; };
+		E9002ED47A3965A4C4445863 /* ElderFutharkMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46452B8F56C21A463E70BD0 /* ElderFutharkMap.swift */; };
+		EF44426D8BF9164F30FE0F7E /* RunicQuoteEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3708C45340DFD63A8B0F4FBD /* RunicQuoteEntry.swift */; };
+		F0AF87AAB73DC698E88F930D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C42400DDAC27061BF67A62E /* Assets.xcassets */; };
+		F6F22B9048076143978966CB /* DynamicTypeSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA92BAFC2E41A80A9CAFBC7B /* DynamicTypeSupport.swift */; };
+		F96C81B3F699418596E40B0B /* QuoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 992911E8E077D3D32D46855A /* QuoteView.swift */; };
+		FE2002A8780BE10D5DC555C8 /* WidgetStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B87B33A496BEDBE1CAF18D /* WidgetStyle.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		11271A14C4533758847D9AA8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B1FF3BC11B74C383AD0B908 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9DD043A9C7D3980F15E64D21;
+			remoteInfo = RunicQuotes;
+		};
+		1BE353B320FF8D3CA1B08FCF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B1FF3BC11B74C383AD0B908 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9DD043A9C7D3980F15E64D21;
+			remoteInfo = RunicQuotes;
+		};
+		34A89CB4B44B07E3E4E7C91D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B1FF3BC11B74C383AD0B908 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9DD043A9C7D3980F15E64D21;
+			remoteInfo = RunicQuotes;
+		};
+		86F9902423557B97CCD6F231 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B1FF3BC11B74C383AD0B908 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD613F5936420F818DCDDC25;
+			remoteInfo = RunicQuotesWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		01FEF97BAB04EAD97712BBC0 /* RunicScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicScript.swift; sourceTree = "<group>"; };
+		022F340F79C8A7A2FFE5D144 /* RunicQuotesTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RunicQuotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		085BCAC2A869D332CB5C6223 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		0E501CC20F94D2F90B7A211D /* CirthMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirthMap.swift; sourceTree = "<group>"; };
+		12EDBBCEE515BC6A58EE61D7 /* RunicQuoteWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicQuoteWidget.swift; sourceTree = "<group>"; };
+		1473DDDB9A7ABB5A968439A8 /* RunicQuotesUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RunicQuotesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		254648007D90E0C204E80CCD /* RunicTransliteratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicTransliteratorTests.swift; sourceTree = "<group>"; };
+		2904EB09440EF9C5DE602EBB /* CirthAngerthas.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CirthAngerthas.ttf; sourceTree = "<group>"; };
+		2941E0513FED4AD817461D21 /* RunicQuotes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunicQuotes.entitlements; sourceTree = "<group>"; };
+		2E144C9CE793AD73C6BC6040 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		2ED608F00B70B2BC378B5BF3 /* QuoteProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteProvider.swift; sourceTree = "<group>"; };
+		32D3BA9B28CF8FB640C23F9F /* NotoSansRunic-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSansRunic-Regular.ttf"; sourceTree = "<group>"; };
+		3708C45340DFD63A8B0F4FBD /* RunicQuoteEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicQuoteEntry.swift; sourceTree = "<group>"; };
+		3923750024819D8496CAE6BD /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
+		403966B087C059F2AE659A95 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		42EBB6B11964F6BFB456D402 /* WidgetMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetMode.swift; sourceTree = "<group>"; };
+		45C8010AE508ED00AC4CC115 /* QuoteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteViewModel.swift; sourceTree = "<group>"; };
+		48AC3D567F942B2C78070FB3 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		4C42400DDAC27061BF67A62E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4DA227928089FE875FE01BDE /* ModelContainerHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContainerHelper.swift; sourceTree = "<group>"; };
+		4DD072C5D37EA24EEBC74137 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		4FBEFFAC55FDA3C9150DBDF3 /* RunicQuotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicQuotesApp.swift; sourceTree = "<group>"; };
+		5037407413A7D34EC185279E /* RunicQuotesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicQuotesUITests.swift; sourceTree = "<group>"; };
+		543205B0ED7AE8B9DDF52AAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5A30AC65989A34A7C009B61D /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		5E9A0E70518E073D81D54A44 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		61558C0A5062DD4EC0DCAEA0 /* RunicQuotesWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunicQuotesWidget.entitlements; sourceTree = "<group>"; };
+		68374746B6819E453C693058 /* Color+Grayscale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Grayscale.swift"; sourceTree = "<group>"; };
+		68668DB56EA18E37C5626B4C /* CollectionCoverCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionCoverCarousel.swift; sourceTree = "<group>"; };
+		6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppThemePalette.swift; sourceTree = "<group>"; };
+		7717F484AC75C90A2D3B5A01 /* RunicFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicFont.swift; sourceTree = "<group>"; };
+		78B218CD2F98CC6AC16F46E0 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		7A31C3BA8E83A76D6D8FBCA8 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		800A14271C3DC6CA765C4888 /* QuoteRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteRepositoryTests.swift; sourceTree = "<group>"; };
+		810109210D1FFC4956A69626 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
+		824C528D8EA4F2613FB657E3 /* Quote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quote.swift; sourceTree = "<group>"; };
+		82E4001B0BFC0226B7679656 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		84E5680C9E1529A0B6D900E4 /* RunicFontConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicFontConfiguration.swift; sourceTree = "<group>"; };
+		867E3D7B78E5CD810F554534 /* QuoteViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteViewModelTests.swift; sourceTree = "<group>"; };
+		8D34B8873A22AAEDA508955A /* DeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLink.swift; sourceTree = "<group>"; };
+		927908F9119D131D5B0AFA82 /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
+		936E5F0180B59B59CC6F6882 /* YoungerFutharkMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YoungerFutharkMap.swift; sourceTree = "<group>"; };
+		97901C0182B80CACC32A10D7 /* BabelStoneRunic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = BabelStoneRunic.ttf; sourceTree = "<group>"; };
+		992911E8E077D3D32D46855A /* QuoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteView.swift; sourceTree = "<group>"; };
+		9D71542EC46EEF7E2614247D /* GlassScriptSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassScriptSelector.swift; sourceTree = "<group>"; };
+		9ED52650A02D09999DFC1036 /* ReadingPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPreset.swift; sourceTree = "<group>"; };
+		A12F8044DB7C3C929720833B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		A570CDFABD36722169A07171 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		AF4E39481FE5CC535021F03E /* RunicTransliterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicTransliterator.swift; sourceTree = "<group>"; };
+		B0572121338E018703DEBF99 /* LocalizedStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedStrings.swift; sourceTree = "<group>"; };
+		BEBD19C931369BD601AE645E /* QuoteTimelineProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteTimelineProviderTests.swift; sourceTree = "<group>"; };
+		C086E6B5E1D77DDAAA16CD5B /* QuoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteRepository.swift; sourceTree = "<group>"; };
+		CA53EDE9F12376E5252378D4 /* UserPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferences.swift; sourceTree = "<group>"; };
+		D46452B8F56C21A463E70BD0 /* ElderFutharkMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElderFutharkMap.swift; sourceTree = "<group>"; };
+		D4E2F0891AE1C3036B6C3BFF /* RunicQuotesWidgetTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RunicQuotesWidgetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D66DF992AD1C9DB6BB78E142 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		D71E09151A93074BEBB26FFA /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		DB85E8A1305244A8E116BF3B /* RunicQuotes.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RunicQuotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCF06D889D3A3AC61D89E477 /* WidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
+		DDFAB852621B8BDD54F7F279 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		E1B87B33A496BEDBE1CAF18D /* WidgetStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetStyle.swift; sourceTree = "<group>"; };
+		E60A43B6094C1280E441EF1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E74382339680BCDC248E90D2 /* quotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = quotes.json; sourceTree = "<group>"; };
+		E8A760915913A7ACBEF831D3 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		E917694A8BB0D5A08FE8CE92 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		EA92BAFC2E41A80A9CAFBC7B /* DynamicTypeSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicTypeSupport.swift; sourceTree = "<group>"; };
+		ED3995C194091E379986B7FA /* QuoteTimelineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteTimelineProvider.swift; sourceTree = "<group>"; };
+		F0C6AAD3297BCB76481D7FC5 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		F516A2CACE7DDDCB2CDFBE8A /* DatabaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseCoordinator.swift; sourceTree = "<group>"; };
+		F6B51B2127D3ED6FA3D88F08 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		F9B829EF28FD7EB7CCEFF095 /* RunicQuotesWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = RunicQuotesWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE4FD903EF9A52601139F16D /* QuoteCollectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteCollectionTests.swift; sourceTree = "<group>"; };
+		FF971F9C0D5DF5108CFC3A02 /* QuoteCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteCollection.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		04772EDFBFDDD6A1A5FF7110 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DB85E8A1305244A8E116BF3B /* RunicQuotes.app */,
+				022F340F79C8A7A2FFE5D144 /* RunicQuotesTests.xctest */,
+				1473DDDB9A7ABB5A968439A8 /* RunicQuotesUITests.xctest */,
+				F9B829EF28FD7EB7CCEFF095 /* RunicQuotesWidget.appex */,
+				D4E2F0891AE1C3036B6C3BFF /* RunicQuotesWidgetTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0C3F3B7533151772F86A3561 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				403966B087C059F2AE659A95 /* .gitkeep */,
+				68374746B6819E453C693058 /* Color+Grayscale.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		250201920BB6A27EDB96496B /* RunicQuotes */ = {
+			isa = PBXGroup;
+			children = (
+				6E9D9288401706AD5B7AC125 /* App */,
+				D4B5E831F3F8A14E307F8A71 /* Data */,
+				C27B85BC8B6FFC2E578531FF /* Models */,
+				6A6F47F3C20198872F9E7112 /* Resources */,
+				7B1AC9940A015458212734D5 /* Utilities */,
+				B0351B397AFE6BC481318A1E /* ViewModels */,
+				9FC2B808C536AE6E03A03093 /* Views */,
+				2941E0513FED4AD817461D21 /* RunicQuotes.entitlements */,
+			);
+			path = RunicQuotes;
+			sourceTree = "<group>";
+		};
+		2B066C27EA122288E603522D /* Provider */ = {
+			isa = PBXGroup;
+			children = (
+				ED3995C194091E379986B7FA /* QuoteTimelineProvider.swift */,
+			);
+			path = Provider;
+			sourceTree = "<group>";
+		};
+		2BC0C976E83B96088296E37B /* Actors */ = {
+			isa = PBXGroup;
+			children = (
+				D71E09151A93074BEBB26FFA /* .gitkeep */,
+				F516A2CACE7DDDCB2CDFBE8A /* DatabaseCoordinator.swift */,
+				2ED608F00B70B2BC378B5BF3 /* QuoteProvider.swift */,
+			);
+			path = Actors;
+			sourceTree = "<group>";
+		};
+		2E3DEE95BC6D47B6029A43E3 /* Enums */ = {
+			isa = PBXGroup;
+			children = (
+				A570CDFABD36722169A07171 /* .gitkeep */,
+				78B218CD2F98CC6AC16F46E0 /* AppTheme.swift */,
+				FF971F9C0D5DF5108CFC3A02 /* QuoteCollection.swift */,
+				9ED52650A02D09999DFC1036 /* ReadingPreset.swift */,
+				7717F484AC75C90A2D3B5A01 /* RunicFont.swift */,
+				01FEF97BAB04EAD97712BBC0 /* RunicScript.swift */,
+				42EBB6B11964F6BFB456D402 /* WidgetMode.swift */,
+				E1B87B33A496BEDBE1CAF18D /* WidgetStyle.swift */,
+			);
+			path = Enums;
+			sourceTree = "<group>";
+		};
+		313A060D406895F2B5159EDB /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				800A14271C3DC6CA765C4888 /* QuoteRepositoryTests.swift */,
+				254648007D90E0C204E80CCD /* RunicTransliteratorTests.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		3659931FE812A897A17D90A2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				8D34B8873A22AAEDA508955A /* DeepLink.swift */,
+				3708C45340DFD63A8B0F4FBD /* RunicQuoteEntry.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4406ADD9F561BC984BED6657 /* Localizations */ = {
+			isa = PBXGroup;
+			children = (
+				F6B51B2127D3ED6FA3D88F08 /* Localizable.xcstrings */,
+			);
+			path = Localizations;
+			sourceTree = "<group>";
+		};
+		4825FE62397978CA53B85BD4 /* RunicQuotesWidgetTests */ = {
+			isa = PBXGroup;
+			children = (
+				BEBD19C931369BD601AE645E /* QuoteTimelineProviderTests.swift */,
+			);
+			path = RunicQuotesWidgetTests;
+			sourceTree = "<group>";
+		};
+		6A6F47F3C20198872F9E7112 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A31827C770AB9ADEB06C01A7 /* Fonts */,
+				4406ADD9F561BC984BED6657 /* Localizations */,
+				9D4615357B87EE8F24CC9B8C /* SeedData */,
+				4C42400DDAC27061BF67A62E /* Assets.xcassets */,
+				D66DF992AD1C9DB6BB78E142 /* LaunchScreen.storyboard */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		6E9D9288401706AD5B7AC125 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				48AC3D567F942B2C78070FB3 /* .gitkeep */,
+				543205B0ED7AE8B9DDF52AAD /* Info.plist */,
+				4FBEFFAC55FDA3C9150DBDF3 /* RunicQuotesApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		73E0DE468356CDA7D2253BDF /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				5E9A0E70518E073D81D54A44 /* .gitkeep */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		77488CF3DA7E1758A7BB179E /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				5A30AC65989A34A7C009B61D /* .gitkeep */,
+				C086E6B5E1D77DDAAA16CD5B /* QuoteRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		7B1AC9940A015458212734D5 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				0C3F3B7533151772F86A3561 /* Extensions */,
+				3923750024819D8496CAE6BD /* AppConstants.swift */,
+				6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */,
+				EA92BAFC2E41A80A9CAFBC7B /* DynamicTypeSupport.swift */,
+				E8A760915913A7ACBEF831D3 /* Haptics.swift */,
+				B0572121338E018703DEBF99 /* LocalizedStrings.swift */,
+				4DA227928089FE875FE01BDE /* ModelContainerHelper.swift */,
+				84E5680C9E1529A0B6D900E4 /* RunicFontConfiguration.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		9299081B078966340160B868 /* RunicQuotesWidget */ = {
+			isa = PBXGroup;
+			children = (
+				3659931FE812A897A17D90A2 /* Models */,
+				2B066C27EA122288E603522D /* Provider */,
+				E06EC58E3504983398D60171 /* Views */,
+				E60A43B6094C1280E441EF1B /* Info.plist */,
+				61558C0A5062DD4EC0DCAEA0 /* RunicQuotesWidget.entitlements */,
+				12EDBBCEE515BC6A58EE61D7 /* RunicQuoteWidget.swift */,
+			);
+			path = RunicQuotesWidget;
+			sourceTree = "<group>";
+		};
+		93B7EFCFD2987EEE92F104A4 /* RunicQuotesUITests */ = {
+			isa = PBXGroup;
+			children = (
+				5037407413A7D34EC185279E /* RunicQuotesUITests.swift */,
+			);
+			path = RunicQuotesUITests;
+			sourceTree = "<group>";
+		};
+		9D4615357B87EE8F24CC9B8C /* SeedData */ = {
+			isa = PBXGroup;
+			children = (
+				F0C6AAD3297BCB76481D7FC5 /* .gitkeep */,
+				E74382339680BCDC248E90D2 /* quotes.json */,
+			);
+			path = SeedData;
+			sourceTree = "<group>";
+		};
+		9F4443E0907E3AA5832D575A /* RunicQuotesTests */ = {
+			isa = PBXGroup;
+			children = (
+				313A060D406895F2B5159EDB /* Data */,
+				F117AE9EC5A8B65214B3A56B /* Models */,
+				A3A66065441365BED027E7C4 /* ViewModels */,
+			);
+			path = RunicQuotesTests;
+			sourceTree = "<group>";
+		};
+		9FC2B808C536AE6E03A03093 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D51EDCB2D01D82846C23147F /* Components */,
+				73E0DE468356CDA7D2253BDF /* Helpers */,
+				A12F8044DB7C3C929720833B /* OnboardingView.swift */,
+				992911E8E077D3D32D46855A /* QuoteView.swift */,
+				2E144C9CE793AD73C6BC6040 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A31827C770AB9ADEB06C01A7 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				E917694A8BB0D5A08FE8CE92 /* .gitkeep */,
+				97901C0182B80CACC32A10D7 /* BabelStoneRunic.ttf */,
+				2904EB09440EF9C5DE602EBB /* CirthAngerthas.ttf */,
+				32D3BA9B28CF8FB640C23F9F /* NotoSansRunic-Regular.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		A3A66065441365BED027E7C4 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				867E3D7B78E5CD810F554534 /* QuoteViewModelTests.swift */,
+				927908F9119D131D5B0AFA82 /* SettingsViewModelTests.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		B0351B397AFE6BC481318A1E /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				4DD072C5D37EA24EEBC74137 /* .gitkeep */,
+				45C8010AE508ED00AC4CC115 /* QuoteViewModel.swift */,
+				82E4001B0BFC0226B7679656 /* SettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		BDA6607C835B3791CB889B2E /* Transliteration */ = {
+			isa = PBXGroup;
+			children = (
+				085BCAC2A869D332CB5C6223 /* .gitkeep */,
+				0E501CC20F94D2F90B7A211D /* CirthMap.swift */,
+				D46452B8F56C21A463E70BD0 /* ElderFutharkMap.swift */,
+				AF4E39481FE5CC535021F03E /* RunicTransliterator.swift */,
+				936E5F0180B59B59CC6F6882 /* YoungerFutharkMap.swift */,
+			);
+			path = Transliteration;
+			sourceTree = "<group>";
+		};
+		C27B85BC8B6FFC2E578531FF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2E3DEE95BC6D47B6029A43E3 /* Enums */,
+				824C528D8EA4F2613FB657E3 /* Quote.swift */,
+				CA53EDE9F12376E5252378D4 /* UserPreferences.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D4B5E831F3F8A14E307F8A71 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				2BC0C976E83B96088296E37B /* Actors */,
+				77488CF3DA7E1758A7BB179E /* Repositories */,
+				BDA6607C835B3791CB889B2E /* Transliteration */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		D51EDCB2D01D82846C23147F /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				7A31C3BA8E83A76D6D8FBCA8 /* .gitkeep */,
+				68668DB56EA18E37C5626B4C /* CollectionCoverCarousel.swift */,
+				810109210D1FFC4956A69626 /* GlassButton.swift */,
+				DDFAB852621B8BDD54F7F279 /* GlassCard.swift */,
+				9D71542EC46EEF7E2614247D /* GlassScriptSelector.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		E06EC58E3504983398D60171 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DCF06D889D3A3AC61D89E477 /* WidgetViews.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F117AE9EC5A8B65214B3A56B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FE4FD903EF9A52601139F16D /* QuoteCollectionTests.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F881E75EF4980E904CDA1EFB = {
+			isa = PBXGroup;
+			children = (
+				250201920BB6A27EDB96496B /* RunicQuotes */,
+				9F4443E0907E3AA5832D575A /* RunicQuotesTests */,
+				93B7EFCFD2987EEE92F104A4 /* RunicQuotesUITests */,
+				9299081B078966340160B868 /* RunicQuotesWidget */,
+				4825FE62397978CA53B85BD4 /* RunicQuotesWidgetTests */,
+				04772EDFBFDDD6A1A5FF7110 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9DD043A9C7D3980F15E64D21 /* RunicQuotes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 198D3C83843DF343ECBCEC85 /* Build configuration list for PBXNativeTarget "RunicQuotes" */;
+			buildPhases = (
+				171F684935278E8D3B05B885 /* Sources */,
+				F8F9E67700FFCBB3B724C01A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RunicQuotes;
+			packageProductDependencies = (
+			);
+			productName = RunicQuotes;
+			productReference = DB85E8A1305244A8E116BF3B /* RunicQuotes.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BA8237B48B92B04DDD42C9D3 /* RunicQuotesUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E6D27C411CA1C00AED44F7F0 /* Build configuration list for PBXNativeTarget "RunicQuotesUITests" */;
+			buildPhases = (
+				C4B79A5623A74F5A266BF8AB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AB623B32DD3DAF0C9D6D4134 /* PBXTargetDependency */,
+			);
+			name = RunicQuotesUITests;
+			packageProductDependencies = (
+			);
+			productName = RunicQuotesUITests;
+			productReference = 1473DDDB9A7ABB5A968439A8 /* RunicQuotesUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		C1BE26A187A86BF224370399 /* RunicQuotesWidgetTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3F9B46057EF15CBE499B510D /* Build configuration list for PBXNativeTarget "RunicQuotesWidgetTests" */;
+			buildPhases = (
+				F0C8BFFBCC7E37BCED511663 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				757D8C4EEE38D05DBFA27029 /* PBXTargetDependency */,
+			);
+			name = RunicQuotesWidgetTests;
+			packageProductDependencies = (
+			);
+			productName = RunicQuotesWidgetTests;
+			productReference = D4E2F0891AE1C3036B6C3BFF /* RunicQuotesWidgetTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CE1D3BBEB0D6809548521C07 /* RunicQuotesTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0E1EC241A963EE7562E5D46C /* Build configuration list for PBXNativeTarget "RunicQuotesTests" */;
+			buildPhases = (
+				EBC69407C4086C3CBB23BE4F /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ABD8851C5EDE4E7527A84E1A /* PBXTargetDependency */,
+			);
+			name = RunicQuotesTests;
+			packageProductDependencies = (
+			);
+			productName = RunicQuotesTests;
+			productReference = 022F340F79C8A7A2FFE5D144 /* RunicQuotesTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DD613F5936420F818DCDDC25 /* RunicQuotesWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84EEFC9BDD237775F1527002 /* Build configuration list for PBXNativeTarget "RunicQuotesWidget" */;
+			buildPhases = (
+				3C3E452329590266E0C39187 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B51CDD429E3941D285818F79 /* PBXTargetDependency */,
+			);
+			name = RunicQuotesWidget;
+			packageProductDependencies = (
+			);
+			productName = RunicQuotesWidget;
+			productReference = F9B829EF28FD7EB7CCEFF095 /* RunicQuotesWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4B1FF3BC11B74C383AD0B908 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					9DD043A9C7D3980F15E64D21 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					BA8237B48B92B04DDD42C9D3 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+						TestTargetID = 9DD043A9C7D3980F15E64D21;
+					};
+					C1BE26A187A86BF224370399 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					CE1D3BBEB0D6809548521C07 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					DD613F5936420F818DCDDC25 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 224BFA26A428D15182118658 /* Build configuration list for PBXProject "RunicQuotes" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F881E75EF4980E904CDA1EFB;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9DD043A9C7D3980F15E64D21 /* RunicQuotes */,
+				CE1D3BBEB0D6809548521C07 /* RunicQuotesTests */,
+				BA8237B48B92B04DDD42C9D3 /* RunicQuotesUITests */,
+				DD613F5936420F818DCDDC25 /* RunicQuotesWidget */,
+				C1BE26A187A86BF224370399 /* RunicQuotesWidgetTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F8F9E67700FFCBB3B724C01A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0AF87AAB73DC698E88F930D /* Assets.xcassets in Resources */,
+				6BD08B45794A429D3A16CFE0 /* BabelStoneRunic.ttf in Resources */,
+				72F093FA4BE11469509B80EB /* CirthAngerthas.ttf in Resources */,
+				2A59105385340183C91A5D40 /* LaunchScreen.storyboard in Resources */,
+				A088A32763F073C1700BECDC /* Localizable.xcstrings in Resources */,
+				6C6B492202A9D5A42EE274A5 /* NotoSansRunic-Regular.ttf in Resources */,
+				90BE1FBC6EC509A80DAEE439 /* quotes.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		171F684935278E8D3B05B885 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				126B49736074AFEA39AEC455 /* AppConstants.swift in Sources */,
+				558E5D11FACA438B904E5AE9 /* AppTheme.swift in Sources */,
+				C2627DFEEEEE506F9D3D9A34 /* AppThemePalette.swift in Sources */,
+				10695CE75AA38F66515EBF5B /* CirthMap.swift in Sources */,
+				1D578B506EDB7798FB1E5CE9 /* CollectionCoverCarousel.swift in Sources */,
+				7A45931651C0FA816B13E696 /* Color+Grayscale.swift in Sources */,
+				63C3680FB7D6E17038385A71 /* DatabaseCoordinator.swift in Sources */,
+				F6F22B9048076143978966CB /* DynamicTypeSupport.swift in Sources */,
+				E9002ED47A3965A4C4445863 /* ElderFutharkMap.swift in Sources */,
+				62ED0FBEEF754AED00705FA4 /* GlassButton.swift in Sources */,
+				7D322F8FB61E85BDBABC9664 /* GlassCard.swift in Sources */,
+				2559DBF5E8351F90F2AE81DC /* GlassScriptSelector.swift in Sources */,
+				1C088E7AC2C15936D79C820C /* Haptics.swift in Sources */,
+				AC66D2268BDE1AAE8F0985EA /* LocalizedStrings.swift in Sources */,
+				7908DF1D0CE5EEEF622595F4 /* ModelContainerHelper.swift in Sources */,
+				10BBCE73247AE674E321BD5C /* OnboardingView.swift in Sources */,
+				804EC8C73A8B78699841AEEA /* Quote.swift in Sources */,
+				4DF70599A0A21C753F0C1473 /* QuoteCollection.swift in Sources */,
+				B6A1B05386BB9F0DC118E51E /* QuoteProvider.swift in Sources */,
+				CBC56A42ECA5A67AE559E02B /* QuoteRepository.swift in Sources */,
+				F96C81B3F699418596E40B0B /* QuoteView.swift in Sources */,
+				C63B820E9FB194419641AACC /* QuoteViewModel.swift in Sources */,
+				9F5588419BD21F54A47A774C /* ReadingPreset.swift in Sources */,
+				C909439083D8E3C938D1044F /* RunicFont.swift in Sources */,
+				4718B077D321E7BE7379DD4C /* RunicFontConfiguration.swift in Sources */,
+				730EB1B3FCAC91086FB7CE28 /* RunicQuotesApp.swift in Sources */,
+				9F6BEE946B24DC67F181CDCE /* RunicScript.swift in Sources */,
+				5363ADAD1F44DCB98B94275C /* RunicTransliterator.swift in Sources */,
+				90C96E80B659D13E50CBB56E /* SettingsView.swift in Sources */,
+				ADE224CAB957EE2DDC38E387 /* SettingsViewModel.swift in Sources */,
+				5A5F6272C576B4A932A2262E /* UserPreferences.swift in Sources */,
+				46B0A4AAD899F99EF0303A1D /* WidgetMode.swift in Sources */,
+				FE2002A8780BE10D5DC555C8 /* WidgetStyle.swift in Sources */,
+				D0539195B2ED299275FA2B09 /* YoungerFutharkMap.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C3E452329590266E0C39187 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C66E92E3BBE29756A155BCF /* AppConstants.swift in Sources */,
+				A7CFEF718CDFCBAAE437D658 /* AppTheme.swift in Sources */,
+				25071A27E9B2F9D76C9D108E /* AppThemePalette.swift in Sources */,
+				BA67058E31B74300E5599144 /* CirthMap.swift in Sources */,
+				141F2F2192D738B66E839AB2 /* Color+Grayscale.swift in Sources */,
+				59C39DC0FD287FD6272192DB /* DatabaseCoordinator.swift in Sources */,
+				DFD3B5AE12A2FE8C819D15A4 /* DeepLink.swift in Sources */,
+				3A0DC1F17229491ADF1BF1FC /* DynamicTypeSupport.swift in Sources */,
+				6A680CF7E663F46CCF1D1DF3 /* ElderFutharkMap.swift in Sources */,
+				C62E741B21EFE0B002211A73 /* Haptics.swift in Sources */,
+				0F7465A5FBBF23B9D6B3725D /* LocalizedStrings.swift in Sources */,
+				59A1192416D1034623DAEFC3 /* ModelContainerHelper.swift in Sources */,
+				A5B753D73A1B9CE5A1087125 /* Quote.swift in Sources */,
+				AED3D2265B6E697390FF2B3B /* QuoteCollection.swift in Sources */,
+				54C43A3CF875C222426A03F1 /* QuoteProvider.swift in Sources */,
+				3469E397AD3AD02541DEB6D0 /* QuoteRepository.swift in Sources */,
+				23A0874AE79D7FFECEA0F6E2 /* QuoteTimelineProvider.swift in Sources */,
+				CA3FF83FBE903B1B6FBFDB17 /* ReadingPreset.swift in Sources */,
+				2050B7102C2065AB8792FF09 /* RunicFont.swift in Sources */,
+				99B35A1089034989233B4087 /* RunicFontConfiguration.swift in Sources */,
+				EF44426D8BF9164F30FE0F7E /* RunicQuoteEntry.swift in Sources */,
+				46E53617063D01BD9178AB6B /* RunicQuoteWidget.swift in Sources */,
+				82C16CE93A91889F71DFF647 /* RunicScript.swift in Sources */,
+				220364F3938657F8DEC8194F /* RunicTransliterator.swift in Sources */,
+				50A9927028BEBA261290684D /* UserPreferences.swift in Sources */,
+				2DEDA57AE81BEB74809E5E2B /* WidgetMode.swift in Sources */,
+				84FCA4D0DDBE901E4B7A775F /* WidgetStyle.swift in Sources */,
+				7BEA39CA07995B21E739BD68 /* WidgetViews.swift in Sources */,
+				2F919D1D86E9E9DB98EFCBF7 /* YoungerFutharkMap.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4B79A5623A74F5A266BF8AB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				211DDC3DF4D6EA215738AF0A /* RunicQuotesUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBC69407C4086C3CBB23BE4F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5C7C726C5D5DBC763345ED96 /* QuoteCollectionTests.swift in Sources */,
+				6A262E5F6A04E5B6A0A91A47 /* QuoteRepositoryTests.swift in Sources */,
+				C1364C06B4D1106BB9FC5F42 /* QuoteViewModelTests.swift in Sources */,
+				4206CF10E41D67894E0EFB8D /* RunicTransliteratorTests.swift in Sources */,
+				34363C10AA37E64A010147E3 /* SettingsViewModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F0C8BFFBCC7E37BCED511663 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				884BBCB6FAB4CA94523E3222 /* QuoteTimelineProviderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		757D8C4EEE38D05DBFA27029 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD613F5936420F818DCDDC25 /* RunicQuotesWidget */;
+			targetProxy = 86F9902423557B97CCD6F231 /* PBXContainerItemProxy */;
+		};
+		AB623B32DD3DAF0C9D6D4134 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9DD043A9C7D3980F15E64D21 /* RunicQuotes */;
+			targetProxy = 1BE353B320FF8D3CA1B08FCF /* PBXContainerItemProxy */;
+		};
+		ABD8851C5EDE4E7527A84E1A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9DD043A9C7D3980F15E64D21 /* RunicQuotes */;
+			targetProxy = 11271A14C4533758847D9AA8 /* PBXContainerItemProxy */;
+		};
+		B51CDD429E3941D285818F79 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9DD043A9C7D3980F15E64D21 /* RunicQuotes */;
+			targetProxy = 34A89CB4B44B07E3E4E7C91D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		153E52F467C6FD7DB7D3C9D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		25A14C841D29722BD06C5538 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RunicQuotesTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RunicQuotes.app/RunicQuotes";
+			};
+			name = Debug;
+		};
+		2E96C51DDE89D7E369D1B65A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = RunicQuotesWidget/RunicQuotesWidget.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RunicQuotesWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3B76CF2C2D8225EF7E11FA52 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		417D78064D244843A1D9EC1B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RunicQuotesWidgetTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes.widgettests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4C93576DC0F4F5983DD3754C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = RunicQuotesWidget/RunicQuotesWidget.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RunicQuotesWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		72C401FE6E2F8A5450B030E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = RunicQuotes/RunicQuotes.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RunicQuotes/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9BBAE93F765005CDF0BF0217 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = RunicQuotes/RunicQuotes.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RunicQuotes/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BDAFC0426D5D29BE909101C7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RunicQuotesWidgetTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes.widgettests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ED7C5A8DDBC105C4EBC84707 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RunicQuotesUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RunicQuotes;
+			};
+			name = Release;
+		};
+		F1120AA870938D4198A37E7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RunicQuotesTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RunicQuotes.app/RunicQuotes";
+			};
+			name = Release;
+		};
+		FDE3F566CEA1D832D996576E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RunicQuotesUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.po4yka.runicquotes.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RunicQuotes;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0E1EC241A963EE7562E5D46C /* Build configuration list for PBXNativeTarget "RunicQuotesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				25A14C841D29722BD06C5538 /* Debug */,
+				F1120AA870938D4198A37E7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		198D3C83843DF343ECBCEC85 /* Build configuration list for PBXNativeTarget "RunicQuotes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72C401FE6E2F8A5450B030E8 /* Debug */,
+				9BBAE93F765005CDF0BF0217 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		224BFA26A428D15182118658 /* Build configuration list for PBXProject "RunicQuotes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3B76CF2C2D8225EF7E11FA52 /* Debug */,
+				153E52F467C6FD7DB7D3C9D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3F9B46057EF15CBE499B510D /* Build configuration list for PBXNativeTarget "RunicQuotesWidgetTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDAFC0426D5D29BE909101C7 /* Debug */,
+				417D78064D244843A1D9EC1B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		84EEFC9BDD237775F1527002 /* Build configuration list for PBXNativeTarget "RunicQuotesWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2E96C51DDE89D7E369D1B65A /* Debug */,
+				4C93576DC0F4F5983DD3754C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E6D27C411CA1C00AED44F7F0 /* Build configuration list for PBXNativeTarget "RunicQuotesUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FDE3F566CEA1D832D996576E /* Debug */,
+				ED7C5A8DDBC105C4EBC84707 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4B1FF3BC11B74C383AD0B908 /* Project object */;
+}

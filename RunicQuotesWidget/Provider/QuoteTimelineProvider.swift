@@ -5,7 +5,7 @@
 //  Created by Claude on 2025-11-15.
 //
 
-import WidgetKit
+@preconcurrency import WidgetKit
 import SwiftUI
 import SwiftData
 import os
@@ -29,17 +29,18 @@ struct QuoteTimelineProvider: TimelineProvider {
 
     /// Provide timeline entries for the widget
     func getTimeline(in context: Context, completion: @escaping (Timeline<RunicQuoteEntry>) -> Void) {
+        let sendableCompletion = UncheckedSendableBox(completion)
         Task {
             do {
-                let entries = try await generateEntries(for: context)
+                let entries = try await generateEntries()
                 let timeline = Timeline(entries: entries, policy: .atEnd)
-                completion(timeline)
+                sendableCompletion.value(timeline)
             } catch {
                 Self.logger.error("Widget timeline error: \(error.localizedDescription)")
                 // Fallback to placeholder
                 let entry = RunicQuoteEntry.placeholder()
                 let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(3600)))
-                completion(timeline)
+                sendableCompletion.value(timeline)
             }
         }
     }
@@ -47,7 +48,7 @@ struct QuoteTimelineProvider: TimelineProvider {
     // MARK: - Private Methods
 
     /// Generate timeline entries
-    private func generateEntries(for context: Context) async throws -> [RunicQuoteEntry] {
+    private func generateEntries() async throws -> [RunicQuoteEntry] {
         let currentDate = Date()
 
         // Load user preferences
@@ -186,6 +187,12 @@ struct UserPreferencesData: Sendable {
     let widgetMode: WidgetMode
     let widgetStyle: WidgetStyle
     let widgetDecorativeGlyphsEnabled: Bool
+}
+
+/// Wrapper to bridge non-Sendable closures into a Sendable context.
+private struct UncheckedSendableBox<T>: @unchecked Sendable {
+    let value: T
+    init(_ value: T) { self.value = value }
 }
 
 /// Widget-specific errors
