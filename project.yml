@@ -13,6 +13,7 @@ settings:
     SWIFT_VERSION: "6.0"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: YES
 
 targets:
   RunicQuotes:
@@ -33,8 +34,42 @@ targets:
         buildPhase: resources
     info:
       path: RunicQuotes/App/Info.plist
+      properties:
+        CFBundleDisplayName: Runic Quotes
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+        UIAppFonts:
+          - NotoSansRunic-Regular.ttf
+          - BabelStoneRunic.ttf
+          - CirthAngerthas.ttf
+        UILaunchScreen:
+          UIColorName: LaunchScreenBackground
+        UILaunchStoryboardName: LaunchScreen
+        LSRequiresIPhoneOS: true
+        UIRequiredDeviceCapabilities:
+          - arm64
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLName: com.po4yka.runicquotes
+            CFBundleURLSchemes:
+              - runicquotes
     entitlements:
       path: RunicQuotes/RunicQuotes.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.po4yka.runicquotes
+    dependencies:
+      - target: RunicQuotesWidget
+        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.po4yka.runicquotes
@@ -66,12 +101,19 @@ targets:
         buildPhase: resources
     info:
       path: RunicQuotesWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Runic Quote
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        UIAppFonts:
+          - NotoSansRunic-Regular.ttf
+          - BabelStoneRunic.ttf
+          - CirthAngerthas.ttf
     entitlements:
       path: RunicQuotesWidget/RunicQuotesWidget.entitlements
-    dependencies:
-      - target: RunicQuotes
-        embed: false
-        link: false
+      properties:
+        com.apple.security.application-groups:
+          - group.com.po4yka.runicquotes
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.po4yka.runicquotes.widget
@@ -135,6 +177,7 @@ schemes:
         RunicQuotesWidget: all
         RunicQuotesTests: [test]
         RunicQuotesUITests: [test]
+        RunicQuotesWidgetTests: [test]
     run:
       config: Debug
     test:
@@ -142,6 +185,7 @@ schemes:
       targets:
         - RunicQuotesTests
         - RunicQuotesUITests
+        - RunicQuotesWidgetTests
     profile:
       config: Release
     archive:
