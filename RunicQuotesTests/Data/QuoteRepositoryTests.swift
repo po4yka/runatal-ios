@@ -74,6 +74,18 @@ final class QuoteRepositoryTests: XCTestCase {
         }
     }
 
+    func testSeededQuotesHaveCollectionTags() async throws {
+        try repository.seedIfNeeded()
+
+        let quotes = try modelContext.fetch(FetchDescriptor<Quote>())
+        XCTAssertFalse(quotes.isEmpty, "Should have quotes")
+
+        for quote in quotes {
+            XCTAssertNotNil(quote.collectionRaw, "Quote should contain explicit collection tag")
+            XCTAssertNotNil(QuoteCollection(rawValue: quote.collectionRaw ?? ""), "Collection tag should be valid")
+        }
+    }
+
     // MARK: - Quote of the Day Tests
 
     func testQuoteOfTheDayReturnsSameQuoteOnSameDay() async throws {

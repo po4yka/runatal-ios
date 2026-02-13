@@ -23,6 +23,9 @@ enum AppConstants {
 
     /// Subsystem identifier for logging
     static let loggingSubsystem = "com.po4yka.runicquotes"
+
+    /// UserDefaults key tracking whether onboarding has been completed
+    static let onboardingCompletedKey = "hasCompletedOnboarding"
 }
 
 /// Notification names for app-wide events

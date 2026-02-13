@@ -23,6 +23,9 @@ final class UserPreferences {
     /// Widget display mode
     var widgetModeRaw: String
 
+    /// Selected quote collection
+    var selectedCollectionRaw: String?
+
     /// Widget visual style raw value
     var widgetStyleRaw: String?
 
@@ -70,6 +73,17 @@ final class UserPreferences {
         }
         set {
             widgetModeRaw = newValue.rawValue
+            lastUpdated = Date()
+        }
+    }
+
+    /// Computed property for quote collection
+    var selectedCollection: QuoteCollection {
+        get {
+            QuoteCollection(rawValue: selectedCollectionRaw ?? "") ?? .all
+        }
+        set {
+            selectedCollectionRaw = newValue.rawValue
             lastUpdated = Date()
         }
     }
@@ -148,6 +162,7 @@ final class UserPreferences {
         selectedScript: RunicScript = .elder,
         selectedFont: RunicFont = .noto,
         widgetMode: WidgetMode = .daily,
+        selectedCollection: QuoteCollection = .all,
         widgetStyle: WidgetStyle = .runeFirst,
         widgetDecorativeGlyphsEnabled: Bool = true,
         selectedTheme: AppTheme = .obsidian,
@@ -158,6 +173,7 @@ final class UserPreferences {
         self.selectedScriptRaw = selectedScript.rawValue
         self.selectedFontRaw = selectedFont.rawValue
         self.widgetModeRaw = widgetMode.rawValue
+        self.selectedCollectionRaw = selectedCollection.rawValue
         self.widgetStyleRaw = widgetStyle.rawValue
         self.widgetDecorativeGlyphsEnabledRaw = widgetDecorativeGlyphsEnabled
         self.selectedThemeRaw = selectedTheme.rawValue

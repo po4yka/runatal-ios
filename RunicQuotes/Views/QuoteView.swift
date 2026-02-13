@@ -175,6 +175,9 @@ struct QuoteView: View {
                 .accessibilityHint("Select which runic script to display")
                 .accessibilityIdentifier("quote_script_selector")
 
+                // Collection cover cards
+                collectionCarousel
+
                 // Quote card
                 quoteCard
 
@@ -184,6 +187,21 @@ struct QuoteView: View {
                 Spacer()
             }
         }
+    }
+
+    private var collectionCarousel: some View {
+        CollectionCoverCarousel(
+            covers: viewModel.state.collectionCovers,
+            selectedCollection: viewModel.state.currentCollection,
+            script: viewModel.state.currentScript,
+            font: viewModel.state.currentFont,
+            palette: themePalette
+        ) { collection in
+            guard collection != viewModel.state.currentCollection else { return }
+            Haptics.trigger(.scriptSwitch)
+            viewModel.onCollectionChanged(collection)
+        }
+        .accessibilityIdentifier("quote_collection_carousel")
     }
 
     // MARK: - Quote Card

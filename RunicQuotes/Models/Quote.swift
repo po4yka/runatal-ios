@@ -20,6 +20,9 @@ final class Quote {
     /// Author of the quote
     var author: String
 
+    /// Explicit collection membership loaded from seed data.
+    var collectionRaw: String?
+
     /// Precomputed Elder Futhark transliteration (optional, computed on demand if nil)
     var runicElder: String?
 
@@ -39,15 +42,18 @@ final class Quote {
     /// - Parameters:
     ///   - textLatin: The original Latin text
     ///   - author: The author of the quote
+    ///   - collection: Collection membership for faster browsing
     ///   - isUserGenerated: Whether this is user-generated content (default: false)
     init(
         textLatin: String,
         author: String,
+        collection: QuoteCollection = .motivation,
         isUserGenerated: Bool = false
     ) {
         self.id = UUID()
         self.textLatin = textLatin
         self.author = author
+        self.collectionRaw = collection.rawValue
         self.isUserGenerated = isUserGenerated
         self.createdAt = Date()
 
@@ -55,6 +61,16 @@ final class Quote {
         self.runicElder = nil
         self.runicYounger = nil
         self.runicCirth = nil
+    }
+
+    /// Collection membership for this quote.
+    var collection: QuoteCollection {
+        get {
+            QuoteCollection(rawValue: collectionRaw ?? "") ?? .motivation
+        }
+        set {
+            collectionRaw = newValue.rawValue
+        }
     }
 
     /// Get the runic text for a specific script
@@ -93,16 +109,17 @@ extension Quote {
     static var sample: Quote {
         Quote(
             textLatin: "The only way out is through.",
-            author: "Robert Frost"
+            author: "Robert Frost",
+            collection: .motivation
         )
     }
 
     /// Create multiple sample quotes
     static var samples: [Quote] {
         [
-            Quote(textLatin: "The only way out is through.", author: "Robert Frost"),
-            Quote(textLatin: "Not all those who wander are lost.", author: "J.R.R. Tolkien"),
-            Quote(textLatin: "Fortune favors the bold.", author: "Virgil")
+            Quote(textLatin: "The only way out is through.", author: "Robert Frost", collection: .motivation),
+            Quote(textLatin: "Not all those who wander are lost.", author: "J.R.R. Tolkien", collection: .tolkien),
+            Quote(textLatin: "Fortune favors the bold.", author: "Virgil", collection: .stoic)
         ]
     }
 }

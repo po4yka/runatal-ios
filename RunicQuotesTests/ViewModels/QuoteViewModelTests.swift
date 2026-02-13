@@ -34,6 +34,12 @@ final class QuoteViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.currentFont, .noto, "Default font should be Noto")
     }
 
+    @MainActor
+    func testDefaultCollection() throws {
+        let viewModel = try makeViewModel()
+        XCTAssertEqual(viewModel.state.currentCollection, .all, "Default collection should include all quotes")
+    }
+
     // MARK: - Loading Tests
 
     @MainActor
@@ -169,6 +175,37 @@ final class QuoteViewModelTests: XCTestCase {
 
         XCTAssertFalse(viewModel.state.latinText.isEmpty, "Should have Latin text after tapping next quote")
         XCTAssertFalse(viewModel.state.author.isEmpty, "Should have author after tapping next quote")
+    }
+
+    @MainActor
+    func testCollectionChangeLoadsQuoteFromCollection() async throws {
+        let viewModel = try makeViewModel()
+        viewModel.onAppear()
+
+        await waitUntil("initial quote loads") {
+            !viewModel.state.isLoading
+        }
+
+        viewModel.onCollectionChanged(.tolkien)
+
+        await waitUntil("tolkien collection quote loads") {
+            viewModel.state.currentCollection == .tolkien && !viewModel.state.isLoading
+        }
+
+        let tolkienAuthors: Set<String> = [
+            "J.R.R. Tolkien",
+            "Galadriel",
+            "Gandalf",
+            "Bilbo Baggins",
+            "Aragorn",
+            "Samwise Gamgee",
+            "Arwen"
+        ]
+
+        XCTAssertTrue(
+            tolkienAuthors.contains(viewModel.state.author),
+            "Loaded quote should come from explicitly tagged Tolkien entries"
+        )
     }
 
     @MainActor

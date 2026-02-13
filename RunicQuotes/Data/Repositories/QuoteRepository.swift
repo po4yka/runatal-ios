@@ -14,6 +14,7 @@ struct QuoteRecord: Sendable {
     let id: UUID
     let textLatin: String
     let author: String
+    let collection: QuoteCollection
     let runicElder: String?
     let runicYounger: String?
     let runicCirth: String?
@@ -23,6 +24,7 @@ struct QuoteRecord: Sendable {
         id = quote.id
         textLatin = quote.textLatin
         author = quote.author
+        collection = quote.collection
         runicElder = quote.runicElder
         runicYounger = quote.runicYounger
         runicCirth = quote.runicCirth
@@ -74,6 +76,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         let existingQuotes = try modelContext.fetch(descriptor)
 
         guard existingQuotes.isEmpty else {
+            try backfillCollectionsIfNeeded(for: existingQuotes)
             logger.info("Database already seeded with \(existingQuotes.count) quotes")
             return
         }
@@ -86,18 +89,14 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             throw QuoteRepositoryError.seedDataNotFound
         }
 
-        struct QuoteData: Codable {
-            let textLatin: String
-            let author: String
-        }
-
-        let quoteDataArray = try JSONDecoder().decode([QuoteData].self, from: data)
+        let quoteDataArray = try decodeSeedData(from: data)
 
         // Create Quote objects and transliterate
         for quoteData in quoteDataArray {
             let quote = Quote(
                 textLatin: quoteData.textLatin,
-                author: quoteData.author
+                author: quoteData.author,
+                collection: quoteData.collection
             )
 
             // Precompute runic transliterations
@@ -193,6 +192,65 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
     }
 
+    /// Seed data row used for initial import and migration backfill.
+    private struct SeedQuoteData: Codable {
+        let textLatin: String
+        let author: String
+        let collection: QuoteCollection
+    }
+
+    private func decodeSeedData(from data: Data) throws -> [SeedQuoteData] {
+        do {
+            return try JSONDecoder().decode([SeedQuoteData].self, from: data)
+        } catch {
+            logger.error("Invalid seed data format: \(error.localizedDescription)")
+            throw QuoteRepositoryError.invalidSeedData
+        }
+    }
+
+    private func backfillCollectionsIfNeeded(for existingQuotes: [Quote]) throws {
+        let quotesNeedingBackfill = existingQuotes.filter {
+            QuoteCollection(rawValue: $0.collectionRaw ?? "") == nil
+        }
+        guard !quotesNeedingBackfill.isEmpty else { return }
+
+        guard let url = seedDataURL(),
+              let data = try? Data(contentsOf: url) else {
+            throw QuoteRepositoryError.seedDataNotFound
+        }
+
+        let seedData = try decodeSeedData(from: data)
+        let seedCollectionByKey = Dictionary(
+            uniqueKeysWithValues: seedData.map {
+                (seedQuoteKey(textLatin: $0.textLatin, author: $0.author), $0.collection)
+            }
+        )
+
+        var didUpdate = false
+
+        for quote in quotesNeedingBackfill {
+            let key = seedQuoteKey(textLatin: quote.textLatin, author: quote.author)
+            guard let collection = seedCollectionByKey[key] else { continue }
+            quote.collection = collection
+            didUpdate = true
+        }
+
+        if didUpdate {
+            try modelContext.save()
+            logger.info("Backfilled collection tags for existing quotes")
+        }
+    }
+
+    private func seedQuoteKey(textLatin: String, author: String) -> String {
+        "\(normalizeSeedField(textLatin))||\(normalizeSeedField(author))"
+    }
+
+    private func normalizeSeedField(_ value: String) -> String {
+        value
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     /// Locate seed data in both SwiftPM and app bundle layouts.
     private func seedDataURL() -> URL? {
 #if SWIFT_PACKAGE
@@ -234,6 +292,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 enum QuoteRepositoryError: LocalizedError {
     case seedDataNotFound
     case noQuotesAvailable
+    case invalidSeedData
 
     var errorDescription: String? {
         switch self {
@@ -241,6 +300,8 @@ enum QuoteRepositoryError: LocalizedError {
             return "Could not find seed data file (quotes.json)"
         case .noQuotesAvailable:
             return "No quotes available in the database"
+        case .invalidSeedData:
+            return "Seed data is invalid or missing collection tags"
         }
     }
 }

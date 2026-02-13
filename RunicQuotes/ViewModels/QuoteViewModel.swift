@@ -19,9 +19,34 @@ struct QuoteUiState: Sendable {
     var currentScript: RunicScript = .elder
     var currentFont: RunicFont = .noto
     var currentWidgetMode: WidgetMode = .daily
+    var currentCollection: QuoteCollection = .all
     var currentTheme: AppTheme = .obsidian
+    var collectionCovers: [QuoteCollectionCover] = QuoteCollection.allCases.map {
+        QuoteCollectionCover.placeholder(for: $0)
+    }
     var isLoading: Bool = true
     var errorMessage: String?
+}
+
+/// Display data for collection cover cards.
+struct QuoteCollectionCover: Identifiable, Sendable {
+    let collection: QuoteCollection
+    let quoteCount: Int
+    let runicPreview: String
+    let latinPreview: String
+    let authorPreview: String
+
+    var id: String { collection.rawValue }
+
+    static func placeholder(for collection: QuoteCollection) -> QuoteCollectionCover {
+        QuoteCollectionCover(
+            collection: collection,
+            quoteCount: 0,
+            runicPreview: collection.heroRunicText,
+            latinPreview: collection.heroLatinText,
+            authorPreview: collection.displayName
+        )
+    }
 }
 
 /// ViewModel for the main quote display screen
@@ -93,6 +118,19 @@ final class QuoteViewModel: ObservableObject {
         }
     }
 
+    /// Change the current quote collection.
+    func onCollectionChanged(_ collection: QuoteCollection) {
+        guard state.currentCollection != collection else { return }
+
+        preferences?.selectedCollection = collection
+        state.currentCollection = collection
+        persistPreferences()
+
+        Task {
+            await loadQuote(using: state.currentWidgetMode, updateContext: false)
+        }
+    }
+
     /// Refresh the quote of the day
     func refresh() {
         Task {
@@ -105,9 +143,12 @@ final class QuoteViewModel: ObservableObject {
         Task {
             let previousScript = state.currentScript
             let previousMode = state.currentWidgetMode
+            let previousCollection = state.currentCollection
             await loadPreferences()
 
-            if previousScript != state.currentScript || previousMode != state.currentWidgetMode {
+            if previousScript != state.currentScript ||
+                previousMode != state.currentWidgetMode ||
+                previousCollection != state.currentCollection {
                 await loadQuote(using: state.currentWidgetMode, updateContext: true)
             }
         }
@@ -145,6 +186,7 @@ final class QuoteViewModel: ObservableObject {
             state.currentScript = preferences?.selectedScript ?? .elder
             state.currentFont = preferences?.selectedFont ?? .noto
             state.currentWidgetMode = preferences?.widgetMode ?? .daily
+            state.currentCollection = preferences?.selectedCollection ?? .all
             state.currentTheme = preferences?.selectedTheme ?? .obsidian
             syncSavedStateForCurrentQuote()
         } catch {
@@ -168,13 +210,15 @@ final class QuoteViewModel: ObservableObject {
         }
 
         do {
-            let quote: QuoteRecord
-            switch mode {
-            case .daily:
-                quote = try await quoteProvider.quoteOfTheDay(for: state.currentScript)
-            case .random:
-                quote = try await quoteProvider.randomQuote(for: state.currentScript)
+            let allQuotes = try await quoteProvider.allQuotes()
+            updateCollectionCovers(using: allQuotes)
+
+            let filteredQuotes = quotes(for: state.currentCollection, within: allQuotes)
+            guard !filteredQuotes.isEmpty else {
+                throw QuoteViewModelError.emptyCollection(state.currentCollection)
             }
+
+            let quote = selectQuote(from: filteredQuotes, mode: mode)
             updateState(with: quote)
             state.isLoading = false
         } catch {
@@ -280,6 +324,65 @@ final class QuoteViewModel: ObservableObject {
 
         return WidgetMode.allCases.first {
             $0.rawValue.caseInsensitiveCompare(normalized) == .orderedSame
+        }
+    }
+
+    private func quotes(for collection: QuoteCollection, within allQuotes: [QuoteRecord]) -> [QuoteRecord] {
+        if collection == .all {
+            return allQuotes
+        }
+
+        return allQuotes.filter(collection.contains)
+    }
+
+    private func selectQuote(from quotes: [QuoteRecord], mode: WidgetMode) -> QuoteRecord {
+        switch mode {
+        case .daily:
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            let daysSinceEpoch = calendar.dateComponents(
+                [.day],
+                from: Date(timeIntervalSince1970: 0),
+                to: today
+            ).day ?? 0
+
+            let index = daysSinceEpoch % quotes.count
+            return quotes[index]
+        case .random:
+            let randomIndex = Int.random(in: 0..<quotes.count)
+            return quotes[randomIndex]
+        }
+    }
+
+    private func updateCollectionCovers(using allQuotes: [QuoteRecord]) {
+        state.collectionCovers = QuoteCollection.allCases.map { collection in
+            let collectionQuotes = quotes(for: collection, within: allQuotes)
+
+            guard let firstQuote = collectionQuotes.first else {
+                return QuoteCollectionCover.placeholder(for: collection)
+            }
+
+            let runicPreview = firstQuote.runicText(for: state.currentScript)
+                ?? RunicTransliterator.transliterate(firstQuote.textLatin, to: state.currentScript)
+
+            return QuoteCollectionCover(
+                collection: collection,
+                quoteCount: collectionQuotes.count,
+                runicPreview: runicPreview,
+                latinPreview: firstQuote.textLatin,
+                authorPreview: firstQuote.author
+            )
+        }
+    }
+}
+
+enum QuoteViewModelError: LocalizedError {
+    case emptyCollection(QuoteCollection)
+
+    var errorDescription: String? {
+        switch self {
+        case .emptyCollection(let collection):
+            return "No quotes available in the \(collection.displayName) collection."
         }
     }
 }

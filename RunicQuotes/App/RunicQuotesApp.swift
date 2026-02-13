@@ -16,8 +16,10 @@ struct RunicQuotesApp: App {
     private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "App")
 
     let modelContainer: ModelContainer
+    @AppStorage(AppConstants.onboardingCompletedKey) private var hasCompletedOnboarding = false
     @State private var showDatabaseError = false
     @State private var databaseErrorMessage = ""
+    @State private var showOnboarding = false
 
     // MARK: - Initialization
 
@@ -54,7 +56,6 @@ struct RunicQuotesApp: App {
         WindowGroup {
             ZStack {
                 MainTabView()
-                    .modelContainer(modelContainer)
                     .onOpenURL { url in
                         handleDeepLink(url)
                     }
@@ -76,6 +77,17 @@ struct RunicQuotesApp: App {
 
                         Spacer()
                     }
+                }
+            }
+            .modelContainer(modelContainer)
+            .task {
+                guard !hasCompletedOnboarding else { return }
+                showOnboarding = true
+            }
+            .fullScreenCover(isPresented: $showOnboarding) {
+                OnboardingView {
+                    hasCompletedOnboarding = true
+                    showOnboarding = false
                 }
             }
         }
