@@ -18,21 +18,20 @@ enum HapticTier: Sendable {
 }
 
 /// Centralized haptic feedback dispatcher.
+@MainActor
 enum Haptics {
     static func trigger(_ tier: HapticTier) {
 #if canImport(UIKit)
-        Task { @MainActor in
-            switch tier {
-            case .scriptSwitch:
-                let generator = UISelectionFeedbackGenerator()
-                generator.selectionChanged()
-            case .newQuote:
-                let generator = UIImpactFeedbackGenerator(style: .medium)
-                generator.impactOccurred()
-            case .saveOrShare:
-                let generator = UINotificationFeedbackGenerator()
-                generator.notificationOccurred(.success)
-            }
+        switch tier {
+        case .scriptSwitch:
+            let generator = UISelectionFeedbackGenerator()
+            generator.selectionChanged()
+        case .newQuote:
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+        case .saveOrShare:
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
         }
 #endif
     }

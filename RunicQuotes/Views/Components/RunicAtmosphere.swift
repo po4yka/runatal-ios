@@ -45,30 +45,32 @@ struct RunicAtmosphere: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ForEach(glyphs) { glyph in
-                Text(glyph.character)
-                    .font(.system(size: glyph.size))
-                    .foregroundColor(.white)
-                    .opacity(glyph.opacity)
-                    .rotationEffect(glyph.rotation)
-                    .position(
-                        x: proxy.size.width * glyph.alignmentX,
-                        y: proxy.size.height * glyph.alignmentY
-                    )
+            ZStack {
+                ForEach(glyphs) { glyph in
+                    Text(glyph.character)
+                        .font(.system(size: glyph.size))
+                        .foregroundStyle(.white)
+                        .opacity(glyph.opacity)
+                        .rotationEffect(glyph.rotation)
+                        .position(
+                            x: proxy.size.width * glyph.alignmentX,
+                            y: proxy.size.height * glyph.alignmentY
+                        )
+                }
             }
-        }
-        .mask {
-            RadialGradient(
-                stops: [
-                    .init(color: .clear, location: 0),
-                    .init(color: .clear, location: 0.25),
-                    .init(color: .white.opacity(0.4), location: 0.5),
-                    .init(color: .white, location: 0.72)
-                ],
-                center: .center,
-                startRadius: 0,
-                endRadius: UIScreen.main.bounds.height * 0.55
-            )
+            .mask {
+                RadialGradient(
+                    stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .clear, location: 0.25),
+                        .init(color: .white.opacity(0.4), location: 0.5),
+                        .init(color: .white, location: 0.72)
+                    ],
+                    center: .center,
+                    startRadius: 0,
+                    endRadius: proxy.size.height * 0.55
+                )
+            }
         }
         .accessibilityHidden(true)
         .allowsHitTesting(false)

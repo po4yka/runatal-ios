@@ -59,6 +59,10 @@ protocol QuoteRepository: Sendable {
 }
 
 /// SwiftData implementation of the QuoteRepository
+///
+/// Safety: `@unchecked Sendable` because `ModelContext` is not `Sendable`.
+/// Thread-safety is guaranteed by only accessing this type from within
+/// `QuoteProvider` (an actor) or `@MainActor`-isolated callers.
 final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     private let modelContext: ModelContext
     private let transliterator = RunicTransliterator.self
@@ -85,10 +89,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         logger.info("Seeding database with quotes...")
 
         // Load quotes from JSON
-        guard let url = seedDataURL(),
-              let data = try? Data(contentsOf: url) else {
+        guard let url = seedDataURL() else {
             throw QuoteRepositoryError.seedDataNotFound
         }
+        let data = try Data(contentsOf: url)
 
         let quoteDataArray = try decodeSeedData(from: data)
 
@@ -115,20 +119,13 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     // MARK: - Quote Retrieval
 
     func quoteOfTheDay(for script: RunicScript) throws -> QuoteRecord {
-        // Use a deterministic algorithm based on the current date
-        // This ensures all users see the same quote on the same day
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let daysSinceEpoch = calendar.dateComponents([.day], from: Date(timeIntervalSince1970: 0), to: today).day ?? 0
-
         let allQuotes = try fetchAllQuotes()
 
         guard !allQuotes.isEmpty else {
             throw QuoteRepositoryError.noQuotesAvailable
         }
 
-        // Use day count as seed for deterministic "random" selection
-        let index = daysSinceEpoch % allQuotes.count
+        let index = AppConstants.dailyQuoteIndex(totalQuotes: allQuotes.count)
         let quote = allQuotes[index]
 
         // Ensure the quote has the runic transliteration for the requested script
@@ -236,10 +233,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
         guard !quotesNeedingBackfill.isEmpty else { return }
 
-        guard let url = seedDataURL(),
-              let data = try? Data(contentsOf: url) else {
+        guard let url = seedDataURL() else {
             throw QuoteRepositoryError.seedDataNotFound
         }
+        let data = try Data(contentsOf: url)
 
         let seedData = try decodeSeedData(from: data)
         let seedCollectionByKey = Dictionary(

@@ -77,16 +77,16 @@ struct SettingsView: View {
         VStack(spacing: 8) {
             Image(systemName: "gear")
                 .font(.system(size: 50))
-                .foregroundColor(themePalette.secondaryText)
+                .foregroundStyle(themePalette.secondaryText)
                 .accessibilityHidden(true)
 
             Text("Settings")
                 .font(.largeTitle.bold())
-                .foregroundColor(themePalette.primaryText)
+                .foregroundStyle(themePalette.primaryText)
 
             Text("Customize your runic experience")
                 .font(.subheadline)
-                .foregroundColor(themePalette.tertiaryText)
+                .foregroundStyle(themePalette.tertiaryText)
         }
         .padding(.top, 20)
         .accessibilityElement(children: .combine)
@@ -102,13 +102,13 @@ struct SettingsView: View {
                 HStack {
                     Label("Live Preview", systemImage: "eye")
                         .font(.headline)
-                        .foregroundColor(themePalette.primaryText)
+                        .foregroundStyle(themePalette.primaryText)
 
                     Spacer()
 
                     Text(viewModel.selectedTheme.displayName)
                         .font(.caption)
-                        .foregroundColor(themePalette.tertiaryText)
+                        .foregroundStyle(themePalette.tertiaryText)
                 }
 
                 Text(viewModel.livePreviewRunicText)
@@ -119,7 +119,7 @@ struct SettingsView: View {
                         minSize: 22,
                         maxSize: 40
                     )
-                    .foregroundColor(themePalette.primaryText)
+                    .foregroundStyle(themePalette.primaryText)
                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 0)
                     .lineSpacing(5)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -130,7 +130,7 @@ struct SettingsView: View {
 
                 Text(viewModel.livePreviewLatinText)
                     .font(.callout)
-                    .foregroundColor(themePalette.secondaryText)
+                    .foregroundStyle(themePalette.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 HStack(spacing: 10) {
@@ -148,11 +148,11 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label)
                 .font(.caption2)
-                .foregroundColor(themePalette.tertiaryText)
+                .foregroundStyle(themePalette.tertiaryText)
 
             Text(value)
                 .font(.caption.weight(.semibold))
-                .foregroundColor(themePalette.primaryText)
+                .foregroundStyle(themePalette.primaryText)
                 .lineLimit(1)
         }
         .padding(.horizontal, 10)
@@ -173,20 +173,20 @@ struct SettingsView: View {
 
                 Text("Choose your script and visual atmosphere.")
                     .font(.caption)
-                    .foregroundColor(themePalette.tertiaryText)
+                    .foregroundStyle(themePalette.tertiaryText)
 
                 VStack(alignment: .leading, spacing: 10) {
                     subsectionTitle("Runic Script")
 
-                    Picker("Runic Script", selection: $viewModel.selectedScript) {
+                    Picker("Runic Script", selection: Binding(
+                        get: { viewModel.selectedScript },
+                        set: { viewModel.updateScript($0) }
+                    )) {
                         ForEach(RunicScript.allCases) { script in
                             Text(script.displayName).tag(script)
                         }
                     }
                     .pickerStyle(.segmented)
-                    .onChange(of: viewModel.selectedScript) { _, newValue in
-                        viewModel.updateScript(newValue)
-                    }
                     .accessibilityLabel("Select runic script")
                     .accessibilityValue(viewModel.selectedScript.rawValue)
                     .accessibilityHint("Choose between Elder Futhark, Younger Futhark, or Cirth")
@@ -220,7 +220,7 @@ struct SettingsView: View {
                             Text("Reset to Defaults")
                         }
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(themePalette.primaryText.opacity(viewModel.isAtDefaults ? 0.3 : 0.92))
+                        .foregroundStyle(themePalette.primaryText.opacity(viewModel.isAtDefaults ? 0.3 : 0.92))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
@@ -247,7 +247,7 @@ struct SettingsView: View {
                             Text("Restore Last Preset")
                         }
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(themePalette.primaryText.opacity(viewModel.canRestoreLastPreset ? 0.92 : 0.3))
+                        .foregroundStyle(themePalette.primaryText.opacity(viewModel.canRestoreLastPreset ? 0.92 : 0.3))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
@@ -289,18 +289,18 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(theme.displayName)
                         .font(.headline)
-                        .foregroundColor(themePalette.primaryText)
+                        .foregroundStyle(themePalette.primaryText)
 
                     Text(theme.description)
                         .font(.caption)
-                        .foregroundColor(themePalette.tertiaryText)
+                        .foregroundStyle(themePalette.tertiaryText)
                 }
 
                 Spacer()
 
                 if viewModel.selectedTheme == theme {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.white.opacity(0.55))
+                        .foregroundStyle(.white.opacity(0.55))
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -334,18 +334,18 @@ struct SettingsView: View {
 
                 Text("Adjust font details and use curated script/font combinations.")
                     .font(.caption)
-                    .foregroundColor(themePalette.tertiaryText)
+                    .foregroundStyle(themePalette.tertiaryText)
 
                 VStack(alignment: .leading, spacing: 10) {
                     subsectionTitle("Font")
 
                     GlassFontSelector(
-                        selectedFont: $viewModel.selectedFont,
+                        selectedFont: Binding(
+                            get: { viewModel.selectedFont },
+                            set: { viewModel.updateFont($0) }
+                        ),
                         availableFonts: viewModel.availableFonts
                     )
-                    .onChange(of: viewModel.selectedFont) { _, newValue in
-                        viewModel.updateFont(newValue)
-                    }
                     .accessibilityLabel("Select font style")
                     .accessibilityValue(viewModel.selectedFont.rawValue)
                     .accessibilityHint("Choose the font used to display runic text")
@@ -356,7 +356,7 @@ struct SettingsView: View {
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundColor(.red.opacity(0.8))
+                        .foregroundStyle(.red.opacity(0.8))
                         .accessibilityLabel("Error: \(error)")
                 }
 
@@ -390,20 +390,20 @@ struct SettingsView: View {
                 HStack(alignment: .top) {
                     Text(preset.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(themePalette.primaryText)
+                        .foregroundStyle(themePalette.primaryText)
 
                     Spacer(minLength: 8)
 
                     if isActive {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.white.opacity(0.55))
+                            .foregroundStyle(.white.opacity(0.55))
                             .font(.caption)
                     }
                 }
 
                 Text("\(preset.script.displayName) + \(preset.font.displayName)")
                     .font(.caption2)
-                    .foregroundColor(themePalette.tertiaryText)
+                    .foregroundStyle(themePalette.tertiaryText)
                     .lineLimit(1)
 
                 Text(viewModel.presetPreviewRunicText(for: preset))
@@ -414,18 +414,18 @@ struct SettingsView: View {
                         minSize: 16,
                         maxSize: 24
                     )
-                    .foregroundColor(themePalette.primaryText)
+                    .foregroundStyle(themePalette.primaryText)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text(preset.previewLatinText)
                     .font(.caption)
-                    .foregroundColor(themePalette.secondaryText)
+                    .foregroundStyle(themePalette.secondaryText)
                     .lineLimit(2)
 
                 Text(preset.description)
                     .font(.caption2)
-                    .foregroundColor(themePalette.tertiaryText)
+                    .foregroundStyle(themePalette.tertiaryText)
                     .lineLimit(2)
             }
             .padding(12)
@@ -455,7 +455,7 @@ struct SettingsView: View {
 
                 Text("How should the widget display quotes?")
                     .font(.caption)
-                    .foregroundColor(themePalette.tertiaryText)
+                    .foregroundStyle(themePalette.tertiaryText)
 
                 VStack(spacing: 12) {
                     ForEach(WidgetMode.allCases) { mode in
@@ -480,11 +480,11 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Decorative Glyph Identity")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(themePalette.primaryText)
+                            .foregroundStyle(themePalette.primaryText)
 
                         Text("Enable glyph ring and background pattern in widgets")
                             .font(.caption2)
-                            .foregroundColor(themePalette.tertiaryText)
+                            .foregroundStyle(themePalette.tertiaryText)
                     }
                 }
                 .tint(themePalette.accent)
@@ -505,18 +505,18 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(mode.displayName)
                         .font(.headline)
-                        .foregroundColor(themePalette.primaryText)
+                        .foregroundStyle(themePalette.primaryText)
 
                     Text(mode.description)
                         .font(.caption)
-                        .foregroundColor(themePalette.tertiaryText)
+                        .foregroundStyle(themePalette.tertiaryText)
                 }
 
                 Spacer()
 
                 if viewModel.widgetMode == mode {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.white.opacity(0.55))
+                        .foregroundStyle(.white.opacity(0.55))
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -545,18 +545,18 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(style.displayName)
                         .font(.headline)
-                        .foregroundColor(themePalette.primaryText)
+                        .foregroundStyle(themePalette.primaryText)
 
                     Text(style.description)
                         .font(.caption)
-                        .foregroundColor(themePalette.tertiaryText)
+                        .foregroundStyle(themePalette.tertiaryText)
                 }
 
                 Spacer()
 
                 if viewModel.widgetStyle == style {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.white.opacity(0.55))
+                        .foregroundStyle(.white.opacity(0.55))
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -584,14 +584,14 @@ struct SettingsView: View {
 
                 VStack(spacing: 8) {
                     aboutRow("App", value: "Runic Quotes")
-                    aboutRow("Version", value: "1.0")
+                    aboutRow("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown")
                     aboutRow("Scripts", value: "\(RunicScript.allCases.count)")
                     aboutRow("Fonts", value: "\(RunicFont.allCases.count)")
                 }
 
                 Text("Bringing ancient wisdom to modern devices")
                     .font(.caption)
-                    .foregroundColor(themePalette.tertiaryText)
+                    .foregroundStyle(themePalette.tertiaryText)
                     .multilineTextAlignment(.center)
                     .padding(.top, 8)
             }
@@ -604,13 +604,13 @@ struct SettingsView: View {
         HStack {
             Text(label)
                 .font(.subheadline)
-                .foregroundColor(themePalette.tertiaryText)
+                .foregroundStyle(themePalette.tertiaryText)
 
             Spacer()
 
             Text(value)
                 .font(.subheadline.weight(.medium))
-                .foregroundColor(themePalette.primaryText)
+                .foregroundStyle(themePalette.primaryText)
         }
     }
 
@@ -624,11 +624,11 @@ struct SettingsView: View {
 
             Image(systemName: icon)
                 .font(.headline)
-                .foregroundColor(themePalette.secondaryText)
+                .foregroundStyle(themePalette.secondaryText)
 
             Text(title)
                 .font(.headline)
-                .foregroundColor(themePalette.primaryText)
+                .foregroundStyle(themePalette.primaryText)
 
             Spacer()
         }
@@ -637,7 +637,7 @@ struct SettingsView: View {
     private func subsectionTitle(_ title: String) -> some View {
         Text(title)
             .font(.subheadline.weight(.semibold))
-            .foregroundColor(themePalette.secondaryText)
+            .foregroundStyle(themePalette.secondaryText)
     }
 }
 

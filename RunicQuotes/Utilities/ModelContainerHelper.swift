@@ -68,7 +68,7 @@ enum ModelContainerHelper {
     }
 
     /// Creates a shared ModelContainer for widget access
-    static func createSharedContainer() async throws -> ModelContainer {
+    static func createSharedContainer() throws -> ModelContainer {
         let schema = Schema([
             Quote.self,
             UserPreferences.self

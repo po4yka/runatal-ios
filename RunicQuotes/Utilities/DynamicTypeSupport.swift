@@ -37,7 +37,6 @@ struct RunicDynamicTypeModifier: ViewModifier {
     let minSize: CGFloat
     let maxSize: CGFloat
 
-    @Environment(\.sizeCategory) var sizeCategory
     @Environment(\.dynamicTypeSize) var dynamicTypeSize
 
     func body(content: Content) -> some View {
@@ -84,8 +83,8 @@ struct RunicDynamicTypeModifier: ViewModifier {
             baseSize = 17
         }
 
-        // Scale based on size category
-        let scaleFactor = sizeCategory.scaleFactor
+        // Scale based on dynamic type size
+        let scaleFactor = dynamicTypeSize.scaleFactor
         let scaled = baseSize * scaleFactor
 
         // Clamp to min/max range
@@ -93,13 +92,13 @@ struct RunicDynamicTypeModifier: ViewModifier {
     }
 }
 
-// MARK: - Content Size Category Extension
+// MARK: - Dynamic Type Size Extension
 
-extension ContentSizeCategory {
+extension DynamicTypeSize {
     /// Scale factor relative to default (.large)
     var scaleFactor: CGFloat {
         switch self {
-        case .extraSmall:
+        case .xSmall:
             return 0.8
         case .small:
             return 0.9
@@ -107,21 +106,21 @@ extension ContentSizeCategory {
             return 0.95
         case .large:
             return 1.0
-        case .extraLarge:
+        case .xLarge:
             return 1.1
-        case .extraExtraLarge:
+        case .xxLarge:
             return 1.2
-        case .extraExtraExtraLarge:
+        case .xxxLarge:
             return 1.3
-        case .accessibilityMedium:
+        case .accessibility1:
             return 1.5
-        case .accessibilityLarge:
+        case .accessibility2:
             return 1.7
-        case .accessibilityExtraLarge:
+        case .accessibility3:
             return 2.0
-        case .accessibilityExtraExtraLarge:
+        case .accessibility4:
             return 2.3
-        case .accessibilityExtraExtraExtraLarge:
+        case .accessibility5:
             return 2.6
         @unknown default:
             return 1.0
@@ -161,14 +160,13 @@ struct ReduceMotionModifier<V: Equatable>: ViewModifier {
 
 /// Helper to retrieve accessibility settings
 struct AccessibilitySettings {
-    @Environment(\.sizeCategory) var sizeCategory
     @Environment(\.dynamicTypeSize) var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) var reduceMotion
     @Environment(\.accessibilityReduceTransparency) var reduceTransparency
     @Environment(\.accessibilityDifferentiateWithoutColor) var differentiateWithoutColor
 
     var isAccessibilitySize: Bool {
-        sizeCategory.isAccessibilityCategory
+        dynamicTypeSize.isAccessibilitySize
     }
 
     var shouldReduceAnimations: Bool {

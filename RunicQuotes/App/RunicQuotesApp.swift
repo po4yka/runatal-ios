@@ -65,10 +65,10 @@ struct RunicQuotesApp: App {
                     VStack {
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(.yellow)
+                                .foregroundStyle(.yellow)
                             Text(databaseErrorMessage)
                                 .font(.caption)
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                         }
                         .padding()
                         .background(Color.black.opacity(0.8))

@@ -39,7 +39,7 @@ struct QuoteTimelineProvider: TimelineProvider {
                 Self.logger.error("Widget timeline error: \(error.localizedDescription)")
                 // Fallback to placeholder
                 let entry = RunicQuoteEntry.placeholder()
-                let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(3600)))
+                let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(AppConstants.secondsPerHour)))
                 sendableCompletion.value(timeline)
             }
         }
@@ -78,9 +78,9 @@ struct QuoteTimelineProvider: TimelineProvider {
         // For random mode, update every hour
         let nextUpdate: Date
         if preferences.widgetMode == .daily {
-            nextUpdate = Calendar.current.startOfDay(for: currentDate.addingTimeInterval(86400)) // Next day at midnight
+            nextUpdate = Calendar.current.startOfDay(for: currentDate.addingTimeInterval(AppConstants.secondsPerDay))
         } else {
-            nextUpdate = currentDate.addingTimeInterval(3600) // 1 hour
+            nextUpdate = currentDate.addingTimeInterval(AppConstants.secondsPerHour)
         }
 
         // Create entry for next update
@@ -132,17 +132,12 @@ struct QuoteTimelineProvider: TimelineProvider {
         let provider = QuoteProvider(repository: repository)
         try await provider.seedIfNeeded()
 
-        // Use the same deterministic algorithm as the app
-        let calendar = Calendar.current
-        let targetDay = calendar.startOfDay(for: date)
-        let daysSinceEpoch = calendar.dateComponents([.day], from: Date(timeIntervalSince1970: 0), to: targetDay).day ?? 0
-
         let allQuotes = try await provider.allQuotes()
         guard !allQuotes.isEmpty else {
             throw WidgetError.noQuotesAvailable
         }
 
-        let index = daysSinceEpoch % allQuotes.count
+        let index = AppConstants.dailyQuoteIndex(for: date, totalQuotes: allQuotes.count)
         let quote = allQuotes[index]
 
         return QuoteData(from: quote)
@@ -162,18 +157,7 @@ struct QuoteTimelineProvider: TimelineProvider {
 
     /// Create shared model container for App Group access
     private func createSharedModelContainer() throws -> ModelContainer {
-        let schema = Schema([
-            Quote.self,
-            UserPreferences.self
-        ])
-
-        let modelConfiguration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            groupContainer: .identifier(AppConstants.appGroupIdentifier)
-        )
-
-        return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        try ModelContainerHelper.createSharedContainer()
     }
 }
 

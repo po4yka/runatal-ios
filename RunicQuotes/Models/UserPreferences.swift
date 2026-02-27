@@ -38,7 +38,9 @@ final class UserPreferences {
     /// Last user-selected recommended preset
     var lastUsedPresetRaw: String?
 
-    /// Comma-separated list of saved quote UUID strings
+    /// Comma-separated list of saved quote UUID strings.
+    /// Uses a serialized string rather than `[String]` to avoid a schema migration
+    /// that would lose existing saved-quote data on update.
     var savedQuoteIDsRaw: String?
 
     /// Last updated timestamp

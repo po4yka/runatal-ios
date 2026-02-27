@@ -22,13 +22,13 @@ struct CollectionCoverCarousel: View {
             HStack {
                 Text("Collections")
                     .font(.headline)
-                    .foregroundColor(palette.primaryText)
+                    .foregroundStyle(palette.primaryText)
 
                 Spacer()
 
                 Text(selectedCollection.displayName)
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(palette.tertiaryText)
+                    .foregroundStyle(palette.tertiaryText)
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -54,13 +54,13 @@ struct CollectionCoverCarousel: View {
                 HStack(alignment: .top) {
                     Image(systemName: cover.collection.systemImage)
                         .font(.caption.weight(.bold))
-                        .foregroundColor(palette.primaryText)
+                        .foregroundStyle(palette.primaryText)
 
                     Spacer(minLength: 8)
 
                     Text("\(cover.quoteCount)")
                         .font(.caption2.weight(.bold))
-                        .foregroundColor(palette.primaryText)
+                        .foregroundStyle(palette.primaryText)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 4)
                         .background(
@@ -77,27 +77,27 @@ struct CollectionCoverCarousel: View {
                         minSize: 18,
                         maxSize: 30
                     )
-                    .foregroundColor(palette.primaryText)
+                    .foregroundStyle(palette.primaryText)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, minHeight: 34, alignment: .topLeading)
 
                 Text(cover.latinPreview)
                     .font(.caption)
-                    .foregroundColor(palette.secondaryText)
+                    .foregroundStyle(palette.secondaryText)
                     .lineLimit(1)
 
                 Text(cover.collection.displayName)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(palette.primaryText)
+                    .foregroundStyle(palette.primaryText)
 
                 Text(cover.collection.subtitle)
                     .font(.caption2)
-                    .foregroundColor(palette.tertiaryText)
+                    .foregroundStyle(palette.tertiaryText)
                     .lineLimit(1)
 
                 Text("— \(cover.authorPreview)")
                     .font(.caption2)
-                    .foregroundColor(palette.tertiaryText)
+                    .foregroundStyle(palette.tertiaryText)
                     .lineLimit(1)
             }
             .padding(12)

@@ -9,6 +9,31 @@ import Foundation
 
 /// Application-wide constants
 enum AppConstants {
+    /// Width (in points) of the share-sheet snapshot image.
+    static let shareSnapshotWidth: CGFloat = 1000
+
+    /// Seconds per hour, used for widget timeline refresh intervals.
+    static let secondsPerHour: TimeInterval = 3600
+
+    /// Seconds per day, used for widget timeline refresh intervals.
+    static let secondsPerDay: TimeInterval = 86400
+
+    /// Deterministic daily quote index based on the current date.
+    ///
+    /// Uses the same calendar arithmetic everywhere (app, repository, widget)
+    /// so that the "daily" quote is identical across all surfaces.
+    static func dailyQuoteIndex(for date: Date = Date(), totalQuotes count: Int) -> Int {
+        guard count > 0 else { return 0 }
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let daysSinceEpoch = calendar.dateComponents(
+            [.day],
+            from: Date(timeIntervalSince1970: 0),
+            to: startOfDay
+        ).day ?? 0
+        return daysSinceEpoch % count
+    }
+
     /// App Group identifier for shared data between app and widget
     static let appGroupIdentifier = "group.com.po4yka.runicquotes"
 
@@ -28,7 +53,11 @@ enum AppConstants {
     static let onboardingCompletedKey = "hasCompletedOnboarding"
 }
 
-/// Notification names for app-wide events
+/// Notification names for app-wide events.
+///
+/// Used as a lightweight event bus between components that don't share
+/// a direct parent-child relationship (deep link handler, quote context
+/// menu, tab view). Acceptable coupling for a two-tab app.
 extension Notification.Name {
     static let switchToQuoteTab = Notification.Name("SwitchToQuoteTab")
     static let switchToSettingsTab = Notification.Name("SwitchToSettingsTab")

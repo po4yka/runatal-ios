@@ -94,10 +94,10 @@ struct GlassCard<Content: View>: View {
                 VStack(spacing: 10) {
                     Text("Default Glass Card")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Text("Medium-low opacity with ultra-thin material")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
                 }
             }
 
@@ -109,10 +109,10 @@ struct GlassCard<Content: View>: View {
                 VStack(spacing: 10) {
                     Text("Light Glass Card")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Text("Very low opacity with ultra-thin material")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
                 }
             }
 
@@ -124,10 +124,10 @@ struct GlassCard<Content: View>: View {
                 VStack(spacing: 10) {
                     Text("Heavy Glass Card")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Text("Medium opacity with regular material")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
                 }
             }
         }

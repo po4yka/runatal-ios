@@ -30,6 +30,7 @@ struct QuoteView: View {
     @State private var quoteCardAppearOpacity: Double = 1.0
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.displayScale) private var displayScale
 
     // MARK: - Initialization
 
@@ -182,7 +183,7 @@ struct QuoteView: View {
 
             Text("Loading quote...")
                 .font(.caption)
-                .foregroundColor(themePalette.tertiaryText)
+                .foregroundStyle(themePalette.tertiaryText)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Loading quote")
@@ -196,16 +197,16 @@ struct QuoteView: View {
             VStack(spacing: 16) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.largeTitle)
-                    .foregroundColor(.red.opacity(0.8))
+                    .foregroundStyle(.red.opacity(0.8))
                     .accessibilityLabel("Error")
 
                 Text("Error")
                     .font(.headline)
-                    .foregroundColor(themePalette.primaryText)
+                    .foregroundStyle(themePalette.primaryText)
 
                 Text(message)
                     .font(.body)
-                    .foregroundColor(themePalette.secondaryText)
+                    .foregroundStyle(themePalette.secondaryText)
                     .multilineTextAlignment(.center)
 
                 Button {
@@ -218,7 +219,7 @@ struct QuoteView: View {
                         Text("Try Again")
                     }
                     .font(.subheadline.weight(.medium))
-                    .foregroundColor(themePalette.primaryText.opacity(0.92))
+                    .foregroundStyle(themePalette.primaryText.opacity(0.92))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
@@ -320,12 +321,12 @@ struct QuoteView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Search Results")
                 .font(.headline)
-                .foregroundColor(themePalette.primaryText)
+                .foregroundStyle(themePalette.primaryText)
 
             if searchResults.isEmpty {
                 Text("No matches found in \(viewModel.state.currentCollection.displayName).")
                     .font(.caption)
-                    .foregroundColor(themePalette.tertiaryText)
+                    .foregroundStyle(themePalette.tertiaryText)
             } else {
                 VStack(spacing: 8) {
                     ForEach(searchResults.prefix(4)) { result in
@@ -338,12 +339,12 @@ struct QuoteView: View {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(result.latinText)
                                         .font(.subheadline)
-                                        .foregroundColor(themePalette.primaryText)
+                                        .foregroundStyle(themePalette.primaryText)
                                         .lineLimit(1)
 
                                     Text("— \(result.author)")
                                         .font(.caption)
-                                        .foregroundColor(themePalette.tertiaryText)
+                                        .foregroundStyle(themePalette.tertiaryText)
                                         .lineLimit(1)
                                 }
 
@@ -351,7 +352,7 @@ struct QuoteView: View {
 
                                 Image(systemName: "arrow.up.left")
                                     .font(.caption.weight(.semibold))
-                                    .foregroundColor(themePalette.secondaryText)
+                                    .foregroundStyle(themePalette.secondaryText)
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 10)
@@ -385,7 +386,7 @@ struct QuoteView: View {
                         minSize: 28,
                         maxSize: 56
                     )
-                    .foregroundColor(themePalette.primaryText)
+                    .foregroundStyle(themePalette.primaryText)
                     .multilineTextAlignment(.center)
                     .lineSpacing(10)
                     .frame(maxWidth: .infinity, minHeight: 220, alignment: .center)
@@ -421,7 +422,7 @@ struct QuoteView: View {
                 // Secondary zone: translation
                 Text(viewModel.state.latinText)
                     .font(.body)
-                    .foregroundColor(themePalette.secondaryText)
+                    .foregroundStyle(themePalette.secondaryText)
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
                     .padding(.horizontal, 16)
@@ -439,7 +440,7 @@ struct QuoteView: View {
                 HStack {
                     Text("— \(viewModel.state.author)")
                         .font(.callout)
-                        .foregroundColor(themePalette.tertiaryText)
+                        .foregroundStyle(themePalette.tertiaryText)
                         .italic()
                         .accessibilityLabel("Author")
                         .accessibilityValue(viewModel.state.author)
@@ -455,7 +456,7 @@ struct QuoteView: View {
             .overlay(alignment: .topTrailing) {
                 Text(decorativeGlyph)
                     .font(.system(size: 60))
-                    .foregroundColor(themePalette.primaryText)
+                    .foregroundStyle(themePalette.primaryText)
                     .opacity(0.03)
                     .rotationEffect(.degrees(-12))
                     .padding(.top, 12)
@@ -516,7 +517,7 @@ struct QuoteView: View {
         ToolbarItem(placement: .navigation) {
             Text(viewModel.state.currentCollection.displayName)
                 .font(.caption.weight(.semibold))
-                .foregroundColor(themePalette.tertiaryText)
+                .foregroundStyle(themePalette.tertiaryText)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 5)
                 .background(
@@ -622,7 +623,7 @@ struct QuoteView: View {
         Haptics.trigger(.saveOrShare)
 
         let renderer = ImageRenderer(content: shareSnapshotView)
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = displayScale
 
         if let image = renderer.uiImage {
             shareItems = [image]
@@ -644,7 +645,7 @@ struct QuoteView: View {
                     minSize: 24,
                     maxSize: 48
                 )
-                .foregroundColor(themePalette.primaryText)
+                .foregroundStyle(themePalette.primaryText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
 
@@ -653,18 +654,18 @@ struct QuoteView: View {
 
             Text(viewModel.state.latinText)
                 .font(.title3)
-                .foregroundColor(themePalette.secondaryText)
+                .foregroundStyle(themePalette.secondaryText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
 
             Text("— \(viewModel.state.author)")
                 .font(.headline)
-                .foregroundColor(themePalette.tertiaryText)
+                .foregroundStyle(themePalette.tertiaryText)
                 .italic()
                 .padding(.bottom, 8)
         }
         .padding(.vertical, 28)
-        .frame(width: 1000)
+        .frame(width: AppConstants.shareSnapshotWidth)
         .background(
             LinearGradient(
                 colors: themePalette.appBackgroundGradient,

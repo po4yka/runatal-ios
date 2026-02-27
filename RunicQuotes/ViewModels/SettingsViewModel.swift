@@ -85,7 +85,6 @@ final class SettingsViewModel: ObservableObject {
 
     /// Load preferences when view appears
     func onAppear() {
-        isLoading = true
         Task {
             await loadPreferences()
         }

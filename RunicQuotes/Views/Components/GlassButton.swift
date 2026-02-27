@@ -64,7 +64,7 @@ struct GlassButton: View {
                         .font(.body.weight(.medium))
                 }
             }
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
             .background {

@@ -376,15 +376,7 @@ final class QuoteViewModel: ObservableObject {
     private func selectQuote(from quotes: [QuoteRecord], mode: WidgetMode) -> QuoteRecord {
         switch mode {
         case .daily:
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: Date())
-            let daysSinceEpoch = calendar.dateComponents(
-                [.day],
-                from: Date(timeIntervalSince1970: 0),
-                to: today
-            ).day ?? 0
-
-            let index = daysSinceEpoch % quotes.count
+            let index = AppConstants.dailyQuoteIndex(totalQuotes: quotes.count)
             return quotes[index]
         case .random:
             let randomIndex = Int.random(in: 0..<quotes.count)

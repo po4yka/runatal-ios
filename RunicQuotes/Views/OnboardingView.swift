@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import os
 
 /// First-launch onboarding flow introducing scripts and default style selection.
 struct OnboardingView: View {
@@ -122,7 +123,7 @@ struct OnboardingView: View {
                     Label("Back", systemImage: "chevron.left")
                         .font(.body.weight(.medium))
                 }
-                .foregroundColor(.white.opacity(0.92))
+                .foregroundStyle(.white.opacity(0.92))
                 .transition(.move(edge: .leading).combined(with: .opacity))
             }
         }
@@ -132,7 +133,7 @@ struct OnboardingView: View {
                 savePreferencesAndFinish()
             }
             .font(.subheadline.weight(.medium))
-            .foregroundColor(.white.opacity(0.55))
+            .foregroundStyle(.white.opacity(0.55))
         }
     }
 
@@ -140,7 +141,7 @@ struct OnboardingView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Welcome to Runic quotes")
                 .font(.title2.bold())
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .lineLimit(2)
                 .minimumScaleFactor(0.9)
 
@@ -148,7 +149,7 @@ struct OnboardingView: View {
                  ? "Pick your default widget style"
                  : "Choose your script")
                 .font(.subheadline)
-                .foregroundColor(.white.opacity(0.9))
+                .foregroundStyle(.white.opacity(0.9))
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
                 .animation(.none, value: currentPage)
@@ -197,21 +198,21 @@ struct OnboardingView: View {
                     HStack(alignment: .firstTextBaseline) {
                         Text(story.script.displayName)
                             .font(.title3.bold())
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
 
                         Spacer()
 
                         if isSelected {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.title3)
-                                .foregroundColor(.white.opacity(0.55))
+                                .foregroundStyle(.white.opacity(0.55))
                                 .transition(.scale.combined(with: .opacity))
                         }
                     }
 
                     Text(story.subtitle)
                         .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.55))
+                        .foregroundStyle(.white.opacity(0.55))
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -224,7 +225,7 @@ struct OnboardingView: View {
                         minSize: 24,
                         maxSize: 42
                     )
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .lineSpacing(6)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity, minHeight: 80, alignment: .center)
@@ -235,12 +236,12 @@ struct OnboardingView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("\u{201C}\(story.sampleLatin)\u{201D}")
                         .font(.body.weight(.medium))
-                        .foregroundColor(.white.opacity(0.92))
+                        .foregroundStyle(.white.opacity(0.92))
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(story.script.description)
                         .font(.caption2)
-                        .foregroundColor(.white.opacity(0.50))
+                        .foregroundStyle(.white.opacity(0.50))
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -248,7 +249,7 @@ struct OnboardingView: View {
                 if !isSelected {
                     Text("Tap to set as default")
                         .font(.caption2)
-                        .foregroundColor(.white.opacity(0.42))
+                        .foregroundStyle(.white.opacity(0.42))
                         .frame(maxWidth: .infinity)
                         .transition(.opacity)
                 }
@@ -268,6 +269,11 @@ struct OnboardingView: View {
                 selectedScript = isSelected ? nil : story.script
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel("\(story.script.displayName) script")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityHint(isSelected ? "Double tap to deselect" : "Double tap to set as default script")
     }
 
     private var styleSelectionCard: some View {
@@ -279,7 +285,7 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 14) {
                 Text("You can change this any time in settings.")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.55))
+                    .foregroundStyle(.white.opacity(0.55))
                     .fixedSize(horizontal: false, vertical: true)
 
                 VStack(spacing: 0) {
@@ -322,12 +328,12 @@ struct OnboardingView: View {
                 HStack {
                     Text(style.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Spacer()
                     if isSelected {
                         Image(systemName: "checkmark")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(.white.opacity(0.55))
+                            .foregroundStyle(.white.opacity(0.55))
                     }
                 }
 
@@ -340,20 +346,20 @@ struct OnboardingView: View {
                             minSize: 18,
                             maxSize: 24
                         )
-                        .foregroundColor(.white.opacity(0.92))
+                        .foregroundStyle(.white.opacity(0.92))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .shadow(color: .black.opacity(0.34), radius: 1, x: 0, y: 1)
 
                     Text(sampleLatin)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.50))
+                        .foregroundStyle(.white.opacity(0.50))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
                     Text(sampleLatin)
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(.white.opacity(0.92))
+                        .foregroundStyle(.white.opacity(0.92))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -365,7 +371,7 @@ struct OnboardingView: View {
                             minSize: 14,
                             maxSize: 18
                         )
-                        .foregroundColor(.white.opacity(0.50))
+                        .foregroundStyle(.white.opacity(0.50))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .shadow(color: .black.opacity(0.32), radius: 1, x: 0, y: 1)
@@ -399,7 +405,7 @@ struct OnboardingView: View {
                         .font(.caption.weight(.semibold))
                 }
                 .font(.subheadline.weight(.medium))
-                .foregroundColor(.white.opacity(0.92))
+                .foregroundStyle(.white.opacity(0.92))
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
                 .background(
@@ -430,6 +436,8 @@ struct OnboardingView: View {
         }
     }
 
+    private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Onboarding")
+
     private func savePreferencesAndFinish() {
         do {
             let preferences = try UserPreferences.getOrCreate(in: modelContext)
@@ -442,6 +450,7 @@ struct OnboardingView: View {
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
             // Continue anyway so onboarding cannot block app usage.
+            Self.logger.error("Failed to save onboarding preferences: \(error.localizedDescription)")
         }
 
         onComplete()

@@ -75,7 +75,7 @@ private struct ScriptButton: View {
                     .font(.caption2)
                     .fontWeight(isSelected ? .semibold : .regular)
             }
-            .foregroundColor(isSelected ? .white : .white.opacity(0.6))
+            .foregroundStyle(isSelected ? .white : .white.opacity(0.6))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .padding(.horizontal, 8)
@@ -154,18 +154,18 @@ private struct FontButton: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(font.displayName)
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
 
                     Text(font.description)
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.55))
+                        .foregroundStyle(.white.opacity(0.55))
                 }
 
                 Spacer()
 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.white.opacity(0.55))
+                        .foregroundStyle(.white.opacity(0.55))
                         .font(.title3)
                 }
             }
@@ -201,7 +201,7 @@ private struct FontButton: View {
             VStack(spacing: 20) {
                 Text("Script Selector")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
 
                 GlassScriptSelector(
                     selectedScript: .constant(.elder)
@@ -211,7 +211,7 @@ private struct FontButton: View {
             VStack(spacing: 20) {
                 Text("Font Selector")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
 
                 GlassFontSelector(
                     selectedFont: .constant(.noto)
