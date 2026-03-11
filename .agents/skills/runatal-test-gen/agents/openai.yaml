@@ -1,0 +1,7 @@
+interface:
+  display_name: "Runatal Test Gen"
+  short_description: "Generates unit tests following RunicQuotes patterns."
+  default_prompt: "Use $runatal-test-gen to generate tests for a type."
+
+policy:
+  allow_implicit_invocation: true

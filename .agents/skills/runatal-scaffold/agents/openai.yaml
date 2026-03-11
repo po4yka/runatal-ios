@@ -1,0 +1,7 @@
+interface:
+  display_name: "Runatal Scaffold"
+  short_description: "Scaffolds new features following RunicQuotes conventions."
+  default_prompt: "Use $runatal-scaffold to create a new feature module."
+
+policy:
+  allow_implicit_invocation: true
