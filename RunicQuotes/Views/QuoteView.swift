@@ -22,15 +22,20 @@ struct QuoteView: View {
     @State private var didInitialize = false
     @State private var isScriptMorphing = false
     @State private var scriptMorphTask: Task<Void, Never>?
-    @State private var isShareSheetPresented = false
-    @State private var shareItems: [Any] = []
+    @State private var showShareView = false
+    @State private var showCreateQuote = false
+    @State private var showActionsSheet = false
+    @State private var showDeleteConfirmation = false
+    @State private var showEditQuote = false
     @State private var searchQuery = ""
+    @State private var showCoachMarks = false
     @State private var lastKnownScrollOffset: CGFloat = 0
+    @AppStorage(AppConstants.featureTourCompletedKey) private var hasCompletedFeatureTour = false
     @State private var quoteCardAppearScale: CGFloat = 1.0
     @State private var quoteCardAppearOpacity: Double = 1.0
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.displayScale) private var displayScale
 
     // MARK: - Initialization
 
@@ -60,12 +65,25 @@ struct QuoteView: View {
             } else {
                 quoteContentView
             }
+
+            // Coach marks overlay
+            if showCoachMarks {
+                CoachMarksView {
+                    hasCompletedFeatureTour = true
+                    showCoachMarks = false
+                }
+            }
         }
         .task {
             guard !didInitialize else { return }
             didInitialize = true
             viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
+        }
+        .onChange(of: viewModel.state.isLoading) { _, isLoading in
+            if !isLoading && !hasCompletedFeatureTour && didInitialize {
+                showCoachMarks = true
+            }
         }
         .onChange(of: viewModel.state.currentScript) { _, _ in
             startScriptMorphTransition()
@@ -119,18 +137,50 @@ struct QuoteView: View {
                 searchQuery = ""
             }
         }
-        .sheet(isPresented: $isShareSheetPresented) {
-#if canImport(UIKit)
-            ActivityViewController(activityItems: shareItems)
-#else
-            Text("Sharing is unavailable on this platform.")
-                .padding()
-#endif
+        .sheet(isPresented: $showShareView) {
+            NavigationStack {
+                ShareQuoteView(
+                    runicText: viewModel.state.runicText,
+                    latinText: viewModel.state.latinText,
+                    author: viewModel.state.author,
+                    script: viewModel.state.currentScript,
+                    font: viewModel.state.currentFont
+                )
+            }
+        }
+        .sheet(isPresented: $showCreateQuote) {
+            NavigationStack {
+                CreateEditQuoteView(mode: .create) { _ in
+                    viewModel.onAppear()
+                }
+            }
+        }
+        .sheet(isPresented: $showActionsSheet) {
+            QuoteActionsSheet(isSaved: viewModel.state.isCurrentQuoteSaved) { action in
+                handleQuoteAction(action)
+            }
+        }
+        .sheet(isPresented: $showEditQuote) {
+            if let record = viewModel.currentQuoteRecord() {
+                NavigationStack {
+                    CreateEditQuoteView(mode: .edit(record)) { _ in
+                        viewModel.onAppear()
+                    }
+                }
+            }
+        }
+        .alert("Delete Quote?", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                viewModel.deleteCurrentQuote()
+            }
+        } message: {
+            Text("This will move the quote to your archive. You can restore it later from Settings > Archive.")
         }
     }
 
-    private var themePalette: AppThemePalette {
-        viewModel.state.currentTheme.palette
+    private var palette: AppThemePalette {
+        .adaptive(for: colorScheme)
     }
 
     private var decorativeGlyph: String {
@@ -149,20 +199,20 @@ struct QuoteView: View {
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: themePalette.appBackgroundGradient,
+            colors: palette.appBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         .overlay {
             ZStack {
                 Circle()
-                    .fill(Color.white.opacity(0.04))
+                    .fill(palette.accent.opacity(0.04))
                     .frame(width: 240, height: 240)
                     .blur(radius: 32)
                     .offset(x: 120, y: -220)
 
                 Circle()
-                    .fill(Color.white.opacity(0.03))
+                    .fill(palette.accent.opacity(0.03))
                     .frame(width: 280, height: 280)
                     .blur(radius: 44)
                     .offset(x: -140, y: 260)
@@ -174,16 +224,16 @@ struct QuoteView: View {
     // MARK: - Loading View
 
     private var loadingView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: DesignTokens.Spacing.lg) {
             ProgressView()
-                .tint(themePalette.accent)
+                .tint(palette.accent)
                 .scaleEffect(1.5)
                 .accessibilityLabel("Loading")
                 .accessibilityIdentifier("quote_loading_indicator")
 
             Text("Loading quote...")
                 .font(.caption)
-                .foregroundStyle(themePalette.tertiaryText)
+                .foregroundStyle(palette.textTertiary)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Loading quote")
@@ -193,50 +243,32 @@ struct QuoteView: View {
     // MARK: - Error View
 
     private func errorView(_ message: String) -> some View {
-        GlassCard {
-            VStack(spacing: 16) {
+        GlassCard(intensity: .medium) {
+            VStack(spacing: DesignTokens.Spacing.md) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.largeTitle)
-                    .foregroundStyle(.red.opacity(0.8))
+                    .foregroundStyle(palette.error.opacity(0.8))
                     .accessibilityLabel("Error")
 
                 Text("Error")
                     .font(.headline)
-                    .foregroundStyle(themePalette.primaryText)
+                    .foregroundStyle(palette.textPrimary)
 
                 Text(message)
                     .font(.body)
-                    .foregroundStyle(themePalette.secondaryText)
+                    .foregroundStyle(palette.textSecondary)
                     .multilineTextAlignment(.center)
 
-                Button {
+                GlassButton.primary("Try Again", icon: "arrow.clockwise") {
                     viewModel.refresh()
                 }
-                label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.caption.weight(.semibold))
-                        Text("Try Again")
-                    }
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(themePalette.primaryText.opacity(0.92))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                            .opacity(0.8)
-                    )
-                    .shadow(color: .black.opacity(0.22), radius: 8, x: 0, y: 4)
-                }
-                .buttonStyle(PlainButtonStyle())
                 .accessibilityLabel("Retry loading quote")
                 .accessibilityHint("Double tap to try loading the quote again")
                 .accessibilityIdentifier("quote_retry_button")
             }
-            .padding()
+            .padding(DesignTokens.Spacing.md)
         }
-        .padding()
+        .padding(DesignTokens.Spacing.md)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("quote_error_view")
     }
@@ -245,9 +277,9 @@ struct QuoteView: View {
 
     private var quoteContentView: some View {
         ScrollView {
-            VStack(spacing: 30) {
+            VStack(spacing: DesignTokens.Spacing.xxl) {
                 Spacer()
-                    .frame(height: 20)
+                    .frame(height: DesignTokens.Spacing.lg)
 
                 scriptPicker
 
@@ -262,7 +294,7 @@ struct QuoteView: View {
                 quoteCard
 
                 Spacer()
-                    .frame(height: 20)
+                    .frame(height: DesignTokens.Spacing.lg)
             }
             .background(
                 GeometryReader { proxy in
@@ -285,7 +317,7 @@ struct QuoteView: View {
             selectedCollection: viewModel.state.currentCollection,
             script: viewModel.state.currentScript,
             font: viewModel.state.currentFont,
-            palette: themePalette
+            palette: palette
         ) { collection in
             guard collection != viewModel.state.currentCollection else { return }
             Haptics.trigger(.scriptSwitch)
@@ -310,7 +342,7 @@ struct QuoteView: View {
             }
         }
         .pickerStyle(.segmented)
-        .padding(.horizontal)
+        .padding(.horizontal, DesignTokens.Spacing.md)
         .accessibilityLabel("Runic script selector")
         .accessibilityValue(viewModel.state.currentScript.rawValue)
         .accessibilityHint("Select which runic script to display")
@@ -318,33 +350,33 @@ struct QuoteView: View {
     }
 
     private var searchResultsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             Text("Search Results")
                 .font(.headline)
-                .foregroundStyle(themePalette.primaryText)
+                .foregroundStyle(palette.textPrimary)
 
             if searchResults.isEmpty {
                 Text("No matches found in \(viewModel.state.currentCollection.displayName).")
                     .font(.caption)
-                    .foregroundStyle(themePalette.tertiaryText)
+                    .foregroundStyle(palette.textTertiary)
             } else {
-                VStack(spacing: 8) {
+                VStack(spacing: DesignTokens.Spacing.xs) {
                     ForEach(searchResults.prefix(4)) { result in
                         Button {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 viewModel.showQuote(withID: result.id)
                             }
                         } label: {
-                            HStack(spacing: 10) {
-                                VStack(alignment: .leading, spacing: 3) {
+                            HStack(spacing: DesignTokens.Spacing.sm) {
+                                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                                     Text(result.latinText)
                                         .font(.subheadline)
-                                        .foregroundStyle(themePalette.primaryText)
+                                        .foregroundStyle(palette.textPrimary)
                                         .lineLimit(1)
 
                                     Text("— \(result.author)")
                                         .font(.caption)
-                                        .foregroundStyle(themePalette.tertiaryText)
+                                        .foregroundStyle(palette.textTertiary)
                                         .lineLimit(1)
                                 }
 
@@ -352,12 +384,12 @@ struct QuoteView: View {
 
                                 Image(systemName: "arrow.up.left")
                                     .font(.caption.weight(.semibold))
-                                    .foregroundStyle(themePalette.secondaryText)
+                                    .foregroundStyle(palette.textSecondary)
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 10)
+                            .padding(.horizontal, DesignTokens.Spacing.sm)
+                            .padding(.vertical, DesignTokens.Spacing.sm)
                             .background(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                                     .fill(.ultraThinMaterial)
                             )
                         }
@@ -366,16 +398,13 @@ struct QuoteView: View {
                 }
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, DesignTokens.Spacing.md)
     }
 
     // MARK: - Quote Card
 
     private var quoteCard: some View {
-        GlassCard(
-            opacity: .high,
-            blur: .ultraThinMaterial
-        ) {
+        GlassCard(intensity: .strong) {
             VStack(spacing: 0) {
                 // Hero zone: dominant runic text
                 Text(viewModel.state.runicText)
@@ -386,13 +415,13 @@ struct QuoteView: View {
                         minSize: 28,
                         maxSize: 56
                     )
-                    .foregroundStyle(themePalette.primaryText)
+                    .foregroundStyle(palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineSpacing(10)
                     .frame(maxWidth: .infinity, minHeight: 220, alignment: .center)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 8)
-                    .padding(.bottom, 20)
+                    .padding(.horizontal, DesignTokens.Spacing.sm)
+                    .padding(.top, DesignTokens.Spacing.xs)
+                    .padding(.bottom, DesignTokens.Spacing.lg)
                     .opacity(isScriptMorphing ? 0.2 : 1.0)
                     .blur(radius: isScriptMorphing ? 7 : 0)
                     .scaleEffect(isScriptMorphing ? 0.98 : 1.0)
@@ -406,9 +435,9 @@ struct QuoteView: View {
                         LinearGradient(
                             colors: [
                                 .clear,
-                                Color.white.opacity(0.08),
-                                Color.white.opacity(0.12),
-                                Color.white.opacity(0.08),
+                                palette.separator.opacity(0.5),
+                                palette.separator.opacity(0.7),
+                                palette.separator.opacity(0.5),
                                 .clear
                             ],
                             startPoint: .leading,
@@ -416,18 +445,18 @@ struct QuoteView: View {
                         )
                     )
                     .frame(height: 1.5)
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, DesignTokens.Spacing.xs)
                     .accessibilityHidden(true)
 
                 // Secondary zone: translation
                 Text(viewModel.state.latinText)
                     .font(.body)
-                    .foregroundStyle(themePalette.secondaryText)
+                    .foregroundStyle(palette.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 18)
-                    .padding(.bottom, 14)
+                    .padding(.horizontal, DesignTokens.Spacing.md)
+                    .padding(.top, DesignTokens.Spacing.md)
+                    .padding(.bottom, DesignTokens.Spacing.sm)
                     .opacity(isScriptMorphing ? 0.65 : 1.0)
                     .contentTransition(.opacity)
                     .accessibilityLabel("Quote")
@@ -440,7 +469,7 @@ struct QuoteView: View {
                 HStack {
                     Text("— \(viewModel.state.author)")
                         .font(.callout)
-                        .foregroundStyle(themePalette.tertiaryText)
+                        .foregroundStyle(palette.textTertiary)
                         .italic()
                         .accessibilityLabel("Author")
                         .accessibilityValue(viewModel.state.author)
@@ -448,24 +477,24 @@ struct QuoteView: View {
 
                     Spacer()
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, DesignTokens.Spacing.md)
                 .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
-                .background(themePalette.footerBackground)
+                .background(palette.surface)
             }
             .frame(maxWidth: .infinity, minHeight: 360, alignment: .top)
             .overlay(alignment: .topTrailing) {
                 Text(decorativeGlyph)
                     .font(.system(size: 60))
-                    .foregroundStyle(themePalette.primaryText)
+                    .foregroundStyle(palette.textPrimary)
                     .opacity(0.03)
                     .rotationEffect(.degrees(-12))
-                    .padding(.top, 12)
-                    .padding(.trailing, 16)
+                    .padding(.top, DesignTokens.Spacing.sm)
+                    .padding(.trailing, DesignTokens.Spacing.md)
                     .accessibilityHidden(true)
                     .allowsHitTesting(false)
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, DesignTokens.Spacing.md)
         .scaleEffect(quoteCardAppearScale)
         .opacity(quoteCardAppearOpacity)
         .onChange(of: viewModel.state.latinText) { _, _ in
@@ -479,34 +508,9 @@ struct QuoteView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("quote_card")
-        .contextMenu {
-            Button {
-                copyCurrentQuote()
-            } label: {
-                Label("Copy Quote", systemImage: "doc.on.doc")
-            }
-
-            Button {
-                shareCurrentQuoteAsImage()
-            } label: {
-                Label("Share Image", systemImage: "square.and.arrow.up")
-            }
-
-            Button {
-                Haptics.trigger(.saveOrShare)
-                viewModel.onToggleSaveTapped()
-            } label: {
-                Label(
-                    viewModel.state.isCurrentQuoteSaved ? "Unsave Quote" : "Save Quote",
-                    systemImage: viewModel.state.isCurrentQuoteSaved ? "bookmark.slash" : "bookmark"
-                )
-            }
-
-            Button {
-                NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
-            } label: {
-                Label("Open Settings", systemImage: "gearshape")
-            }
+        .onLongPressGesture {
+            Haptics.trigger(.saveOrShare)
+            showActionsSheet = true
         }
     }
 
@@ -517,9 +521,9 @@ struct QuoteView: View {
         ToolbarItem(placement: .navigation) {
             Text(viewModel.state.currentCollection.displayName)
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(themePalette.tertiaryText)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
+                .foregroundStyle(palette.textTertiary)
+                .padding(.horizontal, DesignTokens.Spacing.xs)
+                .padding(.vertical, DesignTokens.Spacing.xxs + 1)
                 .background(
                     Capsule()
                         .fill(.ultraThinMaterial)
@@ -527,6 +531,24 @@ struct QuoteView: View {
         }
 
         ToolbarItemGroup(placement: .primaryAction) {
+            NavigationLink {
+                NotificationCenterView()
+            } label: {
+                Image(systemName: "bell")
+                    .symbolRenderingMode(.monochrome)
+            }
+            .accessibilityLabel("Notifications")
+            .accessibilityIdentifier("quote_notifications_button")
+
+            Button {
+                showCreateQuote = true
+            } label: {
+                Image(systemName: "plus")
+                    .symbolRenderingMode(.monochrome)
+            }
+            .accessibilityLabel("Create quote")
+            .accessibilityIdentifier("quote_create_button")
+
             Button {
                 Haptics.trigger(.newQuote)
                 viewModel.onNextQuoteTapped()
@@ -549,29 +571,15 @@ struct QuoteView: View {
             .accessibilityLabel(viewModel.state.isCurrentQuoteSaved ? "Unsave quote" : "Save quote")
             .accessibilityIdentifier("quote_save_button")
 
-            Menu {
-                Button {
-                    copyCurrentQuote()
-                } label: {
-                    Label("Copy Quote", systemImage: "doc.on.doc")
-                }
-
-                Button {
-                    shareCurrentQuoteAsImage()
-                } label: {
-                    Label("Share Image", systemImage: "square.and.arrow.up")
-                }
-
-                Button {
-                    NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
-                } label: {
-                    Label("Open Settings", systemImage: "gearshape")
-                }
+            Button {
+                Haptics.trigger(.saveOrShare)
+                showActionsSheet = true
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .symbolRenderingMode(.monochrome)
             }
             .accessibilityLabel("More actions")
+            .accessibilityIdentifier("quote_actions_button")
         }
     }
 
@@ -617,76 +625,31 @@ struct QuoteView: View {
 #endif
     }
 
-    @MainActor
-    private func shareCurrentQuoteAsImage() {
-#if canImport(UIKit)
-        Haptics.trigger(.saveOrShare)
+    // MARK: - Quote Actions
 
-        let renderer = ImageRenderer(content: shareSnapshotView)
-        renderer.scale = displayScale
-
-        if let image = renderer.uiImage {
-            shareItems = [image]
-        } else {
-            shareItems = ["\(viewModel.state.latinText)\n— \(viewModel.state.author)"]
+    private func handleQuoteAction(_ action: QuoteAction) {
+        switch action {
+        case .share:
+            showShareView = true
+        case .addToFavorites, .removeFromFavorites:
+            Haptics.trigger(.saveOrShare)
+            viewModel.onToggleSaveTapped()
+        case .addToCollection:
+            // Currently quotes belong to one collection set at creation.
+            // Open edit flow so the user can change the collection.
+            showEditQuote = true
+        case .copyText:
+            copyCurrentQuote()
+        case .edit:
+            showEditQuote = true
+        case .hide:
+            viewModel.hideCurrentQuote()
+        case .delete:
+            showDeleteConfirmation = true
         }
-
-        isShareSheetPresented = true
-#endif
     }
 
-    private var shareSnapshotView: some View {
-        VStack(spacing: 18) {
-            Text(viewModel.state.runicText)
-                .runicTextStyle(
-                    script: viewModel.state.currentScript,
-                    font: viewModel.state.currentFont,
-                    style: .title,
-                    minSize: 24,
-                    maxSize: 48
-                )
-                .foregroundStyle(themePalette.primaryText)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-
-            Divider()
-                .overlay(themePalette.divider)
-
-            Text(viewModel.state.latinText)
-                .font(.title3)
-                .foregroundStyle(themePalette.secondaryText)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-
-            Text("— \(viewModel.state.author)")
-                .font(.headline)
-                .foregroundStyle(themePalette.tertiaryText)
-                .italic()
-                .padding(.bottom, 8)
-        }
-        .padding(.vertical, 28)
-        .frame(width: AppConstants.shareSnapshotWidth)
-        .background(
-            LinearGradient(
-                colors: themePalette.appBackgroundGradient,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-    }
 }
-
-#if canImport(UIKit)
-private struct ActivityViewController: UIViewControllerRepresentable {
-    let activityItems: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-#endif
 
 private struct QuoteScrollOffsetKey: PreferenceKey {
     static let defaultValue: CGFloat = 0

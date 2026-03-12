@@ -331,6 +331,35 @@ final class QuoteViewModel: ObservableObject {
         state.isCurrentQuoteSaved = preferences?.isQuoteSaved(quoteID) ?? false
     }
 
+    /// Return the current quote as a `QuoteRecord`, or `nil` if unavailable.
+    func currentQuoteRecord() -> QuoteRecord? {
+        guard let quoteID = state.currentQuoteID else { return nil }
+        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        guard let quote = try? modelContext.fetch(descriptor).first else { return nil }
+        return QuoteRecord(from: quote)
+    }
+
+    /// Hide the current quote and advance to the next one.
+    func hideCurrentQuote() {
+        guard let quoteID = state.currentQuoteID else { return }
+        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        guard let quote = try? modelContext.fetch(descriptor).first else { return }
+        quote.isHidden = true
+        try? modelContext.save()
+        onNextQuoteTapped()
+    }
+
+    /// Soft-delete the current quote and advance to the next one.
+    func deleteCurrentQuote() {
+        guard let quoteID = state.currentQuoteID else { return }
+        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        guard let quote = try? modelContext.fetch(descriptor).first else { return }
+        quote.isDeleted = true
+        quote.deletedAt = Date()
+        try? modelContext.save()
+        onNextQuoteTapped()
+    }
+
     private func persistPreferences() {
         do {
             try modelContext.save()

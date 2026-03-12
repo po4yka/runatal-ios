@@ -28,13 +28,14 @@ struct RunicQuotesApp: App {
             let container = try ModelContainerHelper.createMainContainer()
             modelContainer = container
 
-            // Seed database on first launch
+            // Seed database on first launch, then purge expired soft-deleted quotes
             Task { [container] in
                 do {
                     try await DatabaseActor.shared.seedIfNeeded(using: container)
                 } catch {
                     Self.logger.error("Failed to seed database: \(error.localizedDescription)")
                 }
+                await DatabaseActor.shared.purgeExpiredQuotes(using: container)
             }
         } catch {
             Self.logger.critical("Failed to create ModelContainer: \(error.localizedDescription)")
@@ -127,41 +128,47 @@ struct RunicQuotesApp: App {
     }
 }
 
-/// Main tab view with Quote and Settings screens
+/// Main tab view with Home, Collections, Search, Saved, and Settings screens.
 struct MainTabView: View {
-    @State private var selectedTab = 0
+    @State private var selectedTab: AppTab = .home
     @State private var isTabBarHidden = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            NavigationStack {
-                QuoteView()
-            }
-                .tabItem {
-                    Label("Quote", systemImage: "quote.bubble.fill")
+            ForEach(AppTab.allCases) { tab in
+                NavigationStack {
+                    tabContent(for: tab)
                 }
-                .tag(0)
-                .accessibilityIdentifier("quote_tab")
-
-            NavigationStack {
-                SettingsView()
-            }
                 .tabItem {
-                    Label("Settings", systemImage: "gear")
+                    Label(tab.title, systemImage: tab.systemImage)
                 }
-                .tag(1)
-                .accessibilityIdentifier("settings_tab")
+                .tag(tab)
+                .accessibilityIdentifier(tab.accessibilityID)
+            }
         }
         .toolbar(isTabBarHidden ? .hidden : .visible, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
+        .onReceive(NotificationCenter.default.publisher(for: .switchToTab)) { notification in
+            if let tab = notification.userInfo?["tab"] as? AppTab {
+                selectedTab = tab
+            }
+            // Forward collection selection if included (e.g. from CollectionsView)
+            if let collection = notification.userInfo?["collection"] as? QuoteCollection {
+                NotificationCenter.default.post(
+                    name: .preferencesDidChange,
+                    object: nil,
+                    userInfo: ["collection": collection]
+                )
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { _ in
-            selectedTab = 0
+            selectedTab = .home
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToSettingsTab)) { _ in
-            selectedTab = 1
+            selectedTab = .settings
         }
         .onReceive(NotificationCenter.default.publisher(for: .quoteTabBarVisibilityChanged)) { notification in
-            guard selectedTab == 0 else {
+            guard selectedTab == .home else {
                 isTabBarHidden = false
                 return
             }
@@ -172,9 +179,27 @@ struct MainTabView: View {
             }
         }
         .onChange(of: selectedTab) { _, newTab in
-            if newTab != 0 {
+            if newTab != .home {
                 isTabBarHidden = false
             }
+        }
+    }
+
+    // MARK: - Tab Content
+
+    @ViewBuilder
+    private func tabContent(for tab: AppTab) -> some View {
+        switch tab {
+        case .home:
+            QuoteView()
+        case .collections:
+            CollectionsView()
+        case .search:
+            SearchView()
+        case .saved:
+            SavedView()
+        case .settings:
+            SettingsView()
         }
     }
 }

@@ -15,6 +15,9 @@ struct SettingsView: View {
     @StateObject private var viewModel: SettingsViewModel
     @State private var didInitialize = false
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - Initialization
 
@@ -30,22 +33,29 @@ struct SettingsView: View {
     // MARK: - Body
 
     var body: some View {
+        let palette = AppThemePalette.adaptive(for: colorScheme)
+
         ZStack {
-            backgroundGradient
+            backgroundGradient(palette: palette)
 
             ScrollView {
-                VStack(spacing: 24) {
-                    header
-                    livePreviewSection
-                    readingSection
-                    typographySection
-                    widgetSection
-                    aboutSection
+                VStack(spacing: DesignTokens.Spacing.xl) {
+                    header(palette: palette)
+                    livePreviewSection(palette: palette)
+                    appearanceSection(palette: palette)
+                    scriptSection(palette: palette)
+                    typographySection(palette: palette)
+                    widgetSection(palette: palette)
+                    accessibilitySection(palette: palette)
+                    runeReferenceLink(palette: palette)
+                    archiveLink(palette: palette)
+                    aboutSection(palette: palette)
 
                     Spacer()
-                        .frame(height: 20)
+                        .frame(height: DesignTokens.Spacing.lg)
                 }
-                .padding()
+                .padding(.horizontal, DesignTokens.Spacing.md)
+                .padding(.vertical, DesignTokens.Spacing.xs)
             }
         }
         .task {
@@ -56,15 +66,11 @@ struct SettingsView: View {
         }
     }
 
-    private var themePalette: AppThemePalette {
-        viewModel.selectedTheme.palette
-    }
-
     // MARK: - Background
 
-    private var backgroundGradient: some View {
+    private func backgroundGradient(palette: AppThemePalette) -> some View {
         LinearGradient(
-            colors: themePalette.appBackgroundGradient,
+            colors: palette.appBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -73,303 +79,305 @@ struct SettingsView: View {
 
     // MARK: - Header
 
-    private var header: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "gear")
-                .font(.system(size: 50))
-                .foregroundStyle(themePalette.secondaryText)
-                .accessibilityHidden(true)
-
+    private func header(palette: AppThemePalette) -> some View {
+        HStack(spacing: DesignTokens.Spacing.xs) {
             Text("Settings")
                 .font(.largeTitle.bold())
-                .foregroundStyle(themePalette.primaryText)
+                .foregroundStyle(palette.textPrimary)
 
-            Text("Customize your runic experience")
-                .font(.subheadline)
-                .foregroundStyle(themePalette.tertiaryText)
+            Spacer()
         }
-        .padding(.top, 20)
+        .padding(.top, DesignTokens.Spacing.md)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Settings - Customize your runic experience")
+        .accessibilityLabel("Settings")
         .accessibilityIdentifier("settings_header")
     }
 
     // MARK: - Live Preview
 
-    private var livePreviewSection: some View {
-        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
-            VStack(alignment: .leading, spacing: 14) {
+    private func livePreviewSection(palette: AppThemePalette) -> some View {
+        GlassCard(intensity: .strong) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 HStack {
                     Label("Live Preview", systemImage: "eye")
                         .font(.headline)
-                        .foregroundStyle(themePalette.primaryText)
+                        .foregroundStyle(palette.textPrimary)
 
                     Spacer()
 
-                    Text(viewModel.selectedTheme.displayName)
+                    Text(viewModel.state.selectedTheme.displayName)
                         .font(.caption)
-                        .foregroundStyle(themePalette.tertiaryText)
+                        .foregroundStyle(palette.textTertiary)
                 }
 
                 Text(viewModel.livePreviewRunicText)
                     .runicTextStyle(
-                        script: viewModel.selectedScript,
-                        font: viewModel.selectedFont,
+                        script: viewModel.state.selectedScript,
+                        font: viewModel.state.selectedFont,
                         style: .title2,
                         minSize: 22,
                         maxSize: 40
                     )
-                    .foregroundStyle(themePalette.primaryText)
+                    .foregroundStyle(palette.runeText)
                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 0)
                     .lineSpacing(5)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 Rectangle()
-                    .fill(Color.white.opacity(0.08))
+                    .fill(palette.separator)
                     .frame(height: 1)
 
                 Text(viewModel.livePreviewLatinText)
                     .font(.callout)
-                    .foregroundStyle(themePalette.secondaryText)
+                    .foregroundStyle(palette.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .center)
 
-                HStack(spacing: 10) {
-                    previewPill(label: "Script", value: viewModel.selectedScript.displayName)
-                    previewPill(label: "Font", value: viewModel.selectedFont.displayName)
+                HStack(spacing: DesignTokens.Spacing.sm) {
+                    previewPill(label: "Script", value: viewModel.state.selectedScript.displayName, palette: palette)
+                    previewPill(label: "Font", value: viewModel.state.selectedFont.displayName, palette: palette)
                 }
             }
-            .padding(2)
+            .padding(DesignTokens.Spacing.xxs)
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings_live_preview")
     }
 
-    private func previewPill(label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+    private func previewPill(label: String, value: String, palette: AppThemePalette) -> some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(themePalette.tertiaryText)
+                .foregroundStyle(palette.textTertiary)
 
             Text(value)
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(themePalette.primaryText)
+                .foregroundStyle(palette.textPrimary)
                 .lineLimit(1)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.horizontal, DesignTokens.Spacing.sm)
+        .padding(.vertical, DesignTokens.Spacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                 .fill(.ultraThinMaterial)
                 .opacity(0.35)
         )
     }
 
-    // MARK: - Reading Group
+    // MARK: - Appearance
 
-    private var readingSection: some View {
-        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
-            VStack(alignment: .leading, spacing: 16) {
-                sectionHeader("Reading", icon: "book.closed")
+    private func appearanceSection(palette: AppThemePalette) -> some View {
+        GlassCard(intensity: .medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                sectionHeader("Appearance", icon: "paintbrush", palette: palette)
 
-                Text("Choose your script and visual atmosphere.")
-                    .font(.caption)
-                    .foregroundStyle(themePalette.tertiaryText)
+                VStack(spacing: DesignTokens.Spacing.sm) {
+                    ForEach(AppTheme.allCases) { theme in
+                        themeButton(theme, palette: palette)
 
-                VStack(alignment: .leading, spacing: 10) {
-                    subsectionTitle("Runic Script")
-
-                    Picker("Runic Script", selection: Binding(
-                        get: { viewModel.selectedScript },
-                        set: { viewModel.updateScript($0) }
-                    )) {
-                        ForEach(RunicScript.allCases) { script in
-                            Text(script.displayName).tag(script)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .accessibilityLabel("Select runic script")
-                    .accessibilityValue(viewModel.selectedScript.rawValue)
-                    .accessibilityHint("Choose between Elder Futhark, Younger Futhark, or Cirth")
-                }
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("settings_script_section")
-
-                VStack(alignment: .leading, spacing: 10) {
-                    subsectionTitle("Theme")
-
-                    VStack(spacing: 10) {
-                        ForEach(AppTheme.allCases) { theme in
-                            themeButton(theme)
+                        if theme != AppTheme.allCases.last {
+                            Rectangle()
+                                .fill(palette.separator)
+                                .frame(height: 1)
                         }
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 8) {
-                    subsectionTitle("Quick Actions")
-
-                    Button {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                    settingsActionRow(
+                        icon: "arrow.counterclockwise",
+                        title: "Reset to Defaults",
+                        isEnabled: !viewModel.isAtDefaults,
+                        palette: palette
+                    ) {
                         Haptics.trigger(.saveOrShare)
                         withAnimation(.easeInOut(duration: 0.2)) {
                             viewModel.resetToDefaults()
                         }
                     }
-                    label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "arrow.counterclockwise")
-                                .font(.caption.weight(.semibold))
-                            Text("Reset to Defaults")
-                        }
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(themePalette.primaryText.opacity(viewModel.isAtDefaults ? 0.3 : 0.92))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(.ultraThinMaterial)
-                                .opacity(viewModel.isAtDefaults ? 0.15 : 0.35)
-                        )
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .disabled(viewModel.isAtDefaults)
                     .accessibilityIdentifier("settings_reset_defaults_button")
 
-                    Button {
+                    settingsActionRow(
+                        icon: "wand.and.stars",
+                        title: "Restore Last Preset",
+                        isEnabled: viewModel.canRestoreLastPreset,
+                        palette: palette
+                    ) {
                         Haptics.trigger(.saveOrShare)
                         withAnimation(.easeInOut(duration: 0.2)) {
                             viewModel.restoreLastUsedPreset()
                         }
                     }
-                    label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "wand.and.stars")
-                                .font(.caption.weight(.semibold))
-                            Text("Restore Last Preset")
-                        }
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(themePalette.primaryText.opacity(viewModel.canRestoreLastPreset ? 0.92 : 0.3))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(.ultraThinMaterial)
-                                .opacity(viewModel.canRestoreLastPreset ? 0.35 : 0.15)
-                        )
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .disabled(!viewModel.canRestoreLastPreset)
                     .accessibilityIdentifier("settings_restore_preset_button")
                 }
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("settings_reading_section")
+        .accessibilityIdentifier("settings_appearance_section")
     }
 
-    private func themeButton(_ theme: AppTheme) -> some View {
-        let palette = theme.palette
+    private func themeButton(_ theme: AppTheme, palette: AppThemePalette) -> some View {
+        let themePalette = theme.palette
+        let isSelected = viewModel.state.selectedTheme == theme
 
         return Button {
             withAnimation(.easeInOut(duration: 0.2)) {
                 viewModel.updateTheme(theme)
             }
         } label: {
-            HStack(spacing: 12) {
-                HStack(spacing: 4) {
+            HStack(spacing: DesignTokens.Spacing.sm) {
+                HStack(spacing: DesignTokens.Spacing.xxs) {
                     Circle()
-                        .fill(palette.appBackgroundGradient.first ?? .black)
+                        .fill(themePalette.appBackgroundGradient.first ?? .black)
                     Circle()
-                        .fill(palette.appBackgroundGradient.dropFirst().first ?? .gray)
+                        .fill(themePalette.appBackgroundGradient.dropFirst().first ?? .gray)
                     Circle()
-                        .fill(palette.appBackgroundGradient.last ?? .white)
+                        .fill(themePalette.appBackgroundGradient.last ?? .white)
                 }
                 .frame(width: 48, height: 12)
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                     Text(theme.displayName)
-                        .font(.headline)
-                        .foregroundStyle(themePalette.primaryText)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(palette.textPrimary)
 
                     Text(theme.description)
                         .font(.caption)
-                        .foregroundStyle(themePalette.tertiaryText)
+                        .foregroundStyle(palette.textTertiary)
                 }
 
                 Spacer()
 
-                if viewModel.selectedTheme == theme {
+                if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.55))
+                        .foregroundStyle(palette.accent)
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
             }
-            .padding()
-            .background {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
-                    .opacity(viewModel.selectedTheme == theme ? 0.5 : 0.2)
-            }
-            .shadow(
-                color: .black.opacity(viewModel.selectedTheme == theme ? 0.22 : 0),
-                radius: 4,
-                x: 0,
-                y: 2
-            )
+            .padding(.vertical, DesignTokens.Spacing.xxs)
         }
         .buttonStyle(PlainButtonStyle())
         .accessibilityLabel("\(theme.displayName) theme")
-        .accessibilityValue(viewModel.selectedTheme == theme ? "Selected" : "Not selected")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
         .accessibilityHint("Double tap to select the \(theme.displayName) theme")
         .accessibilityIdentifier("settings_theme_\(theme.rawValue.replacingOccurrences(of: " ", with: "_"))")
     }
 
-    // MARK: - Typography Group
+    // MARK: - Default Script
 
-    private var typographySection: some View {
-        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
-            VStack(alignment: .leading, spacing: 16) {
-                sectionHeader("Typography", icon: "textformat.size")
+    private func scriptSection(palette: AppThemePalette) -> some View {
+        GlassCard(intensity: .medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                sectionHeader("Default Script", icon: "character.book.closed", palette: palette)
 
-                Text("Adjust font details and use curated script/font combinations.")
-                    .font(.caption)
-                    .foregroundStyle(themePalette.tertiaryText)
+                VStack(spacing: DesignTokens.Spacing.sm) {
+                    ForEach(RunicScript.allCases) { script in
+                        scriptRow(script, palette: palette)
 
-                VStack(alignment: .leading, spacing: 10) {
-                    subsectionTitle("Font")
+                        if script != RunicScript.allCases.last {
+                            Rectangle()
+                                .fill(palette.separator)
+                                .frame(height: 1)
+                        }
+                    }
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings_script_section")
+    }
+
+    private func scriptRow(_ script: RunicScript, palette: AppThemePalette) -> some View {
+        let isSelected = viewModel.state.selectedScript == script
+        let runicPreview = RunicTransliterator.transliterate("rune", to: script)
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                viewModel.updateScript(script)
+            }
+        } label: {
+            HStack(spacing: DesignTokens.Spacing.sm) {
+                Text(runicPreview)
+                    .runicTextStyle(
+                        script: script,
+                        font: viewModel.state.selectedFont,
+                        style: .body,
+                        minSize: 16,
+                        maxSize: 22
+                    )
+                    .foregroundStyle(palette.runeText)
+                    .frame(width: 40, alignment: .center)
+
+                Text(script.displayName)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(palette.textPrimary)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(palette.accent)
+                        .font(.title3)
+                        .accessibilityLabel("Selected")
+                }
+            }
+            .padding(.vertical, DesignTokens.Spacing.xxs)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel("\(script.displayName) script")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityIdentifier("settings_script_\(script.rawValue)")
+    }
+
+    // MARK: - Typography
+
+    private func typographySection(palette: AppThemePalette) -> some View {
+        GlassCard(intensity: .medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                sectionHeader("Typography", icon: "textformat.size", palette: palette)
+
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                    Text("Font")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(palette.textSecondary)
 
                     GlassFontSelector(
                         selectedFont: Binding(
-                            get: { viewModel.selectedFont },
+                            get: { viewModel.state.selectedFont },
                             set: { viewModel.updateFont($0) }
                         ),
                         availableFonts: viewModel.availableFonts
                     )
                     .accessibilityLabel("Select font style")
-                    .accessibilityValue(viewModel.selectedFont.rawValue)
+                    .accessibilityValue(viewModel.state.selectedFont.rawValue)
                     .accessibilityHint("Choose the font used to display runic text")
                 }
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("settings_font_section")
 
-                if let error = viewModel.errorMessage {
+                if let error = viewModel.state.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundStyle(.red.opacity(0.8))
+                        .foregroundStyle(palette.error)
                         .accessibilityLabel("Error: \(error)")
                 }
 
-                VStack(alignment: .leading, spacing: 10) {
-                    subsectionTitle("Recommended Combinations")
+                Rectangle()
+                    .fill(palette.separator)
+                    .frame(height: 1)
+
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                    Text("Recommended Combinations")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(palette.textSecondary)
 
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
+                        HStack(spacing: DesignTokens.Spacing.sm) {
                             ForEach(viewModel.recommendedPresets) { preset in
-                                presetCard(preset)
+                                presetCard(preset, palette: palette)
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, DesignTokens.Spacing.xxs)
                     }
                 }
             }
@@ -378,32 +386,32 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings_typography_section")
     }
 
-    private func presetCard(_ preset: ReadingPreset) -> some View {
-        let isActive = viewModel.selectedScript == preset.script && viewModel.selectedFont == preset.font
+    private func presetCard(_ preset: ReadingPreset, palette: AppThemePalette) -> some View {
+        let isActive = viewModel.state.selectedScript == preset.script && viewModel.state.selectedFont == preset.font
 
         return Button {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
                 viewModel.applyPreset(preset)
             }
         } label: {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 HStack(alignment: .top) {
                     Text(preset.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(themePalette.primaryText)
+                        .foregroundStyle(palette.textPrimary)
 
-                    Spacer(minLength: 8)
+                    Spacer(minLength: DesignTokens.Spacing.xs)
 
                     if isActive {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.white.opacity(0.55))
+                            .foregroundStyle(palette.accent)
                             .font(.caption)
                     }
                 }
 
                 Text("\(preset.script.displayName) + \(preset.font.displayName)")
                     .font(.caption2)
-                    .foregroundStyle(themePalette.tertiaryText)
+                    .foregroundStyle(palette.textTertiary)
                     .lineLimit(1)
 
                 Text(viewModel.presetPreviewRunicText(for: preset))
@@ -414,24 +422,24 @@ struct SettingsView: View {
                         minSize: 16,
                         maxSize: 24
                     )
-                    .foregroundStyle(themePalette.primaryText)
+                    .foregroundStyle(palette.runeText)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text(preset.previewLatinText)
                     .font(.caption)
-                    .foregroundStyle(themePalette.secondaryText)
+                    .foregroundStyle(palette.textSecondary)
                     .lineLimit(2)
 
                 Text(preset.description)
                     .font(.caption2)
-                    .foregroundStyle(themePalette.tertiaryText)
+                    .foregroundStyle(palette.textTertiary)
                     .lineLimit(2)
             }
-            .padding(12)
+            .padding(DesignTokens.Spacing.sm)
             .frame(width: 250, alignment: .leading)
             .background {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
                     .fill(.ultraThinMaterial)
                     .opacity(isActive ? 0.5 : 0.2)
             }
@@ -446,48 +454,84 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings_preset_\(preset.rawValue.replacingOccurrences(of: " ", with: "_"))")
     }
 
-    // MARK: - Widget Group
+    // MARK: - Widget
 
-    private var widgetSection: some View {
-        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
-            VStack(alignment: .leading, spacing: 16) {
-                sectionHeader("Widget", icon: "rectangle.on.rectangle")
+    private func widgetSection(palette: AppThemePalette) -> some View {
+        GlassCard(intensity: .medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                sectionHeader("Widget", icon: "rectangle.on.rectangle", palette: palette)
 
-                Text("How should the widget display quotes?")
-                    .font(.caption)
-                    .foregroundStyle(themePalette.tertiaryText)
-
-                VStack(spacing: 12) {
+                VStack(spacing: DesignTokens.Spacing.sm) {
                     ForEach(WidgetMode.allCases) { mode in
-                        widgetModeButton(mode)
-                    }
-                }
+                        selectionRow(
+                            title: mode.displayName,
+                            subtitle: mode.description,
+                            isSelected: viewModel.state.widgetMode == mode,
+                            palette: palette
+                        ) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                viewModel.updateWidgetMode(mode)
+                            }
+                        }
+                        .accessibilityLabel("\(mode.displayName) mode")
+                        .accessibilityValue(viewModel.state.widgetMode == mode ? "Selected" : "Not selected")
+                        .accessibilityIdentifier("settings_widget_mode_\(mode.rawValue)")
 
-                VStack(alignment: .leading, spacing: 10) {
-                    subsectionTitle("Widget Style")
-
-                    VStack(spacing: 10) {
-                        ForEach(WidgetStyle.allCases) { style in
-                            widgetStyleButton(style)
+                        if mode != WidgetMode.allCases.last {
+                            Rectangle()
+                                .fill(palette.separator)
+                                .frame(height: 1)
                         }
                     }
                 }
 
-                Toggle(isOn: Binding(
-                    get: { viewModel.widgetDecorativeGlyphsEnabled },
-                    set: { viewModel.updateWidgetDecorativeGlyphsEnabled($0) }
-                )) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Decorative Glyph Identity")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(themePalette.primaryText)
+                Rectangle()
+                    .fill(palette.separator)
+                    .frame(height: 1)
 
-                        Text("Enable glyph ring and background pattern in widgets")
-                            .font(.caption2)
-                            .foregroundStyle(themePalette.tertiaryText)
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                    Text("Widget Style")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(palette.textSecondary)
+
+                    VStack(spacing: DesignTokens.Spacing.sm) {
+                        ForEach(WidgetStyle.allCases) { style in
+                            selectionRow(
+                                title: style.displayName,
+                                subtitle: style.description,
+                                isSelected: viewModel.state.widgetStyle == style,
+                                palette: palette
+                            ) {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    viewModel.updateWidgetStyle(style)
+                                }
+                            }
+                            .accessibilityLabel("\(style.displayName) style")
+                            .accessibilityValue(viewModel.state.widgetStyle == style ? "Selected" : "Not selected")
+                            .accessibilityIdentifier("settings_widget_style_\(style.rawValue.replacingOccurrences(of: " ", with: "_"))")
+
+                            if style != WidgetStyle.allCases.last {
+                                Rectangle()
+                                    .fill(palette.separator)
+                                    .frame(height: 1)
+                            }
+                        }
                     }
                 }
-                .tint(themePalette.accent)
+
+                Rectangle()
+                    .fill(palette.separator)
+                    .frame(height: 1)
+
+                settingsToggleRow(
+                    title: "Decorative Glyph Identity",
+                    subtitle: "Enable glyph ring and background pattern in widgets",
+                    isOn: Binding(
+                        get: { viewModel.state.widgetDecorativeGlyphsEnabled },
+                        set: { viewModel.updateWidgetDecorativeGlyphsEnabled($0) }
+                    ),
+                    palette: palette
+                )
             }
         }
         .accessibilityElement(children: .contain)
@@ -495,149 +539,304 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings_widget_section")
     }
 
-    private func widgetModeButton(_ mode: WidgetMode) -> some View {
-        Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                viewModel.updateWidgetMode(mode)
-            }
-        } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(mode.displayName)
-                        .font(.headline)
-                        .foregroundStyle(themePalette.primaryText)
+    // MARK: - Accessibility
 
-                    Text(mode.description)
-                        .font(.caption)
-                        .foregroundStyle(themePalette.tertiaryText)
+    private func accessibilitySection(palette: AppThemePalette) -> some View {
+        GlassCard(intensity: .medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                sectionHeader("Accessibility", icon: "accessibility", palette: palette)
+
+                accessibilityStatusRow(
+                    title: "Reduce Transparency",
+                    subtitle: "Replaces glass effects with solid backgrounds",
+                    isEnabled: reduceTransparency,
+                    palette: palette
+                )
+
+                Rectangle()
+                    .fill(palette.separator)
+                    .frame(height: 1)
+
+                accessibilityStatusRow(
+                    title: "Reduce Motion",
+                    subtitle: "Minimizes animations throughout the app",
+                    isEnabled: reduceMotion,
+                    palette: palette
+                )
+
+                Rectangle()
+                    .fill(palette.separator)
+                    .frame(height: 1)
+
+                #if canImport(UIKit)
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    HStack {
+                        Text("Open System Settings")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(palette.accent)
+
+                        Spacer()
+
+                        Image(systemName: "arrow.up.forward.app")
+                            .font(.caption)
+                            .foregroundStyle(palette.textTertiary)
+                    }
                 }
-
-                Spacer()
-
-                if viewModel.widgetMode == mode {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.55))
-                        .font(.title3)
-                        .accessibilityLabel("Selected")
-                }
-            }
-            .padding()
-            .background {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
-                    .opacity(viewModel.widgetMode == mode ? 0.5 : 0.2)
+                .buttonStyle(.plain)
+                #endif
             }
         }
-        .buttonStyle(PlainButtonStyle())
-        .accessibilityLabel("\(mode.displayName) mode")
-        .accessibilityValue(viewModel.widgetMode == mode ? "Selected" : "Not selected")
-        .accessibilityHint("Double tap to select \(mode.displayName) mode. \(mode.description)")
-        .accessibilityIdentifier("settings_widget_mode_\(mode.rawValue)")
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings_accessibility_section")
     }
 
-    private func widgetStyleButton(_ style: WidgetStyle) -> some View {
-        Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                viewModel.updateWidgetStyle(style)
+    private func accessibilityStatusRow(
+        title: String,
+        subtitle: String,
+        isEnabled: Bool,
+        palette: AppThemePalette
+    ) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                Text(title)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(palette.textPrimary)
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(palette.textTertiary)
             }
+
+            Spacer()
+
+            Text(isEnabled ? "On" : "Off")
+                .font(.subheadline)
+                .foregroundStyle(isEnabled ? palette.accent : palette.textTertiary)
+        }
+    }
+
+    // MARK: - Rune Reference Link
+
+    private func runeReferenceLink(palette: AppThemePalette) -> some View {
+        NavigationLink {
+            RuneReferenceView()
         } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(style.displayName)
-                        .font(.headline)
-                        .foregroundStyle(themePalette.primaryText)
+            GlassCard(intensity: .medium) {
+                HStack {
+                    Image(systemName: "character.book.closed")
+                        .font(.body)
+                        .foregroundStyle(palette.accent)
 
-                    Text(style.description)
+                    Text("Rune Reference")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(palette.textPrimary)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundStyle(themePalette.tertiaryText)
+                        .foregroundStyle(palette.textTertiary)
                 }
-
-                Spacer()
-
-                if viewModel.widgetStyle == style {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.55))
-                        .font(.title3)
-                        .accessibilityLabel("Selected")
-                }
-            }
-            .padding()
-            .background {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
-                    .opacity(viewModel.widgetStyle == style ? 0.5 : 0.2)
             }
         }
-        .buttonStyle(PlainButtonStyle())
-        .accessibilityLabel("\(style.displayName) style")
-        .accessibilityValue(viewModel.widgetStyle == style ? "Selected" : "Not selected")
-        .accessibilityHint("Double tap to select \(style.displayName) style. \(style.description)")
-        .accessibilityIdentifier("settings_widget_style_\(style.rawValue.replacingOccurrences(of: " ", with: "_"))")
+        .buttonStyle(.plain)
     }
 
-    // MARK: - About Group
+    // MARK: - Archive Link
 
-    private var aboutSection: some View {
-        GlassCard(opacity: .high, blur: .ultraThinMaterial) {
-            VStack(spacing: 12) {
-                sectionHeader("About", icon: "info.circle")
+    private func archiveLink(palette: AppThemePalette) -> some View {
+        NavigationLink {
+            ArchiveView()
+        } label: {
+            GlassCard(intensity: .medium) {
+                HStack {
+                    Image(systemName: "archivebox")
+                        .font(.body)
+                        .foregroundStyle(palette.accent)
 
-                VStack(spacing: 8) {
-                    aboutRow("App", value: "Runic Quotes")
-                    aboutRow("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown")
-                    aboutRow("Scripts", value: "\(RunicScript.allCases.count)")
-                    aboutRow("Fonts", value: "\(RunicFont.allCases.count)")
+                    Text("Archive")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(palette.textPrimary)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(palette.textTertiary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - About
+
+    private func aboutSection(palette: AppThemePalette) -> some View {
+        GlassCard(intensity: .medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                sectionHeader("About", icon: "info.circle", palette: palette)
+
+                VStack(spacing: DesignTokens.Spacing.sm) {
+                    aboutRow("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0", palette: palette)
+
+                    Rectangle()
+                        .fill(palette.separator)
+                        .frame(height: 1)
+
+                    aboutRow("Scripts", value: "\(RunicScript.allCases.count)", palette: palette)
+
+                    Rectangle()
+                        .fill(palette.separator)
+                        .frame(height: 1)
+
+                    aboutRow("Fonts", value: "\(RunicFont.allCases.count)", palette: palette)
+
+                    Rectangle()
+                        .fill(palette.separator)
+                        .frame(height: 1)
+
+                    HStack {
+                        Text("Rate on App Store")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(palette.textPrimary)
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(palette.textTertiary)
+                    }
+                    .padding(.vertical, DesignTokens.Spacing.xxs)
                 }
 
                 Text("Bringing ancient wisdom to modern devices")
                     .font(.caption)
-                    .foregroundStyle(themePalette.tertiaryText)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 8)
+                    .foregroundStyle(palette.textTertiary)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings_about_section")
     }
 
-    private func aboutRow(_ label: String, value: String) -> some View {
+    private func aboutRow(_ label: String, value: String, palette: AppThemePalette) -> some View {
         HStack {
             Text(label)
-                .font(.subheadline)
-                .foregroundStyle(themePalette.tertiaryText)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(palette.textPrimary)
 
             Spacer()
 
             Text(value)
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(themePalette.primaryText)
+                .font(.subheadline)
+                .foregroundStyle(palette.textSecondary)
         }
+        .padding(.vertical, DesignTokens.Spacing.xxs)
     }
 
     // MARK: - Shared UI
 
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
+    private func sectionHeader(_ title: String, icon: String, palette: AppThemePalette) -> some View {
+        HStack(spacing: DesignTokens.Spacing.xs) {
             RoundedRectangle(cornerRadius: 1.5)
-                .fill(Color.white.opacity(0.15))
+                .fill(palette.accent.opacity(0.4))
                 .frame(width: 3, height: 20)
 
             Image(systemName: icon)
                 .font(.headline)
-                .foregroundStyle(themePalette.secondaryText)
+                .foregroundStyle(palette.textSecondary)
 
             Text(title)
                 .font(.headline)
-                .foregroundStyle(themePalette.primaryText)
+                .foregroundStyle(palette.textPrimary)
 
             Spacer()
         }
     }
 
-    private func subsectionTitle(_ title: String) -> some View {
-        Text(title)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(themePalette.secondaryText)
+    private func selectionRow(
+        title: String,
+        subtitle: String,
+        isSelected: Bool,
+        palette: AppThemePalette,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                    Text(title)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(palette.textPrimary)
+
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(palette.textTertiary)
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(palette.accent)
+                        .font(.title3)
+                        .accessibilityLabel("Selected")
+                }
+            }
+            .padding(.vertical, DesignTokens.Spacing.xxs)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+
+    private func settingsToggleRow(
+        title: String,
+        subtitle: String,
+        isOn: Binding<Bool>,
+        palette: AppThemePalette
+    ) -> some View {
+        Toggle(isOn: isOn) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                Text(title)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(palette.textPrimary)
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(palette.textTertiary)
+            }
+        }
+        .tint(palette.accent)
+    }
+
+    private func settingsActionRow(
+        icon: String,
+        title: String,
+        isEnabled: Bool,
+        palette: AppThemePalette,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
+                Image(systemName: icon)
+                    .font(.caption.weight(.semibold))
+                Text(title)
+            }
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(palette.textPrimary.opacity(isEnabled ? 0.92 : 0.3))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, DesignTokens.Spacing.sm)
+            .padding(.vertical, DesignTokens.Spacing.sm)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
+                    .fill(.ultraThinMaterial)
+                    .opacity(isEnabled ? 0.35 : 0.15)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .disabled(!isEnabled)
     }
 }
 

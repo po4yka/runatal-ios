@@ -163,11 +163,13 @@ targets:
           - "**/*.md"
           - "**/Info.plist"
     dependencies:
-      - target: RunicQuotesWidget
+      - target: RunicQuotes
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.po4yka.runicquotes.widgettests
         GENERATE_INFOPLIST_FILE: true
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/RunicQuotes.app/RunicQuotes"
 
 schemes:
   RunicQuotes:

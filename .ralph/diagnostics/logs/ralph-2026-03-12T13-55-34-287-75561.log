@@ -1,0 +1,3 @@
+2026-03-12T09:55:34.295634Z  INFO ralph: Spawning subprocess for TUI mode child_args=["-c", "ralph.yml", "run", "--rpc"]
+2026-03-12T09:55:34.296287Z  INFO ralph: TUI subprocess stderr redirected to log file log_file=/Users/po4yka/GitRep/runatal-ios/.ralph/diagnostics/logs/ralph-2026-03-12T13-55-34-296-75561.log
+2026-03-12T09:55:34.297278Z  INFO ralph: TUI running in subprocess RPC mode

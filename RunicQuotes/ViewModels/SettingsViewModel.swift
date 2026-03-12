@@ -12,18 +12,21 @@ import SwiftData
 /// ViewModel for the settings screen
 @MainActor
 final class SettingsViewModel: ObservableObject {
-    // MARK: - Published State
+    // MARK: - State
 
-    @Published var selectedScript: RunicScript = .elder
-    @Published var selectedFont: RunicFont = .noto
-    @Published var widgetMode: WidgetMode = .daily
-    @Published var widgetStyle: WidgetStyle = .runeFirst
-    @Published var widgetDecorativeGlyphsEnabled = true
-    @Published var selectedTheme: AppTheme = .obsidian
-    @Published private(set) var lastUsedPreset: ReadingPreset?
+    struct State: Sendable {
+        var selectedScript: RunicScript = .elder
+        var selectedFont: RunicFont = .noto
+        var widgetMode: WidgetMode = .daily
+        var widgetStyle: WidgetStyle = .runeFirst
+        var widgetDecorativeGlyphsEnabled: Bool = true
+        var selectedTheme: AppTheme = .obsidian
+        var lastUsedPreset: ReadingPreset?
+        var errorMessage: String?
+        var isLoading: Bool = false
+    }
 
-    @Published private(set) var errorMessage: String?
-    @Published private(set) var isLoading: Bool = false
+    @Published private(set) var state = State()
 
     // MARK: - Dependencies
 
@@ -36,13 +39,13 @@ final class SettingsViewModel: ObservableObject {
     /// Get available fonts for the current script
     var availableFonts: [RunicFont] {
         RunicFont.allCases.filter { font in
-            font.isCompatible(with: selectedScript)
+            font.isCompatible(with: state.selectedScript)
         }
     }
 
     /// Get the current font name for display
     var currentFontName: String {
-        RunicFontConfiguration.fontName(for: selectedScript, font: selectedFont)
+        RunicFontConfiguration.fontName(for: state.selectedScript, font: state.selectedFont)
     }
 
     /// Curated presets for quick setup.
@@ -57,22 +60,22 @@ final class SettingsViewModel: ObservableObject {
 
     /// Runic transliteration for the live preview panel.
     var livePreviewRunicText: String {
-        RunicTransliterator.transliterate(livePreviewLatinText, to: selectedScript)
+        RunicTransliterator.transliterate(livePreviewLatinText, to: state.selectedScript)
     }
 
     /// Whether reset action should be active.
     var isAtDefaults: Bool {
-        selectedScript == .elder &&
-        selectedFont == .noto &&
-        widgetMode == .daily &&
-        widgetStyle == .runeFirst &&
-        widgetDecorativeGlyphsEnabled &&
-        selectedTheme == .obsidian
+        state.selectedScript == .elder &&
+        state.selectedFont == .noto &&
+        state.widgetMode == .daily &&
+        state.widgetStyle == .runeFirst &&
+        state.widgetDecorativeGlyphsEnabled &&
+        state.selectedTheme == .obsidian
     }
 
     /// Whether last preset restore action can run.
     var canRestoreLastPreset: Bool {
-        lastUsedPreset != nil
+        state.lastUsedPreset != nil
     }
 
     // MARK: - Initialization
@@ -85,6 +88,7 @@ final class SettingsViewModel: ObservableObject {
 
     /// Load preferences when view appears
     func onAppear() {
+        state.isLoading = true
         Task {
             await loadPreferences()
         }
@@ -99,11 +103,11 @@ final class SettingsViewModel: ObservableObject {
 
     /// Update the selected script
     func updateScript(_ script: RunicScript) {
-        selectedScript = script
+        state.selectedScript = script
 
         // Ensure font compatibility
-        if !selectedFont.isCompatible(with: script) {
-            selectedFont = RunicFontConfiguration.recommendedFont(for: script)
+        if !state.selectedFont.isCompatible(with: script) {
+            state.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
         }
 
         savePreferences()
@@ -111,63 +115,63 @@ final class SettingsViewModel: ObservableObject {
 
     /// Update the selected font
     func updateFont(_ font: RunicFont) {
-        guard font.isCompatible(with: selectedScript) else {
-            errorMessage = "\(font.displayName) is not compatible with \(selectedScript.displayName)"
+        guard font.isCompatible(with: state.selectedScript) else {
+            state.errorMessage = "\(font.displayName) is not compatible with \(state.selectedScript.displayName)"
             return
         }
 
-        selectedFont = font
+        state.selectedFont = font
         savePreferences()
     }
 
     /// Update widget mode
     func updateWidgetMode(_ mode: WidgetMode) {
-        widgetMode = mode
+        state.widgetMode = mode
         savePreferences()
     }
 
     /// Update widget visual style.
     func updateWidgetStyle(_ style: WidgetStyle) {
-        widgetStyle = style
+        state.widgetStyle = style
         savePreferences()
     }
 
     /// Toggle decorative glyph identity elements in widgets.
     func updateWidgetDecorativeGlyphsEnabled(_ isEnabled: Bool) {
-        widgetDecorativeGlyphsEnabled = isEnabled
+        state.widgetDecorativeGlyphsEnabled = isEnabled
         savePreferences()
     }
 
     /// Update visual theme
     func updateTheme(_ theme: AppTheme) {
-        selectedTheme = theme
+        state.selectedTheme = theme
         savePreferences()
     }
 
     /// Apply a curated script/font preset.
     func applyPreset(_ preset: ReadingPreset) {
-        selectedScript = preset.script
-        selectedFont = preset.font
-        lastUsedPreset = preset
-        errorMessage = nil
+        state.selectedScript = preset.script
+        state.selectedFont = preset.font
+        state.lastUsedPreset = preset
+        state.errorMessage = nil
         savePreferences()
     }
 
     /// Restore the most recently used preset.
     func restoreLastUsedPreset() {
-        guard let lastUsedPreset else { return }
-        applyPreset(lastUsedPreset)
+        guard let preset = state.lastUsedPreset else { return }
+        applyPreset(preset)
     }
 
     /// Reset settings to default values.
     func resetToDefaults() {
-        selectedScript = .elder
-        selectedFont = .noto
-        selectedTheme = .obsidian
-        widgetMode = .daily
-        widgetStyle = .runeFirst
-        widgetDecorativeGlyphsEnabled = true
-        errorMessage = nil
+        state.selectedScript = .elder
+        state.selectedFont = .noto
+        state.selectedTheme = .obsidian
+        state.widgetMode = .daily
+        state.widgetStyle = .runeFirst
+        state.widgetDecorativeGlyphsEnabled = true
+        state.errorMessage = nil
         savePreferences()
     }
 
@@ -179,44 +183,43 @@ final class SettingsViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func loadPreferences() async {
-        isLoading = true
-        errorMessage = nil
+        state.isLoading = true
+        state.errorMessage = nil
 
         do {
             preferences = try UserPreferences.getOrCreate(in: modelContext)
 
-            // Update published properties
-            selectedScript = preferences?.selectedScript ?? .elder
-            selectedFont = preferences?.selectedFont ?? .noto
-            widgetMode = preferences?.widgetMode ?? .daily
-            widgetStyle = preferences?.widgetStyle ?? .runeFirst
-            widgetDecorativeGlyphsEnabled = preferences?.widgetDecorativeGlyphsEnabled ?? true
-            selectedTheme = preferences?.selectedTheme ?? .obsidian
-            lastUsedPreset = preferences?.lastUsedPreset
+            state.selectedScript = preferences?.selectedScript ?? .elder
+            state.selectedFont = preferences?.selectedFont ?? .noto
+            state.widgetMode = preferences?.widgetMode ?? .daily
+            state.widgetStyle = preferences?.widgetStyle ?? .runeFirst
+            state.widgetDecorativeGlyphsEnabled = preferences?.widgetDecorativeGlyphsEnabled ?? true
+            state.selectedTheme = preferences?.selectedTheme ?? .obsidian
+            state.lastUsedPreset = preferences?.lastUsedPreset
 
-            isLoading = false
+            state.isLoading = false
         } catch {
-            errorMessage = "Failed to load preferences: \(error.localizedDescription)"
-            isLoading = false
+            state.errorMessage = "Failed to load preferences: \(error.localizedDescription)"
+            state.isLoading = false
         }
     }
 
     private func savePreferences() {
         guard let preferences = preferences else { return }
 
-        preferences.selectedScript = selectedScript
-        preferences.selectedFont = selectedFont
-        preferences.widgetMode = widgetMode
-        preferences.widgetStyle = widgetStyle
-        preferences.widgetDecorativeGlyphsEnabled = widgetDecorativeGlyphsEnabled
-        preferences.selectedTheme = selectedTheme
-        preferences.lastUsedPreset = lastUsedPreset
+        preferences.selectedScript = state.selectedScript
+        preferences.selectedFont = state.selectedFont
+        preferences.widgetMode = state.widgetMode
+        preferences.widgetStyle = state.widgetStyle
+        preferences.widgetDecorativeGlyphsEnabled = state.widgetDecorativeGlyphsEnabled
+        preferences.selectedTheme = state.selectedTheme
+        preferences.lastUsedPreset = state.lastUsedPreset
 
         do {
             try modelContext.save()
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
-            errorMessage = "Failed to save preferences: \(error.localizedDescription)"
+            state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
         }
     }
 }

@@ -16,20 +16,42 @@ struct GlassButton: View {
     let hapticTier: HapticTier?
     let action: () -> Void
 
+    let intensity: DesignTokens.GlassIntensity?
     let opacity: GlassOpacity
     let blur: Material
     let cornerRadius: CGFloat
 
     @State private var isPressed = false
     @Environment(\.accessibilityReduceMotion) var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - Initialization
 
+    /// New design-system initializer using glass intensity tokens.
     init(
         _ title: String,
         icon: String? = nil,
         hapticTier: HapticTier? = nil,
-        opacity: GlassOpacity = .low,
+        intensity: DesignTokens.GlassIntensity = .medium,
+        cornerRadius: CGFloat = DesignTokens.CornerRadius.sm,
+        action: @escaping () -> Void
+    ) {
+        self.title = title
+        self.icon = icon
+        self.hapticTier = hapticTier
+        self.intensity = intensity
+        self.opacity = .low
+        self.blur = intensity.material
+        self.cornerRadius = cornerRadius
+        self.action = action
+    }
+
+    /// Legacy initializer for backward compatibility.
+    init(
+        _ title: String,
+        icon: String? = nil,
+        hapticTier: HapticTier? = nil,
+        opacity: GlassOpacity,
         blur: Material = .thinMaterial,
         cornerRadius: CGFloat = 12,
         action: @escaping () -> Void
@@ -37,6 +59,7 @@ struct GlassButton: View {
         self.title = title
         self.icon = icon
         self.hapticTier = hapticTier
+        self.intensity = nil
         self.opacity = opacity
         self.blur = blur
         self.cornerRadius = cornerRadius
@@ -65,12 +88,14 @@ struct GlassButton: View {
                 }
             }
             .foregroundStyle(.white)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
+            .padding(.horizontal, DesignTokens.Spacing.lg)
+            .padding(.vertical, DesignTokens.Spacing.sm)
             .background {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(blur)
-                    .opacity(isPressed ? opacity.value * 1.3 : opacity.value)
+                if let intensity {
+                    adaptiveGlassBackground(intensity: intensity)
+                } else {
+                    legacyGlassBackground
+                }
             }
             .shadow(
                 color: .black.opacity(0.22),
@@ -104,6 +129,45 @@ struct GlassButton: View {
         )
         .accessibilityAddTraits(.isButton)
     }
+
+    // MARK: - Glass Rendering
+
+    @ViewBuilder
+    private func adaptiveGlassBackground(intensity: DesignTokens.GlassIntensity) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(intensity.material)
+
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(DesignTokens.GlassColor.background(for: colorScheme))
+
+            // Brightened overlay on press
+            if isPressed {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color.white.opacity(0.08))
+            }
+
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .strokeBorder(
+                    DesignTokens.GlassColor.border(for: colorScheme),
+                    lineWidth: 0.5
+                )
+        }
+    }
+
+    @ViewBuilder
+    private var legacyGlassBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(blur)
+                .opacity(opacity.value)
+
+            if isPressed {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color.white.opacity(0.08))
+            }
+        }
+    }
 }
 
 // MARK: - Convenience Variants
@@ -120,8 +184,7 @@ extension GlassButton {
             title,
             icon: icon,
             hapticTier: hapticTier,
-            opacity: .mediumLow,
-            blur: .regularMaterial,
+            intensity: .strong,
             action: action
         )
     }
@@ -137,8 +200,7 @@ extension GlassButton {
             title,
             icon: icon,
             hapticTier: hapticTier,
-            opacity: .veryLow,
-            blur: .ultraThinMaterial,
+            intensity: .light,
             action: action
         )
     }
@@ -154,9 +216,8 @@ extension GlassButton {
             title,
             icon: icon,
             hapticTier: hapticTier,
-            opacity: .low,
-            blur: .thinMaterial,
-            cornerRadius: 10,
+            intensity: .light,
+            cornerRadius: DesignTokens.CornerRadius.sm,
             action: action
         )
     }
@@ -175,17 +236,17 @@ extension GlassButton {
         .ignoresSafeArea()
 
         VStack(spacing: 30) {
-            // Default button
+            // Default button (medium intensity)
             GlassButton("Default Button", icon: "star.fill") {
                 // Preview action
             }
 
-            // Primary button
+            // Primary button (strong intensity)
             GlassButton.primary("Primary Button", icon: "arrow.right.circle.fill") {
                 // Preview action
             }
 
-            // Secondary button
+            // Secondary button (light intensity)
             GlassButton.secondary("Secondary Button", icon: "gear") {
                 // Preview action
             }
@@ -197,6 +258,11 @@ extension GlassButton {
 
             // Icon-only button
             GlassButton("", icon: "shuffle") {
+                // Preview action
+            }
+
+            // Legacy button (backward compat)
+            GlassButton("Legacy", icon: "clock", opacity: .low, blur: .thinMaterial) {
                 // Preview action
             }
         }

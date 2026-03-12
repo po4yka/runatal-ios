@@ -20,6 +20,9 @@ final class Quote {
     /// Author of the quote
     var author: String
 
+    /// Optional source (book, speech, etc.)
+    var source: String?
+
     /// Explicit collection membership loaded from seed data.
     var collectionRaw: String?
 
@@ -38,6 +41,15 @@ final class Quote {
     /// Whether this is a user-generated quote (for future feature)
     var isUserGenerated: Bool
 
+    /// Whether the quote is hidden from the main feed.
+    var isHidden: Bool
+
+    /// Whether the quote is soft-deleted (moved to archive trash).
+    var isDeleted: Bool
+
+    /// Timestamp when the quote was soft-deleted (for 30-day auto-purge).
+    var deletedAt: Date?
+
     /// Initialize a new quote
     /// - Parameters:
     ///   - textLatin: The original Latin text
@@ -55,6 +67,9 @@ final class Quote {
         self.author = author
         self.collectionRaw = collection.rawValue
         self.isUserGenerated = isUserGenerated
+        self.isHidden = false
+        self.isDeleted = false
+        self.deletedAt = nil
         self.createdAt = Date()
 
         // Runic translations will be computed on demand or during seeding
