@@ -57,10 +57,16 @@ enum AppConstants {
 ///
 /// Used as a lightweight event bus between components that don't share
 /// a direct parent-child relationship (deep link handler, quote context
-/// menu, tab view). Acceptable coupling for a two-tab app.
+/// menu, tab view).
 extension Notification.Name {
+    /// Generic tab switch — pass `AppTab` value in userInfo["tab"].
+    static let switchToTab = Notification.Name("SwitchToTab")
+
+    /// Legacy: switches to the home (quote) tab.
     static let switchToQuoteTab = Notification.Name("SwitchToQuoteTab")
+    /// Legacy: switches to the settings tab.
     static let switchToSettingsTab = Notification.Name("SwitchToSettingsTab")
+
     static let loadNextQuote = Notification.Name("LoadNextQuote")
     static let preferencesDidChange = Notification.Name("PreferencesDidChange")
     static let quoteTabBarVisibilityChanged = Notification.Name("QuoteTabBarVisibilityChanged")
