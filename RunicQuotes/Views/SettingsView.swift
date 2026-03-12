@@ -45,6 +45,7 @@ struct SettingsView: View {
                     typographySection(palette: palette)
                     widgetSection(palette: palette)
                     accessibilitySection(palette: palette)
+                    archiveLink(palette: palette)
                     aboutSection(palette: palette)
 
                     Spacer()
@@ -563,6 +564,33 @@ struct SettingsView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings_accessibility_section")
+    }
+
+    // MARK: - Archive Link
+
+    private func archiveLink(palette: AppThemePalette) -> some View {
+        NavigationLink {
+            ArchiveView()
+        } label: {
+            GlassCard(intensity: .medium) {
+                HStack {
+                    Image(systemName: "archivebox")
+                        .font(.body)
+                        .foregroundStyle(palette.accent)
+
+                    Text("Archive")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(palette.textPrimary)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(palette.textTertiary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - About
