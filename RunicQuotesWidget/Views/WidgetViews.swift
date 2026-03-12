@@ -1,5 +1,5 @@
 //
-//  WidgetViewsWithDeepLink.swift
+//  WidgetViews.swift
 //  RunicQuotesWidget
 //
 //  Created by Claude on 2025-11-15.
@@ -42,12 +42,13 @@ struct RunicQuoteWidgetEntryView: View {
 
 struct SmallWidgetView: View {
     let entry: RunicQuoteEntry
+    @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { entry.theme.palette }
+    private var palette: AppThemePalette { AppThemePalette.adaptive(for: colorScheme) }
 
     var body: some View {
         ZStack {
-            entry.widgetBackgroundGradient
+            entry.widgetBackgroundGradient(for: colorScheme)
 
             if entry.showsDecorativeGlyphs {
                 WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
@@ -55,7 +56,7 @@ struct SmallWidgetView: View {
             }
 
             content
-                .padding()
+                .padding(DesignTokens.Spacing.md)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(entry.widgetAccessibilityLabel)
@@ -65,49 +66,56 @@ struct SmallWidgetView: View {
     private var content: some View {
         switch entry.widgetStyle {
         case .runeFirst:
-            VStack(spacing: 8) {
+            VStack(spacing: DesignTokens.Spacing.xs) {
                 Spacer(minLength: 0)
 
                 Text(entry.compactRunic(maxCharacters: 46))
                     .font(.custom(entry.widgetFontName, size: 20))
-                    .foregroundStyle(palette.primaryText)
+                    .foregroundStyle(palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineLimit(4)
                     .minimumScaleFactor(0.65)
 
                 Text(entry.compactLatin(maxCharacters: 58))
                     .font(.caption2)
-                    .foregroundStyle(palette.secondaryText)
+                    .foregroundStyle(palette.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
 
                 Spacer(minLength: 0)
-                entry.widgetScriptIndicator
+                widgetScriptIndicator
             }
         case .translationFirst:
-            VStack(spacing: 8) {
+            VStack(spacing: DesignTokens.Spacing.xs) {
                 Spacer(minLength: 0)
 
                 Text(entry.compactLatin(maxCharacters: 86))
                     .font(.callout.weight(.semibold))
-                    .foregroundStyle(palette.primaryText)
+                    .foregroundStyle(palette.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(4)
                     .minimumScaleFactor(0.75)
 
-                Divider()
-                    .overlay(palette.divider)
+                Rectangle()
+                    .fill(palette.separator)
+                    .frame(height: 1)
 
                 Text(entry.compactRunic(maxCharacters: 34))
                     .font(.custom(entry.widgetFontName, size: 15))
-                    .foregroundStyle(palette.secondaryText)
+                    .foregroundStyle(palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
 
                 Spacer(minLength: 0)
-                entry.widgetScriptIndicator
+                widgetScriptIndicator
             }
         }
+    }
+
+    private var widgetScriptIndicator: some View {
+        Text(entry.script.displayName)
+            .font(.caption2)
+            .foregroundStyle(palette.textTertiary)
     }
 }
 
@@ -115,12 +123,13 @@ struct SmallWidgetView: View {
 
 struct MediumWidgetView: View {
     let entry: RunicQuoteEntry
+    @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { entry.theme.palette }
+    private var palette: AppThemePalette { AppThemePalette.adaptive(for: colorScheme) }
 
     var body: some View {
         ZStack {
-            entry.widgetBackgroundGradient
+            entry.widgetBackgroundGradient(for: colorScheme)
 
             RoundedRectangle(cornerRadius: 0)
                 .fill(.ultraThinMaterial)
@@ -132,7 +141,7 @@ struct MediumWidgetView: View {
             }
 
             content
-                .padding()
+                .padding(DesignTokens.Spacing.lg)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(entry.widgetAccessibilityLabel)
@@ -142,71 +151,60 @@ struct MediumWidgetView: View {
     private var content: some View {
         switch entry.widgetStyle {
         case .runeFirst:
-            HStack(spacing: 16) {
-                VStack(alignment: .center, spacing: 8) {
-                    Text(entry.compactRunic(maxCharacters: 76))
-                        .font(.custom(entry.widgetFontName, size: 24))
-                        .foregroundStyle(palette.primaryText)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(3)
-                        .minimumScaleFactor(0.6)
-                        .frame(maxWidth: .infinity)
-                }
-                .frame(maxWidth: .infinity)
-
-                Rectangle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.clear, palette.divider, .clear],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(width: 1)
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(entry.compactLatin(maxCharacters: 92))
-                        .font(.caption)
-                        .foregroundStyle(palette.secondaryText)
-                        .lineLimit(3)
-                        .minimumScaleFactor(0.8)
+            VStack(spacing: DesignTokens.Spacing.xs) {
+                HStack {
+                    Text(entry.compactRunic(maxCharacters: 18))
+                        .font(.custom(entry.widgetFontName, size: 12))
+                        .foregroundStyle(palette.runeText)
+                        .lineLimit(1)
 
                     Spacer()
 
-                    Text("\u{2014} \(entry.compactAuthor(maxCharacters: 24))")
+                    Text("Quote of the Day")
                         .font(.caption2)
-                        .foregroundStyle(palette.tertiaryText)
-                        .italic()
-                        .lineLimit(1)
-
-                    entry.widgetScriptIndicator
+                        .foregroundStyle(palette.textTertiary)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
 
-        case .translationFirst:
-            VStack(alignment: .leading, spacing: 10) {
+                Spacer(minLength: 0)
+
                 Text(entry.compactLatin(maxCharacters: 128))
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(palette.primaryText)
+                    .font(.body)
+                    .foregroundStyle(palette.textPrimary)
                     .lineLimit(3)
                     .minimumScaleFactor(0.8)
 
-                HStack(spacing: 8) {
+                Text(entry.compactAuthor(maxCharacters: 30))
+                    .font(.caption)
+                    .foregroundStyle(palette.textSecondary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+        case .translationFirst:
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                Text(entry.compactLatin(maxCharacters: 128))
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(palette.textPrimary)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.8)
+
+                HStack(spacing: DesignTokens.Spacing.xs) {
                     Text("\u{2014} \(entry.compactAuthor(maxCharacters: 26))")
                         .font(.caption2)
-                        .foregroundStyle(palette.tertiaryText)
+                        .foregroundStyle(palette.textTertiary)
                         .lineLimit(1)
 
                     Spacer()
 
-                    entry.widgetScriptIndicator
+                    Text(entry.script.displayName)
+                        .font(.caption2)
+                        .foregroundStyle(palette.textTertiary)
                 }
 
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [.clear, palette.divider, .clear],
+                            colors: [.clear, palette.separator, .clear],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -215,7 +213,7 @@ struct MediumWidgetView: View {
 
                 Text(entry.compactRunic(maxCharacters: 58))
                     .font(.custom(entry.widgetFontName, size: 16))
-                    .foregroundStyle(palette.secondaryText)
+                    .foregroundStyle(palette.runeText)
                     .lineLimit(2)
                     .minimumScaleFactor(0.7)
             }
@@ -227,12 +225,13 @@ struct MediumWidgetView: View {
 
 struct LargeWidgetView: View {
     let entry: RunicQuoteEntry
+    @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { entry.theme.palette }
+    private var palette: AppThemePalette { AppThemePalette.adaptive(for: colorScheme) }
 
     var body: some View {
         ZStack {
-            entry.widgetBackgroundGradient
+            entry.widgetBackgroundGradient(for: colorScheme)
 
             RoundedRectangle(cornerRadius: 0)
                 .fill(.ultraThinMaterial)
@@ -244,7 +243,7 @@ struct LargeWidgetView: View {
             }
 
             content
-                .padding()
+                .padding(DesignTokens.Spacing.lg)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(entry.widgetAccessibilityLabel)
@@ -254,69 +253,69 @@ struct LargeWidgetView: View {
     private var content: some View {
         switch entry.widgetStyle {
         case .runeFirst:
-            VStack(spacing: 18) {
+            VStack(spacing: DesignTokens.Spacing.md) {
                 header
 
                 Spacer(minLength: 0)
 
-                Text(entry.compactRunic(maxCharacters: 164))
-                    .font(.custom(entry.widgetFontName, size: 32))
-                    .foregroundStyle(palette.primaryText)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(6)
-                    .minimumScaleFactor(0.55)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.thinMaterial)
-                            .opacity(0.3)
-                    )
+                VStack(spacing: DesignTokens.Spacing.xxs) {
+                    Text(entry.compactRunic(maxCharacters: 40))
+                        .font(.custom(entry.widgetFontName, size: 14))
+                        .foregroundStyle(palette.runeText)
+                        .lineLimit(1)
 
-                entry.widgetDivider
+                    Text(entry.compactLatin(maxCharacters: 170))
+                        .font(.title3)
+                        .foregroundStyle(palette.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.8)
 
-                Text(entry.compactLatin(maxCharacters: 170))
-                    .font(.body)
-                    .foregroundStyle(palette.secondaryText)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(4)
-
-                Text("\u{2014} \(entry.compactAuthor(maxCharacters: 34))")
-                    .font(.callout)
-                    .foregroundStyle(palette.tertiaryText)
-                    .italic()
+                    Text(entry.compactAuthor(maxCharacters: 34))
+                        .font(.caption)
+                        .foregroundStyle(palette.textSecondary)
+                }
+                .padding(DesignTokens.Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                        .fill(.thinMaterial)
+                        .opacity(0.3)
+                )
 
                 Spacer(minLength: 0)
+
+                brandingFooter
             }
 
         case .translationFirst:
-            VStack(spacing: 16) {
+            VStack(spacing: DesignTokens.Spacing.md) {
                 header
 
                 Spacer(minLength: 0)
 
                 Text(entry.compactLatin(maxCharacters: 210))
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(palette.primaryText)
+                    .foregroundStyle(palette.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(5)
                     .minimumScaleFactor(0.8)
-                    .padding()
+                    .padding(DesignTokens.Spacing.sm)
                     .background(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
                             .fill(.thinMaterial)
                             .opacity(0.32)
                     )
 
                 Text("\u{2014} \(entry.compactAuthor(maxCharacters: 34))")
                     .font(.callout)
-                    .foregroundStyle(palette.tertiaryText)
+                    .foregroundStyle(palette.textTertiary)
                     .italic()
 
-                entry.widgetDivider
+                widgetDivider
 
                 Text(entry.compactRunic(maxCharacters: 110))
                     .font(.custom(entry.widgetFontName, size: 22))
-                    .foregroundStyle(palette.secondaryText)
+                    .foregroundStyle(palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .minimumScaleFactor(0.65)
@@ -328,16 +327,42 @@ struct LargeWidgetView: View {
 
     private var header: some View {
         HStack {
-            Text(entry.script.displayName)
-                .font(.headline)
-                .foregroundStyle(palette.secondaryText)
+            Text(entry.compactRunic(maxCharacters: 24))
+                .font(.custom(entry.widgetFontName, size: 12))
+                .foregroundStyle(palette.runeText)
+                .lineLimit(1)
 
             Spacer()
 
-            Text(entry.widgetMode.displayName)
-                .font(.caption)
-                .foregroundStyle(palette.tertiaryText)
+            Text("Daily Wisdom")
+                .font(.caption2)
+                .foregroundStyle(palette.textTertiary)
         }
+    }
+
+    private var brandingFooter: some View {
+        HStack(spacing: DesignTokens.Spacing.xxs) {
+            Text(entry.decorativeGlyph)
+                .font(.custom(entry.widgetFontName, size: 10))
+                .foregroundStyle(palette.textTertiary)
+
+            Text("Runic Quotes")
+                .font(.caption2)
+                .foregroundStyle(palette.textTertiary)
+        }
+    }
+
+    private var widgetDivider: some View {
+        Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: [.clear, palette.separator, .clear],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .frame(height: 1)
+            .padding(.horizontal, DesignTokens.Spacing.xxl)
     }
 }
 
@@ -346,8 +371,9 @@ struct LargeWidgetView: View {
 /// Circular widget for Lock Screen
 struct CircularWidgetView: View {
     let entry: RunicQuoteEntry
+    @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { entry.theme.palette }
+    private var palette: AppThemePalette { AppThemePalette.adaptive(for: colorScheme) }
 
     var body: some View {
         ZStack {
@@ -448,7 +474,7 @@ private struct WidgetDecorativeBackground: View {
                 ForEach(Array(points.enumerated()), id: \.offset) { index, point in
                     Text(glyph)
                         .font(.system(size: 16 + CGFloat(index % 3) * 7, weight: .semibold))
-                        .foregroundStyle((index.isMultiple(of: 2) ? palette.accent : palette.divider).opacity(0.16))
+                        .foregroundStyle((index.isMultiple(of: 2) ? palette.accent : palette.separator).opacity(0.16))
                         .rotationEffect(.degrees(Double(index) * 31))
                         .position(
                             x: proxy.size.width * point.x,
@@ -479,7 +505,7 @@ private struct WidgetGlyphRing: View {
 
             Circle()
                 .stroke(
-                    palette.divider.opacity(0.65),
+                    palette.separator.opacity(0.65),
                     style: StrokeStyle(lineWidth: 0.8, dash: [2.2, 3.4])
                 )
                 .padding(3)
@@ -490,7 +516,7 @@ private struct WidgetGlyphRing: View {
                 Text(glyph)
             }
             .font(.system(size: 9, weight: .bold))
-            .foregroundStyle(palette.tertiaryText.opacity(0.85))
+            .foregroundStyle(palette.textTertiary.opacity(0.85))
             .padding(.vertical, 3)
 
             HStack {
@@ -499,7 +525,7 @@ private struct WidgetGlyphRing: View {
                 Text(glyph)
             }
             .font(.system(size: 9, weight: .bold))
-            .foregroundStyle(palette.tertiaryText.opacity(0.85))
+            .foregroundStyle(palette.textTertiary.opacity(0.85))
             .padding(.horizontal, 3)
         }
     }
@@ -508,9 +534,10 @@ private struct WidgetGlyphRing: View {
 // MARK: - Shared Widget Helpers
 
 extension RunicQuoteEntry {
-    var widgetBackgroundGradient: some View {
-        LinearGradient(
-            colors: theme.palette.widgetBackgroundGradient,
+    func widgetBackgroundGradient(for colorScheme: ColorScheme) -> some View {
+        let palette = AppThemePalette.adaptive(for: colorScheme)
+        return LinearGradient(
+            colors: palette.widgetBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -518,25 +545,6 @@ extension RunicQuoteEntry {
 
     var widgetFontName: String {
         RunicFontConfiguration.fontName(for: script, font: font)
-    }
-
-    var widgetScriptIndicator: some View {
-        Text(script.displayName)
-            .font(.caption2)
-            .foregroundStyle(theme.palette.tertiaryText)
-    }
-
-    var widgetDivider: some View {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [.clear, theme.palette.divider, .clear],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .frame(height: 1)
-            .padding(.horizontal, 30)
     }
 
     var widgetAccessibilityLabel: String {
@@ -550,9 +558,9 @@ private extension RunicQuoteEntry {
     var decorativeGlyph: String {
         switch script {
         case .elder, .younger:
-            return "ᚠ"
+            return "\u{16A0}"
         case .cirth:
-            return "⸸"
+            return "\u{2E38}"
         }
     }
 
@@ -579,7 +587,7 @@ private extension String {
         }
 
         let cutoff = collapsed.index(collapsed.startIndex, offsetBy: maxCharacters - 1)
-        return String(collapsed[..<cutoff]).trimmingCharacters(in: .whitespaces) + "…"
+        return String(collapsed[..<cutoff]).trimmingCharacters(in: .whitespaces) + "\u{2026}"
     }
 }
 

@@ -16,12 +16,7 @@ struct RunicQuoteWidget: Widget {
         StaticConfiguration(kind: kind, provider: QuoteTimelineProvider()) { entry in
             RunicQuoteWidgetEntryView(entry: entry)
                 .containerBackground(for: .widget) {
-                    // Widget background
-                    LinearGradient(
-                        colors: entry.theme.palette.widgetBackgroundGradient,
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+                    WidgetBackgroundView(entry: entry)
                 }
         }
         .configurationDisplayName("Runic Quote")
@@ -34,6 +29,21 @@ struct RunicQuoteWidget: Widget {
             .accessoryRectangular,
             .accessoryInline
         ])
+    }
+}
+
+/// Adaptive widget background using colorScheme
+private struct WidgetBackgroundView: View {
+    let entry: RunicQuoteEntry
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        let palette = AppThemePalette.adaptive(for: colorScheme)
+        LinearGradient(
+            colors: palette.widgetBackgroundGradient,
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
 }
 
