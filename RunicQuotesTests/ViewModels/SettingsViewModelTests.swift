@@ -16,13 +16,13 @@ final class SettingsViewModelTests: XCTestCase {
         viewModel.onAppear()
 
         await waitUntil("settings load completes") {
-            !viewModel.isLoading
+            !viewModel.state.isLoading
         }
 
         viewModel.applyPreset(.youngerCarved)
 
-        XCTAssertEqual(viewModel.selectedScript, .younger)
-        XCTAssertEqual(viewModel.selectedFont, .babelstone)
+        XCTAssertEqual(viewModel.state.selectedScript, .younger)
+        XCTAssertEqual(viewModel.state.selectedFont, .babelstone)
         XCTAssertTrue(viewModel.canRestoreLastPreset)
 
         let saved = try UserPreferences.getOrCreate(in: context)
@@ -35,20 +35,20 @@ final class SettingsViewModelTests: XCTestCase {
         viewModel.onAppear()
 
         await waitUntil("settings load completes") {
-            !viewModel.isLoading
+            !viewModel.state.isLoading
         }
 
         viewModel.applyPreset(.cirthLore)
         viewModel.updateScript(.elder)
         viewModel.updateFont(.noto)
 
-        XCTAssertEqual(viewModel.selectedScript, .elder)
-        XCTAssertEqual(viewModel.selectedFont, .noto)
+        XCTAssertEqual(viewModel.state.selectedScript, .elder)
+        XCTAssertEqual(viewModel.state.selectedFont, .noto)
 
         viewModel.restoreLastUsedPreset()
 
-        XCTAssertEqual(viewModel.selectedScript, .cirth)
-        XCTAssertEqual(viewModel.selectedFont, .cirth)
+        XCTAssertEqual(viewModel.state.selectedScript, .cirth)
+        XCTAssertEqual(viewModel.state.selectedFont, .cirth)
     }
 
     @MainActor
@@ -57,7 +57,7 @@ final class SettingsViewModelTests: XCTestCase {
         viewModel.onAppear()
 
         await waitUntil("settings load completes") {
-            !viewModel.isLoading
+            !viewModel.state.isLoading
         }
 
         viewModel.applyPreset(.youngerCarved)
@@ -68,10 +68,10 @@ final class SettingsViewModelTests: XCTestCase {
 
         viewModel.resetToDefaults()
 
-        XCTAssertEqual(viewModel.selectedScript, .elder)
-        XCTAssertEqual(viewModel.selectedFont, .noto)
-        XCTAssertEqual(viewModel.selectedTheme, .obsidian)
-        XCTAssertEqual(viewModel.widgetMode, .daily)
+        XCTAssertEqual(viewModel.state.selectedScript, .elder)
+        XCTAssertEqual(viewModel.state.selectedFont, .noto)
+        XCTAssertEqual(viewModel.state.selectedTheme, .obsidian)
+        XCTAssertEqual(viewModel.state.widgetMode, .daily)
         XCTAssertTrue(viewModel.isAtDefaults)
     }
 

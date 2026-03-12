@@ -28,13 +28,14 @@ struct RunicQuotesApp: App {
             let container = try ModelContainerHelper.createMainContainer()
             modelContainer = container
 
-            // Seed database on first launch
+            // Seed database on first launch, then purge expired soft-deleted quotes
             Task { [container] in
                 do {
                     try await DatabaseActor.shared.seedIfNeeded(using: container)
                 } catch {
                     Self.logger.error("Failed to seed database: \(error.localizedDescription)")
                 }
+                await DatabaseActor.shared.purgeExpiredQuotes(using: container)
             }
         } catch {
             Self.logger.critical("Failed to create ModelContainer: \(error.localizedDescription)")

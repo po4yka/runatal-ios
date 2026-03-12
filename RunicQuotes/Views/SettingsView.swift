@@ -16,6 +16,8 @@ struct SettingsView: View {
     @State private var didInitialize = false
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - Initialization
 
@@ -103,15 +105,15 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Text(viewModel.selectedTheme.displayName)
+                    Text(viewModel.state.selectedTheme.displayName)
                         .font(.caption)
                         .foregroundStyle(palette.textTertiary)
                 }
 
                 Text(viewModel.livePreviewRunicText)
                     .runicTextStyle(
-                        script: viewModel.selectedScript,
-                        font: viewModel.selectedFont,
+                        script: viewModel.state.selectedScript,
+                        font: viewModel.state.selectedFont,
                         style: .title2,
                         minSize: 22,
                         maxSize: 40
@@ -131,8 +133,8 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 HStack(spacing: DesignTokens.Spacing.sm) {
-                    previewPill(label: "Script", value: viewModel.selectedScript.displayName, palette: palette)
-                    previewPill(label: "Font", value: viewModel.selectedFont.displayName, palette: palette)
+                    previewPill(label: "Script", value: viewModel.state.selectedScript.displayName, palette: palette)
+                    previewPill(label: "Font", value: viewModel.state.selectedFont.displayName, palette: palette)
                 }
             }
             .padding(DesignTokens.Spacing.xxs)
@@ -215,7 +217,7 @@ struct SettingsView: View {
 
     private func themeButton(_ theme: AppTheme, palette: AppThemePalette) -> some View {
         let themePalette = theme.palette
-        let isSelected = viewModel.selectedTheme == theme
+        let isSelected = viewModel.state.selectedTheme == theme
 
         return Button {
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -286,7 +288,7 @@ struct SettingsView: View {
     }
 
     private func scriptRow(_ script: RunicScript, palette: AppThemePalette) -> some View {
-        let isSelected = viewModel.selectedScript == script
+        let isSelected = viewModel.state.selectedScript == script
         let runicPreview = RunicTransliterator.transliterate("rune", to: script)
 
         return Button {
@@ -298,7 +300,7 @@ struct SettingsView: View {
                 Text(runicPreview)
                     .runicTextStyle(
                         script: script,
-                        font: viewModel.selectedFont,
+                        font: viewModel.state.selectedFont,
                         style: .body,
                         minSize: 16,
                         maxSize: 22
@@ -341,19 +343,19 @@ struct SettingsView: View {
 
                     GlassFontSelector(
                         selectedFont: Binding(
-                            get: { viewModel.selectedFont },
+                            get: { viewModel.state.selectedFont },
                             set: { viewModel.updateFont($0) }
                         ),
                         availableFonts: viewModel.availableFonts
                     )
                     .accessibilityLabel("Select font style")
-                    .accessibilityValue(viewModel.selectedFont.rawValue)
+                    .accessibilityValue(viewModel.state.selectedFont.rawValue)
                     .accessibilityHint("Choose the font used to display runic text")
                 }
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("settings_font_section")
 
-                if let error = viewModel.errorMessage {
+                if let error = viewModel.state.errorMessage {
                     Text(error)
                         .font(.caption)
                         .foregroundStyle(palette.error)
@@ -385,7 +387,7 @@ struct SettingsView: View {
     }
 
     private func presetCard(_ preset: ReadingPreset, palette: AppThemePalette) -> some View {
-        let isActive = viewModel.selectedScript == preset.script && viewModel.selectedFont == preset.font
+        let isActive = viewModel.state.selectedScript == preset.script && viewModel.state.selectedFont == preset.font
 
         return Button {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
@@ -464,7 +466,7 @@ struct SettingsView: View {
                         selectionRow(
                             title: mode.displayName,
                             subtitle: mode.description,
-                            isSelected: viewModel.widgetMode == mode,
+                            isSelected: viewModel.state.widgetMode == mode,
                             palette: palette
                         ) {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -472,7 +474,7 @@ struct SettingsView: View {
                             }
                         }
                         .accessibilityLabel("\(mode.displayName) mode")
-                        .accessibilityValue(viewModel.widgetMode == mode ? "Selected" : "Not selected")
+                        .accessibilityValue(viewModel.state.widgetMode == mode ? "Selected" : "Not selected")
                         .accessibilityIdentifier("settings_widget_mode_\(mode.rawValue)")
 
                         if mode != WidgetMode.allCases.last {
@@ -497,7 +499,7 @@ struct SettingsView: View {
                             selectionRow(
                                 title: style.displayName,
                                 subtitle: style.description,
-                                isSelected: viewModel.widgetStyle == style,
+                                isSelected: viewModel.state.widgetStyle == style,
                                 palette: palette
                             ) {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -505,7 +507,7 @@ struct SettingsView: View {
                                 }
                             }
                             .accessibilityLabel("\(style.displayName) style")
-                            .accessibilityValue(viewModel.widgetStyle == style ? "Selected" : "Not selected")
+                            .accessibilityValue(viewModel.state.widgetStyle == style ? "Selected" : "Not selected")
                             .accessibilityIdentifier("settings_widget_style_\(style.rawValue.replacingOccurrences(of: " ", with: "_"))")
 
                             if style != WidgetStyle.allCases.last {
@@ -525,7 +527,7 @@ struct SettingsView: View {
                     title: "Decorative Glyph Identity",
                     subtitle: "Enable glyph ring and background pattern in widgets",
                     isOn: Binding(
-                        get: { viewModel.widgetDecorativeGlyphsEnabled },
+                        get: { viewModel.state.widgetDecorativeGlyphsEnabled },
                         set: { viewModel.updateWidgetDecorativeGlyphsEnabled($0) }
                     ),
                     palette: palette
@@ -544,10 +546,10 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 sectionHeader("Accessibility", icon: "accessibility", palette: palette)
 
-                settingsToggleRow(
+                accessibilityStatusRow(
                     title: "Reduce Transparency",
-                    subtitle: "Replace glass with solid",
-                    isOn: .constant(false),
+                    subtitle: "Replaces glass effects with solid backgrounds",
+                    isEnabled: reduceTransparency,
                     palette: palette
                 )
 
@@ -555,16 +557,66 @@ struct SettingsView: View {
                     .fill(palette.separator)
                     .frame(height: 1)
 
-                settingsToggleRow(
+                accessibilityStatusRow(
                     title: "Reduce Motion",
-                    subtitle: "Minimize animations",
-                    isOn: .constant(false),
+                    subtitle: "Minimizes animations throughout the app",
+                    isEnabled: reduceMotion,
                     palette: palette
                 )
+
+                Rectangle()
+                    .fill(palette.separator)
+                    .frame(height: 1)
+
+                #if canImport(UIKit)
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    HStack {
+                        Text("Open System Settings")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(palette.accent)
+
+                        Spacer()
+
+                        Image(systemName: "arrow.up.forward.app")
+                            .font(.caption)
+                            .foregroundStyle(palette.textTertiary)
+                    }
+                }
+                .buttonStyle(.plain)
+                #endif
             }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings_accessibility_section")
+    }
+
+    private func accessibilityStatusRow(
+        title: String,
+        subtitle: String,
+        isEnabled: Bool,
+        palette: AppThemePalette
+    ) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                Text(title)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(palette.textPrimary)
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(palette.textTertiary)
+            }
+
+            Spacer()
+
+            Text(isEnabled ? "On" : "Off")
+                .font(.subheadline)
+                .foregroundStyle(isEnabled ? palette.accent : palette.textTertiary)
+        }
     }
 
     // MARK: - Rune Reference Link

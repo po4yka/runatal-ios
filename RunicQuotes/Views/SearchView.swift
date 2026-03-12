@@ -11,7 +11,8 @@ import SwiftData
 /// Search quotes by text, author, or collection with chip filters and result cards.
 struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Query private var quotes: [Quote]
+    @Query(filter: #Predicate<Quote> { !$0.isDeleted && !$0.isHidden })
+    private var quotes: [Quote]
     @State private var searchText = ""
     @State private var selectedCollection: QuoteCollection?
 

@@ -46,7 +46,8 @@ enum ModelContainerHelper {
         }
     }
 
-    /// Creates the main app ModelContainer with App Group support
+    /// Creates a persistent ModelContainer with App Group support.
+    /// Used by both the main app and the widget extension.
     static func createMainContainer() throws -> ModelContainer {
         let schema = Schema([
             Quote.self,
@@ -62,30 +63,14 @@ enum ModelContainerHelper {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            logger.error("Failed to create main container: \(error.localizedDescription)")
+            logger.error("Failed to create container: \(error.localizedDescription)")
             throw ModelContainerError.failedToCreate(error)
         }
     }
 
-    /// Creates a shared ModelContainer for widget access
+    /// Alias for widget access — delegates to `createMainContainer()`.
     static func createSharedContainer() throws -> ModelContainer {
-        let schema = Schema([
-            Quote.self,
-            UserPreferences.self
-        ])
-
-        let modelConfiguration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            groupContainer: .identifier(AppConstants.appGroupIdentifier)
-        )
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            logger.error("Widget failed to create shared container: \(error.localizedDescription)")
-            throw ModelContainerError.failedToCreate(error)
-        }
+        try createMainContainer()
     }
 }
 

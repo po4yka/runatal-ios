@@ -12,7 +12,8 @@ import SwiftData
 struct SavedView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
-    @Query private var quotes: [Quote]
+    @Query(filter: #Predicate<Quote> { !$0.isDeleted && !$0.isHidden })
+    private var quotes: [Quote]
     @Query private var allPreferences: [UserPreferences]
 
     private var palette: AppThemePalette {

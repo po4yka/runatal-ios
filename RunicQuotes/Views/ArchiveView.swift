@@ -36,6 +36,7 @@ struct ArchiveView: View {
     @Query private var allQuotes: [Quote]
     @State private var selectedFilter: ArchiveFilter = .all
     @State private var restoredToastVisible = false
+    @State private var toastDismissTask: Task<Void, Never>?
 
     private var palette: AppThemePalette {
         .adaptive(for: colorScheme)
@@ -322,8 +323,6 @@ struct ArchiveView: View {
     private func eraseQuote(_ quote: Quote) {
         modelContext.delete(quote)
     }
-
-    @State private var toastDismissTask: Task<Void, Never>?
 
     private func showRestoredToast() {
         toastDismissTask?.cancel()

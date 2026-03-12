@@ -11,7 +11,8 @@ import SwiftData
 /// Browse quotes organized by collection in a 2-column grid.
 struct CollectionsView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Query private var quotes: [Quote]
+    @Query(filter: #Predicate<Quote> { !$0.isDeleted && !$0.isHidden })
+    private var quotes: [Quote]
 
     private var palette: AppThemePalette {
         .adaptive(for: colorScheme)
