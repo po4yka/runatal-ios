@@ -51,6 +51,9 @@ enum AppConstants {
 
     /// UserDefaults key tracking whether onboarding has been completed
     static let onboardingCompletedKey = "hasCompletedOnboarding"
+
+    /// UserDefaults key tracking whether the feature tour (coach marks) has been seen
+    static let featureTourCompletedKey = "hasCompletedFeatureTour"
 }
 
 /// Notification names for app-wide events.

@@ -28,7 +28,9 @@ struct QuoteView: View {
     @State private var showDeleteConfirmation = false
     @State private var showEditQuote = false
     @State private var searchQuery = ""
+    @State private var showCoachMarks = false
     @State private var lastKnownScrollOffset: CGFloat = 0
+    @AppStorage(AppConstants.featureTourCompletedKey) private var hasCompletedFeatureTour = false
     @State private var quoteCardAppearScale: CGFloat = 1.0
     @State private var quoteCardAppearOpacity: Double = 1.0
     @Environment(\.modelContext) private var modelContext
@@ -63,12 +65,25 @@ struct QuoteView: View {
             } else {
                 quoteContentView
             }
+
+            // Coach marks overlay
+            if showCoachMarks {
+                CoachMarksView {
+                    hasCompletedFeatureTour = true
+                    showCoachMarks = false
+                }
+            }
         }
         .task {
             guard !didInitialize else { return }
             didInitialize = true
             viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
+        }
+        .onChange(of: viewModel.state.isLoading) { _, isLoading in
+            if !isLoading && !hasCompletedFeatureTour && didInitialize {
+                showCoachMarks = true
+            }
         }
         .onChange(of: viewModel.state.currentScript) { _, _ in
             startScriptMorphTransition()
