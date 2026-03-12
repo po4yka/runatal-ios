@@ -43,6 +43,9 @@ final class UserPreferences {
     /// that would lose existing saved-quote data on update.
     var savedQuoteIDsRaw: String?
 
+    /// Comma-separated list of installed quote pack IDs.
+    var installedPackIDsRaw: String?
+
     /// Last updated timestamp
     var lastUpdated: Date
 
@@ -208,6 +211,36 @@ final class UserPreferences {
 
         savedQuoteIDs = ids
         return isNowSaved
+    }
+
+    /// Installed quote pack identifiers.
+    var installedPackIDs: Set<String> {
+        get {
+            guard let installedPackIDsRaw, !installedPackIDsRaw.isEmpty else {
+                return []
+            }
+            return Set(installedPackIDsRaw.split(separator: ",").map(String.init))
+        }
+        set {
+            installedPackIDsRaw = newValue.sorted().joined(separator: ",")
+            lastUpdated = Date()
+        }
+    }
+
+    /// Whether a given pack is installed.
+    func isPackInstalled(_ packID: String) -> Bool {
+        installedPackIDs.contains(packID)
+    }
+
+    /// Mark a pack as installed. Returns `true` if it was newly installed.
+    @discardableResult
+    func installPack(_ packID: String) -> Bool {
+        var ids = installedPackIDs
+        let inserted = ids.insert(packID).inserted
+        if inserted {
+            installedPackIDs = ids
+        }
+        return inserted
     }
 
     /// Get or create the singleton preferences instance
