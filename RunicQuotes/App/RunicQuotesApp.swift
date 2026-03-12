@@ -151,6 +151,14 @@ struct MainTabView: View {
             if let tab = notification.userInfo?["tab"] as? AppTab {
                 selectedTab = tab
             }
+            // Forward collection selection if included (e.g. from CollectionsView)
+            if let collection = notification.userInfo?["collection"] as? QuoteCollection {
+                NotificationCenter.default.post(
+                    name: .preferencesDidChange,
+                    object: nil,
+                    userInfo: ["collection": collection]
+                )
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { _ in
             selectedTab = .home

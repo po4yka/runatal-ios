@@ -151,16 +151,8 @@ struct CollectionsView: View {
         NotificationCenter.default.post(
             name: .switchToTab,
             object: nil,
-            userInfo: ["tab": AppTab.home]
+            userInfo: ["tab": AppTab.home, "collection": collection]
         )
-        // Small delay so the tab switch completes before collection change
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            NotificationCenter.default.post(
-                name: .preferencesDidChange,
-                object: nil,
-                userInfo: ["collection": collection]
-            )
-        }
     }
 }
 

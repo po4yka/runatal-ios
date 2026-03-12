@@ -11,7 +11,7 @@ import SwiftData
 // MARK: - Archive Filter
 
 /// Filter tabs for the archive view.
-enum ArchiveFilter: String, CaseIterable, Identifiable, Sendable {
+enum ArchiveFilter: String, Codable, CaseIterable, Identifiable, Sendable {
     case all
     case hidden
     case deleted
@@ -348,11 +348,16 @@ struct ArchiveView: View {
         modelContext.delete(quote)
     }
 
+    @State private var toastDismissTask: Task<Void, Never>?
+
     private func showRestoredToast() {
+        toastDismissTask?.cancel()
         withAnimation {
             restoredToastVisible = true
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        toastDismissTask = Task {
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
             withAnimation {
                 restoredToastVisible = false
             }

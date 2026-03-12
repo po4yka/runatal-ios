@@ -13,7 +13,7 @@ import UIKit
 // MARK: - Share Card Style
 
 /// Visual style for the share card image.
-enum ShareCardStyle: String, CaseIterable, Identifiable, Sendable {
+enum ShareCardStyle: String, Codable, CaseIterable, Identifiable, Sendable {
     case dark
     case light
 

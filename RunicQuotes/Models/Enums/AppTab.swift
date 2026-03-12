@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Tab destinations for the main tab bar.
-enum AppTab: String, CaseIterable, Identifiable, Sendable {
+enum AppTab: String, Codable, CaseIterable, Identifiable, Sendable {
     case home
     case collections
     case search

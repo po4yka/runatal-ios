@@ -147,18 +147,6 @@ struct QuotePacksView: View {
     }
 }
 
-// MARK: - Hashable Conformance for Navigation
-
-extension QuotePack: Hashable {
-    static func == (lhs: QuotePack, rhs: QuotePack) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
-
 // MARK: - Preview
 
 #Preview {

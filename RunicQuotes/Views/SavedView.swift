@@ -146,7 +146,9 @@ struct SavedView: View {
                         .buttonStyle(.plain)
 
                         Button {
+                            #if canImport(UIKit)
                             UIPasteboard.general.string = quote.textLatin
+                            #endif
                         } label: {
                             Image(systemName: "doc.on.doc")
                                 .font(.caption)

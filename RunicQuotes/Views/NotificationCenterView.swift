@@ -56,6 +56,7 @@ struct NotificationItem: Identifiable, Sendable {
 /// In-app notification inbox matching the Figma Notification Center design.
 struct NotificationCenterView: View {
     @Environment(\.colorScheme) private var colorScheme
+    // TODO(po4yka): Replace static sample data with real notification backend
     @State private var notifications: [NotificationItem] = NotificationItem.samples
 
     private var palette: AppThemePalette {

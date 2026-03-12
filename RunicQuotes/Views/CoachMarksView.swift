@@ -10,7 +10,9 @@ import SwiftUI
 // MARK: - Coach Mark Step
 
 /// Defines each step in the feature tour.
-enum CoachMarkStep: Int, CaseIterable, Sendable {
+enum CoachMarkStep: Int, CaseIterable, Identifiable, Codable, Sendable {
+    var id: Int { rawValue }
+
     case swipeQuotes = 0
     case saveQuotes
     case exploreCollections
@@ -178,7 +180,9 @@ struct CoachMarksView: View {
         withAnimation(.easeIn(duration: 0.2)) {
             tooltipOpacity = 0
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(200))
+            guard !Task.isCancelled else { return }
             onDismiss()
         }
     }

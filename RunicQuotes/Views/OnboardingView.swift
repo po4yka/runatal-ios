@@ -136,11 +136,11 @@ struct OnboardingView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear {
+        .task {
             // Auto-advance after 2 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                moveForward()
-            }
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            moveForward()
         }
     }
 

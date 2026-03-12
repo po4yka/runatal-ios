@@ -172,8 +172,7 @@ private extension Array {
 #Preview("Quote Actions - Not Saved") {
     Color.black
         .sheet(isPresented: .constant(true)) {
-            QuoteActionsSheet(isSaved: false) { action in
-                print("Action: \(action.title)")
+            QuoteActionsSheet(isSaved: false) { _ in
             }
         }
 }
@@ -181,8 +180,7 @@ private extension Array {
 #Preview("Quote Actions - Saved") {
     Color.black
         .sheet(isPresented: .constant(true)) {
-            QuoteActionsSheet(isSaved: true) { action in
-                print("Action: \(action.title)")
+            QuoteActionsSheet(isSaved: true) { _ in
             }
         }
 }

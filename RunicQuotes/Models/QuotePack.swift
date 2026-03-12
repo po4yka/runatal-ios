@@ -8,7 +8,7 @@
 import Foundation
 
 /// A curated pack of quotes that can be browsed and installed.
-struct QuotePack: Identifiable, Sendable {
+struct QuotePack: Identifiable, Hashable, Sendable {
     let id: String
     let title: String
     let subtitle: String
@@ -110,5 +110,17 @@ extension QuotePack {
     /// Sample pack for previews.
     static var sample: QuotePack {
         catalog[0]
+    }
+}
+
+// MARK: - Equatable & Hashable
+
+extension QuotePack {
+    static func == (lhs: QuotePack, rhs: QuotePack) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
