@@ -10,11 +10,11 @@ import SwiftUI
 import SwiftData
 import os
 
-/// Timeline provider for the runic quotes widget
-struct QuoteTimelineProvider: TimelineProvider {
+/// Timeline provider for the runic quotes widget with AppIntent configuration
+struct QuoteTimelineProvider: AppIntentTimelineProvider {
     private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Widget")
 
-    // MARK: - TimelineProvider Methods
+    // MARK: - AppIntentTimelineProvider Methods
 
     /// Provide a placeholder entry for widget gallery
     func placeholder(in context: Context) -> RunicQuoteEntry {
@@ -22,62 +22,61 @@ struct QuoteTimelineProvider: TimelineProvider {
     }
 
     /// Provide a snapshot entry for widget preview
-    func getSnapshot(in context: Context, completion: @escaping (RunicQuoteEntry) -> Void) {
-        let entry = RunicQuoteEntry.placeholder()
-        completion(entry)
+    func snapshot(for configuration: RunicQuoteConfigurationIntent, in context: Context) async -> RunicQuoteEntry {
+        RunicQuoteEntry.placeholder()
     }
 
     /// Provide timeline entries for the widget
-    func getTimeline(in context: Context, completion: @escaping (Timeline<RunicQuoteEntry>) -> Void) {
-        let sendableCompletion = UncheckedSendableBox(completion)
-        Task {
-            do {
-                let entries = try await generateEntries()
-                let timeline = Timeline(entries: entries, policy: .atEnd)
-                sendableCompletion.value(timeline)
-            } catch {
-                Self.logger.error("Widget timeline error: \(error.localizedDescription)")
-                // Fallback to placeholder
-                let entry = RunicQuoteEntry.placeholder()
-                let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(AppConstants.secondsPerHour)))
-                sendableCompletion.value(timeline)
-            }
+    func timeline(for configuration: RunicQuoteConfigurationIntent, in context: Context) async -> Timeline<RunicQuoteEntry> {
+        do {
+            let entries = try await generateEntries(for: configuration)
+            return Timeline(entries: entries, policy: .atEnd)
+        } catch {
+            Self.logger.error("Widget timeline error: \(error.localizedDescription)")
+            let entry = RunicQuoteEntry.placeholder()
+            return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(AppConstants.secondsPerHour)))
         }
     }
 
     // MARK: - Private Methods
 
-    /// Generate timeline entries
-    private func generateEntries() async throws -> [RunicQuoteEntry] {
+    /// Generate timeline entries using intent configuration
+    private func generateEntries(for configuration: RunicQuoteConfigurationIntent) async throws -> [RunicQuoteEntry] {
         let currentDate = Date()
 
-        // Load user preferences
+        // Use intent values for per-widget configuration
+        let script = configuration.script.toRunicScript
+        let widgetMode = configuration.mode.toWidgetMode
+        let widgetStyle = configuration.style.toWidgetStyle
+        let showRuneText = configuration.showRuneText
+
+        // Load remaining preferences from shared container (font, theme)
         let preferences = try await loadPreferences()
 
         // Get quote based on widget mode
         let quote: QuoteData
-        if preferences.widgetMode == .daily {
-            quote = try await getQuoteOfTheDay(for: preferences.selectedScript)
+        if widgetMode == .daily {
+            quote = try await getQuoteOfTheDay(for: script)
         } else {
-            quote = try await getRandomQuote(for: preferences.selectedScript)
+            quote = try await getRandomQuote(for: script)
         }
 
         // Create entry for now
         let entry = RunicQuoteEntry(
             date: currentDate,
             quote: quote,
-            script: preferences.selectedScript,
+            script: script,
             font: preferences.selectedFont,
             theme: preferences.selectedTheme,
-            widgetMode: preferences.widgetMode,
-            widgetStyle: preferences.widgetStyle,
-            showsDecorativeGlyphs: preferences.widgetDecorativeGlyphsEnabled
+            widgetMode: widgetMode,
+            widgetStyle: widgetStyle,
+            showsDecorativeGlyphs: showRuneText
         )
 
         // For daily mode, update at midnight
         // For random mode, update every hour
         let nextUpdate: Date
-        if preferences.widgetMode == .daily {
+        if widgetMode == .daily {
             nextUpdate = Calendar.current.startOfDay(for: currentDate.addingTimeInterval(AppConstants.secondsPerDay))
         } else {
             nextUpdate = currentDate.addingTimeInterval(AppConstants.secondsPerHour)
@@ -85,22 +84,21 @@ struct QuoteTimelineProvider: TimelineProvider {
 
         // Create entry for next update
         let nextQuote: QuoteData
-        if preferences.widgetMode == .daily {
-            // For daily mode, calculate what the next day's quote will be
-            nextQuote = try await getQuoteOfTheDay(for: preferences.selectedScript, date: nextUpdate)
+        if widgetMode == .daily {
+            nextQuote = try await getQuoteOfTheDay(for: script, date: nextUpdate)
         } else {
-            nextQuote = try await getRandomQuote(for: preferences.selectedScript)
+            nextQuote = try await getRandomQuote(for: script)
         }
 
         let nextEntry = RunicQuoteEntry(
             date: nextUpdate,
             quote: nextQuote,
-            script: preferences.selectedScript,
+            script: script,
             font: preferences.selectedFont,
             theme: preferences.selectedTheme,
-            widgetMode: preferences.widgetMode,
-            widgetStyle: preferences.widgetStyle,
-            showsDecorativeGlyphs: preferences.widgetDecorativeGlyphsEnabled
+            widgetMode: widgetMode,
+            widgetStyle: widgetStyle,
+            showsDecorativeGlyphs: showRuneText
         )
 
         return [entry, nextEntry]
@@ -171,12 +169,6 @@ struct UserPreferencesData: Sendable {
     let widgetMode: WidgetMode
     let widgetStyle: WidgetStyle
     let widgetDecorativeGlyphsEnabled: Bool
-}
-
-/// Wrapper to bridge non-Sendable closures into a Sendable context.
-private struct UncheckedSendableBox<T>: @unchecked Sendable {
-    let value: T
-    init(_ value: T) { self.value = value }
 }
 
 /// Widget-specific errors

@@ -8,12 +8,16 @@
 import WidgetKit
 import SwiftUI
 
-/// Main widget definition
+/// Main widget definition with AppIntent configuration
 struct RunicQuoteWidget: Widget {
     let kind: String = "RunicQuoteWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: QuoteTimelineProvider()) { entry in
+        AppIntentConfiguration(
+            kind: kind,
+            intent: RunicQuoteConfigurationIntent.self,
+            provider: QuoteTimelineProvider()
+        ) { entry in
             RunicQuoteWidgetEntryView(entry: entry)
                 .containerBackground(for: .widget) {
                     WidgetBackgroundView(entry: entry)
