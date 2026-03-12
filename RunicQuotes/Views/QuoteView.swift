@@ -531,6 +531,15 @@ struct QuoteView: View {
         }
 
         ToolbarItemGroup(placement: .primaryAction) {
+            NavigationLink {
+                NotificationCenterView()
+            } label: {
+                Image(systemName: "bell")
+                    .symbolRenderingMode(.monochrome)
+            }
+            .accessibilityLabel("Notifications")
+            .accessibilityIdentifier("quote_notifications_button")
+
             Button {
                 showCreateQuote = true
             } label: {
