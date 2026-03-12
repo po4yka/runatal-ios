@@ -7,173 +7,113 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 import os
 
-/// First-launch onboarding flow introducing scripts and default style selection.
+/// Five-step onboarding flow: Splash -> Intro -> Atmosphere -> Notifications -> Ready.
 struct OnboardingView: View {
+
+    // MARK: - Types
+
     private enum Page: Int, CaseIterable {
-        case elder
-        case younger
-        case cirth
-        case style
+        case splash
+        case intro
+        case atmosphere
+        case notifications
+        case ready
     }
-
-    private struct ScriptStory {
-        let script: RunicScript
-        let subtitle: String
-        let sampleLatin: String
-    }
-
-    @Environment(\.modelContext) private var modelContext
 
     private enum NavigationDirection {
         case forward, backward
     }
 
-    @State private var currentPage: Page = .elder
-    @State private var selectedScript: RunicScript?
-    @State private var selectedStyle: WidgetStyle = .runeFirst
-    @State private var navigationDirection: NavigationDirection = .forward
+    // MARK: - Environment & State
 
-    /// Falls back to the current page's script when nothing is explicitly selected.
-    private var displayedScript: RunicScript {
-        selectedScript ?? stories[safe: currentPage.rawValue]?.script ?? .elder
-    }
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
+
+    @State private var currentPage: Page = .splash
+    @State private var selectedScript: RunicScript?
+    @State private var navigationDirection: NavigationDirection = .forward
+    @State private var notificationsEnabled = false
 
     let onComplete: () -> Void
 
-    private let stories: [ScriptStory] = [
-        ScriptStory(
-            script: .elder,
-            subtitle: "2nd-8th century inscriptions and talismans",
-            sampleLatin: "Strength grows in silence."
-        ),
-        ScriptStory(
-            script: .younger,
-            subtitle: "Viking Age carving style with compact forms",
-            sampleLatin: "The sea keeps old vows."
-        ),
-        ScriptStory(
-            script: .cirth,
-            subtitle: "Tolkien-inspired runes for lore and legend",
-            sampleLatin: "Paths awaken beneath the stars."
-        )
-    ]
+    private var palette: AppThemePalette {
+        AppThemePalette.adaptive(for: colorScheme)
+    }
+
+    // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                LinearGradient(
-                    colors: AppTheme.obsidian.palette.appBackgroundGradient,
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+        ZStack {
+            backgroundGradient
+            RunicAtmosphere(script: selectedScript ?? .elder)
                 .ignoresSafeArea()
 
-                RunicAtmosphere(script: displayedScript)
-                    .ignoresSafeArea()
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
 
-                VStack(spacing: 20) {
-                    header
+                pageContent
+                    .frame(maxWidth: .infinity)
 
-                    ScrollView(.vertical, showsIndicators: false) {
-                        pageContent
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 2)
-                            .padding(.bottom, 8)
-                    }
-                    .scrollBounceBehavior(.basedOnSize)
-                    .gesture(
-                        DragGesture(minimumDistance: 40, coordinateSpace: .local)
-                            .onEnded { value in
-                                let horizontal = value.translation.width
-                                guard abs(horizontal) > abs(value.translation.height) else { return }
-                                if horizontal < 0 {
-                                    moveForward()
-                                } else {
-                                    moveBackward()
-                                }
-                            }
-                    )
+                Spacer(minLength: 0)
 
-                    Spacer(minLength: 0)
-
-                    VStack(spacing: 14) {
+                if currentPage != .splash {
+                    VStack(spacing: DesignTokens.Spacing.sm) {
                         progressDots
-                        navigation
+                        pageAction
                     }
+                    .padding(.bottom, DesignTokens.Spacing.xxl)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 16)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar { onboardingToolbar }
+            .padding(.horizontal, DesignTokens.Spacing.xxl)
         }
     }
 
-    @ToolbarContentBuilder
-    private var onboardingToolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            if currentPage != .elder {
-                Button {
-                    moveBackward()
-                } label: {
-                    Label("Back", systemImage: "chevron.left")
-                        .font(.body.weight(.medium))
-                }
-                .foregroundStyle(.white.opacity(0.92))
-                .transition(.move(edge: .leading).combined(with: .opacity))
-            }
-        }
+    // MARK: - Background
 
-        ToolbarItem(placement: .topBarTrailing) {
-            Button("Use defaults") {
-                savePreferencesAndFinish()
-            }
-            .font(.subheadline.weight(.medium))
-            .foregroundStyle(.white.opacity(0.55))
-        }
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [palette.background, palette.groupedBG, palette.surface, palette.groupedBG, palette.background],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Welcome to Runic quotes")
-                .font(.title2.bold())
-                .foregroundStyle(.white)
-                .lineLimit(2)
-                .minimumScaleFactor(0.9)
-
-            Text(currentPage == .style
-                 ? "Pick your default widget style"
-                 : "Choose your script")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.9))
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-                .animation(.none, value: currentPage)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
+    // MARK: - Progress Dots
 
     private var progressDots: some View {
-        NativePageControl(
-            numberOfPages: Page.allCases.count,
-            currentPage: currentPage.rawValue
-        )
-        .frame(maxWidth: .infinity, alignment: .center)
+        // Only show for pages after splash (4 dots for intro..ready)
+        let totalDots = Page.allCases.count - 1
+        let currentDot = currentPage.rawValue - 1
+
+        return HStack(spacing: DesignTokens.Spacing.xs) {
+            ForEach(0..<totalDots, id: \.self) { index in
+                Circle()
+                    .fill(index == currentDot ? palette.accent : palette.textTertiary.opacity(0.4))
+                    .frame(width: 6, height: 6)
+            }
+        }
     }
+
+    // MARK: - Page Content
 
     @ViewBuilder
     private var pageContent: some View {
         Group {
-            if currentPage == .style {
-                styleSelectionCard
-            } else {
-                if let story = stories[safe: currentPage.rawValue] {
-                    scriptStoryCard(story)
-                }
+            switch currentPage {
+            case .splash:
+                splashPage
+            case .intro:
+                introPage
+            case .atmosphere:
+                atmospherePage
+            case .notifications:
+                notificationsPage
+            case .ready:
+                readyPage
             }
         }
         .id(currentPage)
@@ -183,242 +123,265 @@ struct OnboardingView: View {
         ))
     }
 
-    private func scriptStoryCard(_ story: ScriptStory) -> some View {
-        let runic = RunicTransliterator.transliterate(story.sampleLatin, to: story.script)
-        let isSelected = selectedScript == story.script
-        let recommendedFont = RunicFontConfiguration.recommendedFont(for: story.script)
+    // MARK: - Page: Splash
+
+    private var splashPage: some View {
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            Spacer()
+
+            Text("R")
+                .font(.system(size: 64, weight: .light, design: .serif))
+                .foregroundStyle(palette.textPrimary)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            // Auto-advance after 2 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                moveForward()
+            }
+        }
+    }
+
+    // MARK: - Page: Intro
+
+    private var introPage: some View {
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            // Decorative rune glyphs
+            Text("\u{16A0}\u{16B1}\u{16BA}\u{16C7}\u{16D2}\u{16A8}\u{16C1}")
+                .font(.system(size: 20))
+                .foregroundStyle(palette.accent.opacity(0.6))
+                .tracking(8)
+
+            VStack(spacing: DesignTokens.Spacing.sm) {
+                Text("Ancient Scripts, Modern Wisdom")
+                    .font(.title.bold())
+                    .foregroundStyle(palette.textPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text("Discover the beauty of Elder Futhark, Younger Futhark, and Cirth rune systems")
+                    .font(.body)
+                    .foregroundStyle(palette.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.horizontal, DesignTokens.Spacing.md)
+    }
+
+    // MARK: - Page: Atmosphere
+
+    private var atmospherePage: some View {
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            Text("Choose Your Atmosphere")
+                .font(.title2.bold())
+                .foregroundStyle(palette.textPrimary)
+
+            VStack(spacing: DesignTokens.Spacing.sm) {
+                atmosphereOption(
+                    script: .elder,
+                    title: "Elder Futhark",
+                    subtitle: "2nd-8th century inscriptions and talismans",
+                    sampleLatin: "Strength grows in silence."
+                )
+
+                atmosphereOption(
+                    script: .younger,
+                    title: "Younger Futhark",
+                    subtitle: "Viking Age carving style with compact forms",
+                    sampleLatin: "The sea keeps old vows."
+                )
+
+                atmosphereOption(
+                    script: .cirth,
+                    title: "Cirth",
+                    subtitle: "Tolkien-inspired runes for lore and legend",
+                    sampleLatin: "Paths awaken beneath the stars."
+                )
+            }
+        }
+    }
+
+    private func atmosphereOption(
+        script: RunicScript,
+        title: String,
+        subtitle: String,
+        sampleLatin: String
+    ) -> some View {
+        let isSelected = selectedScript == script
+        let runic = RunicTransliterator.transliterate(sampleLatin, to: script)
+        let recommendedFont = RunicFontConfiguration.recommendedFont(for: script)
+
         return GlassCard(
-            opacity: .high,
-            blur: .ultraThinMaterial,
-            shadowRadius: isSelected ? 14 : 10
+            intensity: isSelected ? .medium : .light,
+            cornerRadius: DesignTokens.CornerRadius.lg,
+            shadowRadius: isSelected ? 14 : 8
         ) {
-            VStack(alignment: .leading, spacing: 20) {
-                // -- Title block --
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(story.script.displayName)
-                            .font(.title3.bold())
-                            .foregroundStyle(.white)
-
+            HStack(spacing: DesignTokens.Spacing.sm) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                    HStack {
+                        Text(title)
+                            .font(.headline)
+                            .foregroundStyle(palette.textPrimary)
                         Spacer()
-
                         if isSelected {
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.title3)
-                                .foregroundStyle(.white.opacity(0.55))
+                                .font(.body)
+                                .foregroundStyle(palette.accent)
                                 .transition(.scale.combined(with: .opacity))
                         }
                     }
 
-                    Text(story.subtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.55))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                // -- Rune preview --
-                Text(runic)
-                    .runicTextStyle(
-                        script: story.script,
-                        font: recommendedFont,
-                        style: .title2,
-                        minSize: 24,
-                        maxSize: 42
-                    )
-                    .foregroundStyle(.white)
-                    .lineSpacing(6)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, minHeight: 80, alignment: .center)
-                    .shadow(color: .black.opacity(0.5), radius: 6, x: 0, y: 2)
-                    .shadow(color: .black.opacity(0.35), radius: 1.5, x: 0, y: 1)
-
-                // -- Quote + meta --
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("\u{201C}\(story.sampleLatin)\u{201D}")
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.92))
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(palette.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text(story.script.description)
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.50))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                // -- Tap hint --
-                if !isSelected {
-                    Text("Tap to set as default")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.42))
-                        .frame(maxWidth: .infinity)
-                        .transition(.opacity)
+                    Text(runic)
+                        .runicTextStyle(
+                            script: script,
+                            font: recommendedFont,
+                            style: .subheadline,
+                            minSize: 14,
+                            maxSize: 20
+                        )
+                        .foregroundStyle(palette.runeText)
+                        .lineLimit(1)
+                        .padding(.top, DesignTokens.Spacing.xxs)
                 }
             }
-            .padding(6)
         }
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(isSelected ? 0.06 : 0))
-                .allowsHitTesting(false)
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .stroke(isSelected ? palette.accent.opacity(0.4) : Color.clear, lineWidth: 1)
         )
-        .frame(maxWidth: .infinity)
-        .contentShape(RoundedRectangle(cornerRadius: 20))
+        .contentShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
         .onTapGesture {
             Haptics.trigger(.scriptSwitch)
             withAnimation(AnimationPresets.smoothEase) {
-                selectedScript = isSelected ? nil : story.script
+                selectedScript = isSelected ? nil : script
             }
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
-        .accessibilityLabel("\(story.script.displayName) script")
+        .accessibilityLabel("\(title) script")
         .accessibilityValue(isSelected ? "Selected" : "Not selected")
-        .accessibilityHint(isSelected ? "Double tap to deselect" : "Double tap to set as default script")
+        .accessibilityHint(isSelected ? "Double tap to deselect" : "Double tap to select")
     }
 
-    private var styleSelectionCard: some View {
-        let sampleLatin = "Wisdom travels far."
-        let sampleRunic = RunicTransliterator.transliterate(sampleLatin, to: displayedScript)
-        let recommendedFont = RunicFontConfiguration.recommendedFont(for: displayedScript)
+    // MARK: - Page: Notifications
 
-        return GlassCard(opacity: .high, blur: .ultraThinMaterial) {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("You can change this any time in settings.")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.55))
+    private var notificationsPage: some View {
+        VStack(spacing: DesignTokens.Spacing.xxl) {
+            VStack(spacing: DesignTokens.Spacing.sm) {
+                Text("Receive Daily Rune Wisdom")
+                    .font(.title2.bold())
+                    .foregroundStyle(palette.textPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text("Get a new runic quote each day to inspire your journey")
+                    .font(.body)
+                    .foregroundStyle(palette.textSecondary)
+                    .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-
-                VStack(spacing: 0) {
-                    styleRow(
-                        style: .runeFirst,
-                        sampleLatin: sampleLatin,
-                        sampleRunic: sampleRunic,
-                        recommendedFont: recommendedFont
-                    )
-
-                    Rectangle()
-                        .fill(Color.white.opacity(0.08))
-                        .frame(height: 1)
-                        .padding(.horizontal, 4)
-
-                    styleRow(
-                        style: .translationFirst,
-                        sampleLatin: sampleLatin,
-                        sampleRunic: sampleRunic,
-                        recommendedFont: recommendedFont
-                    )
-                }
             }
-            .padding(6)
-        }
-    }
 
-    private func styleRow(
-        style: WidgetStyle,
-        sampleLatin: String,
-        sampleRunic: String,
-        recommendedFont: RunicFont
-    ) -> some View {
-        let isSelected = selectedStyle == style
+            // Notification preview card
+            GlassCard(intensity: .light, cornerRadius: DesignTokens.CornerRadius.lg) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
+                    Image(systemName: "bell.badge")
+                        .font(.title2)
+                        .foregroundStyle(palette.accent)
 
-        return Button {
-            selectedStyle = style
-        } label: {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text(style.displayName)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Spacer()
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.white.opacity(0.55))
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        Text("Daily Rune")
+                            .font(.headline)
+                            .foregroundStyle(palette.textPrimary)
+                        Text("Your morning wisdom awaits")
+                            .font(.subheadline)
+                            .foregroundStyle(palette.textSecondary)
                     }
-                }
 
-                if style == .runeFirst {
-                    Text(sampleRunic)
-                        .runicTextStyle(
-                            script: displayedScript,
-                            font: recommendedFont,
-                            style: .headline,
-                            minSize: 18,
-                            maxSize: 24
-                        )
-                        .foregroundStyle(.white.opacity(0.92))
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .shadow(color: .black.opacity(0.34), radius: 1, x: 0, y: 1)
-
-                    Text(sampleLatin)
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.50))
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    Text(sampleLatin)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.92))
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text(sampleRunic)
-                        .runicTextStyle(
-                            script: displayedScript,
-                            font: recommendedFont,
-                            style: .caption,
-                            minSize: 14,
-                            maxSize: 18
-                        )
-                        .foregroundStyle(.white.opacity(0.50))
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .shadow(color: .black.opacity(0.32), radius: 1, x: 0, y: 1)
+                    Spacer()
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white.opacity(isSelected ? 0.08 : 0))
-            )
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, DesignTokens.Spacing.xs)
     }
 
-    private var navigation: some View {
-        HStack {
-            Spacer()
+    // MARK: - Page: Ready
 
-            Button {
+    private var readyPage: some View {
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            // Decorative rune glyphs
+            Text("\u{16A8}\u{16C7}\u{16B1}\u{16BA}\u{16D2}")
+                .font(.system(size: 20))
+                .foregroundStyle(palette.accent.opacity(0.6))
+                .tracking(8)
+
+            VStack(spacing: DesignTokens.Spacing.sm) {
+                Text("Ready to Begin")
+                    .font(.title.bold())
+                    .foregroundStyle(palette.textPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text("Your runic journey starts now")
+                    .font(.body)
+                    .foregroundStyle(palette.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .padding(.horizontal, DesignTokens.Spacing.md)
+    }
+
+    // MARK: - Page Actions
+
+    @ViewBuilder
+    private var pageAction: some View {
+        switch currentPage {
+        case .splash:
+            EmptyView()
+
+        case .intro:
+            GlassButton.primary("Continue", icon: "arrow.right") {
                 Haptics.trigger(.newQuote)
-                if currentPage == .style {
-                    savePreferencesAndFinish()
-                } else {
-                    moveForward()
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Text(currentPage == .style ? "Done" : "Next")
-                    Image(systemName: currentPage == .style ? "checkmark" : "arrow.right")
-                        .font(.caption.weight(.semibold))
-                }
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.white.opacity(0.92))
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(
-                    Capsule()
-                        .fill(.ultraThinMaterial)
-                        .opacity(0.8)
-                )
-                .shadow(color: .black.opacity(0.22), radius: 8, x: 0, y: 4)
+                moveForward()
             }
-            .buttonStyle(PlainButtonStyle())
+
+        case .atmosphere:
+            GlassButton.primary("Continue", icon: "arrow.right") {
+                Haptics.trigger(.newQuote)
+                moveForward()
+            }
+
+        case .notifications:
+            VStack(spacing: DesignTokens.Spacing.sm) {
+                GlassButton.primary("Enable Notifications", icon: "bell") {
+                    Haptics.trigger(.newQuote)
+                    requestNotifications()
+                }
+
+                Button {
+                    Haptics.trigger(.newQuote)
+                    moveForward()
+                } label: {
+                    Text("Not Now")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(palette.textSecondary)
+                }
+                .buttonStyle(.plain)
+            }
+
+        case .ready:
+            GlassButton.primary("Enter the Runes", icon: "sparkles") {
+                Haptics.trigger(.newQuote)
+                savePreferencesAndFinish()
+            }
         }
-        .frame(maxWidth: .infinity)
     }
+
+    // MARK: - Navigation
 
     private func moveForward() {
         guard let next = Page(rawValue: currentPage.rawValue + 1) else { return }
@@ -429,27 +392,40 @@ struct OnboardingView: View {
     }
 
     private func moveBackward() {
-        guard let previous = Page(rawValue: currentPage.rawValue - 1) else { return }
+        guard let previous = Page(rawValue: currentPage.rawValue - 1),
+              previous != .splash else { return }
         navigationDirection = .backward
         withAnimation(AnimationPresets.smoothEase) {
             currentPage = previous
         }
     }
 
+    // MARK: - Notifications
+
+    private func requestNotifications() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
+            DispatchQueue.main.async {
+                notificationsEnabled = granted
+                moveForward()
+            }
+        }
+    }
+
+    // MARK: - Persistence
+
     private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Onboarding")
 
     private func savePreferencesAndFinish() {
         do {
             let preferences = try UserPreferences.getOrCreate(in: modelContext)
-            preferences.selectedScript = displayedScript
-            preferences.widgetStyle = selectedStyle
-            if !preferences.selectedFont.isCompatible(with: displayedScript) {
-                preferences.selectedFont = RunicFontConfiguration.recommendedFont(for: displayedScript)
+            let script = selectedScript ?? .elder
+            preferences.selectedScript = script
+            if !preferences.selectedFont.isCompatible(with: script) {
+                preferences.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
             }
             try modelContext.save()
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
-            // Continue anyway so onboarding cannot block app usage.
             Self.logger.error("Failed to save onboarding preferences: \(error.localizedDescription)")
         }
 
@@ -457,33 +433,7 @@ struct OnboardingView: View {
     }
 }
 
-/// Wraps `UIPageControl` for native dot styling and VoiceOver "page X of Y".
-private struct NativePageControl: UIViewRepresentable {
-    var numberOfPages: Int
-    var currentPage: Int
-
-    func makeUIView(context: Context) -> UIPageControl {
-        let control = UIPageControl()
-        control.numberOfPages = numberOfPages
-        control.isUserInteractionEnabled = false
-        control.currentPageIndicatorTintColor = UIColor.white.withAlphaComponent(0.45)
-        control.pageIndicatorTintColor = UIColor.white.withAlphaComponent(0.18)
-        control.setContentHuggingPriority(.required, for: .vertical)
-        control.preferredCurrentPageIndicatorImage = nil
-        return control
-    }
-
-    func updateUIView(_ control: UIPageControl, context: Context) {
-        control.numberOfPages = numberOfPages
-        control.currentPage = currentPage
-    }
-}
-
-private extension Array {
-    subscript(safe index: Index) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
+// MARK: - Preview
 
 #Preview {
     OnboardingView(onComplete: {})
