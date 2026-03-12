@@ -10,31 +10,32 @@ import SwiftData
 
 /// Displays bookmarked/favorited quotes.
 struct SavedView: View {
-    @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var viewModel: SavedQuotesViewModel
+    @State private var didInitialize = false
     @Environment(\.modelContext) private var modelContext
-    @Query(filter: #Predicate<Quote> { !$0.isDeleted && !$0.isHidden })
-    private var quotes: [Quote]
-    @Query private var allPreferences: [UserPreferences]
+    @Environment(\.colorScheme) private var colorScheme
 
     private var palette: AppThemePalette {
         .adaptive(for: colorScheme)
     }
 
-    private var preferences: UserPreferences? {
-        allPreferences.first
-    }
+    // MARK: - Initialization
 
-    private var savedQuotes: [Quote] {
-        guard let prefs = preferences else { return [] }
-        let savedIDs = prefs.savedQuoteIDs
-        return quotes.filter { savedIDs.contains($0.id) }
+    init() {
+        _viewModel = StateObject(wrappedValue: SavedQuotesViewModel(
+            modelContext: ModelContext(
+                ModelContainerHelper.createPlaceholderContainer()
+            )
+        ))
     }
 
     // MARK: - Body
 
     var body: some View {
         Group {
-            if savedQuotes.isEmpty {
+            if viewModel.state.isLoading {
+                ProgressView()
+            } else if viewModel.state.savedQuotes.isEmpty {
                 emptyState
             } else {
                 savedList
@@ -43,6 +44,12 @@ struct SavedView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(palette.background)
         .navigationTitle("Saved")
+        .task {
+            guard !didInitialize else { return }
+            didInitialize = true
+            viewModel.configureIfNeeded(modelContext: modelContext)
+            viewModel.onAppear()
+        }
     }
 
     // MARK: - Empty State
@@ -80,14 +87,14 @@ struct SavedView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 // Header: count
-                Text("\(savedQuotes.count) saved")
+                Text("\(viewModel.savedCount) saved")
                     .font(.subheadline)
                     .foregroundStyle(palette.accent)
                     .padding(.horizontal, DesignTokens.Spacing.md)
 
                 // Quote cards
                 LazyVStack(spacing: DesignTokens.Spacing.sm) {
-                    ForEach(savedQuotes, id: \.id) { quote in
+                    ForEach(viewModel.state.savedQuotes, id: \.id) { quote in
                         savedQuoteCard(quote)
                     }
                 }
@@ -101,7 +108,7 @@ struct SavedView: View {
     // MARK: - Quote Card
 
     @ViewBuilder
-    private func savedQuoteCard(_ quote: Quote) -> some View {
+    private func savedQuoteCard(_ quote: QuoteRecord) -> some View {
         QuoteCardView(
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
@@ -114,7 +121,7 @@ struct SavedView: View {
             actions: {
                 HStack(spacing: DesignTokens.Spacing.sm) {
                     Button {
-                        toggleSaved(quote)
+                        viewModel.toggleSaved(quote.id)
                     } label: {
                         Image(systemName: "bookmark.fill")
                             .font(.caption)
@@ -124,7 +131,7 @@ struct SavedView: View {
 
                     Button {
                         #if canImport(UIKit)
-                        UIPasteboard.general.string = quote.textLatin
+                        UIPasteboard.general.string = viewModel.copyQuoteText(quote)
                         #endif
                     } label: {
                         Image(systemName: "doc.on.doc")
@@ -135,13 +142,6 @@ struct SavedView: View {
                 }
             }
         )
-    }
-
-    // MARK: - Actions
-
-    private func toggleSaved(_ quote: Quote) {
-        guard let prefs = preferences else { return }
-        prefs.toggleSavedQuote(quote.id)
     }
 }
 

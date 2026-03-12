@@ -11,35 +11,19 @@ import SwiftData
 /// Search quotes by text, author, or collection with chip filters and result cards.
 struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Query(filter: #Predicate<Quote> { !$0.isDeleted && !$0.isHidden })
-    private var quotes: [Quote]
-    @State private var searchText = ""
-    @State private var selectedCollection: QuoteCollection?
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var viewModel: SearchViewModel
+    @State private var didInitialize = false
 
     private var palette: AppThemePalette {
         .adaptive(for: colorScheme)
     }
 
-    // MARK: - Filtered Results
-
-    private var filteredQuotes: [Quote] {
-        var results = quotes
-
-        if let collection = selectedCollection, collection != .all {
-            results = results.filter { $0.collection == collection }
-        }
-
-        guard !searchText.isEmpty else { return [] }
-
-        let query = searchText.lowercased()
-        return results.filter { quote in
-            quote.textLatin.lowercased().contains(query)
-            || quote.author.lowercased().contains(query)
-        }
-    }
-
-    private var isSearchActive: Bool {
-        !searchText.isEmpty
+    init() {
+        let container = ModelContainerHelper.createPlaceholderContainer()
+        _viewModel = StateObject(wrappedValue: SearchViewModel(
+            modelContext: container.mainContext
+        ))
     }
 
     // MARK: - Body
@@ -47,7 +31,7 @@ struct SearchView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                if isSearchActive {
+                if viewModel.state.isSearchActive {
                     resultsContent
                 } else {
                     suggestionsContent
@@ -60,20 +44,31 @@ struct SearchView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(palette.background)
         .navigationTitle("Search")
-        .searchable(text: $searchText, prompt: "Quotes, authors, themes...")
+        .searchable(
+            text: Binding(
+                get: { viewModel.state.searchText },
+                set: { viewModel.updateSearchText($0) }
+            ),
+            prompt: "Quotes, authors, themes..."
+        )
+        .task {
+            guard !didInitialize else { return }
+            didInitialize = true
+            viewModel.configureIfNeeded(modelContext: modelContext)
+            viewModel.onAppear()
+        }
     }
 
     // MARK: - Suggestions Content
 
     @ViewBuilder
     private var suggestionsContent: some View {
-        // Suggestions section
         sectionHeader("Suggestions")
 
         FlowLayout(spacing: DesignTokens.Spacing.xs) {
-            ForEach(suggestionKeywords, id: \.self) { keyword in
+            ForEach(viewModel.suggestionKeywords, id: \.self) { keyword in
                 chipButton(keyword) {
-                    searchText = keyword
+                    viewModel.updateSearchText(keyword)
                 }
             }
         }
@@ -85,15 +80,14 @@ struct SearchView: View {
     private var resultsContent: some View {
         // Results count + clear
         HStack {
-            Text("\(filteredQuotes.count) results")
+            Text("\(viewModel.state.filteredQuotes.count) results")
                 .font(.subheadline)
                 .foregroundStyle(palette.accent)
 
             Spacer()
 
             Button("Clear") {
-                searchText = ""
-                selectedCollection = nil
+                viewModel.clearSearch()
             }
             .font(.subheadline)
             .foregroundStyle(palette.textPrimary)
@@ -105,13 +99,9 @@ struct SearchView: View {
                 ForEach(QuoteCollection.allCases) { collection in
                     chipButton(
                         collection.displayName,
-                        isSelected: selectedCollection == collection
+                        isSelected: viewModel.state.selectedCollection == collection
                     ) {
-                        if selectedCollection == collection {
-                            selectedCollection = nil
-                        } else {
-                            selectedCollection = collection
-                        }
+                        viewModel.updateSelectedCollection(collection)
                     }
                 }
             }
@@ -119,7 +109,7 @@ struct SearchView: View {
 
         // Result cards
         LazyVStack(spacing: DesignTokens.Spacing.sm) {
-            ForEach(filteredQuotes, id: \.id) { quote in
+            ForEach(viewModel.state.filteredQuotes, id: \.id) { quote in
                 quoteResultCard(quote)
             }
         }
@@ -128,7 +118,7 @@ struct SearchView: View {
     // MARK: - Quote Result Card
 
     @ViewBuilder
-    private func quoteResultCard(_ quote: Quote) -> some View {
+    private func quoteResultCard(_ quote: QuoteRecord) -> some View {
         QuoteCardView(
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
@@ -187,12 +177,6 @@ struct SearchView: View {
             .font(.subheadline)
             .foregroundStyle(palette.accent)
             .padding(.top, DesignTokens.Spacing.xs)
-    }
-
-    // MARK: - Suggestion Keywords
-
-    private var suggestionKeywords: [String] {
-        ["Marcus Aurelius", "Tolkien", "courage", "strength", "wisdom", "hope"]
     }
 }
 

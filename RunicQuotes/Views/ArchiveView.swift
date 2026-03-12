@@ -8,67 +8,29 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - Archive Filter
-
-/// Filter tabs for the archive view.
-enum ArchiveFilter: String, Codable, CaseIterable, Identifiable, Sendable {
-    case all
-    case hidden
-    case deleted
-
-    var id: String { rawValue }
-
-    var displayName: String {
-        switch self {
-        case .all: return "All"
-        case .hidden: return "Hidden"
-        case .deleted: return "Deleted"
-        }
-    }
-}
-
 // MARK: - ArchiveView
 
 /// Displays archived (hidden and soft-deleted) quotes with filter tabs and restore/erase actions.
 struct ArchiveView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.modelContext) private var modelContext
-    @Query private var allQuotes: [Quote]
-    @State private var selectedFilter: ArchiveFilter = .all
+    @StateObject private var viewModel: ArchiveViewModel
+    @State private var didInitialize = false
     @State private var restoredToastVisible = false
     @State private var toastDismissTask: Task<Void, Never>?
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
 
     private var palette: AppThemePalette {
         .adaptive(for: colorScheme)
     }
 
-    // MARK: - Filtered Quotes
+    // MARK: - Initialization
 
-    private var archivedQuotes: [Quote] {
-        allQuotes.filter { $0.isHidden || $0.isDeleted }
-    }
-
-    private var filteredQuotes: [Quote] {
-        switch selectedFilter {
-        case .all:
-            return archivedQuotes
-        case .hidden:
-            return allQuotes.filter { $0.isHidden && !$0.isDeleted }
-        case .deleted:
-            return allQuotes.filter { $0.isDeleted }
-        }
-    }
-
-    private var countLabel: String {
-        let count = filteredQuotes.count
-        switch selectedFilter {
-        case .all:
-            return "\(count) archived item\(count == 1 ? "" : "s")"
-        case .hidden:
-            return "\(count) hidden quote\(count == 1 ? "" : "s")"
-        case .deleted:
-            return "\(count) deleted quote\(count == 1 ? "" : "s")"
-        }
+    init() {
+        _viewModel = StateObject(wrappedValue: ArchiveViewModel(
+            modelContext: ModelContext(
+                ModelContainerHelper.createPlaceholderContainer()
+            )
+        ))
     }
 
     // MARK: - Body
@@ -78,7 +40,7 @@ struct ArchiveView: View {
             palette.background
                 .ignoresSafeArea()
 
-            if archivedQuotes.isEmpty {
+            if !viewModel.hasArchivedQuotes {
                 emptyState
             } else {
                 archiveContent
@@ -90,6 +52,12 @@ struct ArchiveView: View {
         }
         .navigationTitle("Archive")
         .navigationBarTitleDisplayMode(.large)
+        .task {
+            guard !didInitialize else { return }
+            didInitialize = true
+            viewModel.configureIfNeeded(modelContext: modelContext)
+            viewModel.onAppear()
+        }
     }
 
     // MARK: - Empty State
@@ -130,7 +98,7 @@ struct ArchiveView: View {
                 countHeader
                 quotesList
 
-                if selectedFilter == .deleted || selectedFilter == .all {
+                if viewModel.state.selectedFilter == .deleted || viewModel.state.selectedFilter == .all {
                     footerNote
                 }
             }
@@ -147,20 +115,20 @@ struct ArchiveView: View {
             ForEach(ArchiveFilter.allCases) { filter in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
-                        selectedFilter = filter
+                        viewModel.updateFilter(filter)
                     }
                 } label: {
                     Text(filter.displayName)
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(
-                            selectedFilter == filter
+                            viewModel.state.selectedFilter == filter
                                 ? palette.textPrimary
                                 : palette.textSecondary
                         )
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, DesignTokens.Spacing.xs)
                         .background {
-                            if selectedFilter == filter {
+                            if viewModel.state.selectedFilter == filter {
                                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
                                     .fill(palette.surface)
                             }
@@ -181,7 +149,7 @@ struct ArchiveView: View {
 
     @ViewBuilder
     private var countHeader: some View {
-        Text(countLabel)
+        Text(viewModel.countLabel)
             .font(.subheadline)
             .foregroundStyle(palette.textSecondary)
             .padding(.horizontal, DesignTokens.Spacing.lg)
@@ -192,7 +160,7 @@ struct ArchiveView: View {
     @ViewBuilder
     private var quotesList: some View {
         LazyVStack(spacing: DesignTokens.Spacing.sm) {
-            ForEach(filteredQuotes, id: \.id) { quote in
+            ForEach(viewModel.filteredQuotes) { quote in
                 archiveQuoteCard(quote)
             }
         }
@@ -202,7 +170,7 @@ struct ArchiveView: View {
     // MARK: - Quote Card
 
     @ViewBuilder
-    private func archiveQuoteCard(_ quote: Quote) -> some View {
+    private func archiveQuoteCard(_ quote: ArchivedQuoteItem) -> some View {
         QuoteCardView(
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
@@ -219,7 +187,7 @@ struct ArchiveView: View {
     // MARK: - Status Tag
 
     @ViewBuilder
-    private func statusTag(for quote: Quote) -> some View {
+    private func statusTag(for quote: ArchivedQuoteItem) -> some View {
         let label = quote.isDeleted ? "Deleted" : "Hidden"
         let color = quote.isDeleted ? palette.error : palette.warning
 
@@ -237,10 +205,11 @@ struct ArchiveView: View {
     // MARK: - Action Buttons
 
     @ViewBuilder
-    private func actionButtons(for quote: Quote) -> some View {
+    private func actionButtons(for quote: ArchivedQuoteItem) -> some View {
         if quote.isDeleted {
             Button {
-                restoreQuote(quote)
+                viewModel.restoreQuote(quote.id)
+                showRestoredToast()
             } label: {
                 Text("Restore")
                     .font(.caption.weight(.medium))
@@ -249,7 +218,7 @@ struct ArchiveView: View {
             .buttonStyle(.plain)
 
             Button {
-                eraseQuote(quote)
+                viewModel.eraseQuote(quote.id)
             } label: {
                 Text("Erase")
                     .font(.caption.weight(.medium))
@@ -258,7 +227,8 @@ struct ArchiveView: View {
             .buttonStyle(.plain)
         } else if quote.isHidden {
             Button {
-                unhideQuote(quote)
+                viewModel.unhideQuote(quote.id)
+                showRestoredToast()
             } label: {
                 Text("Unhide")
                     .font(.caption.weight(.medium))
@@ -306,23 +276,7 @@ struct ArchiveView: View {
         .animation(.spring(response: 0.4), value: restoredToastVisible)
     }
 
-    // MARK: - Actions
-
-    private func restoreQuote(_ quote: Quote) {
-        quote.isHidden = false
-        quote.isDeleted = false
-        quote.deletedAt = nil
-        showRestoredToast()
-    }
-
-    private func unhideQuote(_ quote: Quote) {
-        quote.isHidden = false
-        showRestoredToast()
-    }
-
-    private func eraseQuote(_ quote: Quote) {
-        modelContext.delete(quote)
-    }
+    // MARK: - Toast Helper
 
     private func showRestoredToast() {
         toastDismissTask?.cancel()

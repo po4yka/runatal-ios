@@ -161,7 +161,7 @@ struct QuoteView: View {
             }
         }
         .sheet(isPresented: $showEditQuote) {
-            if let record = currentQuoteRecord() {
+            if let record = viewModel.currentQuoteRecord() {
                 NavigationStack {
                     CreateEditQuoteView(mode: .edit(record)) { _ in
                         viewModel.onAppear()
@@ -172,7 +172,7 @@ struct QuoteView: View {
         .alert("Delete Quote?", isPresented: $showDeleteConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
-                deleteCurrentQuote()
+                viewModel.deleteCurrentQuote()
             }
         } message: {
             Text("This will move the quote to your archive. You can restore it later from Settings > Archive.")
@@ -627,13 +627,6 @@ struct QuoteView: View {
 
     // MARK: - Quote Actions
 
-    private func currentQuoteRecord() -> QuoteRecord? {
-        guard let quoteID = viewModel.state.currentQuoteID else { return nil }
-        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
-        guard let quote = try? modelContext.fetch(descriptor).first else { return nil }
-        return QuoteRecord(from: quote)
-    }
-
     private func handleQuoteAction(_ action: QuoteAction) {
         switch action {
         case .share:
@@ -650,29 +643,10 @@ struct QuoteView: View {
         case .edit:
             showEditQuote = true
         case .hide:
-            hideCurrentQuote()
+            viewModel.hideCurrentQuote()
         case .delete:
             showDeleteConfirmation = true
         }
-    }
-
-    private func hideCurrentQuote() {
-        guard let quoteID = viewModel.state.currentQuoteID else { return }
-        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
-        guard let quote = try? modelContext.fetch(descriptor).first else { return }
-        quote.isHidden = true
-        try? modelContext.save()
-        viewModel.onNextQuoteTapped()
-    }
-
-    private func deleteCurrentQuote() {
-        guard let quoteID = viewModel.state.currentQuoteID else { return }
-        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
-        guard let quote = try? modelContext.fetch(descriptor).first else { return }
-        quote.isDeleted = true
-        quote.deletedAt = Date()
-        try? modelContext.save()
-        viewModel.onNextQuoteTapped()
     }
 
 }
