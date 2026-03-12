@@ -22,8 +22,7 @@ struct QuoteView: View {
     @State private var didInitialize = false
     @State private var isScriptMorphing = false
     @State private var scriptMorphTask: Task<Void, Never>?
-    @State private var isShareSheetPresented = false
-    @State private var shareItems: [Any] = []
+    @State private var showShareView = false
     @State private var showCreateQuote = false
     @State private var searchQuery = ""
     @State private var lastKnownScrollOffset: CGFloat = 0
@@ -32,7 +31,6 @@ struct QuoteView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.displayScale) private var displayScale
 
     // MARK: - Initialization
 
@@ -121,13 +119,16 @@ struct QuoteView: View {
                 searchQuery = ""
             }
         }
-        .sheet(isPresented: $isShareSheetPresented) {
-#if canImport(UIKit)
-            ActivityViewController(activityItems: shareItems)
-#else
-            Text("Sharing is unavailable on this platform.")
-                .padding()
-#endif
+        .sheet(isPresented: $showShareView) {
+            NavigationStack {
+                ShareQuoteView(
+                    runicText: viewModel.state.runicText,
+                    latinText: viewModel.state.latinText,
+                    author: viewModel.state.author,
+                    script: viewModel.state.currentScript,
+                    font: viewModel.state.currentFont
+                )
+            }
         }
         .sheet(isPresented: $showCreateQuote) {
             NavigationStack {
@@ -475,9 +476,9 @@ struct QuoteView: View {
             }
 
             Button {
-                shareCurrentQuoteAsImage()
+                showShareView = true
             } label: {
-                Label("Share Image", systemImage: "square.and.arrow.up")
+                Label("Share", systemImage: "square.and.arrow.up")
             }
 
             Button {
@@ -554,9 +555,9 @@ struct QuoteView: View {
                 }
 
                 Button {
-                    shareCurrentQuoteAsImage()
+                    showShareView = true
                 } label: {
-                    Label("Share Image", systemImage: "square.and.arrow.up")
+                    Label("Share", systemImage: "square.and.arrow.up")
                 }
 
                 Button {
@@ -614,76 +615,7 @@ struct QuoteView: View {
 #endif
     }
 
-    @MainActor
-    private func shareCurrentQuoteAsImage() {
-#if canImport(UIKit)
-        Haptics.trigger(.saveOrShare)
-
-        let renderer = ImageRenderer(content: shareSnapshotView)
-        renderer.scale = displayScale
-
-        if let image = renderer.uiImage {
-            shareItems = [image]
-        } else {
-            shareItems = ["\(viewModel.state.latinText)\n— \(viewModel.state.author)"]
-        }
-
-        isShareSheetPresented = true
-#endif
-    }
-
-    private var shareSnapshotView: some View {
-        VStack(spacing: DesignTokens.Spacing.md) {
-            Text(viewModel.state.runicText)
-                .runicTextStyle(
-                    script: viewModel.state.currentScript,
-                    font: viewModel.state.currentFont,
-                    style: .title,
-                    minSize: 24,
-                    maxSize: 48
-                )
-                .foregroundStyle(palette.runeText)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, DesignTokens.Spacing.xl)
-
-            Divider()
-                .overlay(palette.separator)
-
-            Text(viewModel.state.latinText)
-                .font(.title3)
-                .foregroundStyle(palette.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, DesignTokens.Spacing.xl)
-
-            Text("— \(viewModel.state.author)")
-                .font(.headline)
-                .foregroundStyle(palette.textTertiary)
-                .italic()
-                .padding(.bottom, DesignTokens.Spacing.xs)
-        }
-        .padding(.vertical, DesignTokens.Spacing.xxl)
-        .frame(width: AppConstants.shareSnapshotWidth)
-        .background(
-            LinearGradient(
-                colors: palette.appBackgroundGradient,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-    }
 }
-
-#if canImport(UIKit)
-private struct ActivityViewController: UIViewControllerRepresentable {
-    let activityItems: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-#endif
 
 private struct QuoteScrollOffsetKey: PreferenceKey {
     static let defaultValue: CGFloat = 0
