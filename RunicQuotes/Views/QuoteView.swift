@@ -24,6 +24,9 @@ struct QuoteView: View {
     @State private var scriptMorphTask: Task<Void, Never>?
     @State private var showShareView = false
     @State private var showCreateQuote = false
+    @State private var showActionsSheet = false
+    @State private var showDeleteConfirmation = false
+    @State private var showEditQuote = false
     @State private var searchQuery = ""
     @State private var lastKnownScrollOffset: CGFloat = 0
     @State private var quoteCardAppearScale: CGFloat = 1.0
@@ -136,6 +139,28 @@ struct QuoteView: View {
                     viewModel.onAppear()
                 }
             }
+        }
+        .sheet(isPresented: $showActionsSheet) {
+            QuoteActionsSheet(isSaved: viewModel.state.isCurrentQuoteSaved) { action in
+                handleQuoteAction(action)
+            }
+        }
+        .sheet(isPresented: $showEditQuote) {
+            if let record = currentQuoteRecord() {
+                NavigationStack {
+                    CreateEditQuoteView(mode: .edit(record)) { _ in
+                        viewModel.onAppear()
+                    }
+                }
+            }
+        }
+        .alert("Delete Quote?", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                deleteCurrentQuote()
+            }
+        } message: {
+            Text("This will move the quote to your archive. You can restore it later from Settings > Archive.")
         }
     }
 
@@ -468,34 +493,9 @@ struct QuoteView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("quote_card")
-        .contextMenu {
-            Button {
-                copyCurrentQuote()
-            } label: {
-                Label("Copy Quote", systemImage: "doc.on.doc")
-            }
-
-            Button {
-                showShareView = true
-            } label: {
-                Label("Share", systemImage: "square.and.arrow.up")
-            }
-
-            Button {
-                Haptics.trigger(.saveOrShare)
-                viewModel.onToggleSaveTapped()
-            } label: {
-                Label(
-                    viewModel.state.isCurrentQuoteSaved ? "Unsave Quote" : "Save Quote",
-                    systemImage: viewModel.state.isCurrentQuoteSaved ? "bookmark.slash" : "bookmark"
-                )
-            }
-
-            Button {
-                NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
-            } label: {
-                Label("Open Settings", systemImage: "gearshape")
-            }
+        .onLongPressGesture {
+            Haptics.trigger(.saveOrShare)
+            showActionsSheet = true
         }
     }
 
@@ -547,29 +547,15 @@ struct QuoteView: View {
             .accessibilityLabel(viewModel.state.isCurrentQuoteSaved ? "Unsave quote" : "Save quote")
             .accessibilityIdentifier("quote_save_button")
 
-            Menu {
-                Button {
-                    copyCurrentQuote()
-                } label: {
-                    Label("Copy Quote", systemImage: "doc.on.doc")
-                }
-
-                Button {
-                    showShareView = true
-                } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                }
-
-                Button {
-                    NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
-                } label: {
-                    Label("Open Settings", systemImage: "gearshape")
-                }
+            Button {
+                Haptics.trigger(.saveOrShare)
+                showActionsSheet = true
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .symbolRenderingMode(.monochrome)
             }
             .accessibilityLabel("More actions")
+            .accessibilityIdentifier("quote_actions_button")
         }
     }
 
@@ -613,6 +599,56 @@ struct QuoteView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(payload, forType: .string)
 #endif
+    }
+
+    // MARK: - Quote Actions
+
+    private func currentQuoteRecord() -> QuoteRecord? {
+        guard let quoteID = viewModel.state.currentQuoteID else { return nil }
+        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        guard let quote = try? modelContext.fetch(descriptor).first else { return nil }
+        return QuoteRecord(from: quote)
+    }
+
+    private func handleQuoteAction(_ action: QuoteAction) {
+        switch action {
+        case .share:
+            showShareView = true
+        case .addToFavorites, .removeFromFavorites:
+            Haptics.trigger(.saveOrShare)
+            viewModel.onToggleSaveTapped()
+        case .addToCollection:
+            // Currently quotes belong to one collection set at creation.
+            // Open edit flow so the user can change the collection.
+            showEditQuote = true
+        case .copyText:
+            copyCurrentQuote()
+        case .edit:
+            showEditQuote = true
+        case .hide:
+            hideCurrentQuote()
+        case .delete:
+            showDeleteConfirmation = true
+        }
+    }
+
+    private func hideCurrentQuote() {
+        guard let quoteID = viewModel.state.currentQuoteID else { return }
+        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        guard let quote = try? modelContext.fetch(descriptor).first else { return }
+        quote.isHidden = true
+        try? modelContext.save()
+        viewModel.onNextQuoteTapped()
+    }
+
+    private func deleteCurrentQuote() {
+        guard let quoteID = viewModel.state.currentQuoteID else { return }
+        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        guard let quote = try? modelContext.fetch(descriptor).first else { return }
+        quote.isDeleted = true
+        quote.deletedAt = Date()
+        try? modelContext.save()
+        viewModel.onNextQuoteTapped()
     }
 
 }
