@@ -344,7 +344,7 @@ struct ShareCardContent: View {
 
             // Quote text
             Text("\u{201C}\(latinText)\u{201D}")
-                .font(.custom("SourceSerif4-Regular", size: 15, relativeTo: .body))
+                .font(.custom(RunicFontConfiguration.serifFontName, size: 15, relativeTo: .body))
                 .foregroundStyle(cardPalette.textPrimary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)

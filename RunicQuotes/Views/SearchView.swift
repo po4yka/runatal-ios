@@ -128,52 +128,27 @@ struct SearchView: View {
 
     @ViewBuilder
     private func quoteResultCard(_ quote: Quote) -> some View {
-        GlassCard(
-            intensity: .light,
-            cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 4
-        ) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                // Top row: runic text + collection tag
-                HStack(alignment: .top) {
-                    Text(quote.runicElder ?? "")
-                        .font(.caption2)
-                        .foregroundStyle(palette.runeText.opacity(0.6))
-                        .lineLimit(1)
+        QuoteCardView(
+            runicSnippet: quote.runicElder ?? "",
+            quoteText: quote.textLatin,
+            author: quote.author,
+            badge: {
+                Text(quote.collection.displayName)
+                    .font(.caption2)
+                    .foregroundStyle(palette.accent)
+            },
+            actions: {
+                HStack(spacing: DesignTokens.Spacing.sm) {
+                    Image(systemName: "bookmark")
+                        .font(.caption)
+                        .foregroundStyle(palette.textTertiary)
 
-                    Spacer()
-
-                    Text(quote.collection.displayName)
-                        .font(.caption2)
-                        .foregroundStyle(palette.accent)
-                }
-
-                // Quote text
-                Text("\u{201C}\(quote.textLatin)\u{201D}")
-                    .font(.body)
-                    .foregroundStyle(palette.textPrimary)
-                    .lineLimit(3)
-
-                // Bottom row: author + actions
-                HStack {
-                    Text(quote.author)
-                        .font(.subheadline)
-                        .foregroundStyle(palette.accent)
-
-                    Spacer()
-
-                    HStack(spacing: DesignTokens.Spacing.sm) {
-                        Image(systemName: "bookmark")
-                            .font(.caption)
-                            .foregroundStyle(palette.textTertiary)
-
-                        Image(systemName: "doc.on.doc")
-                            .font(.caption)
-                            .foregroundStyle(palette.textTertiary)
-                    }
+                    Image(systemName: "doc.on.doc")
+                        .font(.caption)
+                        .foregroundStyle(palette.textTertiary)
                 }
             }
-        }
+        )
     }
 
     // MARK: - Chip Button

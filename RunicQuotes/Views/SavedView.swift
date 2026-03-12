@@ -101,64 +101,39 @@ struct SavedView: View {
 
     @ViewBuilder
     private func savedQuoteCard(_ quote: Quote) -> some View {
-        GlassCard(
-            intensity: .light,
-            cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 4
-        ) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                // Top row: runic text + collection tag
-                HStack(alignment: .top) {
-                    Text(quote.runicElder ?? "")
-                        .font(.caption2)
-                        .foregroundStyle(palette.runeText.opacity(0.6))
-                        .lineLimit(1)
-
-                    Spacer()
-
-                    Text(quote.collection.displayName)
-                        .font(.caption2)
-                        .foregroundStyle(palette.accent)
-                }
-
-                // Quote text
-                Text("\u{201C}\(quote.textLatin)\u{201D}")
-                    .font(.body)
-                    .foregroundStyle(palette.textPrimary)
-                    .lineLimit(3)
-
-                // Bottom row: author + actions
-                HStack {
-                    Text(quote.author)
-                        .font(.subheadline)
-                        .foregroundStyle(palette.accent)
-
-                    Spacer()
-
-                    HStack(spacing: DesignTokens.Spacing.sm) {
-                        Button {
-                            toggleSaved(quote)
-                        } label: {
-                            Image(systemName: "bookmark.fill")
-                                .font(.caption)
-                                .foregroundStyle(palette.accent)
-                        }
-                        .buttonStyle(.plain)
-
-                        Button {
-                            #if canImport(UIKit)
-                            UIPasteboard.general.string = quote.textLatin
-                            #endif
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                                .font(.caption)
-                                .foregroundStyle(palette.textTertiary)
-                        }
-                        .buttonStyle(.plain)
+        QuoteCardView(
+            runicSnippet: quote.runicElder ?? "",
+            quoteText: quote.textLatin,
+            author: quote.author,
+            badge: {
+                Text(quote.collection.displayName)
+                    .font(.caption2)
+                    .foregroundStyle(palette.accent)
+            },
+            actions: {
+                HStack(spacing: DesignTokens.Spacing.sm) {
+                    Button {
+                        toggleSaved(quote)
+                    } label: {
+                        Image(systemName: "bookmark.fill")
+                            .font(.caption)
+                            .foregroundStyle(palette.accent)
                     }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        #if canImport(UIKit)
+                        UIPasteboard.general.string = quote.textLatin
+                        #endif
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(.caption)
+                            .foregroundStyle(palette.textTertiary)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-        }
+        )
     }
 
     // MARK: - Actions

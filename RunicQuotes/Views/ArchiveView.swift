@@ -202,42 +202,17 @@ struct ArchiveView: View {
 
     @ViewBuilder
     private func archiveQuoteCard(_ quote: Quote) -> some View {
-        GlassCard(
-            intensity: .light,
-            cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 4
-        ) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                // Top row: runic snippet + status tag
-                HStack(alignment: .top) {
-                    Text(quote.runicElder ?? "")
-                        .font(.caption2)
-                        .foregroundStyle(palette.runeText.opacity(0.6))
-                        .lineLimit(1)
-
-                    Spacer()
-
-                    statusTag(for: quote)
-                }
-
-                // Quote text
-                Text("\u{201C}\(quote.textLatin)\u{201D}")
-                    .font(.body)
-                    .foregroundStyle(palette.textPrimary)
-                    .lineLimit(3)
-
-                // Author
-                Text(quote.author)
-                    .font(.subheadline)
-                    .foregroundStyle(palette.accent)
-
-                // Actions
-                HStack(spacing: DesignTokens.Spacing.md) {
-                    Spacer()
-                    actionButtons(for: quote)
-                }
+        QuoteCardView(
+            runicSnippet: quote.runicElder ?? "",
+            quoteText: quote.textLatin,
+            author: quote.author,
+            badge: {
+                statusTag(for: quote)
+            },
+            actions: {
+                actionButtons(for: quote)
             }
-        }
+        )
     }
 
     // MARK: - Status Tag

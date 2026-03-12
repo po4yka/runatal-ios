@@ -121,7 +121,7 @@ extension AppThemePalette {
         background: Color(hex: 0xF2F4F8),
         groupedBG: Color(hex: 0xEAECF1),
         surface: .white,
-        surfaceElevated: .white,
+        surfaceElevated: Color(hex: 0xFAFBFD),
         accentSecondary: Color(hex: 0x4A6A82),
         textPrimary: Color(hex: 0x0A0F17),
         textSecondary: Color(hex: 0x48566A),

@@ -140,7 +140,12 @@ struct GlassButton: View {
 
             RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(DesignTokens.GlassColor.background(for: colorScheme))
-                .opacity(isPressed ? 1.3 : 1.0)
+
+            // Brightened overlay on press
+            if isPressed {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color.white.opacity(0.08))
+            }
 
             RoundedRectangle(cornerRadius: cornerRadius)
                 .strokeBorder(
@@ -152,9 +157,16 @@ struct GlassButton: View {
 
     @ViewBuilder
     private var legacyGlassBackground: some View {
-        RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(blur)
-            .opacity(isPressed ? opacity.value * 1.3 : opacity.value)
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(blur)
+                .opacity(opacity.value)
+
+            if isPressed {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color.white.opacity(0.08))
+            }
+        }
     }
 }
 

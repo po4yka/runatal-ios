@@ -11,12 +11,12 @@ import SwiftUI
 
 /// Centralized design tokens for spacing, corner radius, and glass materials.
 /// Based on the Scandinavian cold-slate design system with 4px base grid.
-enum DesignTokens {
+enum DesignTokens: Sendable {
 
     // MARK: - Spacing
 
     /// 4px base grid spacing scale.
-    enum Spacing {
+    enum Spacing: Sendable {
         /// 4pt
         static let xxs: CGFloat = 4
         /// 8pt
@@ -42,7 +42,7 @@ enum DesignTokens {
     // MARK: - Corner Radius
 
     /// iOS 26 shape language corner radius tokens.
-    enum CornerRadius {
+    enum CornerRadius: Sendable {
         /// 6pt
         static let xs: CGFloat = 6
         /// 10pt
@@ -64,7 +64,7 @@ enum DesignTokens {
     // MARK: - Glass Material
 
     /// Liquid glass intensity levels for glassmorphism components.
-    enum GlassIntensity {
+    enum GlassIntensity: Sendable {
         case strong
         case medium
         case light
@@ -100,7 +100,7 @@ enum DesignTokens {
     // MARK: - Glass Colors
 
     /// Adaptive glass background, border, and highlight colors for dark/light modes.
-    enum GlassColor {
+    enum GlassColor: Sendable {
         /// Glass background overlay color.
         static func background(for colorScheme: ColorScheme) -> Color {
             switch colorScheme {

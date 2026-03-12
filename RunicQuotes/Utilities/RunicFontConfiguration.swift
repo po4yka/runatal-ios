@@ -50,4 +50,7 @@ enum RunicFontConfiguration {
     static func supports(font: RunicFont, script: RunicScript) -> Bool {
         font.isCompatible(with: script)
     }
+
+    /// Serif font name for quote body text in share cards and display contexts.
+    static let serifFontName = "SourceSerif4-Regular"
 }
