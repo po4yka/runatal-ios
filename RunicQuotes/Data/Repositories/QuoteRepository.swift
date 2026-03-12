@@ -14,6 +14,7 @@ struct QuoteRecord: Sendable {
     let id: UUID
     let textLatin: String
     let author: String
+    let source: String?
     let collection: QuoteCollection
     let runicElder: String?
     let runicYounger: String?
@@ -24,6 +25,7 @@ struct QuoteRecord: Sendable {
         id = quote.id
         textLatin = quote.textLatin
         author = quote.author
+        source = quote.source
         collection = quote.collection
         runicElder = quote.runicElder
         runicYounger = quote.runicYounger
@@ -56,6 +58,23 @@ protocol QuoteRepository: Sendable {
 
     /// Get all quotes
     func allQuotes() throws -> [QuoteRecord]
+
+    /// Create a new user-generated quote and return its record.
+    func createQuote(
+        textLatin: String,
+        author: String,
+        source: String?,
+        collection: QuoteCollection
+    ) throws -> QuoteRecord
+
+    /// Update an existing quote by ID.
+    func updateQuote(
+        id: UUID,
+        textLatin: String,
+        author: String,
+        source: String?,
+        collection: QuoteCollection
+    ) throws -> QuoteRecord
 }
 
 /// SwiftData implementation of the QuoteRepository
@@ -152,6 +171,59 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     func allQuotes() throws -> [QuoteRecord] {
         try fetchAllQuotes().map(QuoteRecord.init(from:))
+    }
+
+    // MARK: - Create / Update
+
+    func createQuote(
+        textLatin: String,
+        author: String,
+        source: String?,
+        collection: QuoteCollection
+    ) throws -> QuoteRecord {
+        let quote = Quote(
+            textLatin: textLatin,
+            author: author,
+            collection: collection,
+            isUserGenerated: true
+        )
+        quote.source = source
+        quote.runicElder = transliterator.transliterate(textLatin, to: .elder)
+        quote.runicYounger = transliterator.transliterate(textLatin, to: .younger)
+        quote.runicCirth = transliterator.transliterate(textLatin, to: .cirth)
+
+        modelContext.insert(quote)
+        try modelContext.save()
+        logger.info("Created user quote: \(quote.id)")
+        return QuoteRecord(from: quote)
+    }
+
+    func updateQuote(
+        id: UUID,
+        textLatin: String,
+        author: String,
+        source: String?,
+        collection: QuoteCollection
+    ) throws -> QuoteRecord {
+        var descriptor = FetchDescriptor<Quote>(
+            predicate: #Predicate { $0.id == id }
+        )
+        descriptor.fetchLimit = 1
+        guard let quote = try modelContext.fetch(descriptor).first else {
+            throw QuoteRepositoryError.quoteNotFound
+        }
+
+        quote.textLatin = textLatin
+        quote.author = author
+        quote.source = source
+        quote.collection = collection
+        quote.runicElder = transliterator.transliterate(textLatin, to: .elder)
+        quote.runicYounger = transliterator.transliterate(textLatin, to: .younger)
+        quote.runicCirth = transliterator.transliterate(textLatin, to: .cirth)
+
+        try modelContext.save()
+        logger.info("Updated quote: \(quote.id)")
+        return QuoteRecord(from: quote)
     }
 
     private func fetchAllQuotes() throws -> [Quote] {
@@ -312,6 +384,7 @@ enum QuoteRepositoryError: LocalizedError {
     case seedDataNotFound
     case noQuotesAvailable
     case invalidSeedData
+    case quoteNotFound
 
     var errorDescription: String? {
         switch self {
@@ -321,6 +394,8 @@ enum QuoteRepositoryError: LocalizedError {
             return "No quotes available in the database"
         case .invalidSeedData:
             return "Seed data is invalid or missing collection tags"
+        case .quoteNotFound:
+            return "Quote not found"
         }
     }
 }

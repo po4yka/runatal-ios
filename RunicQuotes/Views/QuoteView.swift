@@ -24,6 +24,7 @@ struct QuoteView: View {
     @State private var scriptMorphTask: Task<Void, Never>?
     @State private var isShareSheetPresented = false
     @State private var shareItems: [Any] = []
+    @State private var showCreateQuote = false
     @State private var searchQuery = ""
     @State private var lastKnownScrollOffset: CGFloat = 0
     @State private var quoteCardAppearScale: CGFloat = 1.0
@@ -127,6 +128,13 @@ struct QuoteView: View {
             Text("Sharing is unavailable on this platform.")
                 .padding()
 #endif
+        }
+        .sheet(isPresented: $showCreateQuote) {
+            NavigationStack {
+                CreateEditQuoteView(mode: .create) { _ in
+                    viewModel.onAppear()
+                }
+            }
         }
     }
 
@@ -507,6 +515,15 @@ struct QuoteView: View {
         }
 
         ToolbarItemGroup(placement: .primaryAction) {
+            Button {
+                showCreateQuote = true
+            } label: {
+                Image(systemName: "plus")
+                    .symbolRenderingMode(.monochrome)
+            }
+            .accessibilityLabel("Create quote")
+            .accessibilityIdentifier("quote_create_button")
+
             Button {
                 Haptics.trigger(.newQuote)
                 viewModel.onNextQuoteTapped()

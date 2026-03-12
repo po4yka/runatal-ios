@@ -20,6 +20,9 @@ final class Quote {
     /// Author of the quote
     var author: String
 
+    /// Optional source (book, speech, etc.)
+    var source: String?
+
     /// Explicit collection membership loaded from seed data.
     var collectionRaw: String?
 
