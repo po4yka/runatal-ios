@@ -45,6 +45,7 @@ struct SettingsView: View {
                     typographySection(palette: palette)
                     widgetSection(palette: palette)
                     accessibilitySection(palette: palette)
+                    runeReferenceLink(palette: palette)
                     archiveLink(palette: palette)
                     aboutSection(palette: palette)
 
@@ -564,6 +565,33 @@ struct SettingsView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings_accessibility_section")
+    }
+
+    // MARK: - Rune Reference Link
+
+    private func runeReferenceLink(palette: AppThemePalette) -> some View {
+        NavigationLink {
+            RuneReferenceView()
+        } label: {
+            GlassCard(intensity: .medium) {
+                HStack {
+                    Image(systemName: "character.book.closed")
+                        .font(.body)
+                        .foregroundStyle(palette.accent)
+
+                    Text("Rune Reference")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(palette.textPrimary)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(palette.textTertiary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Archive Link

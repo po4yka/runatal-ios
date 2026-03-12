@@ -51,6 +51,11 @@ struct RuneReferenceView: View {
         .background(palette.background)
         .navigationTitle("Rune Reference")
         .searchable(text: $searchText, prompt: "Search runes...")
+        .navigationDestination(for: String.self) { runeID in
+            if let rune = RuneInfo.runes(for: selectedScript).first(where: { $0.id == runeID }) {
+                RuneDetailView(rune: rune)
+            }
+        }
     }
 
     // MARK: - Script Picker
