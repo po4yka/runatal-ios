@@ -21,16 +21,21 @@ struct CollectionsView: View {
 
     var body: some View {
         ScrollView {
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), spacing: DesignTokens.Spacing.sm),
-                    GridItem(.flexible(), spacing: DesignTokens.Spacing.sm)
-                ],
-                spacing: DesignTokens.Spacing.sm
-            ) {
-                ForEach(QuoteCollection.allCases) { collection in
-                    collectionCard(for: collection)
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), spacing: DesignTokens.Spacing.sm),
+                        GridItem(.flexible(), spacing: DesignTokens.Spacing.sm)
+                    ],
+                    spacing: DesignTokens.Spacing.sm
+                ) {
+                    ForEach(QuoteCollection.allCases) { collection in
+                        collectionCard(for: collection)
+                    }
                 }
+
+                // Quote Packs link
+                quotePacksLink
             }
             .padding(.horizontal, DesignTokens.Spacing.sm)
             .padding(.top, DesignTokens.Spacing.sm)
@@ -39,6 +44,11 @@ struct CollectionsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(palette.background)
         .navigationTitle("Collections")
+        .navigationDestination(for: String.self) { destination in
+            if destination == "quotePacks" {
+                QuotePacksView()
+            }
+        }
     }
 
     // MARK: - Collection Card
@@ -89,6 +99,43 @@ struct CollectionsView: View {
         .buttonStyle(.plain)
         .accessibilityIdentifier("collection_\(collection.rawValue)")
         .accessibilityLabel("\(collection.displayName) collection, \(count) quotes")
+    }
+
+    // MARK: - Quote Packs Link
+
+    @ViewBuilder
+    private var quotePacksLink: some View {
+        NavigationLink(value: "quotePacks") {
+            GlassCard(
+                intensity: .light,
+                cornerRadius: DesignTokens.CornerRadius.lg,
+                shadowRadius: 4
+            ) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
+                    Text("\u{16B1}")
+                        .font(.title2)
+                        .foregroundStyle(palette.runeText)
+
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        Text("Quote Packs")
+                            .font(.headline)
+                            .foregroundStyle(palette.textPrimary)
+
+                        Text("Expand your wisdom library")
+                            .font(.subheadline)
+                            .foregroundStyle(palette.textSecondary)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(palette.textTertiary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("quote_packs_link")
     }
 
     // MARK: - Helpers
