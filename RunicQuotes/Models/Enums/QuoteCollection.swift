@@ -2,71 +2,75 @@
 //  QuoteCollection.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-02-13.
+//  Created by Claude on 13.02.26.
 //
 
 import Foundation
 
 /// Curated quote collections for faster browsing.
-enum QuoteCollection: String, Codable, CaseIterable, Identifiable, Sendable {
+enum QuoteCollection: String, Codable, CaseIterable, Identifiable {
     case all = "All"
     case motivation = "Motivation"
     case stoic = "Stoic"
     case tolkien = "Tolkien"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
-    var displayName: String { rawValue }
+    var displayName: String {
+        rawValue
+    }
 
     var subtitle: String {
         switch self {
         case .all:
-            return "Every tradition, one stream"
+            "Every tradition, one stream"
         case .motivation:
-            return "Action, courage, momentum"
+            "Action, courage, momentum"
         case .stoic:
-            return "Discipline, fate, inner order"
+            "Discipline, fate, inner order"
         case .tolkien:
-            return "Middle-earth voices and lore"
+            "Middle-earth voices and lore"
         }
     }
 
     var systemImage: String {
         switch self {
         case .all:
-            return "books.vertical"
+            "books.vertical"
         case .motivation:
-            return "bolt.fill"
+            "bolt.fill"
         case .stoic:
-            return "building.columns.fill"
+            "building.columns.fill"
         case .tolkien:
-            return "leaf.fill"
+            "leaf.fill"
         }
     }
 
     var heroRunicText: String {
         switch self {
         case .all:
-            return "ᚱᚢᚾᚨ"
+            "ᚱᚢᚾᚨ"
         case .motivation:
-            return "ᛗᛟᛏ"
+            "ᛗᛟᛏ"
         case .stoic:
-            return "ᛋᛏᛟ"
+            "ᛋᛏᛟ"
         case .tolkien:
-            return "ᛏᛟᛚ"
+            "ᛏᛟᛚ"
         }
     }
 
     var heroLatinText: String {
         switch self {
         case .all:
-            return "Browse the full archive"
+            "Browse the full archive"
         case .motivation:
-            return "Pick up momentum"
+            "Pick up momentum"
         case .stoic:
-            return "Steady your mind"
+            "Steady your mind"
         case .tolkien:
-            return "Walk the hidden road"
+            "Walk the hidden road"
         }
     }
 

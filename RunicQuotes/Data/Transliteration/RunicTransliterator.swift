@@ -2,13 +2,13 @@
 //  RunicTransliterator.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
 
 /// Provides transliteration from Latin text to various runic scripts
-struct RunicTransliterator {
+enum RunicTransliterator {
 
     // MARK: - Public API
 
@@ -20,11 +20,11 @@ struct RunicTransliterator {
     static func transliterate(_ text: String, to script: RunicScript) -> String {
         switch script {
         case .elder:
-            return latinToElderFuthark(text)
+            self.latinToElderFuthark(text)
         case .younger:
-            return latinToYoungerFuthark(text)
+            self.latinToYoungerFuthark(text)
         case .cirth:
-            return latinToCirth(text)
+            self.latinToCirth(text)
         }
     }
 
@@ -39,7 +39,7 @@ struct RunicTransliterator {
         while i < normalized.endIndex {
             // Check for digraphs first (two-character combinations)
             if i < normalized.index(before: normalized.endIndex) {
-                let digraph = String(normalized[i...normalized.index(after: i)])
+                let digraph = String(normalized[i ... normalized.index(after: i)])
 
                 if let runeChar = elderFutharkDigraphs[digraph] {
                     result.append(runeChar)
@@ -77,7 +77,7 @@ struct RunicTransliterator {
         while i < normalized.endIndex {
             // Check for digraphs
             if i < normalized.index(before: normalized.endIndex) {
-                let digraph = String(normalized[i...normalized.index(after: i)])
+                let digraph = String(normalized[i ... normalized.index(after: i)])
 
                 if let runeChar = youngerFutharkDigraphs[digraph] {
                     result.append(runeChar)
@@ -115,7 +115,7 @@ struct RunicTransliterator {
         while i < normalized.endIndex {
             // Check for digraphs (Cirth uses many digraphs like th, sh, ng, etc.)
             if i < normalized.index(before: normalized.endIndex) {
-                let digraph = String(normalized[i...normalized.index(after: i)])
+                let digraph = String(normalized[i ... normalized.index(after: i)])
 
                 if let runeChar = cirthDigraphs[digraph] {
                     result.append(runeChar)

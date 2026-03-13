@@ -2,7 +2,7 @@
 //  DesignTokens.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
@@ -10,12 +10,12 @@ import SwiftUI
 // MARK: - Design Tokens
 
 /// Centralized design tokens for spacing, typography, motion, and liquid surfaces.
-enum DesignTokens: Sendable {
+enum DesignTokens {
 
     // MARK: - Spacing
 
     /// 4px base grid spacing scale.
-    enum Spacing: Sendable {
+    enum Spacing {
         /// 4pt
         static let xxs: CGFloat = 4
         /// 8pt
@@ -41,7 +41,7 @@ enum DesignTokens: Sendable {
     // MARK: - Corner Radius
 
     /// iOS 26 shape language corner radius tokens.
-    enum CornerRadius: Sendable {
+    enum CornerRadius {
         /// 6pt
         static let xs: CGFloat = 6
         /// 10pt
@@ -62,7 +62,7 @@ enum DesignTokens: Sendable {
 
     // MARK: - Typography
 
-    enum Typography: Sendable {
+    enum Typography {
         static let eyebrow = Font.system(.caption, design: .rounded).weight(.semibold)
         static let display = Font.system(size: 42, weight: .semibold, design: .serif)
         static let hero = Font.system(size: 38, weight: .semibold, design: .serif)
@@ -85,7 +85,7 @@ enum DesignTokens: Sendable {
 
     // MARK: - Motion
 
-    enum Motion: Sendable {
+    enum Motion {
         static let quoteTransition = Animation.spring(response: 0.42, dampingFraction: 0.84)
         static let emphasis = Animation.easeInOut(duration: 0.24)
         static let themeTransition = Animation.easeInOut(duration: 0.35)
@@ -94,14 +94,14 @@ enum DesignTokens: Sendable {
 
     // MARK: - Stroke
 
-    enum Stroke: Sendable {
+    enum Stroke {
         static let hairline: CGFloat = 1
         static let emphasis: CGFloat = 1.25
     }
 
     // MARK: - Elevation
 
-    enum Elevation: Sendable {
+    enum Elevation {
         static let low: CGFloat = 6
         static let medium: CGFloat = 12
         static let hero: CGFloat = 22
@@ -111,7 +111,7 @@ enum DesignTokens: Sendable {
     // MARK: - Liquid Glass
 
     /// Legacy intensity levels kept for compatibility with older wrappers.
-    enum GlassIntensity: Sendable {
+    enum GlassIntensity {
         case strong
         case medium
         case light
@@ -119,27 +119,27 @@ enum DesignTokens: Sendable {
         /// Blur radius in points.
         var blurRadius: CGFloat {
             switch self {
-            case .strong: return 60
-            case .medium: return 40
-            case .light: return 24
+            case .strong: 60
+            case .medium: 40
+            case .light: 24
             }
         }
 
         /// Color saturation multiplier.
         var saturation: Double {
             switch self {
-            case .strong: return 2.0
-            case .medium: return 1.8
-            case .light: return 1.5
+            case .strong: 2.0
+            case .medium: 1.8
+            case .light: 1.5
             }
         }
 
         /// Corresponding SwiftUI Material.
         var material: Material {
             switch self {
-            case .strong: return .regularMaterial
-            case .medium: return .thinMaterial
-            case .light: return .ultraThinMaterial
+            case .strong: .regularMaterial
+            case .medium: .thinMaterial
+            case .light: .ultraThinMaterial
             }
         }
     }
@@ -147,16 +147,16 @@ enum DesignTokens: Sendable {
     // MARK: - Glass Colors
 
     /// Adaptive glass background, border, and highlight colors for dark/light modes.
-    enum GlassColor: Sendable {
+    enum GlassColor {
         /// Glass background overlay color.
         static func background(for colorScheme: ColorScheme) -> Color {
             switch colorScheme {
             case .dark:
-                return Color(red: 18/255, green: 24/255, blue: 38/255).opacity(0.52)
+                return Color(red: 18 / 255, green: 24 / 255, blue: 38 / 255).opacity(0.52)
             case .light:
-                return Color(red: 252/255, green: 253/255, blue: 255/255).opacity(0.58)
+                return Color(red: 252 / 255, green: 253 / 255, blue: 255 / 255).opacity(0.58)
             @unknown default:
-                return Color(red: 18/255, green: 24/255, blue: 38/255).opacity(0.52)
+                return Color(red: 18 / 255, green: 24 / 255, blue: 38 / 255).opacity(0.52)
             }
         }
 

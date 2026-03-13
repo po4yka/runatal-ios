@@ -2,7 +2,7 @@
 //  RuneDetailView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
@@ -14,13 +14,13 @@ struct RuneDetailView: View {
     @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     /// Position of this rune within its script catalog (1-based).
     private var position: String {
-        let allRunes = RuneInfo.runes(for: rune.script)
-        let index = allRunes.firstIndex(where: { $0.id == rune.id }).map { $0 + 1 } ?? 0
+        let allRunes = RuneInfo.runes(for: self.rune.script)
+        let index = allRunes.firstIndex(where: { $0.id == self.rune.id }).map { $0 + 1 } ?? 0
         return "\(index)/\(allRunes.count)"
     }
 
@@ -34,7 +34,7 @@ struct RuneDetailView: View {
 
     /// Aett grouping for Elder Futhark runes (groups of 8).
     private var aett: String? {
-        guard rune.script == .elder else { return nil }
+        guard self.rune.script == .elder else { return nil }
         let allRunes = RuneInfo.elderFuthark
         guard let index = allRunes.firstIndex(where: { $0.id == rune.id }) else { return nil }
         switch index / 8 {
@@ -49,99 +49,95 @@ struct RuneDetailView: View {
 
     var body: some View {
         LiquidContentScaffold(
-            palette: palette,
+            palette: self.palette,
             spacing: DesignTokens.Spacing.lg,
-            showBackgroundExtension: false
+            showBackgroundExtension: false,
         ) {
             HeroHeader(
-                eyebrow: rune.script.displayName,
-                title: rune.name,
-                subtitle: "\(rune.meaning) · /\(rune.sound)/",
-                meta: [position, unicodeLabel],
-                palette: palette
+                eyebrow: self.rune.script.displayName,
+                title: self.rune.name,
+                subtitle: "\(self.rune.meaning) · /\(self.rune.sound)/",
+                meta: [self.position, self.unicodeLabel],
+                palette: self.palette,
             )
 
-            heroSection
-            aboutSection
+            self.heroSection
+            self.aboutSection
         }
-        .navigationTitle(rune.name)
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
+        .navigationTitle(self.rune.name)
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 
     // MARK: - Hero Section
 
-    @ViewBuilder
     private var heroSection: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .hero,
             cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.medium
+            shadowRadius: DesignTokens.Elevation.medium,
         ) {
             VStack(spacing: DesignTokens.Spacing.md) {
                 ZStack {
                     Circle()
-                        .fill(palette.bannerBackground)
+                        .fill(self.palette.bannerBackground)
                         .frame(width: 96, height: 96)
 
-                    Text(rune.glyph)
+                    Text(self.rune.glyph)
                         .font(.system(size: 46))
-                        .foregroundStyle(palette.runeText)
+                        .foregroundStyle(self.palette.runeText)
                 }
 
-                infoRow
+                self.infoRow
             }
         }
     }
 
     // MARK: - Info Row
 
-    @ViewBuilder
     private var infoRow: some View {
         HStack(spacing: 0) {
             if let aett {
-                infoColumn(label: "Aett", value: aett)
+                self.infoColumn(label: "Aett", value: aett)
             }
 
-            infoColumn(label: "Unicode", value: unicodeLabel)
+            self.infoColumn(label: "Unicode", value: self.unicodeLabel)
 
-            infoColumn(label: "Position", value: position)
+            self.infoColumn(label: "Position", value: self.position)
         }
         .padding(.horizontal, DesignTokens.Spacing.lg)
         .padding(.vertical, DesignTokens.Spacing.xs)
     }
 
-    @ViewBuilder
     private func infoColumn(label: String, value: String) -> some View {
         VStack(spacing: DesignTokens.Spacing.xxs) {
             Text(label)
                 .font(DesignTokens.Typography.listMeta)
-                .foregroundStyle(palette.textTertiary)
+                .foregroundStyle(self.palette.textTertiary)
 
             Text(value)
                 .font(DesignTokens.Typography.controlLabel.weight(.bold))
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(self.palette.textPrimary)
         }
         .frame(maxWidth: .infinity)
     }
 
     // MARK: - About Section
 
-    @ViewBuilder
     private var aboutSection: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 0
+            shadowRadius: 0,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                SectionLabel(title: "About", palette: palette)
-                Text(runeDescription)
+                SectionLabel(title: "About", palette: self.palette)
+                Text(self.runeDescription)
                     .font(DesignTokens.Typography.supportingBody)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -149,7 +145,7 @@ struct RuneDetailView: View {
 
     /// Description text for each rune.
     private var runeDescription: String {
-        Self.descriptions[rune.id] ?? "\(rune.name) is a rune of the \(rune.script.displayName) alphabet representing \"\(rune.meaning)\" with the phonetic value /\(rune.sound)/."
+        Self.descriptions[self.rune.id] ?? "\(self.rune.name) is a rune of the \(self.rune.script.displayName) alphabet representing \"\(self.rune.meaning)\" with the phonetic value /\(self.rune.sound)/."
     }
 
     // MARK: - Rune Descriptions
@@ -179,7 +175,7 @@ struct RuneDetailView: View {
         "elder-laguz": "Laguz is the rune of water and the flow of life. It represents intuition, the subconscious, and the power of going with the current.",
         "elder-ingwaz": "Ingwaz is the rune of the god Ing and internal growth. It represents gestation, potential energy, and the seed of transformation held within.",
         "elder-dagaz": "Dagaz is the rune of day and breakthrough. It represents the dawn, radical transformation, and the moment of clarity when darkness gives way to light.",
-        "elder-othala": "Othala is the rune of heritage and ancestral property. It represents homeland, inheritance, and the spiritual legacy passed down through generations."
+        "elder-othala": "Othala is the rune of heritage and ancestral property. It represents homeland, inheritance, and the spiritual legacy passed down through generations.",
     ]
 }
 

@@ -2,7 +2,7 @@
 //  TranslationProvider.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -16,22 +16,22 @@ actor TranslationProvider {
     }
 
     func latestTranslation(for quoteID: UUID, script: RunicScript) throws -> TranslationResult? {
-        try repository.latestTranslation(for: quoteID, script: script)
+        try self.repository.latestTranslation(for: quoteID, script: script)
     }
 
     func cache(result: TranslationResult, for quoteID: UUID, sourceText: String) throws {
-        try repository.cache(result: result, for: quoteID, sourceText: sourceText)
+        try self.repository.cache(result: result, for: quoteID, sourceText: sourceText)
     }
 
     func cache(results: [TranslationResult], for quoteID: UUID, sourceText: String) throws {
-        try repository.cache(results: results, for: quoteID, sourceText: sourceText)
+        try self.repository.cache(results: results, for: quoteID, sourceText: sourceText)
     }
 
     func deleteTranslations(for quoteID: UUID) throws {
-        try repository.deleteTranslations(for: quoteID)
+        try self.repository.deleteTranslations(for: quoteID)
     }
 
     func backfillAllQuotes() throws {
-        try repository.backfillAllQuotes()
+        try self.repository.backfillAllQuotes()
     }
 }

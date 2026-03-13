@@ -2,7 +2,7 @@
 //  HomeBottomAccessoryView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -16,33 +16,33 @@ struct HomeBottomAccessoryView: View {
     let onNextQuote: () -> Void
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     private var isInline: Bool {
-        placement == .inline
+        self.placement == .inline
     }
 
     var body: some View {
         LiquidCard(
-            palette: palette,
+            palette: self.palette,
             role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xxl,
             shadowRadius: DesignTokens.Elevation.chrome,
-            contentPadding: isInline ? DesignTokens.Spacing.xs : DesignTokens.Spacing.sm,
-            interactive: true
+            contentPadding: self.isInline ? DesignTokens.Spacing.xs : DesignTokens.Spacing.sm,
+            interactive: true,
         ) {
             HStack(spacing: DesignTokens.Spacing.sm) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                    Text(controller.collectionName)
+                    Text(self.controller.collectionName)
                         .font(DesignTokens.Typography.toolbarLabel)
-                        .foregroundStyle(palette.textPrimary)
+                        .foregroundStyle(self.palette.textPrimary)
                         .lineLimit(1)
 
-                    if !isInline {
-                        Text("\(controller.scriptName) · \(controller.caption)")
+                    if !self.isInline {
+                        Text("\(self.controller.scriptName) · \(self.controller.caption)")
                             .font(DesignTokens.Typography.listMeta)
-                            .foregroundStyle(palette.textTertiary)
+                            .foregroundStyle(self.palette.textTertiary)
                             .lineLimit(1)
                     }
                 }
@@ -50,13 +50,13 @@ struct HomeBottomAccessoryView: View {
                 Spacer(minLength: DesignTokens.Spacing.xs)
 
                 Button {
-                    onNextQuote()
+                    self.onNextQuote()
                 } label: {
-                    Label(isInline ? "Next" : "Next Quote", systemImage: "sparkles")
+                    Label(self.isInline ? "Next" : "Next Quote", systemImage: "sparkles")
                 }
-                .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
+                .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
             }
         }
-        .padding(.horizontal, isInline ? DesignTokens.Spacing.sm : DesignTokens.Spacing.md)
+        .padding(.horizontal, self.isInline ? DesignTokens.Spacing.sm : DesignTokens.Spacing.md)
     }
 }

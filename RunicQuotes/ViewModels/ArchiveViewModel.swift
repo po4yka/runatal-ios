@@ -2,7 +2,7 @@
 //  ArchiveViewModel.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import Foundation
@@ -10,18 +10,20 @@ import Foundation
 // MARK: - Archive Filter
 
 /// Filter tabs for the archive view.
-enum ArchiveFilter: String, Codable, CaseIterable, Identifiable, Sendable {
+enum ArchiveFilter: String, Codable, CaseIterable, Identifiable {
     case all
     case hidden
     case deleted
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
-        case .all: return "All"
-        case .hidden: return "Hidden"
-        case .deleted: return "Deleted"
+        case .all: "All"
+        case .hidden: "Hidden"
+        case .deleted: "Deleted"
         }
     }
 }
@@ -33,7 +35,7 @@ enum ArchiveFilter: String, Codable, CaseIterable, Identifiable, Sendable {
 final class ArchiveViewModel: ObservableObject {
     // MARK: - State
 
-    struct State: Sendable {
+    struct State {
         var archivedQuotes: [QuoteRecord] = []
         var selectedFilter: ArchiveFilter = .all
         var isLoading: Bool = false
@@ -50,20 +52,20 @@ final class ArchiveViewModel: ObservableObject {
 
     /// Quotes matching the currently selected filter tab.
     var filteredQuotes: [QuoteRecord] {
-        switch state.selectedFilter {
+        switch self.state.selectedFilter {
         case .all:
-            return state.archivedQuotes
+            self.state.archivedQuotes
         case .hidden:
-            return state.archivedQuotes.filter { $0.isHidden && !$0.isDeleted }
+            self.state.archivedQuotes.filter { $0.isHidden && !$0.isDeleted }
         case .deleted:
-            return state.archivedQuotes.filter { $0.isDeleted }
+            self.state.archivedQuotes.filter { $0.isDeleted }
         }
     }
 
     /// Human-readable count label for the current filter.
     var countLabel: String {
-        let count = filteredQuotes.count
-        switch state.selectedFilter {
+        let count = self.filteredQuotes.count
+        switch self.state.selectedFilter {
         case .all:
             return "\(count) archived item\(count == 1 ? "" : "s")"
         case .hidden:
@@ -75,7 +77,7 @@ final class ArchiveViewModel: ObservableObject {
 
     /// Whether there are any archived quotes at all (regardless of filter).
     var hasArchivedQuotes: Bool {
-        !state.archivedQuotes.isEmpty
+        !self.state.archivedQuotes.isEmpty
     }
 
     // MARK: - Initialization
@@ -88,43 +90,43 @@ final class ArchiveViewModel: ObservableObject {
 
     /// Load archived quotes when the view appears.
     func onAppear() {
-        state.isLoading = true
-        state.errorMessage = nil
+        self.state.isLoading = true
+        self.state.errorMessage = nil
         Task {
-            await loadArchivedQuotes()
+            await self.loadArchivedQuotes()
         }
     }
 
     /// Switch the active filter tab.
     func updateFilter(_ filter: ArchiveFilter) {
-        state.selectedFilter = filter
+        self.state.selectedFilter = filter
     }
 
     /// Restore a soft-deleted quote back to the main library.
     func restoreQuote(_ id: UUID) {
         Task {
             do {
-                _ = try await quoteProvider.restoreQuote(id: id)
-                await loadArchivedQuotes()
+                _ = try await self.quoteProvider.restoreQuote(id: id)
+                await self.loadArchivedQuotes()
             } catch {
-                state.errorMessage = "Failed to restore quote: \(error.localizedDescription)"
+                self.state.errorMessage = "Failed to restore quote: \(error.localizedDescription)"
             }
         }
     }
 
     /// Unhide a hidden quote so it reappears in the main feed.
     func unhideQuote(_ id: UUID) {
-        restoreQuote(id)
+        self.restoreQuote(id)
     }
 
     /// Permanently erase a quote from SwiftData.
     func eraseQuote(_ id: UUID) {
         Task {
             do {
-                try await quoteProvider.eraseQuote(id: id)
-                await loadArchivedQuotes()
+                try await self.quoteProvider.eraseQuote(id: id)
+                await self.loadArchivedQuotes()
             } catch {
-                state.errorMessage = "Failed to erase quote: \(error.localizedDescription)"
+                self.state.errorMessage = "Failed to erase quote: \(error.localizedDescription)"
             }
         }
     }
@@ -133,11 +135,11 @@ final class ArchiveViewModel: ObservableObject {
 
     private func loadArchivedQuotes() async {
         do {
-            state.archivedQuotes = try await quoteProvider.archivedQuotes()
-            state.isLoading = false
+            self.state.archivedQuotes = try await self.quoteProvider.archivedQuotes()
+            self.state.isLoading = false
         } catch {
-            state.errorMessage = "Failed to load archived quotes: \(error.localizedDescription)"
-            state.isLoading = false
+            self.state.errorMessage = "Failed to load archived quotes: \(error.localizedDescription)"
+            self.state.isLoading = false
         }
     }
 }

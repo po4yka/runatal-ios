@@ -2,7 +2,7 @@
 //  LiquidActionCluster.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ struct LiquidActionCluster<Content: View>: View {
     init(
         palette: AppThemePalette,
         spacing: CGFloat = DesignTokens.Spacing.sm,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.palette = palette
         self.spacing = spacing
@@ -24,15 +24,15 @@ struct LiquidActionCluster<Content: View>: View {
 
     var body: some View {
         LiquidCard(
-            palette: palette,
+            palette: self.palette,
             role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xl,
             shadowRadius: DesignTokens.Elevation.chrome,
             contentPadding: DesignTokens.Spacing.xs,
-            interactive: true
+            interactive: true,
         ) {
-            HStack(spacing: spacing) {
-                content
+            HStack(spacing: self.spacing) {
+                self.content
             }
         }
     }

@@ -2,39 +2,38 @@
 //  LiquidEffectPolicy.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
 
-enum LiquidSurfaceRole: Sendable {
+enum LiquidSurfaceRole {
     case chrome
     case content
     case inset
     case floatingCallout
 }
 
-struct LiquidEffectPolicy: Sendable {
+struct LiquidEffectPolicy {
     let role: LiquidSurfaceRole
     let reduceTransparency: Bool
     let isNested: Bool
 
     var shouldUseGlass: Bool {
-        !reduceTransparency && !isNested && role != .content
+        !self.reduceTransparency && !self.isNested && self.role != .content
     }
 
     @available(iOS 26.0, *)
     func glass(using palette: AppThemePalette, interactive: Bool = false) -> Glass {
-        let base: Glass
-        switch role {
+        let base: Glass = switch self.role {
         case .chrome:
-            base = .regular
+            .regular
         case .content:
-            base = .identity
+            .identity
         case .inset:
-            base = .clear
+            .clear
         case .floatingCallout:
-            base = .regular
+            .regular
         }
 
         let tinted = base.tint(palette.chromeTint)
@@ -42,28 +41,28 @@ struct LiquidEffectPolicy: Sendable {
     }
 
     func fillColor(using palette: AppThemePalette) -> Color {
-        switch role {
+        switch self.role {
         case .chrome:
-            return palette.chromeFallback
+            palette.chromeFallback
         case .content:
-            return palette.contentPlate
+            palette.contentPlate
         case .inset:
-            return palette.insetPlate
+            palette.insetPlate
         case .floatingCallout:
-            return palette.contentPlateElevated
+            palette.contentPlateElevated
         }
     }
 
     func strokeColor(using palette: AppThemePalette) -> Color {
-        switch role {
+        switch self.role {
         case .chrome:
-            return palette.chromeStroke
+            palette.chromeStroke
         case .content:
-            return palette.contentStroke
+            palette.contentStroke
         case .inset:
-            return palette.contentStroke.opacity(0.75)
+            palette.contentStroke.opacity(0.75)
         case .floatingCallout:
-            return palette.strongCardStroke
+            palette.strongCardStroke
         }
     }
 }

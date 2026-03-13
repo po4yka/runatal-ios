@@ -2,7 +2,7 @@
 //  MetaRow.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -12,21 +12,21 @@ struct MetaRow: View {
     let palette: AppThemePalette
 
     private var visibleItems: [String] {
-        items.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        self.items.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
-            ForEach(Array(visibleItems.enumerated()), id: \.offset) { index, item in
+            ForEach(Array(self.visibleItems.enumerated()), id: \.offset) { index, item in
                 if index > 0 {
                     Circle()
-                        .fill(palette.textTertiary.opacity(0.55))
+                        .fill(self.palette.textTertiary.opacity(0.55))
                         .frame(width: 3, height: 3)
                 }
 
                 Text(item)
                     .font(DesignTokens.Typography.listMeta)
-                    .foregroundStyle(palette.textTertiary)
+                    .foregroundStyle(self.palette.textTertiary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

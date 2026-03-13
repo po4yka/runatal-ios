@@ -2,20 +2,13 @@
 //  RunicThemeEnvironment.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
 
-private struct RunicThemeKey: EnvironmentKey {
-    static let defaultValue: AppTheme = .obsidian
-}
-
 extension EnvironmentValues {
-    var runicTheme: AppTheme {
-        get { self[RunicThemeKey.self] }
-        set { self[RunicThemeKey.self] = newValue }
-    }
+    @Entry var runicTheme: AppTheme = .obsidian
 }
 
 extension AppTheme {

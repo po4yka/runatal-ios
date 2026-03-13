@@ -2,7 +2,7 @@
 //  QuoteScriptPickerView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -15,40 +15,40 @@ struct QuoteScriptPickerView: View {
 
     private var selection: Binding<RunicScript> {
         Binding(
-            get: { selectedScript },
+            get: { self.selectedScript },
             set: { newScript in
-                onSelect(newScript)
-            }
+                self.onSelect(newScript)
+            },
         )
     }
 
     var body: some View {
         LiquidCard(
-            palette: palette,
+            palette: self.palette,
             role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xl,
             shadowRadius: DesignTokens.Elevation.chrome,
-            contentPadding: DesignTokens.Spacing.md
+            contentPadding: DesignTokens.Spacing.md,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        SectionLabel(title: "Script", palette: palette)
-                        Text(selectedScript.displayName)
+                        SectionLabel(title: "Script", palette: self.palette)
+                        Text(self.selectedScript.displayName)
                             .font(DesignTokens.Typography.pageTitle)
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
                     }
 
                     Spacer()
 
                     Text("Widgets follow this alphabet")
                         .font(DesignTokens.Typography.metadata)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                 }
 
-                GlassScriptSelector(selectedScript: selection)
+                GlassScriptSelector(selectedScript: self.selection)
                     .accessibilityLabel("Runic script selector")
-                    .accessibilityValue(selectedScript.rawValue)
+                    .accessibilityValue(self.selectedScript.rawValue)
                     .accessibilityHint("Select which runic script to display")
                     .accessibilityIdentifier("quote_script_selector")
             }

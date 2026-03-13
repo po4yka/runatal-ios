@@ -2,7 +2,7 @@
 //  CirthMap.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
@@ -44,7 +44,7 @@ let cirthMap: [Character: Character] = [
     "w": "w",
     "x": "x",
     "y": "y",
-    "z": "z"
+    "z": "z",
 ]
 
 /// Digraph mappings for Cirth (two-character combinations).
@@ -59,10 +59,10 @@ let cirthMap: [Character: Character] = [
 /// Digraphs without a dedicated font glyph are omitted; the transliterator
 /// will fall through and render them as two separate rune characters.
 let cirthDigraphs: [String: Character] = [
-    "th": "\u{00FE}",  // þ — voiceless th (thin)
-    "dh": "\u{00F0}",  // ð — voiced th (this)
-    "ng": "\u{00F1}",  // ñ — ng nasal
-    "ch": "\u{00E7}"  // ç — ch
+    "th": "\u{00FE}", // þ — voiceless th (thin)
+    "dh": "\u{00F0}", // ð — voiced th (this)
+    "ng": "\u{00F1}", // ñ — ng nasal
+    "ch": "\u{00E7}", // ç — ch
 ]
 
 // MARK: - Additional Cirth Information
@@ -110,5 +110,5 @@ let cirthRuneNames: [Int: String] = [
     39: "y (consonant)",
     40: "y",
     41: "hw",
-    42: "y (vowel)"
+    42: "y (vowel)",
 ]

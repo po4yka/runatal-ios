@@ -2,7 +2,7 @@
 //  HomeAccessoryController.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -16,15 +16,15 @@ final class HomeAccessoryController: ObservableObject {
     func update(
         collection: QuoteCollection,
         script: RunicScript,
-        caption: String
+        caption: String,
     ) {
-        collectionName = collection.displayName
-        scriptName = script.displayName
+        self.collectionName = collection.displayName
+        self.scriptName = script.displayName
         self.caption = caption
-        isVisible = true
+        self.isVisible = true
     }
 
     func hide() {
-        isVisible = false
+        self.isVisible = false
     }
 }

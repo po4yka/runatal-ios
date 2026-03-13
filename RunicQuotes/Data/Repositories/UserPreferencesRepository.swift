@@ -2,13 +2,13 @@
 //  UserPreferencesRepository.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
 import SwiftData
 
-struct UserPreferencesSnapshot: Sendable {
+struct UserPreferencesSnapshot {
     var selectedScript: RunicScript = .elder
     var selectedFont: RunicFont = .noto
     var widgetMode: WidgetMode = .daily
@@ -20,43 +20,43 @@ struct UserPreferencesSnapshot: Sendable {
     var savedQuoteIDs: Set<UUID> = []
     var installedPackIDs: Set<String> = []
 
-    init() { }
+    init() {}
 
     init(from preferences: UserPreferences) {
-        selectedScript = preferences.selectedScript
-        selectedFont = preferences.selectedFont
-        widgetMode = preferences.widgetMode
-        selectedCollection = preferences.selectedCollection
-        widgetStyle = preferences.widgetStyle
-        widgetDecorativeGlyphsEnabled = preferences.widgetDecorativeGlyphsEnabled
-        selectedTheme = preferences.selectedTheme
-        lastUsedPreset = preferences.lastUsedPreset
-        savedQuoteIDs = preferences.savedQuoteIDs
-        installedPackIDs = preferences.installedPackIDs
+        self.selectedScript = preferences.selectedScript
+        self.selectedFont = preferences.selectedFont
+        self.widgetMode = preferences.widgetMode
+        self.selectedCollection = preferences.selectedCollection
+        self.widgetStyle = preferences.widgetStyle
+        self.widgetDecorativeGlyphsEnabled = preferences.widgetDecorativeGlyphsEnabled
+        self.selectedTheme = preferences.selectedTheme
+        self.lastUsedPreset = preferences.lastUsedPreset
+        self.savedQuoteIDs = preferences.savedQuoteIDs
+        self.installedPackIDs = preferences.installedPackIDs
     }
 
     func isQuoteSaved(_ id: UUID) -> Bool {
-        savedQuoteIDs.contains(id)
+        self.savedQuoteIDs.contains(id)
     }
 
     @discardableResult
     mutating func toggleSavedQuote(_ id: UUID) -> Bool {
-        if savedQuoteIDs.contains(id) {
-            savedQuoteIDs.remove(id)
+        if self.savedQuoteIDs.contains(id) {
+            self.savedQuoteIDs.remove(id)
             return false
         }
 
-        savedQuoteIDs.insert(id)
+        self.savedQuoteIDs.insert(id)
         return true
     }
 
     func isPackInstalled(_ id: String) -> Bool {
-        installedPackIDs.contains(id)
+        self.installedPackIDs.contains(id)
     }
 
     @discardableResult
     mutating func installPack(_ id: String) -> Bool {
-        installedPackIDs.insert(id).inserted
+        self.installedPackIDs.insert(id).inserted
     }
 }
 
@@ -73,11 +73,11 @@ final class SwiftDataUserPreferencesRepository: UserPreferencesRepository, @unch
     }
 
     func snapshot() throws -> UserPreferencesSnapshot {
-        try UserPreferencesSnapshot(from: UserPreferences.getOrCreate(in: modelContext))
+        try UserPreferencesSnapshot(from: UserPreferences.getOrCreate(in: self.modelContext))
     }
 
     func save(_ snapshot: UserPreferencesSnapshot) throws {
-        let preferences = try UserPreferences.getOrCreate(in: modelContext)
+        let preferences = try UserPreferences.getOrCreate(in: self.modelContext)
         preferences.selectedScript = snapshot.selectedScript
         preferences.selectedFont = snapshot.selectedFont
         preferences.widgetMode = snapshot.widgetMode
@@ -88,6 +88,6 @@ final class SwiftDataUserPreferencesRepository: UserPreferencesRepository, @unch
         preferences.lastUsedPreset = snapshot.lastUsedPreset
         preferences.savedQuoteIDs = snapshot.savedQuoteIDs
         preferences.installedPackIDs = snapshot.installedPackIDs
-        try modelContext.save()
+        try self.modelContext.save()
     }
 }

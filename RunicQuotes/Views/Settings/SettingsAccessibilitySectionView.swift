@@ -2,12 +2,12 @@
 //  SettingsAccessibilitySectionView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 struct SettingsAccessibilitySectionView: View {
@@ -17,44 +17,44 @@ struct SettingsAccessibilitySectionView: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
-        SettingsPanel(palette: palette) {
+        SettingsPanel(palette: self.palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SettingsSectionHeaderView(title: "Accessibility", icon: "accessibility", palette: palette)
+                SettingsSectionHeaderView(title: "Accessibility", icon: "accessibility", palette: self.palette)
 
-                statusRow(
+                self.statusRow(
                     title: "Reduce Transparency",
                     subtitle: "Replaces glass effects with solid backgrounds",
-                    isEnabled: reduceTransparency
+                    isEnabled: self.reduceTransparency,
                 )
 
                 Rectangle()
-                    .fill(palette.separator)
+                    .fill(self.palette.separator)
                     .frame(height: 1)
 
-                statusRow(
+                self.statusRow(
                     title: "Reduce Motion",
                     subtitle: "Minimizes animations throughout the app",
-                    isEnabled: reduceMotion
+                    isEnabled: self.reduceMotion,
                 )
 
                 Rectangle()
-                    .fill(palette.separator)
+                    .fill(self.palette.separator)
                     .frame(height: 1)
 
                 if let systemSettingsURL {
                     Button {
-                        openURL(systemSettingsURL)
+                        self.openURL(systemSettingsURL)
                     } label: {
                         HStack {
                             Text("Open System Settings")
                                 .font(DesignTokens.Typography.controlLabel)
-                                .foregroundStyle(palette.accent)
+                                .foregroundStyle(self.palette.accent)
 
                             Spacer()
 
                             Image(systemName: "arrow.up.forward.app")
                                 .font(.caption)
-                                .foregroundStyle(palette.textTertiary)
+                                .foregroundStyle(self.palette.textTertiary)
                         }
                     }
                     .buttonStyle(.plain)
@@ -70,26 +70,26 @@ struct SettingsAccessibilitySectionView: View {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                 Text(title)
                     .font(DesignTokens.Typography.supportingBody.weight(.medium))
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
                 Text(subtitle)
                     .font(DesignTokens.Typography.listMeta)
-                    .foregroundStyle(palette.textTertiary)
+                    .foregroundStyle(self.palette.textTertiary)
             }
 
             Spacer()
 
             Text(isEnabled ? "On" : "Off")
                 .font(DesignTokens.Typography.controlLabel)
-                .foregroundStyle(isEnabled ? palette.accent : palette.textTertiary)
+                .foregroundStyle(isEnabled ? self.palette.accent : self.palette.textTertiary)
         }
     }
 
     private var systemSettingsURL: URL? {
-#if canImport(UIKit)
-        URL(string: UIApplication.openSettingsURLString)
-#else
-        nil
-#endif
+        #if canImport(UIKit)
+            URL(string: UIApplication.openSettingsURLString)
+        #else
+            nil
+        #endif
     }
 }

@@ -2,7 +2,7 @@
 //  InsetCard.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -17,7 +17,7 @@ struct InsetCard<Content: View>: View {
         palette: AppThemePalette,
         cornerRadius: CGFloat = DesignTokens.CornerRadius.lg,
         contentPadding: CGFloat = DesignTokens.Spacing.sm,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.palette = palette
         self.cornerRadius = cornerRadius
@@ -27,13 +27,13 @@ struct InsetCard<Content: View>: View {
 
     var body: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
-            cornerRadius: cornerRadius,
+            cornerRadius: self.cornerRadius,
             shadowRadius: 0,
-            contentPadding: contentPadding
+            contentPadding: self.contentPadding,
         ) {
-            content
+            self.content
         }
     }
 }

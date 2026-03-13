@@ -2,7 +2,7 @@
 //  CollectionShelfRow.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -25,7 +25,7 @@ struct CollectionShelfRow<Leading: View, Trailing: View>: View {
         supporting: String? = nil,
         meta: [String] = [],
         @ViewBuilder leading: () -> Leading,
-        @ViewBuilder trailing: () -> Trailing
+        @ViewBuilder trailing: () -> Trailing,
     ) {
         self.palette = palette
         self.eyebrow = eyebrow
@@ -39,53 +39,53 @@ struct CollectionShelfRow<Leading: View, Trailing: View>: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: DesignTokens.Spacing.md) {
-            leading
+            self.leading
 
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                 if let eyebrow {
-                    SectionLabel(title: eyebrow, palette: palette)
+                    SectionLabel(title: eyebrow, palette: self.palette)
                 }
 
-                Text(title)
+                Text(self.title)
                     .font(DesignTokens.Typography.cardTitle)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
-                Text(subtitle)
+                Text(self.subtitle)
                     .font(DesignTokens.Typography.supportingBody)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .lineLimit(2)
 
                 if let supporting, !supporting.isEmpty {
                     Text(supporting)
                         .font(DesignTokens.Typography.listMeta)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                         .lineLimit(2)
                 }
 
-                if !meta.isEmpty {
-                    MetaRow(items: meta, palette: palette)
+                if !self.meta.isEmpty {
+                    MetaRow(items: self.meta, palette: self.palette)
                 }
             }
 
             Spacer(minLength: DesignTokens.Spacing.sm)
-            trailing
+            self.trailing
         }
         .padding(DesignTokens.Spacing.md)
         .background {
             RoundedRectangle(
                 cornerRadius: DesignTokens.CornerRadius.xl,
-                style: .continuous
+                style: .continuous,
             )
-            .fill(palette.rowFill)
+            .fill(self.palette.rowFill)
         }
         .overlay {
             RoundedRectangle(
                 cornerRadius: DesignTokens.CornerRadius.xl,
-                style: .continuous
+                style: .continuous,
             )
             .strokeBorder(
-                palette.contentStroke.opacity(0.85),
-                lineWidth: DesignTokens.Stroke.hairline
+                self.palette.contentStroke.opacity(0.85),
+                lineWidth: DesignTokens.Stroke.hairline,
             )
         }
     }

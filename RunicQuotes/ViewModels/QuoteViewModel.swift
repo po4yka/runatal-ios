@@ -221,9 +221,12 @@ final class QuoteViewModel: ObservableObject {
             let previousCollection = self.state.currentCollection
             await self.loadPreferences()
 
-            if previousScript != self.state.currentScript ||
+            let preferencesChanged =
+                previousScript != self.state.currentScript ||
                 previousMode != self.state.currentWidgetMode ||
-                previousCollection != self.state.currentCollection {
+                previousCollection != self.state.currentCollection
+
+            if preferencesChanged {
                 await self.loadQuote(using: self.state.currentWidgetMode, updateContext: true)
             }
         }

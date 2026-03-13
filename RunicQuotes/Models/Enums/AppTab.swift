@@ -2,47 +2,49 @@
 //  AppTab.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
 
 /// Tab destinations for the main tab bar.
-enum AppTab: String, Codable, CaseIterable, Identifiable, Sendable {
+enum AppTab: String, Codable, CaseIterable, Identifiable {
     case home
     case collections
     case search
     case saved
     case settings
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var title: String {
         switch self {
-        case .home: return "Home"
-        case .collections: return "Collections"
-        case .search: return "Search"
-        case .saved: return "Saved"
-        case .settings: return "Settings"
+        case .home: "Home"
+        case .collections: "Collections"
+        case .search: "Search"
+        case .saved: "Saved"
+        case .settings: "Settings"
         }
     }
 
     var systemImage: String {
         switch self {
-        case .home: return "house"
-        case .collections: return "square.grid.2x2"
-        case .search: return "magnifyingglass"
-        case .saved: return "bookmark"
-        case .settings: return "gear"
+        case .home: "house"
+        case .collections: "square.grid.2x2"
+        case .search: "magnifyingglass"
+        case .saved: "bookmark"
+        case .settings: "gear"
         }
     }
 
     var role: TabRole? {
         switch self {
         case .search:
-            return .search
+            .search
         default:
-            return nil
+            nil
         }
     }
 

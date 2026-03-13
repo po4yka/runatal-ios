@@ -1,8 +1,8 @@
 //
 //  WidgetConfigurationIntent.swift
-//  RunicQuotesWidget
+//  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import AppIntents
@@ -11,7 +11,7 @@ import WidgetKit
 // MARK: - AppEnum Conformances
 
 /// Runic script selection for widget configuration
-enum ScriptOption: String, AppEnum, Sendable {
+enum ScriptOption: String, AppEnum {
     case elder
     case younger
     case cirth
@@ -24,15 +24,15 @@ enum ScriptOption: String, AppEnum, Sendable {
         [
             .elder: "Elder Futhark",
             .younger: "Younger Futhark",
-            .cirth: "Cirth"
+            .cirth: "Cirth",
         ]
     }
 
     var toRunicScript: RunicScript {
         switch self {
-        case .elder: return .elder
-        case .younger: return .younger
-        case .cirth: return .cirth
+        case .elder: .elder
+        case .younger: .younger
+        case .cirth: .cirth
         }
     }
 
@@ -46,7 +46,7 @@ enum ScriptOption: String, AppEnum, Sendable {
 }
 
 /// Widget mode selection for widget configuration
-enum ModeOption: String, AppEnum, Sendable {
+enum ModeOption: String, AppEnum {
     case daily
     case random
 
@@ -57,14 +57,14 @@ enum ModeOption: String, AppEnum, Sendable {
     static var caseDisplayRepresentations: [ModeOption: DisplayRepresentation] {
         [
             .daily: "Daily Quote",
-            .random: "Random Quote"
+            .random: "Random Quote",
         ]
     }
 
     var toWidgetMode: WidgetMode {
         switch self {
-        case .daily: return .daily
-        case .random: return .random
+        case .daily: .daily
+        case .random: .random
         }
     }
 
@@ -77,7 +77,7 @@ enum ModeOption: String, AppEnum, Sendable {
 }
 
 /// Widget style selection for widget configuration
-enum StyleOption: String, AppEnum, Sendable {
+enum StyleOption: String, AppEnum {
     case runeFirst
     case translationFirst
 
@@ -88,14 +88,14 @@ enum StyleOption: String, AppEnum, Sendable {
     static var caseDisplayRepresentations: [StyleOption: DisplayRepresentation] {
         [
             .runeFirst: "Rune First",
-            .translationFirst: "Translation First"
+            .translationFirst: "Translation First",
         ]
     }
 
     var toWidgetStyle: WidgetStyle {
         switch self {
-        case .runeFirst: return .runeFirst
-        case .translationFirst: return .translationFirst
+        case .runeFirst: .runeFirst
+        case .translationFirst: .translationFirst
         }
     }
 
@@ -112,7 +112,9 @@ enum StyleOption: String, AppEnum, Sendable {
 /// Configuration intent for the Runic Quote widget
 struct RunicQuoteConfigurationIntent: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Configure Widget"
-    static var description: IntentDescription { "Choose how your runic quote widget looks and behaves." }
+    static var description: IntentDescription {
+        "Choose how your runic quote widget looks and behaves."
+    }
 
     @Parameter(title: "Script", default: .elder)
     var script: ScriptOption

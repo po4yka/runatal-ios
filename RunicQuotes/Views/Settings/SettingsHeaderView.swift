@@ -2,7 +2,7 @@
 //  SettingsHeaderView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -16,7 +16,7 @@ struct SettingsHeaderView: View {
             title: "Reading Studio",
             subtitle: "Tune the atmosphere, type, and widget presence without losing the quiet of the app.",
             meta: ["Preview first", "Changes save immediately"],
-            palette: palette
+            palette: self.palette,
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Settings")

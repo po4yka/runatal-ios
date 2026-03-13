@@ -2,7 +2,7 @@
 //  QuoteListRow.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -23,7 +23,7 @@ struct QuoteListRow<Badge: View, Footer: View>: View {
         author: String,
         metadata: [String] = [],
         @ViewBuilder badge: () -> Badge,
-        @ViewBuilder footer: () -> Footer
+        @ViewBuilder footer: () -> Footer,
     ) {
         self.palette = palette
         self.runicSnippet = runicSnippet
@@ -38,53 +38,53 @@ struct QuoteListRow<Badge: View, Footer: View>: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             HStack(alignment: .top, spacing: DesignTokens.Spacing.md) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                    if !runicSnippet.isEmpty {
-                        Text(runicSnippet)
+                    if !self.runicSnippet.isEmpty {
+                        Text(self.runicSnippet)
                             .font(.system(.footnote, design: .serif).weight(.medium))
-                            .foregroundStyle(palette.runeText)
+                            .foregroundStyle(self.palette.runeText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
 
-                    Text("“\(quoteText)”")
+                    Text("“\(self.quoteText)”")
                         .font(DesignTokens.Typography.supportingBody)
-                        .foregroundStyle(palette.textPrimary)
+                        .foregroundStyle(self.palette.textPrimary)
                         .lineLimit(3)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    MetaRow(items: [author] + metadata, palette: palette)
+                    MetaRow(items: [self.author] + self.metadata, palette: self.palette)
                 }
 
                 if Badge.self != EmptyView.self {
                     Spacer(minLength: DesignTokens.Spacing.sm)
-                    badge
+                    self.badge
                 }
             }
 
             if Footer.self != EmptyView.self {
                 Rectangle()
-                    .fill(palette.separator.opacity(0.65))
+                    .fill(self.palette.separator.opacity(0.65))
                     .frame(height: DesignTokens.Stroke.hairline)
 
-                footer
+                self.footer
             }
         }
         .padding(DesignTokens.Spacing.md)
         .background {
             RoundedRectangle(
                 cornerRadius: DesignTokens.CornerRadius.lg,
-                style: .continuous
+                style: .continuous,
             )
-            .fill(palette.rowFill)
+            .fill(self.palette.rowFill)
         }
         .overlay {
             RoundedRectangle(
                 cornerRadius: DesignTokens.CornerRadius.lg,
-                style: .continuous
+                style: .continuous,
             )
             .strokeBorder(
-                palette.contentStroke.opacity(0.85),
-                lineWidth: DesignTokens.Stroke.hairline
+                self.palette.contentStroke.opacity(0.85),
+                lineWidth: DesignTokens.Stroke.hairline,
             )
         }
     }

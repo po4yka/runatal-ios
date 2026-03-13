@@ -2,7 +2,7 @@
 //  OnboardingActionFooter.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -16,30 +16,30 @@ struct OnboardingActionFooter: View {
     let savePreferencesAndFinish: () -> Void
 
     var body: some View {
-        LiquidActionCluster(palette: palette) {
-            switch currentPage {
+        LiquidActionCluster(palette: self.palette) {
+            switch self.currentPage {
             case .splash:
                 EmptyView()
             case .intro, .atmosphere:
-                primaryButton("Continue", systemImage: "arrow.right") {
+                self.primaryButton("Continue", systemImage: "arrow.right") {
                     Haptics.trigger(.newQuote)
-                    moveForward()
+                    self.moveForward()
                 }
             case .notifications:
-                primaryButton("Enable Notifications", systemImage: "bell") {
+                self.primaryButton("Enable Notifications", systemImage: "bell") {
                     Haptics.trigger(.newQuote)
-                    requestNotifications()
+                    self.requestNotifications()
                 }
 
                 Button("Not Now") {
                     Haptics.trigger(.newQuote)
-                    moveForward()
+                    self.moveForward()
                 }
-                .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: false))
+                .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: false))
             case .ready:
-                primaryButton("Enter the Runes", systemImage: "sparkles") {
+                self.primaryButton("Enter the Runes", systemImage: "sparkles") {
                     Haptics.trigger(.newQuote)
-                    savePreferencesAndFinish()
+                    self.savePreferencesAndFinish()
                 }
             }
         }
@@ -49,12 +49,12 @@ struct OnboardingActionFooter: View {
     private func primaryButton(
         _ title: String,
         systemImage: String,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
+        .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
     }
 }

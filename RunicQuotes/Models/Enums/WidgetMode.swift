@@ -2,17 +2,19 @@
 //  WidgetMode.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
 
 /// Determines how the widget selects quotes to display
-enum WidgetMode: String, Codable, CaseIterable, Identifiable, Sendable {
+enum WidgetMode: String, Codable, CaseIterable, Identifiable {
     case daily = "Daily"
     case random = "Random"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     /// Display name for UI
     var displayName: String {
@@ -23,9 +25,9 @@ enum WidgetMode: String, Codable, CaseIterable, Identifiable, Sendable {
     var description: String {
         switch self {
         case .daily:
-            return "Same quote for all users each day"
+            "Same quote for all users each day"
         case .random:
-            return "Random quote on each widget refresh"
+            "Random quote on each widget refresh"
         }
     }
 }

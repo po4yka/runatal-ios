@@ -2,12 +2,12 @@
 //  SearchFeatureComponent.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import NeedleFoundation
 
-protocol SearchFeatureDependency: Dependency { }
+protocol SearchFeatureDependency: Dependency {}
 
 @MainActor
 final class SearchFeatureComponent: Component<SearchFeatureDependency> {
@@ -20,11 +20,11 @@ final class SearchFeatureComponent: Component<SearchFeatureDependency> {
 
     var viewModel: SearchViewModel {
         shared {
-            SearchViewModel(quoteProvider: quoteProvider)
+            SearchViewModel(quoteProvider: self.quoteProvider)
         }
     }
 
     func view() -> SearchView {
-        SearchView(viewModel: viewModel)
+        SearchView(viewModel: self.viewModel)
     }
 }

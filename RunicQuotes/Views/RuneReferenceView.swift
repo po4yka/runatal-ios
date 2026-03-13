@@ -2,7 +2,7 @@
 //  RuneReferenceView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
@@ -15,21 +15,21 @@ struct RuneReferenceView: View {
     @State private var searchText = ""
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     private var runes: [RuneInfo] {
-        RuneInfo.runes(for: selectedScript)
+        RuneInfo.runes(for: self.selectedScript)
     }
 
     private var filteredRunes: [RuneInfo] {
-        guard !searchText.isEmpty else { return runes }
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return runes.filter {
+        guard !self.searchText.isEmpty else { return self.runes }
+        let query = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return self.runes.filter {
             $0.name.localizedStandardContains(query)
-            || $0.meaning.localizedStandardContains(query)
-            || $0.sound.localizedStandardContains(query)
-            || $0.glyph.localizedStandardContains(query)
+                || $0.meaning.localizedStandardContains(query)
+                || $0.sound.localizedStandardContains(query)
+                || $0.glyph.localizedStandardContains(query)
         }
     }
 
@@ -37,23 +37,23 @@ struct RuneReferenceView: View {
 
     var body: some View {
         LiquidContentScaffold(
-            palette: palette,
+            palette: self.palette,
             spacing: DesignTokens.Spacing.lg,
-            showBackgroundExtension: false
+            showBackgroundExtension: false,
         ) {
             HeroHeader(
                 eyebrow: "Rune Reference",
-                title: selectedScript.displayName,
-                subtitle: RuneInfo.subtitle(for: selectedScript),
-                meta: ["\(filteredRunes.count) visible runes"],
-                palette: palette
+                title: self.selectedScript.displayName,
+                subtitle: RuneInfo.subtitle(for: self.selectedScript),
+                meta: ["\(self.filteredRunes.count) visible runes"],
+                palette: self.palette,
             )
 
-            scriptPicker
-            runeGrid
+            self.scriptPicker
+            self.runeGrid
         }
         .navigationTitle("Rune Reference")
-        .searchable(text: $searchText, prompt: "Search runes...")
+        .searchable(text: self.$searchText, prompt: "Search runes...")
         .navigationDestination(for: String.self) { runeID in
             if let rune = RuneInfo.runes(for: selectedScript).first(where: { $0.id == runeID }) {
                 RuneDetailView(rune: rune)
@@ -63,13 +63,12 @@ struct RuneReferenceView: View {
 
     // MARK: - Script Picker
 
-    @ViewBuilder
     private var scriptPicker: some View {
         GlassScriptSelector(
             selectedScript: Binding(
-                get: { selectedScript },
-                set: { selectedScript = $0 }
-            )
+                get: { self.selectedScript },
+                set: { self.selectedScript = $0 },
+            ),
         )
     }
 
@@ -77,25 +76,25 @@ struct RuneReferenceView: View {
 
     @ViewBuilder
     private var runeGrid: some View {
-        if filteredRunes.isEmpty {
+        if self.filteredRunes.isEmpty {
             EditorialEmptyState(
-                palette: palette,
+                palette: self.palette,
                 icon: "character.book.closed",
                 eyebrow: "No runes",
                 title: "Nothing matched",
-                message: "Search by name, sound, meaning, or glyph."
+                message: "Search by name, sound, meaning, or glyph.",
             )
         } else {
             LazyVGrid(
                 columns: Array(
                     repeating: GridItem(.flexible(), spacing: DesignTokens.Spacing.xs),
-                    count: 4
+                    count: 4,
                 ),
-                spacing: DesignTokens.Spacing.xs
+                spacing: DesignTokens.Spacing.xs,
             ) {
-                ForEach(filteredRunes) { rune in
+                ForEach(self.filteredRunes) { rune in
                     NavigationLink(value: rune.id) {
-                        runeCell(rune)
+                        self.runeCell(rune)
                     }
                     .buttonStyle(.plain)
                 }
@@ -105,30 +104,29 @@ struct RuneReferenceView: View {
 
     // MARK: - Rune Cell
 
-    @ViewBuilder
     private func runeCell(_ rune: RuneInfo) -> some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.md,
             shadowRadius: 0,
-            contentPadding: DesignTokens.Spacing.sm
+            contentPadding: DesignTokens.Spacing.sm,
         ) {
             VStack(spacing: DesignTokens.Spacing.xxs) {
                 Text(rune.glyph)
                     .font(.system(size: 32))
-                    .foregroundStyle(palette.runeText)
+                    .foregroundStyle(self.palette.runeText)
                     .frame(height: 40)
 
                 Text(rune.name)
                     .font(DesignTokens.Typography.controlLabel)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
                 Text(rune.meaning)
                     .font(DesignTokens.Typography.listMeta)
-                    .foregroundStyle(palette.textTertiary)
+                    .foregroundStyle(self.palette.textTertiary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }

@@ -2,7 +2,7 @@
 //  DynamicTypeSupport.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 13.11.25.
 //
 
 import SwiftUI
@@ -17,14 +17,14 @@ extension View {
         font: RunicFont,
         style: Font.TextStyle = .title,
         minSize: CGFloat = 20,
-        maxSize: CGFloat = 60
+        maxSize: CGFloat = 60,
     ) -> some View {
         modifier(RunicDynamicTypeModifier(
             script: script,
             font: font,
             textStyle: style,
             minSize: minSize,
-            maxSize: maxSize
+            maxSize: maxSize,
         ))
     }
 }
@@ -43,52 +43,50 @@ struct RunicDynamicTypeModifier: ViewModifier {
         content
             .font(
                 .custom(
-                    RunicFontConfiguration.fontName(for: script, font: font),
-                    size: scaledSize,
-                    relativeTo: textStyle
-                )
+                    RunicFontConfiguration.fontName(for: self.script, font: self.font),
+                    size: self.scaledSize,
+                    relativeTo: self.textStyle,
+                ),
             )
             .minimumScaleFactor(0.5)
             .lineLimit(nil)
     }
 
     private var scaledSize: CGFloat {
-        let baseSize: CGFloat
-
-        // Determine base size from text style
-        switch textStyle {
+        // Determine base size from text style.
+        let baseSize: CGFloat = switch self.textStyle {
         case .largeTitle:
-            baseSize = 34
+            34
         case .title:
-            baseSize = 28
+            28
         case .title2:
-            baseSize = 22
+            22
         case .title3:
-            baseSize = 20
+            20
         case .headline:
-            baseSize = 17
+            17
         case .body:
-            baseSize = 17
+            17
         case .callout:
-            baseSize = 16
+            16
         case .subheadline:
-            baseSize = 15
+            15
         case .footnote:
-            baseSize = 13
+            13
         case .caption:
-            baseSize = 12
+            12
         case .caption2:
-            baseSize = 11
+            11
         @unknown default:
-            baseSize = 17
+            17
         }
 
         // Scale based on dynamic type size
-        let scaleFactor = dynamicTypeSize.scaleFactor
+        let scaleFactor = self.dynamicTypeSize.scaleFactor
         let scaled = baseSize * scaleFactor
 
         // Clamp to min/max range
-        return min(max(scaled, minSize), maxSize)
+        return min(max(scaled, self.minSize), self.maxSize)
     }
 }
 
@@ -133,9 +131,9 @@ extension DynamicTypeSize {
 /// Extension to check if Reduce Motion is enabled
 extension View {
     /// Apply animation only if Reduce Motion is disabled
-    func reduceMotionSensitiveAnimation<V: Equatable>(
+    func reduceMotionSensitiveAnimation(
         _ animation: Animation?,
-        value: V
+        value: some Equatable,
     ) -> some View {
         modifier(ReduceMotionModifier(animation: animation, value: value))
     }
@@ -148,10 +146,10 @@ struct ReduceMotionModifier<V: Equatable>: ViewModifier {
     @Environment(\.accessibilityReduceMotion) var reduceMotion
 
     func body(content: Content) -> some View {
-        if reduceMotion {
+        if self.reduceMotion {
             content
         } else {
-            content.animation(animation, value: value)
+            content.animation(self.animation, value: self.value)
         }
     }
 }
@@ -166,14 +164,14 @@ struct AccessibilitySettings {
     @Environment(\.accessibilityDifferentiateWithoutColor) var differentiateWithoutColor
 
     var isAccessibilitySize: Bool {
-        dynamicTypeSize.isAccessibilitySize
+        self.dynamicTypeSize.isAccessibilitySize
     }
 
     var shouldReduceAnimations: Bool {
-        reduceMotion
+        self.reduceMotion
     }
 
     var shouldReduceTransparency: Bool {
-        reduceTransparency
+        self.reduceTransparency
     }
 }

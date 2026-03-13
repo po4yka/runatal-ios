@@ -2,13 +2,13 @@
 //  CreateEditQuoteFeatureComponent.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
 import NeedleFoundation
 
-protocol CreateEditQuoteFeatureDependency: Dependency { }
+protocol CreateEditQuoteFeatureDependency: Dependency {}
 
 @MainActor
 final class CreateEditQuoteFeatureComponent: Component<CreateEditQuoteFeatureDependency> {
@@ -20,26 +20,26 @@ final class CreateEditQuoteFeatureComponent: Component<CreateEditQuoteFeatureDep
         parent: Scope,
         quoteRepository: SwiftDataQuoteRepository,
         mode: CreateEditMode,
-        onSaved: QuoteSaveHandler?
+        onSaved: QuoteSaveHandler?,
     ) {
         self.quoteRepository = quoteRepository
         self.mode = mode
-        saveHandler = onSaved
+        self.saveHandler = onSaved
         super.init(parent: parent)
     }
 
     var viewModel: CreateEditQuoteViewModel {
         CreateEditQuoteViewModel(
-            quoteRepository: quoteRepository,
-            mode: mode
+            quoteRepository: self.quoteRepository,
+            mode: self.mode,
         )
     }
 
     func view() -> CreateEditQuoteView {
         CreateEditQuoteView(
-            viewModel: viewModel,
-            mode: mode,
-            onSaved: saveHandler
+            viewModel: self.viewModel,
+            mode: self.mode,
+            onSaved: self.saveHandler,
         )
     }
 }

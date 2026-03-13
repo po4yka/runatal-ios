@@ -2,7 +2,7 @@
 //  SettingsLivePreviewSectionView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -13,50 +13,50 @@ struct SettingsLivePreviewSectionView: View {
 
     var body: some View {
         SettingsPanel(
-            palette: palette,
-            tone: .hero
+            palette: self.palette,
+            tone: .hero,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 HStack {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        SectionLabel(title: "Live Preview", palette: palette)
+                        SectionLabel(title: "Live Preview", palette: self.palette)
                         Text("Current atmosphere")
                             .font(DesignTokens.Typography.sectionTitle)
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
                     }
 
                     Spacer()
 
-                    Text(viewModel.state.selectedTheme.displayName)
+                    Text(self.viewModel.state.selectedTheme.displayName)
                         .font(DesignTokens.Typography.listMeta)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                 }
 
-                Text(viewModel.livePreviewRunicText)
+                Text(self.viewModel.livePreviewRunicText)
                     .runicTextStyle(
-                        script: viewModel.state.selectedScript,
-                        font: viewModel.state.selectedFont,
+                        script: self.viewModel.state.selectedScript,
+                        font: self.viewModel.state.selectedFont,
                         style: .title2,
                         minSize: 22,
-                        maxSize: 40
+                        maxSize: 40,
                     )
-                    .foregroundStyle(palette.runeText)
+                    .foregroundStyle(self.palette.runeText)
                     .shadow(color: .black.opacity(0.3), radius: 4)
                     .lineSpacing(5)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 Rectangle()
-                    .fill(palette.separator)
+                    .fill(self.palette.separator)
                     .frame(height: 1)
 
-                Text(viewModel.livePreviewLatinText)
+                Text(self.viewModel.livePreviewLatinText)
                     .font(.callout)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 HStack(spacing: DesignTokens.Spacing.sm) {
-                    previewPill(label: "Script", value: viewModel.state.selectedScript.displayName)
-                    previewPill(label: "Font", value: viewModel.state.selectedFont.displayName)
+                    self.previewPill(label: "Script", value: self.viewModel.state.selectedScript.displayName)
+                    self.previewPill(label: "Font", value: self.viewModel.state.selectedFont.displayName)
                 }
             }
         }
@@ -68,18 +68,18 @@ struct SettingsLivePreviewSectionView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
             Text(label)
                 .font(DesignTokens.Typography.listMeta)
-                .foregroundStyle(palette.textTertiary)
+                .foregroundStyle(self.palette.textTertiary)
 
             Text(value)
                 .font(DesignTokens.Typography.controlLabel)
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(self.palette.textPrimary)
                 .lineLimit(1)
         }
         .padding(.horizontal, DesignTokens.Spacing.sm)
         .padding(.vertical, DesignTokens.Spacing.xs)
         .background {
             RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
-                .fill(palette.bannerBackground)
+                .fill(self.palette.bannerBackground)
         }
     }
 }

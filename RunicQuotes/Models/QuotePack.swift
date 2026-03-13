@@ -2,13 +2,13 @@
 //  QuotePack.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import Foundation
 
 /// A curated pack of quotes that can be browsed and installed.
-struct QuotePack: Identifiable, Hashable, Sendable {
+struct QuotePack: Identifiable, Hashable {
     let id: String
     let title: String
     let subtitle: String
@@ -19,13 +19,13 @@ struct QuotePack: Identifiable, Hashable, Sendable {
 
     /// Whether this pack corresponds to an existing `QuoteCollection`.
     var matchingCollection: QuoteCollection? {
-        switch id {
-        case "havamal": return nil
-        case "meditations": return .motivation
-        case "poetic-edda": return nil
-        case "stoic-letters": return .stoic
-        case "prose-edda": return nil
-        default: return nil
+        switch self.id {
+        case "havamal": nil
+        case "meditations": .motivation
+        case "poetic-edda": nil
+        case "stoic-letters": .stoic
+        case "prose-edda": nil
+        default: nil
         }
     }
 }
@@ -46,8 +46,8 @@ extension QuotePack {
                 "Cattle die, kinsmen die, you yourself will also die.",
                 "The foolish man thinks he will live forever if he avoids battle.",
                 "Better a humble house than none; everyone is somebody at home.",
-                "A man should be loyal through life to friends."
-            ]
+                "A man should be loyal through life to friends.",
+            ],
         ),
         QuotePack(
             id: "meditations",
@@ -60,8 +60,8 @@ extension QuotePack {
                 "You have power over your mind, not outside events. Realize this, and you will find strength.",
                 "The happiness of your life depends upon the quality of your thoughts.",
                 "Waste no more time arguing about what a good man should be. Be one.",
-                "Very little is needed to make a happy life; it is all within yourself."
-            ]
+                "Very little is needed to make a happy life; it is all within yourself.",
+            ],
         ),
         QuotePack(
             id: "poetic-edda",
@@ -74,8 +74,8 @@ extension QuotePack {
                 "I know that I hung on a wind-battered tree, nine long nights.",
                 "From the south the sun, by the side of the moon, heaved her right hand over heaven's rim.",
                 "Brothers will fight and kill each other, cousins will break the bonds of kinship.",
-                "An ash I know, Yggdrasil its name, with water white is the great tree wet."
-            ]
+                "An ash I know, Yggdrasil its name, with water white is the great tree wet.",
+            ],
         ),
         QuotePack(
             id: "stoic-letters",
@@ -88,8 +88,8 @@ extension QuotePack {
                 "It is not that we have a short time to live, but that we waste a great deal of it.",
                 "We suffer more often in imagination than in reality.",
                 "Luck is what happens when preparation meets opportunity.",
-                "Difficulties strengthen the mind, as labor does the body."
-            ]
+                "Difficulties strengthen the mind, as labor does the body.",
+            ],
         ),
         QuotePack(
             id: "prose-edda",
@@ -102,9 +102,9 @@ extension QuotePack {
                 "In the beginning there was nothing: neither sand, nor sea, nor cooling waves.",
                 "The wolf will devour the sun, and mankind will consider that a great disaster.",
                 "There is much to be told, and it is far to seek.",
-                "The earth will rise again out of the sea, fair and green."
-            ]
-        )
+                "The earth will rise again out of the sea, fair and green.",
+            ],
+        ),
     ]
 
     /// Sample pack for previews.
@@ -121,6 +121,6 @@ extension QuotePack {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(self.id)
     }
 }

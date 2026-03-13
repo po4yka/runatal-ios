@@ -2,7 +2,7 @@
 //  GlassScriptSelector.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 07.10.25.
 //
 
 import SwiftUI
@@ -23,7 +23,7 @@ struct GlassScriptSelector: View {
     init(
         selectedScript: Binding<RunicScript>,
         cornerRadius: CGFloat = 12,
-        spacing: CGFloat = 8
+        spacing: CGFloat = 8,
     ) {
         self._selectedScript = selectedScript
         self.cornerRadius = cornerRadius
@@ -33,15 +33,15 @@ struct GlassScriptSelector: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: spacing) {
+        HStack(spacing: self.spacing) {
             ForEach(RunicScript.allCases) { script in
                 ScriptButton(
                     script: script,
-                    isSelected: selectedScript == script,
-                    cornerRadius: cornerRadius
+                    isSelected: self.selectedScript == script,
+                    cornerRadius: self.cornerRadius,
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedScript = script
+                        self.selectedScript = script
                     }
                     Haptics.trigger(.scriptSwitch)
                 }
@@ -50,12 +50,12 @@ struct GlassScriptSelector: View {
         .padding(4)
         .background {
             LiquidCard(
-                palette: palette,
+                palette: self.palette,
                 role: .chrome,
-                cornerRadius: cornerRadius + 4,
+                cornerRadius: self.cornerRadius + 4,
                 shadowRadius: 0,
                 contentPadding: 0,
-                interactive: true
+                interactive: true,
             ) {
                 Color.clear
             }
@@ -63,7 +63,7 @@ struct GlassScriptSelector: View {
     }
 
     private var palette: AppThemePalette {
-        AppThemePalette.themed(runicTheme, for: colorScheme)
+        AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
     }
 }
 
@@ -78,38 +78,38 @@ private struct ScriptButton: View {
     @Environment(\.runicTheme) private var runicTheme
 
     var body: some View {
-        Button(action: action) {
+        Button(action: self.action) {
             VStack(spacing: 4) {
                 // Script icon/symbol
-                Text(scriptSymbol)
+                Text(self.scriptSymbol)
                     .font(.system(size: 20, weight: .medium, design: .serif))
                     .fontWeight(.medium)
 
                 // Script name
-                Text(script.displayName)
+                Text(self.script.displayName)
                     .font(DesignTokens.Typography.metadata)
-                    .fontWeight(isSelected ? .semibold : .regular)
+                    .fontWeight(self.isSelected ? .semibold : .regular)
             }
-            .foregroundStyle(isSelected ? palette.chipSelectedForeground : palette.textSecondary)
+            .foregroundStyle(self.isSelected ? self.palette.chipSelectedForeground : self.palette.textSecondary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .padding(.horizontal, 8)
         }
-        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: isSelected))
+        .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: self.isSelected))
     }
 
     private var palette: AppThemePalette {
-        AppThemePalette.themed(runicTheme, for: colorScheme)
+        AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
     }
 
     private var scriptSymbol: String {
-        switch script {
+        switch self.script {
         case .elder:
-            return "ᚠ" // Elder Futhark F-rune
+            "ᚠ" // Elder Futhark F-rune
         case .younger:
-            return "ᚠ" // Younger Futhark F-rune
+            "ᚠ" // Younger Futhark F-rune
         case .cirth:
-            return "⸸" // Decorative symbol (actual Cirth would use PUA)
+            "⸸" // Decorative symbol (actual Cirth would use PUA)
         }
     }
 }
@@ -128,7 +128,7 @@ struct GlassFontSelector: View {
     init(
         selectedFont: Binding<RunicFont>,
         availableFonts: [RunicFont] = RunicFont.allCases,
-        cornerRadius: CGFloat = 12
+        cornerRadius: CGFloat = 12,
     ) {
         self._selectedFont = selectedFont
         self.availableFonts = availableFonts
@@ -137,14 +137,14 @@ struct GlassFontSelector: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ForEach(availableFonts) { font in
+            ForEach(self.availableFonts) { font in
                 FontButton(
                     font: font,
-                    isSelected: selectedFont == font,
-                    cornerRadius: cornerRadius
+                    isSelected: self.selectedFont == font,
+                    cornerRadius: self.cornerRadius,
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedFont = font
+                        self.selectedFont = font
                     }
                     Haptics.trigger(.scriptSwitch)
                 }
@@ -153,7 +153,7 @@ struct GlassFontSelector: View {
     }
 
     private var palette: AppThemePalette {
-        AppThemePalette.themed(runicTheme, for: colorScheme)
+        AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
     }
 }
 
@@ -168,50 +168,50 @@ private struct FontButton: View {
     @Environment(\.runicTheme) private var runicTheme
 
     var body: some View {
-        Button(action: action) {
+        Button(action: self.action) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(font.displayName)
+                    Text(self.font.displayName)
                         .font(DesignTokens.Typography.cardTitle)
-                        .foregroundStyle(palette.textPrimary)
+                        .foregroundStyle(self.palette.textPrimary)
 
-                    Text(font.description)
+                    Text(self.font.description)
                         .font(.caption)
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(self.palette.textSecondary)
                 }
 
                 Spacer()
 
-                if isSelected {
+                if self.isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(palette.accent)
+                        .foregroundStyle(self.palette.accent)
                         .font(.title3)
                 }
             }
             .padding()
             .background {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(isSelected ? palette.chipFill : palette.editorialInset)
+                RoundedRectangle(cornerRadius: self.cornerRadius)
+                    .fill(self.isSelected ? self.palette.chipFill : self.palette.editorialInset)
             }
             .overlay {
-                RoundedRectangle(cornerRadius: cornerRadius)
+                RoundedRectangle(cornerRadius: self.cornerRadius)
                     .strokeBorder(
-                        isSelected ? palette.strongCardStroke : palette.cardStroke,
-                        lineWidth: DesignTokens.Stroke.hairline
+                        self.isSelected ? self.palette.strongCardStroke : self.palette.cardStroke,
+                        lineWidth: DesignTokens.Stroke.hairline,
                     )
             }
             .shadow(
-                color: palette.shadowColor.opacity(isSelected ? 1 : 0),
+                color: self.palette.shadowColor.opacity(self.isSelected ? 1 : 0),
                 radius: 4,
                 x: 0,
-                y: 2
+                y: 2,
             )
         }
         .buttonStyle(.plain)
     }
 
     private var palette: AppThemePalette {
-        AppThemePalette.themed(runicTheme, for: colorScheme)
+        AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
     }
 }
 
@@ -222,7 +222,7 @@ private struct FontButton: View {
         LinearGradient(
             colors: [.black, Color(white: 0.1), .black],
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
         )
         .ignoresSafeArea()
 
@@ -233,7 +233,7 @@ private struct FontButton: View {
                     .foregroundStyle(.white)
 
                 GlassScriptSelector(
-                    selectedScript: .constant(.elder)
+                    selectedScript: .constant(.elder),
                 )
             }
 
@@ -243,7 +243,7 @@ private struct FontButton: View {
                     .foregroundStyle(.white)
 
                 GlassFontSelector(
-                    selectedFont: .constant(.noto)
+                    selectedFont: .constant(.noto),
                 )
             }
         }

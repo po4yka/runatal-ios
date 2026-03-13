@@ -77,11 +77,11 @@ struct QuoteCardSectionView: View {
                                 self.palette.separator.opacity(0.35),
                                 self.palette.accent.opacity(0.32),
                                 self.palette.separator.opacity(0.35),
-                                .clear
+                                .clear,
                             ],
                             startPoint: .leading,
-                            endPoint: .trailing
-                        )
+                            endPoint: .trailing,
+                        ),
                     )
                     .frame(height: 1)
                     .padding(.horizontal, DesignTokens.Spacing.xs)

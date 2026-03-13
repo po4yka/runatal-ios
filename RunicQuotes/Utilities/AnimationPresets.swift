@@ -2,6 +2,8 @@
 //  AnimationPresets.swift
 //  RunicQuotes
 //
+//  Created by Claude on 13.02.26.
+//
 
 import SwiftUI
 

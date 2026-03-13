@@ -2,7 +2,7 @@
 //  ScreenScaffold.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -21,7 +21,7 @@ struct ScreenScaffold<Content: View>: View {
         horizontalPadding: CGFloat = DesignTokens.Spacing.md,
         topPadding: CGFloat = DesignTokens.Spacing.lg,
         spacing: CGFloat = DesignTokens.Spacing.xl,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.palette = palette
         self.scrollEnabled = scrollEnabled
@@ -33,13 +33,13 @@ struct ScreenScaffold<Content: View>: View {
 
     var body: some View {
         LiquidContentScaffold(
-            palette: palette,
-            scrollEnabled: scrollEnabled,
-            horizontalPadding: horizontalPadding,
-            topPadding: topPadding,
-            spacing: spacing
+            palette: self.palette,
+            scrollEnabled: self.scrollEnabled,
+            horizontalPadding: self.horizontalPadding,
+            topPadding: self.topPadding,
+            spacing: self.spacing,
         ) {
-            content
+            self.content
         }
     }
 }

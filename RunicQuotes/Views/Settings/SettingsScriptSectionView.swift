@@ -2,7 +2,7 @@
 //  SettingsScriptSectionView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -12,17 +12,17 @@ struct SettingsScriptSectionView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        SettingsPanel(palette: palette) {
+        SettingsPanel(palette: self.palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SettingsSectionHeaderView(title: "Default Script", icon: "character.book.closed", palette: palette)
+                SettingsSectionHeaderView(title: "Default Script", icon: "character.book.closed", palette: self.palette)
 
                 VStack(spacing: DesignTokens.Spacing.sm) {
                     ForEach(RunicScript.allCases) { script in
-                        scriptRow(script)
+                        self.scriptRow(script)
 
                         if script != RunicScript.allCases.last {
                             Rectangle()
-                                .fill(palette.separator)
+                                .fill(self.palette.separator)
                                 .frame(height: 1)
                         }
                     }
@@ -34,35 +34,35 @@ struct SettingsScriptSectionView: View {
     }
 
     private func scriptRow(_ script: RunicScript) -> some View {
-        let isSelected = viewModel.state.selectedScript == script
+        let isSelected = self.viewModel.state.selectedScript == script
         let runicPreview = RunicTransliterator.transliterate("rune", to: script)
 
         return Button {
             withAnimation(.easeInOut(duration: 0.2)) {
-                viewModel.updateScript(script)
+                self.viewModel.updateScript(script)
             }
         } label: {
             HStack(spacing: DesignTokens.Spacing.sm) {
                 Text(runicPreview)
                     .runicTextStyle(
                         script: script,
-                        font: viewModel.state.selectedFont,
+                        font: self.viewModel.state.selectedFont,
                         style: .body,
                         minSize: 16,
-                        maxSize: 22
+                        maxSize: 22,
                     )
-                    .foregroundStyle(palette.runeText)
+                    .foregroundStyle(self.palette.runeText)
                     .frame(width: 40, alignment: .center)
 
                 Text(script.displayName)
                     .font(DesignTokens.Typography.supportingBody.weight(.medium))
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
                 Spacer()
 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(palette.accent)
+                        .foregroundStyle(self.palette.accent)
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }

@@ -2,7 +2,7 @@
 //  LiquidCard.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -27,7 +27,7 @@ struct ContentPlate<Content: View>: View {
         cornerRadius: CGFloat = DesignTokens.CornerRadius.xl,
         shadowRadius: CGFloat = DesignTokens.Elevation.medium,
         contentPadding: CGFloat = DesignTokens.Spacing.md,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.palette = palette
         self.tone = tone
@@ -38,60 +38,60 @@ struct ContentPlate<Content: View>: View {
     }
 
     var body: some View {
-        content
-            .padding(contentPadding)
+        self.content
+            .padding(self.contentPadding)
             .background {
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(backgroundFill)
+                RoundedRectangle(cornerRadius: self.cornerRadius, style: .continuous)
+                    .fill(self.backgroundFill)
             }
             .overlay {
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .strokeBorder(strokeColor, lineWidth: strokeWidth)
+                RoundedRectangle(cornerRadius: self.cornerRadius, style: .continuous)
+                    .strokeBorder(self.strokeColor, lineWidth: self.strokeWidth)
             }
             .overlay {
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: self.cornerRadius, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [palette.highlight, .clear],
+                            colors: [self.palette.highlight, .clear],
                             startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                            endPoint: .bottomTrailing,
+                        ),
                     )
                     .allowsHitTesting(false)
             }
-            .shadow(color: palette.shadowColor, radius: shadowRadius, x: 0, y: tone == .hero ? 12 : 6)
+            .shadow(color: self.palette.shadowColor, radius: self.shadowRadius, x: 0, y: self.tone == .hero ? 12 : 6)
     }
 
     private var backgroundFill: some ShapeStyle {
-        switch tone {
+        switch self.tone {
         case .hero:
-            return AnyShapeStyle(
+            AnyShapeStyle(
                 LinearGradient(
-                    colors: [palette.contentPlateElevated, palette.contentPlate],
+                    colors: [self.palette.contentPlateElevated, self.palette.contentPlate],
                     startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                    endPoint: .bottomTrailing,
+                ),
             )
         case .primary:
-            return AnyShapeStyle(palette.contentPlate)
+            AnyShapeStyle(self.palette.contentPlate)
         case .secondary:
-            return AnyShapeStyle(palette.insetPlate)
+            AnyShapeStyle(self.palette.insetPlate)
         }
     }
 
     private var strokeColor: Color {
-        switch tone {
+        switch self.tone {
         case .hero:
-            return palette.strongCardStroke
+            self.palette.strongCardStroke
         case .primary:
-            return palette.contentStroke
+            self.palette.contentStroke
         case .secondary:
-            return palette.contentStroke.opacity(0.8)
+            self.palette.contentStroke.opacity(0.8)
         }
     }
 
     private var strokeWidth: CGFloat {
-        tone == .hero ? DesignTokens.Stroke.emphasis : DesignTokens.Stroke.hairline
+        self.tone == .hero ? DesignTokens.Stroke.emphasis : DesignTokens.Stroke.hairline
     }
 }
 
@@ -115,7 +115,7 @@ struct LiquidCard<Content: View>: View {
         contentPadding: CGFloat = DesignTokens.Spacing.md,
         isNested: Bool = false,
         interactive: Bool = false,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.palette = palette
         self.role = role
@@ -131,23 +131,23 @@ struct LiquidCard<Content: View>: View {
         let policy = LiquidEffectPolicy(
             role: role,
             reduceTransparency: reduceTransparency,
-            isNested: isNested
+            isNested: isNested,
         )
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 
-        return content
-            .padding(contentPadding)
+        return self.content
+            .padding(self.contentPadding)
             .background {
                 if policy.shouldUseGlass {
                     Color.clear
-                        .glassEffect(policy.glass(using: palette, interactive: interactive), in: shape)
+                        .glassEffect(policy.glass(using: self.palette, interactive: self.interactive), in: shape)
                 } else {
-                    shape.fill(policy.fillColor(using: palette))
+                    shape.fill(policy.fillColor(using: self.palette))
                 }
             }
             .overlay {
                 shape
-                    .strokeBorder(policy.strokeColor(using: palette), lineWidth: DesignTokens.Stroke.hairline)
+                    .strokeBorder(policy.strokeColor(using: self.palette), lineWidth: DesignTokens.Stroke.hairline)
             }
             .overlay {
                 shape
@@ -155,12 +155,12 @@ struct LiquidCard<Content: View>: View {
                         LinearGradient(
                             colors: [Color.white.opacity(0.16), .clear],
                             startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                            endPoint: .bottomTrailing,
+                        ),
                     )
                     .opacity(policy.shouldUseGlass ? 1 : 0.45)
                     .allowsHitTesting(false)
             }
-            .shadow(color: palette.shadowColor.opacity(policy.shouldUseGlass ? 0.8 : 0.45), radius: shadowRadius, x: 0, y: 8)
+            .shadow(color: self.palette.shadowColor.opacity(policy.shouldUseGlass ? 0.8 : 0.45), radius: self.shadowRadius, x: 0, y: 8)
     }
 }

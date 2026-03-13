@@ -1,8 +1,8 @@
 //
 //  WidgetViews.swift
-//  RunicQuotesWidget
+//  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 09.10.25.
 //
 
 import SwiftUI
@@ -17,24 +17,24 @@ struct RunicQuoteWidgetEntryView: View {
 
     var body: some View {
         Group {
-            switch widgetFamily {
+            switch self.widgetFamily {
             case .systemSmall:
-                SmallWidgetView(entry: entry)
+                SmallWidgetView(entry: self.entry)
             case .systemMedium:
-                MediumWidgetView(entry: entry)
+                MediumWidgetView(entry: self.entry)
             case .systemLarge:
-                LargeWidgetView(entry: entry)
+                LargeWidgetView(entry: self.entry)
             case .accessoryCircular:
-                CircularWidgetView(entry: entry)
+                CircularWidgetView(entry: self.entry)
             case .accessoryRectangular:
-                RectangularWidgetView(entry: entry)
+                RectangularWidgetView(entry: self.entry)
             case .accessoryInline:
-                InlineWidgetView(entry: entry)
+                InlineWidgetView(entry: self.entry)
             default:
-                SmallWidgetView(entry: entry)
+                SmallWidgetView(entry: self.entry)
             }
         }
-        .widgetURL(DeepLink.openQuote(script: entry.script, mode: entry.widgetMode).url)
+        .widgetURL(DeepLink.openQuote(script: self.entry.script, mode: self.entry.widgetMode).url)
     }
 }
 
@@ -44,78 +44,80 @@ struct SmallWidgetView: View {
     let entry: RunicQuoteEntry
     @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { entry.palette(for: colorScheme) }
+    private var palette: AppThemePalette {
+        self.entry.palette(for: self.colorScheme)
+    }
 
     var body: some View {
         ZStack {
-            entry.widgetBackgroundGradient(for: colorScheme)
+            self.entry.widgetBackgroundGradient(for: self.colorScheme)
 
-            if entry.showsDecorativeGlyphs {
-                WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
+            if self.entry.showsDecorativeGlyphs {
+                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, palette: self.palette)
                     .opacity(0.42)
             }
 
-            content
+            self.content
                 .padding(DesignTokens.Spacing.md)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(entry.widgetAccessibilityLabel)
+        .accessibilityLabel(self.entry.widgetAccessibilityLabel)
     }
 
     @ViewBuilder
     private var content: some View {
-        switch entry.widgetStyle {
+        switch self.entry.widgetStyle {
         case .runeFirst:
             VStack(spacing: DesignTokens.Spacing.xs) {
                 Spacer(minLength: 0)
 
-                Text(entry.compactRunic(maxCharacters: 46))
-                    .font(.custom(entry.widgetFontName, size: 20))
-                    .foregroundStyle(palette.runeText)
+                Text(self.entry.compactRunic(maxCharacters: 46))
+                    .font(.custom(self.entry.widgetFontName, size: 20))
+                    .foregroundStyle(self.palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineLimit(4)
                     .minimumScaleFactor(0.65)
 
-                Text(entry.compactLatin(maxCharacters: 58))
+                Text(self.entry.compactLatin(maxCharacters: 58))
                     .font(DesignTokens.Typography.widgetMeta)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
 
                 Spacer(minLength: 0)
-                widgetScriptIndicator
+                self.widgetScriptIndicator
             }
         case .translationFirst:
             VStack(spacing: DesignTokens.Spacing.xs) {
                 Spacer(minLength: 0)
 
-                Text(entry.compactLatin(maxCharacters: 86))
+                Text(self.entry.compactLatin(maxCharacters: 86))
                     .font(.callout.weight(.semibold))
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(4)
                     .minimumScaleFactor(0.75)
 
                 Rectangle()
-                    .fill(palette.separator)
+                    .fill(self.palette.separator)
                     .frame(height: 1)
 
-                Text(entry.compactRunic(maxCharacters: 34))
-                    .font(.custom(entry.widgetFontName, size: 15))
-                    .foregroundStyle(palette.runeText)
+                Text(self.entry.compactRunic(maxCharacters: 34))
+                    .font(.custom(self.entry.widgetFontName, size: 15))
+                    .foregroundStyle(self.palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
 
                 Spacer(minLength: 0)
-                widgetScriptIndicator
+                self.widgetScriptIndicator
             }
         }
     }
 
     private var widgetScriptIndicator: some View {
-        Text(entry.script.displayName)
+        Text(self.entry.script.displayName)
             .font(DesignTokens.Typography.widgetMeta)
-            .foregroundStyle(palette.textTertiary)
+            .foregroundStyle(self.palette.textTertiary)
     }
 }
 
@@ -125,95 +127,97 @@ struct MediumWidgetView: View {
     let entry: RunicQuoteEntry
     @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { entry.palette(for: colorScheme) }
+    private var palette: AppThemePalette {
+        self.entry.palette(for: self.colorScheme)
+    }
 
     var body: some View {
         ZStack {
-            entry.widgetBackgroundGradient(for: colorScheme)
+            self.entry.widgetBackgroundGradient(for: self.colorScheme)
 
             RoundedRectangle(cornerRadius: 0)
-                .fill(palette.rowFill)
+                .fill(self.palette.rowFill)
                 .opacity(0.45)
 
-            if entry.showsDecorativeGlyphs {
-                WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
+            if self.entry.showsDecorativeGlyphs {
+                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, palette: self.palette)
                     .opacity(0.32)
             }
 
-            content
+            self.content
                 .padding(DesignTokens.Spacing.lg)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(entry.widgetAccessibilityLabel)
+        .accessibilityLabel(self.entry.widgetAccessibilityLabel)
     }
 
     @ViewBuilder
     private var content: some View {
-        switch entry.widgetStyle {
+        switch self.entry.widgetStyle {
         case .runeFirst:
             VStack(spacing: DesignTokens.Spacing.xs) {
                 HStack {
-                    Text(entry.compactRunic(maxCharacters: 18))
-                        .font(.custom(entry.widgetFontName, size: 12))
-                        .foregroundStyle(palette.runeText)
+                    Text(self.entry.compactRunic(maxCharacters: 18))
+                        .font(.custom(self.entry.widgetFontName, size: 12))
+                        .foregroundStyle(self.palette.runeText)
                         .lineLimit(1)
 
                     Spacer()
 
                     Text("Quote of the Day")
                         .font(DesignTokens.Typography.widgetMeta)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                 }
 
                 Spacer(minLength: 0)
 
-                Text(entry.compactLatin(maxCharacters: 128))
+                Text(self.entry.compactLatin(maxCharacters: 128))
                     .font(.body)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
                     .lineLimit(3)
                     .minimumScaleFactor(0.8)
 
-                Text(entry.compactAuthor(maxCharacters: 30))
+                Text(self.entry.compactAuthor(maxCharacters: 30))
                     .font(.caption)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
         case .translationFirst:
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                Text(entry.compactLatin(maxCharacters: 128))
+                Text(self.entry.compactLatin(maxCharacters: 128))
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
                     .lineLimit(3)
                     .minimumScaleFactor(0.8)
 
                 HStack(spacing: DesignTokens.Spacing.xs) {
-                    Text("\u{2014} \(entry.compactAuthor(maxCharacters: 26))")
+                    Text("\u{2014} \(self.entry.compactAuthor(maxCharacters: 26))")
                         .font(DesignTokens.Typography.widgetMeta)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                         .lineLimit(1)
 
                     Spacer()
 
-                    Text(entry.script.displayName)
+                    Text(self.entry.script.displayName)
                         .font(DesignTokens.Typography.widgetMeta)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                 }
 
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [.clear, palette.separator, .clear],
+                            colors: [.clear, self.palette.separator, .clear],
                             startPoint: .leading,
-                            endPoint: .trailing
-                        )
+                            endPoint: .trailing,
+                        ),
                     )
                     .frame(height: 1)
 
-                Text(entry.compactRunic(maxCharacters: 58))
-                    .font(.custom(entry.widgetFontName, size: 16))
-                    .foregroundStyle(palette.runeText)
+                Text(self.entry.compactRunic(maxCharacters: 58))
+                    .font(.custom(self.entry.widgetFontName, size: 16))
+                    .foregroundStyle(self.palette.runeText)
                     .lineLimit(2)
                     .minimumScaleFactor(0.7)
             }
@@ -227,93 +231,95 @@ struct LargeWidgetView: View {
     let entry: RunicQuoteEntry
     @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { entry.palette(for: colorScheme) }
+    private var palette: AppThemePalette {
+        self.entry.palette(for: self.colorScheme)
+    }
 
     var body: some View {
         ZStack {
-            entry.widgetBackgroundGradient(for: colorScheme)
+            self.entry.widgetBackgroundGradient(for: self.colorScheme)
 
             RoundedRectangle(cornerRadius: 0)
-                .fill(palette.rowFill)
+                .fill(self.palette.rowFill)
                 .opacity(0.42)
 
-            if entry.showsDecorativeGlyphs {
-                WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
+            if self.entry.showsDecorativeGlyphs {
+                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, palette: self.palette)
                     .opacity(0.28)
             }
 
-            content
+            self.content
                 .padding(DesignTokens.Spacing.lg)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(entry.widgetAccessibilityLabel)
+        .accessibilityLabel(self.entry.widgetAccessibilityLabel)
     }
 
     @ViewBuilder
     private var content: some View {
-        switch entry.widgetStyle {
+        switch self.entry.widgetStyle {
         case .runeFirst:
             VStack(spacing: DesignTokens.Spacing.md) {
-                header
+                self.header
 
                 Spacer(minLength: 0)
 
                 VStack(spacing: DesignTokens.Spacing.xxs) {
-                    Text(entry.compactRunic(maxCharacters: 40))
-                        .font(.custom(entry.widgetFontName, size: 14))
-                        .foregroundStyle(palette.runeText)
+                    Text(self.entry.compactRunic(maxCharacters: 40))
+                        .font(.custom(self.entry.widgetFontName, size: 14))
+                        .foregroundStyle(self.palette.runeText)
                         .lineLimit(1)
 
-                    Text(entry.compactLatin(maxCharacters: 170))
+                    Text(self.entry.compactLatin(maxCharacters: 170))
                         .font(.title3)
-                        .foregroundStyle(palette.textPrimary)
+                        .foregroundStyle(self.palette.textPrimary)
                         .multilineTextAlignment(.center)
                         .lineLimit(3)
                         .minimumScaleFactor(0.8)
 
-                    Text(entry.compactAuthor(maxCharacters: 34))
+                    Text(self.entry.compactAuthor(maxCharacters: 34))
                         .font(.caption)
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(self.palette.textSecondary)
                 }
-                    .padding(DesignTokens.Spacing.sm)
-                    .background(
-                        RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                            .fill(palette.bannerBackground)
-                    )
+                .padding(DesignTokens.Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                        .fill(self.palette.bannerBackground),
+                )
 
                 Spacer(minLength: 0)
 
-                brandingFooter
+                self.brandingFooter
             }
 
         case .translationFirst:
             VStack(spacing: DesignTokens.Spacing.md) {
-                header
+                self.header
 
                 Spacer(minLength: 0)
 
-                Text(entry.compactLatin(maxCharacters: 210))
+                Text(self.entry.compactLatin(maxCharacters: 210))
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(5)
                     .minimumScaleFactor(0.8)
                     .padding(DesignTokens.Spacing.sm)
                     .background(
                         RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                            .fill(palette.bannerBackground)
+                            .fill(self.palette.bannerBackground),
                     )
 
-                Text("\u{2014} \(entry.compactAuthor(maxCharacters: 34))")
+                Text("\u{2014} \(self.entry.compactAuthor(maxCharacters: 34))")
                     .font(.callout)
-                    .foregroundStyle(palette.textTertiary)
+                    .foregroundStyle(self.palette.textTertiary)
                     .italic()
 
-                widgetDivider
+                self.widgetDivider
 
-                Text(entry.compactRunic(maxCharacters: 110))
-                    .font(.custom(entry.widgetFontName, size: 22))
-                    .foregroundStyle(palette.runeText)
+                Text(self.entry.compactRunic(maxCharacters: 110))
+                    .font(.custom(self.entry.widgetFontName, size: 22))
+                    .foregroundStyle(self.palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .minimumScaleFactor(0.65)
@@ -325,28 +331,28 @@ struct LargeWidgetView: View {
 
     private var header: some View {
         HStack {
-            Text(entry.compactRunic(maxCharacters: 24))
-                .font(.custom(entry.widgetFontName, size: 12))
-                .foregroundStyle(palette.runeText)
+            Text(self.entry.compactRunic(maxCharacters: 24))
+                .font(.custom(self.entry.widgetFontName, size: 12))
+                .foregroundStyle(self.palette.runeText)
                 .lineLimit(1)
 
             Spacer()
 
             Text("Daily Wisdom")
                 .font(DesignTokens.Typography.widgetMeta)
-                .foregroundStyle(palette.textTertiary)
+                .foregroundStyle(self.palette.textTertiary)
         }
     }
 
     private var brandingFooter: some View {
         HStack(spacing: DesignTokens.Spacing.xxs) {
-            Text(entry.decorativeGlyph)
-                .font(.custom(entry.widgetFontName, size: 10))
-                .foregroundStyle(palette.textTertiary)
+            Text(self.entry.decorativeGlyph)
+                .font(.custom(self.entry.widgetFontName, size: 10))
+                .foregroundStyle(self.palette.textTertiary)
 
             Text("Runic Quotes")
                 .font(DesignTokens.Typography.widgetMeta)
-                .foregroundStyle(palette.textTertiary)
+                .foregroundStyle(self.palette.textTertiary)
         }
     }
 
@@ -354,10 +360,10 @@ struct LargeWidgetView: View {
         Rectangle()
             .fill(
                 LinearGradient(
-                    colors: [.clear, palette.separator, .clear],
+                    colors: [.clear, self.palette.separator, .clear],
                     startPoint: .leading,
-                    endPoint: .trailing
-                )
+                    endPoint: .trailing,
+                ),
             )
             .frame(height: 1)
             .padding(.horizontal, DesignTokens.Spacing.xxl)

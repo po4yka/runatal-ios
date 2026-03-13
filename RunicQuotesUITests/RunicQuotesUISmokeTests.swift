@@ -5,10 +5,12 @@
 //  Created by Claude on 13.03.26.
 //
 
-@testable import RunicQuotes
 @preconcurrency import XCTest
 
+@MainActor
 final class RunicQuotesUISmokeTests: RunicQuotesUITestCase {
+    private let legacyQuoteText = "Legacy store quote survives migration."
+
     override var launchesAppInSetUp: Bool {
         false
     }
@@ -30,11 +32,22 @@ final class RunicQuotesUISmokeTests: RunicQuotesUITestCase {
 
         self.waitForQuoteCard(in: app, timeout: 8)
         self.assertNoFallbackBanner(in: app)
-        let quoteText = app.staticTexts["quoteText"]
-        XCTAssertTrue(quoteText.waitForExistence(timeout: 8), "Migrated quote text should be visible")
+
+        let searchTab = self.tabButton(in: app, identifier: "search_tab", labels: ["Search"])
+        XCTAssertTrue(searchTab.waitForExistence(timeout: 5), "Search tab should exist")
+        self.tapElement(searchTab)
+
+        let searchField = app.searchFields.firstMatch
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "Search field should exist")
+        searchField.tap()
+        searchField.typeText(self.legacyQuoteText)
+
+        let migratedQuote = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", self.legacyQuoteText),
+        ).firstMatch
         XCTAssertTrue(
-            quoteText.label.contains(UITestPersistentStoreConfigurator.legacyQuoteText),
-            "Migrated legacy quote should be visible after launch",
+            migratedQuote.waitForExistence(timeout: 8),
+            "Migrated legacy quote should be discoverable after launch",
         )
     }
 }

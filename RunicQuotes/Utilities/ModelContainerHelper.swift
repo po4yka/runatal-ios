@@ -2,12 +2,12 @@
 //  ModelContainerHelper.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 14.11.25.
 //
 
 import Foundation
-import SwiftData
 import os
+import SwiftData
 
 /// Helper for creating ModelContainers with proper error handling
 enum ModelContainerHelper {
@@ -28,7 +28,7 @@ enum ModelContainerHelper {
                 Quote.self,
                 UserPreferences.self,
                 TranslationRecord.self,
-                TranslationBackfillState.self
+                TranslationBackfillState.self,
             ])
 
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -38,12 +38,13 @@ enum ModelContainerHelper {
             // If it does, we have a critical schema configuration issue that must be fixed.
             // Since this is used for previews/tests, a fatalError is appropriate - there's
             // no point continuing if the basic data model is broken.
-            logger.critical("Failed to create placeholder container. This indicates a schema configuration error: \(error.localizedDescription, privacy: .public)")
-            fatalError("""
+            self.logger.critical("Failed to create placeholder container. This indicates a schema configuration error: \(error.localizedDescription, privacy: .public)")
+            fatalError(
+                """
                 Critical error: Unable to create in-memory ModelContainer.
                 Schema configuration is invalid. Error: \(error.localizedDescription)
                 This must be fixed before previews/tests can run.
-                """
+                """,
             )
         }
     }
@@ -55,26 +56,26 @@ enum ModelContainerHelper {
             Quote.self,
             UserPreferences.self,
             TranslationRecord.self,
-            TranslationBackfillState.self
+            TranslationBackfillState.self,
         ])
 
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
-            groupContainer: .identifier(AppConstants.appGroupIdentifier)
+            groupContainer: .identifier(AppConstants.appGroupIdentifier),
         )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            logger.error("Failed to create container: \(error.localizedDescription)")
+            self.logger.error("Failed to create container: \(error.localizedDescription)")
             throw ModelContainerError.failedToCreate(error)
         }
     }
 
     /// Alias for widget access — delegates to `createMainContainer()`.
     static func createSharedContainer() throws -> ModelContainer {
-        try createMainContainer()
+        try self.createMainContainer()
     }
 }
 
@@ -86,9 +87,9 @@ enum ModelContainerError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .failedToCreate(let error):
-            return "Failed to create database: \(error.localizedDescription)"
+            "Failed to create database: \(error.localizedDescription)"
         case .containerNotAvailable:
-            return "Database is not available"
+            "Database is not available"
         }
     }
 

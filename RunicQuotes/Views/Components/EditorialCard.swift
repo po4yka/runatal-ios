@@ -2,7 +2,7 @@
 //  EditorialCard.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -27,7 +27,7 @@ struct EditorialCard<Content: View>: View {
         cornerRadius: CGFloat = DesignTokens.CornerRadius.xl,
         shadowRadius: CGFloat = DesignTokens.Elevation.medium,
         contentPadding: CGFloat = DesignTokens.Spacing.md,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.palette = palette
         self.tone = tone
@@ -39,24 +39,24 @@ struct EditorialCard<Content: View>: View {
 
     var body: some View {
         ContentPlate(
-            palette: palette,
-            tone: contentTone,
-            cornerRadius: cornerRadius,
-            shadowRadius: shadowRadius,
-            contentPadding: contentPadding
+            palette: self.palette,
+            tone: self.contentTone,
+            cornerRadius: self.cornerRadius,
+            shadowRadius: self.shadowRadius,
+            contentPadding: self.contentPadding,
         ) {
-            content
+            self.content
         }
     }
 
     private var contentTone: ContentPlateTone {
-        switch tone {
+        switch self.tone {
         case .hero:
-            return .hero
+            .hero
         case .primary:
-            return .primary
+            .primary
         case .secondary:
-            return .secondary
+            .secondary
         }
     }
 }

@@ -2,7 +2,7 @@
 //  Quote.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
@@ -45,7 +45,7 @@ final class Quote {
     var isHidden: Bool
 
     /// Whether the quote is soft-deleted (moved to archive trash).
-    var isSoftDeleted: Bool
+    @Attribute(originalName: "isDeleted") var isSoftDeleted: Bool
 
     /// Timestamp when the quote was soft-deleted (for 30-day auto-purge).
     var deletedAt: Date?
@@ -60,7 +60,7 @@ final class Quote {
         textLatin: String,
         author: String,
         collection: QuoteCollection = .motivation,
-        isUserGenerated: Bool = false
+        isUserGenerated: Bool = false,
     ) {
         self.id = UUID()
         self.textLatin = textLatin
@@ -81,10 +81,10 @@ final class Quote {
     /// Collection membership for this quote.
     var collection: QuoteCollection {
         get {
-            QuoteCollection(rawValue: collectionRaw ?? "") ?? .motivation
+            QuoteCollection(rawValue: self.collectionRaw ?? "") ?? .motivation
         }
         set {
-            collectionRaw = newValue.rawValue
+            self.collectionRaw = newValue.rawValue
         }
     }
 
@@ -94,11 +94,11 @@ final class Quote {
     func runicText(for script: RunicScript) -> String? {
         switch script {
         case .elder:
-            return runicElder
+            self.runicElder
         case .younger:
-            return runicYounger
+            self.runicYounger
         case .cirth:
-            return runicCirth
+            self.runicCirth
         }
     }
 
@@ -109,11 +109,11 @@ final class Quote {
     func setRunicText(_ text: String, for script: RunicScript) {
         switch script {
         case .elder:
-            runicElder = text
+            self.runicElder = text
         case .younger:
-            runicYounger = text
+            self.runicYounger = text
         case .cirth:
-            runicCirth = text
+            self.runicCirth = text
         }
     }
 }
@@ -125,7 +125,7 @@ extension Quote {
         Quote(
             textLatin: "The only way out is through.",
             author: "Robert Frost",
-            collection: .motivation
+            collection: .motivation,
         )
     }
 
@@ -134,7 +134,7 @@ extension Quote {
         [
             Quote(textLatin: "The only way out is through.", author: "Robert Frost", collection: .motivation),
             Quote(textLatin: "Not all those who wander are lost.", author: "J.R.R. Tolkien", collection: .tolkien),
-            Quote(textLatin: "Fortune favors the bold.", author: "Virgil", collection: .stoic)
+            Quote(textLatin: "Fortune favors the bold.", author: "Virgil", collection: .stoic),
         ]
     }
 }

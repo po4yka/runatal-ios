@@ -189,7 +189,7 @@ struct QuoteView: View {
             LiquidContentScaffold(
                 palette: self.palette,
                 scrollEnabled: !self.viewModel.state.isLoading && self.viewModel.state.errorMessage == nil,
-                showBackgroundExtension: true
+                showBackgroundExtension: true,
             ) {
                 if self.viewModel.state.isLoading {
                     QuoteLoadingView(palette: self.palette)
@@ -231,7 +231,7 @@ struct QuoteView: View {
             .copyText,
             .edit,
             .hide,
-            .delete
+            .delete,
         ]
     }
 
@@ -246,7 +246,7 @@ struct QuoteView: View {
                 meta: [
                     self.viewModel.state.currentCollection.displayName,
                     self.viewModel.state.currentScript.displayName,
-                    self.viewModel.state.currentWidgetMode.displayName
+                    self.viewModel.state.currentWidgetMode.displayName,
                 ],
                 palette: self.palette,
             )

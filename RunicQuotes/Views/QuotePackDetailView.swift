@@ -2,7 +2,7 @@
 //  QuotePackDetailView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftData
@@ -20,7 +20,7 @@ struct QuotePackDetailView: View {
     @State private var errorMessage: String?
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     // MARK: - Body
@@ -28,80 +28,79 @@ struct QuotePackDetailView: View {
     var body: some View {
         ZStack {
             LiquidContentScaffold(
-                palette: palette,
+                palette: self.palette,
                 topPadding: DesignTokens.Spacing.xl,
                 spacing: DesignTokens.Spacing.lg,
-                showBackgroundExtension: false
+                showBackgroundExtension: false,
             ) {
                 HeroHeader(
                     eyebrow: "Quote Pack",
-                    title: pack.title,
-                    subtitle: pack.subtitle,
-                    meta: ["\(pack.quoteCount) quotes"],
-                    palette: palette
+                    title: self.pack.title,
+                    subtitle: self.pack.subtitle,
+                    meta: ["\(self.pack.quoteCount) quotes"],
+                    palette: self.palette,
                 )
 
                 if let errorMessage {
                     FeedbackBanner(
-                        palette: palette,
+                        palette: self.palette,
                         tone: .error,
                         title: "Couldn't install pack",
-                        message: errorMessage
+                        message: errorMessage,
                     )
                 }
 
-                packHeader
-                descriptionSection
-                previewSection
+                self.packHeader
+                self.descriptionSection
+                self.previewSection
             }
 
-            if showSuccess {
-                successOverlay
+            if self.showSuccess {
+                self.successOverlay
             }
         }
-        .navigationTitle(pack.title)
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !showSuccess {
-                installButton
+        .navigationTitle(self.pack.title)
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if !self.showSuccess {
+                    self.installButton
+                }
             }
-        }
-        .onAppear {
-            loadInstalledState()
-        }
-        .alert("Couldn’t Install Pack", isPresented: isShowingErrorAlert) {
-            Button("OK", role: .cancel) {
-                errorMessage = nil
+            .onAppear {
+                self.loadInstalledState()
             }
-        } message: {
-            Text(errorMessage ?? "Please try again.")
-        }
+            .alert("Couldn’t Install Pack", isPresented: self.isShowingErrorAlert) {
+                Button("OK", role: .cancel) {
+                    self.errorMessage = nil
+                }
+            } message: {
+                Text(self.errorMessage ?? "Please try again.")
+            }
     }
 
     // MARK: - Pack Header
 
-    @ViewBuilder
     private var packHeader: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .hero,
             cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.medium
+            shadowRadius: DesignTokens.Elevation.medium,
         ) {
             VStack(spacing: DesignTokens.Spacing.sm) {
-                Text(pack.runicGlyph)
+                Text(self.pack.runicGlyph)
                     .font(.system(size: 48))
-                    .foregroundStyle(palette.runeText)
+                    .foregroundStyle(self.palette.runeText)
 
-                Text(pack.title)
+                Text(self.pack.title)
                     .font(.title2.weight(.bold))
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
-                Text("\(pack.quoteCount) quotes \u{00B7} \(pack.subtitle)")
+                Text("\(self.pack.quoteCount) quotes \u{00B7} \(self.pack.subtitle)")
                     .font(DesignTokens.Typography.supportingBody)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
             }
             .frame(maxWidth: .infinity)
         }
@@ -109,53 +108,51 @@ struct QuotePackDetailView: View {
 
     // MARK: - Description
 
-    @ViewBuilder
     private var descriptionSection: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 0
+            shadowRadius: 0,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                SectionLabel(title: "Description", palette: palette)
-                Text(pack.description)
+                SectionLabel(title: "Description", palette: self.palette)
+                Text(self.pack.description)
                     .font(DesignTokens.Typography.supportingBody)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
             }
         }
     }
 
     // MARK: - Preview Section
 
-    @ViewBuilder
     private var previewSection: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 0
+            shadowRadius: 0,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                SectionLabel(title: "Preview", palette: palette)
+                SectionLabel(title: "Preview", palette: self.palette)
 
-                ForEach(Array(pack.previewQuotes.enumerated()), id: \.offset) { index, quote in
+                ForEach(Array(self.pack.previewQuotes.enumerated()), id: \.offset) { index, quote in
                     HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                         Text("\(index + 1)")
                             .font(DesignTokens.Typography.controlLabel)
-                            .foregroundStyle(palette.accent)
+                            .foregroundStyle(self.palette.accent)
                             .frame(width: 20, alignment: .trailing)
 
                         Text("\"\(quote)\"")
                             .font(DesignTokens.Typography.supportingBody)
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
                             .italic()
                     }
                     .padding(.vertical, DesignTokens.Spacing.xxs)
 
-                    if index < pack.previewQuotes.count - 1 {
+                    if index < self.pack.previewQuotes.count - 1 {
                         Divider()
-                            .overlay(palette.separator)
+                            .overlay(self.palette.separator)
                     }
                 }
             }
@@ -164,66 +161,64 @@ struct QuotePackDetailView: View {
 
     // MARK: - Install Button
 
-    @ViewBuilder
     private var installButton: some View {
         HStack {
-            if isInstalled {
+            if self.isInstalled {
                 Label("Installed", systemImage: "checkmark")
                     .font(DesignTokens.Typography.controlLabel)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, DesignTokens.Spacing.sm)
             } else {
                 Button {
-                    installPack()
+                    self.installPack()
                 } label: {
                     Label("Install Pack", systemImage: "arrow.down.circle")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
+                .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
             }
         }
         .padding(.horizontal, DesignTokens.Spacing.md)
         .padding(.top, DesignTokens.Spacing.xs)
         .padding(.bottom, DesignTokens.Spacing.lg)
-        .background(palette.background.opacity(0.96))
+        .background(self.palette.background.opacity(0.96))
     }
 
     // MARK: - Success Overlay
 
-    @ViewBuilder
     private var successOverlay: some View {
         Color.black.opacity(0.14)
             .ignoresSafeArea()
             .overlay {
                 ContentPlate(
-                    palette: palette,
+                    palette: self.palette,
                     tone: .hero,
                     cornerRadius: DesignTokens.CornerRadius.xxl,
                     shadowRadius: DesignTokens.Elevation.hero,
-                    contentPadding: DesignTokens.Spacing.xl
+                    contentPadding: DesignTokens.Spacing.xl,
                 ) {
                     VStack(spacing: DesignTokens.Spacing.lg) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 54))
-                            .foregroundStyle(palette.accent)
+                            .foregroundStyle(self.palette.accent)
 
                         Text("Pack Added")
                             .font(DesignTokens.Typography.pageTitle)
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
 
-                        Text("\(pack.quoteCount) quotes from \(pack.title) are now in your collection.")
+                        Text("\(self.pack.quoteCount) quotes from \(self.pack.title) are now in your collection.")
                             .font(DesignTokens.Typography.supportingBody)
-                            .foregroundStyle(palette.textSecondary)
+                            .foregroundStyle(self.palette.textSecondary)
                             .multilineTextAlignment(.center)
 
                         Button {
-                            dismiss()
+                            self.dismiss()
                         } label: {
                             Text("Explore Pack")
                                 .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
+                        .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
                     }
                     .frame(maxWidth: 360)
                 }
@@ -237,34 +232,34 @@ struct QuotePackDetailView: View {
     private func loadInstalledState() {
         do {
             let preferences = try preferencesRepository.snapshot()
-            isInstalled = preferences.isPackInstalled(pack.id)
+            self.isInstalled = preferences.isPackInstalled(self.pack.id)
         } catch {
-            isInstalled = false
+            self.isInstalled = false
         }
     }
 
     private func installPack() {
         do {
             var preferences = try preferencesRepository.snapshot()
-            _ = preferences.installPack(pack.id)
-            try preferencesRepository.save(preferences)
-            isInstalled = true
+            _ = preferences.installPack(self.pack.id)
+            try self.preferencesRepository.save(preferences)
+            self.isInstalled = true
             withAnimation(.easeInOut(duration: 0.4)) {
-                showSuccess = true
+                self.showSuccess = true
             }
         } catch {
-            errorMessage = error.localizedDescription
+            self.errorMessage = error.localizedDescription
         }
     }
 
     private var isShowingErrorAlert: Binding<Bool> {
         Binding(
-            get: { errorMessage != nil },
+            get: { self.errorMessage != nil },
             set: { isPresented in
                 if !isPresented {
-                    errorMessage = nil
+                    self.errorMessage = nil
                 }
-            }
+            },
         )
     }
 }

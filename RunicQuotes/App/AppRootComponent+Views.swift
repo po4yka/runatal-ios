@@ -2,7 +2,7 @@
 //  AppRootComponent+Views.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ extension AppRootComponent {
             quoteView: quoteFeatureComponent.view(),
             searchView: searchFeatureComponent.view(),
             savedView: savedFeatureComponent.view(),
-            settingsView: settingsFeatureComponent.view()
+            settingsView: settingsFeatureComponent.view(),
         )
     }
 

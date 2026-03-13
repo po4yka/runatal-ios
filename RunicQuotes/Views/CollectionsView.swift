@@ -120,7 +120,7 @@ struct CollectionsView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(self.palette.accent)
                     }
-                }
+                },
             )
         }
         .buttonStyle(.plain)
@@ -153,7 +153,7 @@ struct CollectionsView: View {
                     Image(systemName: "arrow.right.circle.fill")
                         .font(.title3)
                         .foregroundStyle(self.palette.accent)
-                }
+                },
             )
         }
         .buttonStyle(.plain)

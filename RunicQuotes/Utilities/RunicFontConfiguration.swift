@@ -2,7 +2,7 @@
 //  RunicFontConfiguration.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
@@ -17,15 +17,15 @@ enum RunicFontConfiguration {
     static func fontName(for script: RunicScript, font: RunicFont) -> String {
         switch script {
         case .cirth:
-            return "Angerthas Moria"
+            "Angerthas Moria"
         case .elder, .younger:
             switch font {
             case .noto:
-                return "Noto Sans Runic"
+                "Noto Sans Runic"
             case .babelstone:
-                return "BabelStone Runic"
+                "BabelStone Runic"
             case .cirth:
-                return "Angerthas Moria" // fallback
+                "Angerthas Moria" // fallback
             }
         }
     }
@@ -36,9 +36,9 @@ enum RunicFontConfiguration {
     static func recommendedFont(for script: RunicScript) -> RunicFont {
         switch script {
         case .elder, .younger:
-            return .noto
+            .noto
         case .cirth:
-            return .cirth
+            .cirth
         }
     }
 

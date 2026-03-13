@@ -2,12 +2,12 @@
 //  OnboardingView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-02-13.
+//  Created by Claude on 13.02.26.
 //
 
+import os
 import SwiftUI
 import UserNotifications
-import os
 
 // swiftlint:disable type_body_length
 /// Five-step onboarding flow: Splash -> Intro -> Atmosphere -> Notifications -> Ready.
@@ -41,30 +41,30 @@ struct OnboardingView: View {
     let onComplete: () -> Void
 
     private var palette: AppThemePalette {
-        AppThemePalette.themed(runicTheme, for: colorScheme)
+        AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
     }
 
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            backgroundGradient
-            RunicAtmosphere(script: selectedScript ?? .elder)
+            self.backgroundGradient
+            RunicAtmosphere(script: self.selectedScript ?? .elder)
                 .ignoresSafeArea()
                 .opacity(0.05)
 
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
 
-                pageContent
+                self.pageContent
                     .frame(maxWidth: .infinity)
 
                 Spacer(minLength: 0)
 
-                if currentPage != .splash {
+                if self.currentPage != .splash {
                     VStack(spacing: DesignTokens.Spacing.sm) {
-                        progressDots
-                        pageAction
+                        self.progressDots
+                        self.pageAction
                     }
                     .padding(.bottom, DesignTokens.Spacing.xxl)
                 }
@@ -77,20 +77,20 @@ struct OnboardingView: View {
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: palette.immersiveBackgroundGradient,
+            colors: self.palette.immersiveBackgroundGradient,
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
         )
         .overlay(alignment: .topTrailing) {
             Circle()
-                .fill(palette.chromeTint)
+                .fill(self.palette.chromeTint)
                 .frame(width: 180, height: 180)
                 .blur(radius: 80)
                 .offset(x: 84, y: -24)
         }
         .overlay(alignment: .bottomLeading) {
             Circle()
-                .fill(palette.ornament)
+                .fill(self.palette.ornament)
                 .frame(width: 220, height: 220)
                 .blur(radius: 100)
                 .offset(x: -94, y: 104)
@@ -103,12 +103,12 @@ struct OnboardingView: View {
     private var progressDots: some View {
         // Only show for pages after splash (4 dots for intro..ready)
         let totalDots = Page.allCases.count - 1
-        let currentDot = currentPage.rawValue - 1
+        let currentDot = self.currentPage.rawValue - 1
 
         return HStack(spacing: DesignTokens.Spacing.xs) {
-            ForEach(0..<totalDots, id: \.self) { index in
+            ForEach(0 ..< totalDots, id: \.self) { index in
                 Circle()
-                    .fill(index == currentDot ? palette.accent : palette.textTertiary.opacity(0.4))
+                    .fill(index == currentDot ? self.palette.accent : self.palette.textTertiary.opacity(0.4))
                     .frame(width: 6, height: 6)
             }
         }
@@ -116,26 +116,25 @@ struct OnboardingView: View {
 
     // MARK: - Page Content
 
-    @ViewBuilder
     private var pageContent: some View {
         Group {
-            switch currentPage {
+            switch self.currentPage {
             case .splash:
-                splashPage
+                self.splashPage
             case .intro:
-                introPage
+                self.introPage
             case .atmosphere:
-                atmospherePage
+                self.atmospherePage
             case .notifications:
-                notificationsPage
+                self.notificationsPage
             case .ready:
-                readyPage
+                self.readyPage
             }
         }
-        .id(currentPage)
+        .id(self.currentPage)
         .transition(.asymmetric(
-            insertion: .move(edge: navigationDirection == .forward ? .trailing : .leading).combined(with: .opacity),
-            removal: .move(edge: navigationDirection == .forward ? .leading : .trailing).combined(with: .opacity)
+            insertion: .move(edge: self.navigationDirection == .forward ? .trailing : .leading).combined(with: .opacity),
+            removal: .move(edge: self.navigationDirection == .forward ? .leading : .trailing).combined(with: .opacity),
         ))
     }
 
@@ -148,11 +147,11 @@ struct OnboardingView: View {
             VStack(spacing: DesignTokens.Spacing.sm) {
                 Text("ᚱ")
                     .font(.system(size: 72, weight: .light, design: .serif))
-                    .foregroundStyle(palette.runeText)
+                    .foregroundStyle(self.palette.runeText)
 
                 Text("RunicQuotes")
                     .font(DesignTokens.Typography.heroCompact)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
             }
 
             Spacer()
@@ -162,7 +161,7 @@ struct OnboardingView: View {
             // Auto-advance after 2 seconds
             try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else { return }
-            moveForward()
+            self.moveForward()
         }
     }
 
@@ -170,16 +169,16 @@ struct OnboardingView: View {
 
     private var introPage: some View {
         LiquidCard(
-            palette: palette,
+            palette: self.palette,
             role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xxl,
             shadowRadius: DesignTokens.Elevation.hero,
-            contentPadding: DesignTokens.Spacing.xl
+            contentPadding: DesignTokens.Spacing.xl,
         ) {
             VStack(spacing: DesignTokens.Spacing.lg) {
                 Text("\u{16A0}\u{16B1}\u{16BA}\u{16C7}\u{16D2}\u{16A8}\u{16C1}")
                     .font(.system(size: 20))
-                    .foregroundStyle(palette.accent.opacity(0.65))
+                    .foregroundStyle(self.palette.accent.opacity(0.65))
                     .tracking(8)
 
                 HeroHeader(
@@ -187,8 +186,8 @@ struct OnboardingView: View {
                     title: "Ancient scripts, modern ritual",
                     subtitle: "Begin with a quieter reading cadence and choose the alphabet that feels like yours.",
                     meta: ["Elder Futhark", "Younger Futhark", "Cirth"],
-                    palette: palette,
-                    alignment: .center
+                    palette: self.palette,
+                    alignment: .center,
                 )
             }
         }
@@ -203,8 +202,8 @@ struct OnboardingView: View {
                 title: "Pick the script that sets the mood",
                 subtitle: "This becomes your default atmosphere when the app opens.",
                 meta: ["You can change it later in Settings"],
-                palette: palette,
-                alignment: .center
+                palette: self.palette,
+                alignment: .center,
             )
 
             VStack(spacing: DesignTokens.Spacing.sm) {
@@ -213,12 +212,12 @@ struct OnboardingView: View {
                     title: "Elder Futhark",
                     subtitle: "2nd-8th century inscriptions and talismans",
                     sampleLatin: "Strength grows in silence.",
-                    selectedScript: selectedScript,
-                    palette: palette
+                    selectedScript: self.selectedScript,
+                    palette: self.palette,
                 ) { newSelection in
                     Haptics.trigger(.scriptSwitch)
                     withAnimation(AnimationPresets.smoothEase) {
-                        selectedScript = newSelection
+                        self.selectedScript = newSelection
                     }
                 }
 
@@ -227,12 +226,12 @@ struct OnboardingView: View {
                     title: "Younger Futhark",
                     subtitle: "Viking Age carving style with compact forms",
                     sampleLatin: "The sea keeps old vows.",
-                    selectedScript: selectedScript,
-                    palette: palette
+                    selectedScript: self.selectedScript,
+                    palette: self.palette,
                 ) { newSelection in
                     Haptics.trigger(.scriptSwitch)
                     withAnimation(AnimationPresets.smoothEase) {
-                        selectedScript = newSelection
+                        self.selectedScript = newSelection
                     }
                 }
 
@@ -241,12 +240,12 @@ struct OnboardingView: View {
                     title: "Cirth",
                     subtitle: "Tolkien-inspired runes for lore and legend",
                     sampleLatin: "Paths awaken beneath the stars.",
-                    selectedScript: selectedScript,
-                    palette: palette
+                    selectedScript: self.selectedScript,
+                    palette: self.palette,
                 ) { newSelection in
                     Haptics.trigger(.scriptSwitch)
                     withAnimation(AnimationPresets.smoothEase) {
-                        selectedScript = newSelection
+                        self.selectedScript = newSelection
                     }
                 }
             }
@@ -257,11 +256,11 @@ struct OnboardingView: View {
 
     private var notificationsPage: some View {
         LiquidCard(
-            palette: palette,
+            palette: self.palette,
             role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xxl,
             shadowRadius: DesignTokens.Elevation.chrome,
-            contentPadding: DesignTokens.Spacing.xl
+            contentPadding: DesignTokens.Spacing.xl,
         ) {
             VStack(spacing: DesignTokens.Spacing.xl) {
                 HeroHeader(
@@ -269,23 +268,23 @@ struct OnboardingView: View {
                     title: "Receive a daily rune",
                     subtitle: "Let one line arrive on its own rhythm instead of asking you to remember.",
                     meta: ["Optional", "Can be changed later"],
-                    palette: palette,
-                    alignment: .center
+                    palette: self.palette,
+                    alignment: .center,
                 )
 
-                InsetCard(palette: palette, cornerRadius: DesignTokens.CornerRadius.lg) {
+                InsetCard(palette: self.palette, cornerRadius: DesignTokens.CornerRadius.lg) {
                     HStack(spacing: DesignTokens.Spacing.sm) {
                         Image(systemName: "bell.badge")
                             .font(.title2)
-                            .foregroundStyle(palette.accent)
+                            .foregroundStyle(self.palette.accent)
 
                         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                             Text("Daily Rune")
                                 .font(.headline)
-                                .foregroundStyle(palette.textPrimary)
+                                .foregroundStyle(self.palette.textPrimary)
                             Text("Your morning wisdom awaits")
                                 .font(.subheadline)
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(self.palette.textSecondary)
                         }
 
                         Spacer()
@@ -299,25 +298,25 @@ struct OnboardingView: View {
 
     private var readyPage: some View {
         LiquidCard(
-            palette: palette,
+            palette: self.palette,
             role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xxl,
             shadowRadius: DesignTokens.Elevation.hero,
-            contentPadding: DesignTokens.Spacing.xl
+            contentPadding: DesignTokens.Spacing.xl,
         ) {
             VStack(spacing: DesignTokens.Spacing.lg) {
                 Text("\u{16A8}\u{16C7}\u{16B1}\u{16BA}\u{16D2}")
                     .font(.system(size: 20))
-                    .foregroundStyle(palette.accent.opacity(0.6))
+                    .foregroundStyle(self.palette.accent.opacity(0.6))
                     .tracking(8)
 
                 HeroHeader(
                     eyebrow: "Begin",
                     title: "Ready to read",
                     subtitle: "Your defaults are set. Step into the library and let the first passage arrive.",
-                    meta: [notificationsEnabled ? "Notifications on" : "Notifications optional"],
-                    palette: palette,
-                    alignment: .center
+                    meta: [self.notificationsEnabled ? "Notifications on" : "Notifications optional"],
+                    palette: self.palette,
+                    alignment: .center,
                 )
             }
         }
@@ -325,14 +324,13 @@ struct OnboardingView: View {
 
     // MARK: - Page Actions
 
-    @ViewBuilder
     private var pageAction: some View {
         OnboardingActionFooter(
-            currentPage: currentPage,
-            palette: palette,
-            requestNotifications: requestNotifications,
-            moveForward: moveForward,
-            savePreferencesAndFinish: savePreferencesAndFinish
+            currentPage: self.currentPage,
+            palette: self.palette,
+            requestNotifications: self.requestNotifications,
+            moveForward: self.moveForward,
+            savePreferencesAndFinish: self.savePreferencesAndFinish,
         )
     }
 
@@ -340,18 +338,18 @@ struct OnboardingView: View {
 
     private func moveForward() {
         guard let next = Page(rawValue: currentPage.rawValue + 1) else { return }
-        navigationDirection = .forward
+        self.navigationDirection = .forward
         withAnimation(AnimationPresets.smoothEase) {
-            currentPage = next
+            self.currentPage = next
         }
     }
 
     private func moveBackward() {
         guard let previous = Page(rawValue: currentPage.rawValue - 1),
               previous != .splash else { return }
-        navigationDirection = .backward
+        self.navigationDirection = .backward
         withAnimation(AnimationPresets.smoothEase) {
-            currentPage = previous
+            self.currentPage = previous
         }
     }
 
@@ -359,11 +357,11 @@ struct OnboardingView: View {
 
     private func requestNotifications() {
         Task {
-            let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(
-                options: [.alert, .badge, .sound]
+            let granted = await (try? UNUserNotificationCenter.current().requestAuthorization(
+                options: [.alert, .badge, .sound],
             )) ?? false
-            notificationsEnabled = granted
-            moveForward()
+            self.notificationsEnabled = granted
+            self.moveForward()
         }
     }
 
@@ -373,19 +371,19 @@ struct OnboardingView: View {
 
     private func savePreferencesAndFinish() {
         do {
-            let script = selectedScript ?? .elder
+            let script = self.selectedScript ?? .elder
             var preferences = try preferencesRepository.snapshot()
             preferences.selectedScript = script
             if !preferences.selectedFont.isCompatible(with: script) {
                 preferences.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
             }
-            try preferencesRepository.save(preferences)
+            try self.preferencesRepository.save(preferences)
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
             Self.logger.error("Failed to save onboarding preferences: \(error.localizedDescription)")
         }
 
-        onComplete()
+        self.onComplete()
     }
 }
 
@@ -396,4 +394,5 @@ struct OnboardingView: View {
         .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
         .environment(\.userPreferencesRepository, PreviewUserPreferencesRepository.shared)
 }
+
 // swiftlint:enable type_body_length

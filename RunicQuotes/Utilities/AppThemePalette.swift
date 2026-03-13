@@ -2,7 +2,7 @@
 //  AppThemePalette.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 13.02.26.
 //
 
 import SwiftUI
@@ -36,74 +36,74 @@ struct AppThemePalette {
 
 extension AppThemePalette {
     static func adaptive(for colorScheme: ColorScheme) -> AppThemePalette {
-        themed(.obsidian, for: colorScheme)
+        self.themed(.obsidian, for: colorScheme)
     }
 
     static func themed(_ theme: AppTheme, for colorScheme: ColorScheme) -> AppThemePalette {
         switch (theme, colorScheme) {
         case (.obsidian, .dark):
-            return obsidianDark
+            return self.obsidianDark
         case (.obsidian, .light):
-            return obsidianLight
+            return self.obsidianLight
         case (.parchment, .dark):
-            return parchmentDark
+            return self.parchmentDark
         case (.parchment, .light):
-            return parchmentLight
+            return self.parchmentLight
         case (.nordicDawn, .dark):
-            return nordicDawnDark
+            return self.nordicDawnDark
         case (.nordicDawn, .light):
-            return nordicDawnLight
+            return self.nordicDawnLight
         @unknown default:
-            return obsidianDark
+            return self.obsidianDark
         }
     }
 
     var heroBackgroundGradient: [Color] {
-        [canvasBase, canvasElevated, canvasBase]
+        [self.canvasBase, self.canvasElevated, self.canvasBase]
     }
 
     var immersiveBackgroundGradient: [Color] {
-        [canvasBase, canvasSecondary, canvasBase]
+        [self.canvasBase, self.canvasSecondary, self.canvasBase]
     }
 
     var editorialSurface: Color {
-        contentPlateElevated
+        self.contentPlateElevated
     }
 
     var editorialInset: Color {
-        insetPlate
+        self.insetPlate
     }
 
     var editorialMutedSurface: Color {
-        groupedBG.opacity(0.76)
+        self.groupedBG.opacity(0.76)
     }
 
     var cardStroke: Color {
-        contentStroke
+        self.contentStroke
     }
 
     var strongCardStroke: Color {
-        accent.opacity(0.34)
+        self.accent.opacity(0.34)
     }
 
     var chipFill: Color {
-        chromeFallback
+        self.chromeFallback
     }
 
     var chipSelectedFill: Color {
-        accent
+        self.accent
     }
 
     var chipSelectedForeground: Color {
-        background
+        self.background
     }
 
     var ornament: Color {
-        runeText.opacity(0.08)
+        self.runeText.opacity(0.08)
     }
 
     var ornamentSecondary: Color {
-        accent.opacity(0.07)
+        self.accent.opacity(0.07)
     }
 
     var shadowColor: Color {
@@ -111,87 +111,87 @@ extension AppThemePalette {
     }
 
     var highlight: Color {
-        textPrimary.opacity(0.05)
+        self.textPrimary.opacity(0.05)
     }
 
     var bannerBackground: Color {
-        chromeFallback
+        self.chromeFallback
     }
 
     var successFill: Color {
-        success.opacity(0.15)
+        self.success.opacity(0.15)
     }
 
     var warningFill: Color {
-        warning.opacity(0.15)
+        self.warning.opacity(0.15)
     }
 
     var errorFill: Color {
-        error.opacity(0.15)
+        self.error.opacity(0.15)
     }
 
     var canvasBase: Color {
-        background
+        self.background
     }
 
     var canvasSecondary: Color {
-        groupedBG.opacity(0.96)
+        self.groupedBG.opacity(0.96)
     }
 
     var canvasElevated: Color {
-        surface.opacity(0.94)
+        self.surface.opacity(0.94)
     }
 
     var contentPlate: Color {
-        surface.opacity(0.94)
+        self.surface.opacity(0.94)
     }
 
     var contentPlateElevated: Color {
-        surfaceElevated.opacity(0.96)
+        self.surfaceElevated.opacity(0.96)
     }
 
     var insetPlate: Color {
-        groupedBG.opacity(0.72)
+        self.groupedBG.opacity(0.72)
     }
 
     var chromeTint: Color {
-        accent.opacity(0.22)
+        self.accent.opacity(0.22)
     }
 
     var chromeFill: Color {
-        surface.opacity(0.42)
+        self.surface.opacity(0.42)
     }
 
     var chromeFallback: Color {
-        surfaceElevated.opacity(0.78)
+        self.surfaceElevated.opacity(0.78)
     }
 
     var contentStroke: Color {
-        separator.opacity(0.6)
+        self.separator.opacity(0.6)
     }
 
     var chromeStroke: Color {
-        separator.opacity(0.42)
+        self.separator.opacity(0.42)
     }
 
     var rowFill: Color {
-        surface.opacity(0.88)
+        self.surface.opacity(0.88)
     }
 
     var rowInsetFill: Color {
-        groupedBG.opacity(0.62)
+        self.groupedBG.opacity(0.62)
     }
 
     var fieldFill: Color {
-        surface.opacity(0.78)
+        self.surface.opacity(0.78)
     }
 
     var toolbarBadgeFill: Color {
-        surfaceElevated.opacity(0.72)
+        self.surfaceElevated.opacity(0.72)
     }
 
     var subtleAccentText: Color {
-        accent.opacity(0.92)
+        self.accent.opacity(0.92)
     }
 
     private static let obsidianDark = AppThemePalette(
@@ -200,12 +200,12 @@ extension AppThemePalette {
             Color(hex: 0x11161D),
             Color(hex: 0x1A202A),
             Color(hex: 0x12171F),
-            Color(hex: 0x090C12)
+            Color(hex: 0x090C12),
         ],
         widgetBackgroundGradient: [
             Color(hex: 0x0B0F15),
             Color(hex: 0x171E28),
-            Color(hex: 0x0B0F15)
+            Color(hex: 0x0B0F15),
         ],
         primaryText: Color(hex: 0xF4EFE6),
         secondaryText: Color(hex: 0xC3B8A7),
@@ -226,7 +226,7 @@ extension AppThemePalette {
         success: Color(hex: 0x7BAA7C),
         warning: Color(hex: 0xC8A45B),
         error: Color(hex: 0xC37A73),
-        separator: Color(hex: 0x2F3743)
+        separator: Color(hex: 0x2F3743),
     )
 
     private static let obsidianLight = AppThemePalette(
@@ -235,12 +235,12 @@ extension AppThemePalette {
             Color(hex: 0xE8E2D7),
             Color(hex: 0xDDD6CA),
             Color(hex: 0xECE5DA),
-            Color(hex: 0xF8F3EB)
+            Color(hex: 0xF8F3EB),
         ],
         widgetBackgroundGradient: [
             Color(hex: 0xEEE7DA),
             Color(hex: 0xE2D9C9),
-            Color(hex: 0xF7F1E7)
+            Color(hex: 0xF7F1E7),
         ],
         primaryText: Color(hex: 0x211B15),
         secondaryText: Color(hex: 0x5D5347),
@@ -261,7 +261,7 @@ extension AppThemePalette {
         success: Color(hex: 0x4F7B55),
         warning: Color(hex: 0xA17A32),
         error: Color(hex: 0xA6524C),
-        separator: Color(hex: 0xD2C6B6)
+        separator: Color(hex: 0xD2C6B6),
     )
 
     private static let parchmentDark = AppThemePalette(
@@ -270,12 +270,12 @@ extension AppThemePalette {
             Color(hex: 0x261B12),
             Color(hex: 0x3B2A1B),
             Color(hex: 0x2A1E14),
-            Color(hex: 0x16100B)
+            Color(hex: 0x16100B),
         ],
         widgetBackgroundGradient: [
             Color(hex: 0x24190F),
             Color(hex: 0x3A2A1B),
-            Color(hex: 0x24190F)
+            Color(hex: 0x24190F),
         ],
         primaryText: Color(hex: 0xF3E5CE),
         secondaryText: Color(hex: 0xDABF96),
@@ -296,7 +296,7 @@ extension AppThemePalette {
         success: Color(hex: 0x7E9C67),
         warning: Color(hex: 0xC69A52),
         error: Color(hex: 0xC87A6A),
-        separator: Color(hex: 0x57412C)
+        separator: Color(hex: 0x57412C),
     )
 
     private static let parchmentLight = AppThemePalette(
@@ -305,12 +305,12 @@ extension AppThemePalette {
             Color(hex: 0xF3E5D0),
             Color(hex: 0xEAD8BE),
             Color(hex: 0xF6E8D6),
-            Color(hex: 0xFFF8EF)
+            Color(hex: 0xFFF8EF),
         ],
         widgetBackgroundGradient: [
             Color(hex: 0xF6E8D6),
             Color(hex: 0xE9D6B8),
-            Color(hex: 0xFFF7EC)
+            Color(hex: 0xFFF7EC),
         ],
         primaryText: Color(hex: 0x2F2215),
         secondaryText: Color(hex: 0x735A3F),
@@ -331,7 +331,7 @@ extension AppThemePalette {
         success: Color(hex: 0x5F8251),
         warning: Color(hex: 0xA37729),
         error: Color(hex: 0xAE5A46),
-        separator: Color(hex: 0xDFC8A7)
+        separator: Color(hex: 0xDFC8A7),
     )
 
     private static let nordicDawnDark = AppThemePalette(
@@ -340,12 +340,12 @@ extension AppThemePalette {
             Color(hex: 0x13232E),
             Color(hex: 0x20384A),
             Color(hex: 0x162A36),
-            Color(hex: 0x0C151D)
+            Color(hex: 0x0C151D),
         ],
         widgetBackgroundGradient: [
             Color(hex: 0x0D1921),
             Color(hex: 0x1B3140),
-            Color(hex: 0x0D1921)
+            Color(hex: 0x0D1921),
         ],
         primaryText: Color(hex: 0xEAF4F7),
         secondaryText: Color(hex: 0xB8CCD6),
@@ -366,7 +366,7 @@ extension AppThemePalette {
         success: Color(hex: 0x78A890),
         warning: Color(hex: 0xB4A05A),
         error: Color(hex: 0xC27474),
-        separator: Color(hex: 0x2A4352)
+        separator: Color(hex: 0x2A4352),
     )
 
     private static let nordicDawnLight = AppThemePalette(
@@ -375,12 +375,12 @@ extension AppThemePalette {
             Color(hex: 0xE8F1F4),
             Color(hex: 0xD8E6EB),
             Color(hex: 0xEEF5F7),
-            Color(hex: 0xFBFEFE)
+            Color(hex: 0xFBFEFE),
         ],
         widgetBackgroundGradient: [
             Color(hex: 0xEAF3F5),
             Color(hex: 0xD7E6EB),
-            Color(hex: 0xF8FCFD)
+            Color(hex: 0xF8FCFD),
         ],
         primaryText: Color(hex: 0x10212A),
         secondaryText: Color(hex: 0x49606C),
@@ -401,7 +401,7 @@ extension AppThemePalette {
         success: Color(hex: 0x4D7A68),
         warning: Color(hex: 0x9A8747),
         error: Color(hex: 0xA55656),
-        separator: Color(hex: 0xC8D7DD)
+        separator: Color(hex: 0xC8D7DD),
     )
 }
 

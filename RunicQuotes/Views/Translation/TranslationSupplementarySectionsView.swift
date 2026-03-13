@@ -13,19 +13,27 @@ struct TranslationSupplementarySectionsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
-            if self.state.translationMode == .translate,
-               self.state.normalizedForm != nil || self.state.diplomaticForm != nil {
+            let showsLayersCard =
+                self.state.translationMode == .translate &&
+                (self.state.normalizedForm != nil || self.state.diplomaticForm != nil)
+
+            if showsLayersCard {
                 self.layersCard
             }
 
-            if self.state.translationMode == .translate,
-               !self.state.notes.isEmpty ||
-               !self.state.unresolvedTokens.isEmpty ||
-               self.state.derivationKind != nil ||
-               self.state.supportLevel != nil ||
-               self.state.evidenceTier != nil ||
-               !self.state.attestationRefs.isEmpty ||
-               !self.state.userFacingWarnings.isEmpty {
+            let showsNotesCard =
+                self.state.translationMode == .translate &&
+                (
+                    !self.state.notes.isEmpty ||
+                        !self.state.unresolvedTokens.isEmpty ||
+                        self.state.derivationKind != nil ||
+                        self.state.supportLevel != nil ||
+                        self.state.evidenceTier != nil ||
+                        !self.state.attestationRefs.isEmpty ||
+                        !self.state.userFacingWarnings.isEmpty
+                )
+
+            if showsNotesCard {
                 self.notesCard
             }
 

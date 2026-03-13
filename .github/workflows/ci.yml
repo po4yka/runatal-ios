@@ -182,8 +182,6 @@ jobs:
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/RunicQuotesBuild.xcresult" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
             2>&1 | tee "$LOGS_DIR/build.log"
 
       - name: Run core tests
@@ -198,8 +196,6 @@ jobs:
             -enableCodeCoverage YES \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/${CORE_SCHEME}.xcresult" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
             2>&1 | tee "$LOGS_DIR/core-tests.log"
 
       - name: Run widget tests
@@ -213,8 +209,6 @@ jobs:
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/${WIDGET_SCHEME}.xcresult" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
             2>&1 | tee "$LOGS_DIR/widget-tests.log"
 
       - name: Run Xcode analyze
@@ -228,18 +222,34 @@ jobs:
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/RunicQuotesAnalyze.xcresult" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
             2>&1 | tee "$LOGS_DIR/analyze.log"
 
       - name: Generate Xcode coverage reports
         run: |
-          APP_BINARY=$(find "$DERIVED_DATA_PATH" -path '*Build/Products/Debug-iphonesimulator/RunicQuotes.app/RunicQuotes' -type f | head -1)
-          PROFDATA_FILES=$(find "$DERIVED_DATA_PATH" -name '*.profdata' -type f)
-          xcrun llvm-profdata merge -sparse $PROFDATA_FILES -o "$REPORTS_DIR/xcode-coverage.profdata"
-          xcrun llvm-cov report "$APP_BINARY" -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" > "$REPORTS_DIR/xcode-coverage-details.txt"
-          xcrun llvm-cov export -summary-only "$APP_BINARY" -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" > "$REPORTS_DIR/xcode-coverage-summary.json"
-          xcrun llvm-cov export -format=lcov "$APP_BINARY" -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" > coverage.lcov
+          APP_BINARY="$DERIVED_DATA_PATH/Build/Products/Debug-iphonesimulator/RunicQuotes.app/RunicQuotes.debug.dylib"
+          COVERAGE_IGNORE_REGEX='.*/SourcePackages/.*'
+          mapfile -t PROFDATA_FILES < <(find "$DERIVED_DATA_PATH" -name 'Coverage.profdata' -type f | sort)
+          if [ ! -f "$APP_BINARY" ]; then
+            echo "Expected app binary missing at $APP_BINARY" >&2
+            exit 1
+          fi
+          if [ "${#PROFDATA_FILES[@]}" -eq 0 ]; then
+            echo "No Coverage.profdata files found under $DERIVED_DATA_PATH" >&2
+            exit 1
+          fi
+          xcrun llvm-profdata merge -sparse "${PROFDATA_FILES[@]}" -o "$REPORTS_DIR/xcode-coverage.profdata"
+          xcrun llvm-cov report "$APP_BINARY" \
+            -ignore-filename-regex="$COVERAGE_IGNORE_REGEX" \
+            -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" \
+            > "$REPORTS_DIR/xcode-coverage-details.txt"
+          xcrun llvm-cov export -summary-only "$APP_BINARY" \
+            -ignore-filename-regex="$COVERAGE_IGNORE_REGEX" \
+            -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" \
+            > "$REPORTS_DIR/xcode-coverage-summary.json"
+          xcrun llvm-cov export -format=lcov "$APP_BINARY" \
+            -ignore-filename-regex="$COVERAGE_IGNORE_REGEX" \
+            -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" \
+            > coverage.lcov
           python3 scripts/ci/coverage_summary.py \
             "$REPORTS_DIR/xcode-coverage-summary.json" \
             "Xcode coverage summary" \
@@ -318,8 +328,6 @@ jobs:
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/${UI_SCHEME}.xcresult" \
             -only-testing:RunicQuotesUITests/RunicQuotesUISmokeTests \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
             2>&1 | tee "$LOGS_DIR/ui-smoke.log"
 
       - name: Publish UI smoke summaries

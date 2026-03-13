@@ -2,12 +2,12 @@
 //  ArchiveFeatureComponent.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import NeedleFoundation
 
-protocol ArchiveFeatureDependency: Dependency { }
+protocol ArchiveFeatureDependency: Dependency {}
 
 @MainActor
 final class ArchiveFeatureComponent: Component<ArchiveFeatureDependency> {
@@ -19,10 +19,10 @@ final class ArchiveFeatureComponent: Component<ArchiveFeatureDependency> {
     }
 
     var viewModel: ArchiveViewModel {
-        ArchiveViewModel(quoteProvider: quoteProvider)
+        ArchiveViewModel(quoteProvider: self.quoteProvider)
     }
 
     func view() -> ArchiveView {
-        ArchiveView(viewModel: viewModel)
+        ArchiveView(viewModel: self.viewModel)
     }
 }

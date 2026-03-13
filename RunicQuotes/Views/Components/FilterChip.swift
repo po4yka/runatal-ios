@@ -2,7 +2,7 @@
 //  FilterChip.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -14,21 +14,21 @@ struct FilterChip: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Text(title)
+        Button(action: self.action) {
+            Text(self.title)
                 .font(DesignTokens.Typography.controlLabel)
-                .foregroundStyle(isSelected ? palette.chipSelectedForeground : palette.textPrimary)
+                .foregroundStyle(self.isSelected ? self.palette.chipSelectedForeground : self.palette.textPrimary)
                 .padding(.horizontal, DesignTokens.Spacing.sm)
                 .padding(.vertical, DesignTokens.Spacing.xs)
                 .background {
                     Capsule()
-                        .fill(isSelected ? palette.chipSelectedFill : palette.chipFill)
+                        .fill(self.isSelected ? self.palette.chipSelectedFill : self.palette.chipFill)
                 }
                 .overlay {
                     Capsule()
                         .strokeBorder(
-                            isSelected ? palette.strongCardStroke : palette.cardStroke,
-                            lineWidth: DesignTokens.Stroke.hairline
+                            self.isSelected ? self.palette.strongCardStroke : self.palette.cardStroke,
+                            lineWidth: DesignTokens.Stroke.hairline,
                         )
                 }
         }

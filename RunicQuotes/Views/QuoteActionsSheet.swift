@@ -2,7 +2,7 @@
 //  QuoteActionsSheet.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Quote Action
 
 /// Actions available from the quote actions contextual sheet.
-enum QuoteAction: Identifiable, Sendable {
+enum QuoteAction: Identifiable {
     case share
     case addToFavorites
     case removeFromFavorites
@@ -22,40 +22,40 @@ enum QuoteAction: Identifiable, Sendable {
 
     var id: String {
         switch self {
-        case .share: return "share"
-        case .addToFavorites: return "addToFavorites"
-        case .removeFromFavorites: return "removeFromFavorites"
-        case .addToCollection: return "addToCollection"
-        case .copyText: return "copyText"
-        case .edit: return "edit"
-        case .hide: return "hide"
-        case .delete: return "delete"
+        case .share: "share"
+        case .addToFavorites: "addToFavorites"
+        case .removeFromFavorites: "removeFromFavorites"
+        case .addToCollection: "addToCollection"
+        case .copyText: "copyText"
+        case .edit: "edit"
+        case .hide: "hide"
+        case .delete: "delete"
         }
     }
 
     var title: String {
         switch self {
-        case .share: return "Share Quote"
-        case .addToFavorites: return "Add to Favorites"
-        case .removeFromFavorites: return "Remove from Favorites"
-        case .addToCollection: return "Add to Collection"
-        case .copyText: return "Copy Text"
-        case .edit: return "Edit Quote"
-        case .hide: return "Hide Quote"
-        case .delete: return "Delete Quote"
+        case .share: "Share Quote"
+        case .addToFavorites: "Add to Favorites"
+        case .removeFromFavorites: "Remove from Favorites"
+        case .addToCollection: "Add to Collection"
+        case .copyText: "Copy Text"
+        case .edit: "Edit Quote"
+        case .hide: "Hide Quote"
+        case .delete: "Delete Quote"
         }
     }
 
     var icon: String {
         switch self {
-        case .share: return "square.and.arrow.up"
-        case .addToFavorites: return "bookmark"
-        case .removeFromFavorites: return "bookmark.slash"
-        case .addToCollection: return "folder.badge.plus"
-        case .copyText: return "doc.on.doc"
-        case .edit: return "pencil"
-        case .hide: return "eye.slash"
-        case .delete: return "trash"
+        case .share: "square.and.arrow.up"
+        case .addToFavorites: "bookmark"
+        case .removeFromFavorites: "bookmark.slash"
+        case .addToCollection: "folder.badge.plus"
+        case .copyText: "doc.on.doc"
+        case .edit: "pencil"
+        case .hide: "eye.slash"
+        case .delete: "trash"
         }
     }
 
@@ -78,18 +78,18 @@ struct QuoteActionsSheet: View {
     @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     private var actions: [QuoteAction] {
         [
             .share,
-            isSaved ? .removeFromFavorites : .addToFavorites,
+            self.isSaved ? .removeFromFavorites : .addToFavorites,
             .addToCollection,
             .copyText,
             .edit,
             .hide,
-            .delete
+            .delete,
         ]
     }
 
@@ -98,7 +98,7 @@ struct QuoteActionsSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             Capsule()
-                .fill(palette.textTertiary.opacity(0.3))
+                .fill(self.palette.textTertiary.opacity(0.3))
                 .frame(width: 36, height: 5)
                 .padding(.top, DesignTokens.Spacing.sm)
                 .padding(.bottom, DesignTokens.Spacing.md)
@@ -107,24 +107,24 @@ struct QuoteActionsSheet: View {
                 eyebrow: "Actions",
                 title: "Current passage",
                 subtitle: "Choose how this quote should be handled.",
-                palette: palette
+                palette: self.palette,
             )
             .padding(.horizontal, DesignTokens.Spacing.lg)
             .padding(.bottom, DesignTokens.Spacing.sm)
 
-            ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
-                actionRow(action)
+            ForEach(Array(self.actions.enumerated()), id: \.element.id) { index, action in
+                self.actionRow(action)
 
-                if index < actions.count - 1 && !action.isDestructive && actions[safe: index + 1]?.isDestructive != true {
+                if index < self.actions.count - 1 && !action.isDestructive && self.actions[safe: index + 1]?.isDestructive != true {
                     Divider()
-                        .background(palette.separator)
+                        .background(self.palette.separator)
                         .padding(.leading, DesignTokens.Spacing.xxl + DesignTokens.Spacing.lg)
                 }
 
                 // Add extra spacing before destructive action
-                if !action.isDestructive, actions[safe: index + 1]?.isDestructive == true {
+                if !action.isDestructive, self.actions[safe: index + 1]?.isDestructive == true {
                     Rectangle()
-                        .fill(palette.separator.opacity(0.3))
+                        .fill(self.palette.separator.opacity(0.3))
                         .frame(height: 8)
                 }
             }
@@ -132,7 +132,7 @@ struct QuoteActionsSheet: View {
             Spacer()
                 .frame(height: DesignTokens.Spacing.md)
         }
-        .background(palette.editorialSurface)
+        .background(self.palette.editorialSurface)
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(DesignTokens.CornerRadius.xl)
@@ -142,18 +142,18 @@ struct QuoteActionsSheet: View {
 
     private func actionRow(_ action: QuoteAction) -> some View {
         Button {
-            dismiss()
-            onAction(action)
+            self.dismiss()
+            self.onAction(action)
         } label: {
             HStack(spacing: DesignTokens.Spacing.md) {
                 Image(systemName: action.icon)
                     .font(.body)
                     .frame(width: 18, height: 18)
-                    .foregroundStyle(action.isDestructive ? palette.error : palette.textPrimary)
+                    .foregroundStyle(action.isDestructive ? self.palette.error : self.palette.textPrimary)
 
                 Text(action.title)
                     .font(.body)
-                    .foregroundStyle(action.isDestructive ? palette.error : palette.textPrimary)
+                    .foregroundStyle(action.isDestructive ? self.palette.error : self.palette.textPrimary)
 
                 Spacer()
             }

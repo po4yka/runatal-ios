@@ -2,12 +2,12 @@
 //  TranslationFeatureComponent.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import NeedleFoundation
 
-protocol TranslationFeatureDependency: Dependency { }
+protocol TranslationFeatureDependency: Dependency {}
 
 @MainActor
 final class TranslationFeatureComponent: Component<TranslationFeatureDependency> {
@@ -21,7 +21,7 @@ final class TranslationFeatureComponent: Component<TranslationFeatureDependency>
         quoteRepository: SwiftDataQuoteRepository,
         translationRepository: SwiftDataTranslationRepository,
         preferencesRepository: SwiftDataUserPreferencesRepository,
-        translationService: HistoricalTranslationService
+        translationService: HistoricalTranslationService,
     ) {
         self.quoteRepository = quoteRepository
         self.translationRepository = translationRepository
@@ -32,14 +32,14 @@ final class TranslationFeatureComponent: Component<TranslationFeatureDependency>
 
     var viewModel: TranslationViewModel {
         TranslationViewModel(
-            quoteRepository: quoteRepository,
-            translationRepository: translationRepository,
-            preferencesRepository: preferencesRepository,
-            translationService: translationService
+            quoteRepository: self.quoteRepository,
+            translationRepository: self.translationRepository,
+            preferencesRepository: self.preferencesRepository,
+            translationService: self.translationService,
         )
     }
 
     func view() -> TranslationView {
-        TranslationView(viewModel: viewModel)
+        TranslationView(viewModel: self.viewModel)
     }
 }

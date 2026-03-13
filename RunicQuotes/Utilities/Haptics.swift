@@ -2,16 +2,16 @@
 //  Haptics.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-02-13.
+//  Created by Claude on 13.02.26.
 //
 
 import Foundation
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 /// Importance tiers for app haptics.
-enum HapticTier: Sendable {
+enum HapticTier {
     case scriptSwitch
     case newQuote
     case saveOrShare
@@ -21,18 +21,18 @@ enum HapticTier: Sendable {
 @MainActor
 enum Haptics {
     static func trigger(_ tier: HapticTier) {
-#if canImport(UIKit)
-        switch tier {
-        case .scriptSwitch:
-            let generator = UISelectionFeedbackGenerator()
-            generator.selectionChanged()
-        case .newQuote:
-            let generator = UIImpactFeedbackGenerator(style: .medium)
-            generator.impactOccurred()
-        case .saveOrShare:
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
-        }
-#endif
+        #if canImport(UIKit)
+            switch tier {
+            case .scriptSwitch:
+                let generator = UISelectionFeedbackGenerator()
+                generator.selectionChanged()
+            case .newQuote:
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+            case .saveOrShare:
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
+            }
+        #endif
     }
 }

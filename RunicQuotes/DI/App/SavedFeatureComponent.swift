@@ -2,12 +2,12 @@
 //  SavedFeatureComponent.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import NeedleFoundation
 
-protocol SavedFeatureDependency: Dependency { }
+protocol SavedFeatureDependency: Dependency {}
 
 @MainActor
 final class SavedFeatureComponent: Component<SavedFeatureDependency> {
@@ -17,7 +17,7 @@ final class SavedFeatureComponent: Component<SavedFeatureDependency> {
     init(
         parent: Scope,
         quoteProvider: QuoteProvider,
-        preferencesRepository: SwiftDataUserPreferencesRepository
+        preferencesRepository: SwiftDataUserPreferencesRepository,
     ) {
         self.quoteProvider = quoteProvider
         self.preferencesRepository = preferencesRepository
@@ -27,13 +27,13 @@ final class SavedFeatureComponent: Component<SavedFeatureDependency> {
     var viewModel: SavedQuotesViewModel {
         shared {
             SavedQuotesViewModel(
-                quoteProvider: quoteProvider,
-                preferencesRepository: preferencesRepository
+                quoteProvider: self.quoteProvider,
+                preferencesRepository: self.preferencesRepository,
             )
         }
     }
 
     func view() -> SavedView {
-        SavedView(viewModel: viewModel)
+        SavedView(viewModel: self.viewModel)
     }
 }

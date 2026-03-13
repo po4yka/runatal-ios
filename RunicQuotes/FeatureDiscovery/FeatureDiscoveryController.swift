@@ -126,10 +126,10 @@ final class FeatureDiscoveryController: ObservableObject {
         do {
             try Tips.configure([
                 .displayFrequency(.hourly),
-                .datastoreLocation(.applicationDefault)
+                .datastoreLocation(.applicationDefault),
             ])
         } catch {
-            guard !Self.isAlreadyConfiguredError(error) else {
+            guard !self.isAlreadyConfiguredError(error) else {
                 return
             }
 
@@ -141,7 +141,7 @@ final class FeatureDiscoveryController: ObservableObject {
         do {
             try Tips.resetDatastore()
         } catch {
-            guard !Self.isAlreadyConfiguredError(error) else {
+            guard !self.isAlreadyConfiguredError(error) else {
                 return
             }
 

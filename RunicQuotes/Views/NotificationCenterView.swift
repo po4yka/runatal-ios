@@ -2,7 +2,7 @@
 //  NotificationCenterView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Notification Item
 
 /// Represents a single in-app notification.
-struct NotificationItem: Identifiable, Sendable {
+struct NotificationItem: Identifiable {
     let id: UUID
     let title: String
     let body: String
@@ -24,29 +24,29 @@ struct NotificationItem: Identifiable, Sendable {
                 title: "Daily Quote Ready",
                 body: "Your new quote of the day is waiting.",
                 timestamp: "Now",
-                isRead: false
+                isRead: false,
             ),
             NotificationItem(
                 id: UUID(),
                 title: "Streak Reminder",
                 body: "You have a 12-day streak. Don't break it!",
                 timestamp: "2h ago",
-                isRead: false
+                isRead: false,
             ),
             NotificationItem(
                 id: UUID(),
                 title: "New Pack Available",
                 body: "Havamal Selections -- 32 quotes from Norse wisdom.",
                 timestamp: "Yesterday",
-                isRead: true
+                isRead: true,
             ),
             NotificationItem(
                 id: UUID(),
                 title: "Weekly Summary",
                 body: "You read 14 quotes this week. Nice pace.",
                 timestamp: "3 days ago",
-                isRead: true
-            )
+                isRead: true,
+            ),
         ]
     }
 }
@@ -60,65 +60,65 @@ struct NotificationCenterView: View {
     @State private var notifications: [NotificationItem] = []
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     private var hasUnread: Bool {
-        notifications.contains { !$0.isRead }
+        self.notifications.contains { !$0.isRead }
     }
 
     // MARK: - Body
 
     var body: some View {
-        LiquidListScaffold(palette: palette) {
+        LiquidListScaffold(palette: self.palette) {
             Section {
                 HeroHeader(
                     eyebrow: "Notifications",
                     title: "Inbox",
-                    subtitle: notifications.isEmpty
+                    subtitle: self.notifications.isEmpty
                         ? "This build does not keep a synced notification history yet."
                         : "Updates tied to your reading cadence appear here.",
-                    meta: [hasUnread ? "Unread items waiting" : "No unread items"],
-                    palette: palette
+                    meta: [self.hasUnread ? "Unread items waiting" : "No unread items"],
+                    palette: self.palette,
                 )
                 .listRowInsets(EdgeInsets(
                     top: DesignTokens.Spacing.lg,
                     leading: DesignTokens.Spacing.md,
                     bottom: DesignTokens.Spacing.md,
-                    trailing: DesignTokens.Spacing.md
+                    trailing: DesignTokens.Spacing.md,
                 ))
             }
 
             Section {
-                if notifications.isEmpty {
-                    emptyState
+                if self.notifications.isEmpty {
+                    self.emptyState
                 } else {
-                    notificationList
+                    self.notificationList
                 }
             }
         }
         .navigationTitle("Notifications")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                if hasUnread {
-                    Button("Mark All Read") {
-                        markAllRead()
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    if self.hasUnread {
+                        Button("Mark All Read") {
+                            self.markAllRead()
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(self.palette.accent)
                     }
-                    .font(.subheadline)
-                    .foregroundStyle(palette.accent)
                 }
             }
-        }
     }
 
     // MARK: - Notification List
 
     private var notificationList: some View {
-        ForEach(notifications) { notification in
-            notificationRow(notification)
+        ForEach(self.notifications) { notification in
+            self.notificationRow(notification)
         }
     }
 
@@ -126,11 +126,11 @@ struct NotificationCenterView: View {
 
     private func notificationRow(_ notification: NotificationItem) -> some View {
         Button {
-            markAsRead(notification.id)
+            self.markAsRead(notification.id)
         } label: {
             HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                 Circle()
-                    .fill(notification.isRead ? palette.separator.opacity(0.4) : palette.accent)
+                    .fill(notification.isRead ? self.palette.separator.opacity(0.4) : self.palette.accent)
                     .frame(width: 8, height: 8)
                     .padding(.top, 5)
 
@@ -138,18 +138,18 @@ struct NotificationCenterView: View {
                     HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                         Text(notification.title)
                             .font(DesignTokens.Typography.bodyEmphasis)
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
 
                         Spacer(minLength: DesignTokens.Spacing.sm)
 
                         Text(notification.timestamp)
                             .font(DesignTokens.Typography.listMeta)
-                            .foregroundStyle(palette.textTertiary)
+                            .foregroundStyle(self.palette.textTertiary)
                     }
 
                     Text(notification.body)
                         .font(DesignTokens.Typography.supportingBody)
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(self.palette.textSecondary)
                         .lineLimit(2)
                 }
             }
@@ -157,18 +157,18 @@ struct NotificationCenterView: View {
             .background {
                 RoundedRectangle(
                     cornerRadius: DesignTokens.CornerRadius.lg,
-                    style: .continuous
+                    style: .continuous,
                 )
-                .fill(palette.rowFill)
+                .fill(self.palette.rowFill)
             }
             .overlay {
                 RoundedRectangle(
                     cornerRadius: DesignTokens.CornerRadius.lg,
-                    style: .continuous
+                    style: .continuous,
                 )
                 .strokeBorder(
-                    palette.contentStroke.opacity(0.85),
-                    lineWidth: DesignTokens.Stroke.hairline
+                    self.palette.contentStroke.opacity(0.85),
+                    lineWidth: DesignTokens.Stroke.hairline,
                 )
             }
             .contentShape(Rectangle())
@@ -180,11 +180,11 @@ struct NotificationCenterView: View {
 
     private var emptyState: some View {
         EditorialEmptyState(
-            palette: palette,
+            palette: self.palette,
             icon: "bell.slash",
             eyebrow: "Coming Later",
             title: "History is not stored here yet",
-            message: "Notification permissions and widget refresh still work, but past alerts are not collected into an inbox in this build."
+            message: "Notification permissions and widget refresh still work, but past alerts are not collected into an inbox in this build.",
         )
     }
 
@@ -192,8 +192,8 @@ struct NotificationCenterView: View {
 
     private func markAllRead() {
         withAnimation(.easeInOut(duration: 0.3)) {
-            for index in notifications.indices {
-                notifications[index].isRead = true
+            for index in self.notifications.indices {
+                self.notifications[index].isRead = true
             }
         }
     }
@@ -201,7 +201,7 @@ struct NotificationCenterView: View {
     private func markAsRead(_ id: UUID) {
         guard let index = notifications.firstIndex(where: { $0.id == id }) else { return }
         withAnimation(.easeInOut(duration: 0.2)) {
-            notifications[index].isRead = true
+            self.notifications[index].isRead = true
         }
     }
 }

@@ -2,7 +2,7 @@
 //  QuoteCardView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
@@ -17,69 +17,53 @@ struct QuoteCardView<Badge: View, Actions: View>: View {
     let runicSnippet: String
     let quoteText: String
     let author: String
-    let badge: Badge
-    let actions: Actions
+    @ViewBuilder let badge: Badge
+    @ViewBuilder let actions: Actions
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
-    }
-
-    // MARK: - Initialization
-
-    init(
-        runicSnippet: String,
-        quoteText: String,
-        author: String,
-        @ViewBuilder badge: () -> Badge,
-        @ViewBuilder actions: () -> Actions
-    ) {
-        self.runicSnippet = runicSnippet
-        self.quoteText = quoteText
-        self.author = author
-        self.badge = badge()
-        self.actions = actions()
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     // MARK: - Body
 
     var body: some View {
         EditorialCard(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
             shadowRadius: DesignTokens.Elevation.low,
-            contentPadding: DesignTokens.Spacing.md
+            contentPadding: DesignTokens.Spacing.md,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        SectionLabel(title: "Passage", palette: palette)
+                        SectionLabel(title: "Passage", palette: self.palette)
 
-                        Text(runicSnippet.isEmpty ? "ᚱᚢᚾᚨ" : runicSnippet)
+                        Text(self.runicSnippet.isEmpty ? "ᚱᚢᚾᚨ" : self.runicSnippet)
                             .font(.caption)
-                            .foregroundStyle(palette.runeText)
+                            .foregroundStyle(self.palette.runeText)
                             .lineLimit(2)
                     }
 
                     Spacer(minLength: DesignTokens.Spacing.sm)
 
-                    badge
+                    self.badge
                 }
 
-                Text("“\(quoteText)”")
+                Text("“\(self.quoteText)”")
                     .font(DesignTokens.Typography.body)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
                     .lineLimit(4)
 
-                MetaRow(items: [author], palette: palette)
+                MetaRow(items: [self.author], palette: self.palette)
 
                 if Actions.self != EmptyView.self {
-                    ActionBar(palette: palette) {
+                    ActionBar(palette: self.palette) {
                         Spacer(minLength: 0)
-                        actions
+                        self.actions
                     }
                 }
             }
@@ -96,7 +80,7 @@ extension QuoteCardView where Badge == Text {
         quoteText: String,
         author: String,
         badgeText: String,
-        @ViewBuilder actions: () -> Actions
+        @ViewBuilder actions: () -> Actions,
     ) {
         self.init(
             runicSnippet: runicSnippet,
@@ -107,7 +91,7 @@ extension QuoteCardView where Badge == Text {
                     .font(DesignTokens.Typography.metadata)
                     .foregroundStyle(AppThemePalette.themed(.obsidian, for: .dark).accent)
             },
-            actions: actions
+            actions: actions,
         )
     }
 }
@@ -132,7 +116,7 @@ extension QuoteCardView where Badge == Text {
                     Image(systemName: "bookmark")
                         .font(.caption)
                         .foregroundStyle(.gray)
-                }
+                },
             )
         }
         .padding()

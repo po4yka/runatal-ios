@@ -2,17 +2,17 @@
 //  CreateEditQuoteViewModel.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import Foundation
+import os
 import SwiftData
 import SwiftUI
-import os
 
 // MARK: - UI State
 
-struct CreateEditQuoteUiState: Sendable {
+struct CreateEditQuoteUiState {
     var quoteText: String = ""
     var author: String = ""
     var source: String = ""
@@ -26,33 +26,33 @@ struct CreateEditQuoteUiState: Sendable {
 
 // MARK: - Mode
 
-enum CreateEditMode: Sendable {
+enum CreateEditMode {
     case create
     case edit(QuoteRecord)
 
     var navigationTitle: String {
         switch self {
-        case .create: return "New Quote"
-        case .edit: return "Edit Quote"
+        case .create: "New Quote"
+        case .edit: "Edit Quote"
         }
     }
 
     var saveButtonTitle: String {
         switch self {
-        case .create: return "Save"
-        case .edit: return "Done"
+        case .create: "Save"
+        case .edit: "Done"
         }
     }
 }
 
 // MARK: - Validation
 
-struct QuoteFormValidation: Sendable {
+struct QuoteFormValidation {
     var quoteTextError: String?
     var authorError: String?
 
     var isValid: Bool {
-        quoteTextError == nil && authorError == nil
+        self.quoteTextError == nil && self.authorError == nil
     }
 }
 
@@ -78,37 +78,37 @@ final class CreateEditQuoteViewModel: ObservableObject {
         self.mode = mode
 
         if case .edit(let record) = mode {
-            state.quoteText = record.textLatin
-            state.author = record.author
-            state.source = record.source ?? ""
-            state.collection = record.collection
-            updateRunicPreview()
+            self.state.quoteText = record.textLatin
+            self.state.author = record.author
+            self.state.source = record.source ?? ""
+            self.state.collection = record.collection
+            self.updateRunicPreview()
         }
     }
 
     // MARK: - Form Updates
 
     func updateQuoteText(_ text: String) {
-        state.quoteText = text
+        self.state.quoteText = text
         if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            validation.quoteTextError = nil
+            self.validation.quoteTextError = nil
         }
-        updateRunicPreview()
+        self.updateRunicPreview()
     }
 
     func updateAuthor(_ author: String) {
-        state.author = author
+        self.state.author = author
         if !author.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            validation.authorError = nil
+            self.validation.authorError = nil
         }
     }
 
     func updateSource(_ source: String) {
-        state.source = source
+        self.state.source = source
     }
 
     func updateCollection(_ collection: QuoteCollection) {
-        state.collection = collection
+        self.state.collection = collection
     }
 
     // MARK: - Validation
@@ -116,70 +116,70 @@ final class CreateEditQuoteViewModel: ObservableObject {
     func validate() -> Bool {
         var newValidation = QuoteFormValidation()
 
-        if state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if self.state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             newValidation.quoteTextError = "Quote text is required"
         }
 
-        if state.author.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if self.state.author.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             newValidation.authorError = "Author name is required"
         }
 
-        validation = newValidation
+        self.validation = newValidation
         return newValidation.isValid
     }
 
     // MARK: - Save
 
     func save() {
-        guard validate() else { return }
+        guard self.validate() else { return }
 
-        state.isSaving = true
-        state.errorMessage = nil
+        self.state.isSaving = true
+        self.state.errorMessage = nil
 
-        let trimmedText = state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedAuthor = state.author.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedSource = state.source.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedText = self.state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAuthor = self.state.author.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedSource = self.state.source.trimmingCharacters(in: .whitespacesAndNewlines)
         let source: String? = trimmedSource.isEmpty ? nil : trimmedSource
 
         do {
-            switch mode {
+            switch self.mode {
             case .create:
                 let record = try quoteRepository.createQuote(
                     textLatin: trimmedText,
                     author: trimmedAuthor,
                     source: source,
-                    collection: state.collection,
-                    storedRunic: makeStoredRunicBundle(for: trimmedText)
+                    collection: self.state.collection,
+                    storedRunic: self.makeStoredRunicBundle(for: trimmedText),
                 )
-                state.createdQuoteID = record.id
-                logger.info("Quote created: \(record.id)")
+                self.state.createdQuoteID = record.id
+                self.logger.info("Quote created: \(record.id)")
 
             case .edit(let existing):
-                _ = try quoteRepository.updateQuote(
+                _ = try self.quoteRepository.updateQuote(
                     id: existing.id,
                     textLatin: trimmedText,
                     author: trimmedAuthor,
                     source: source,
-                    collection: state.collection,
-                    storedRunic: makeStoredRunicBundle(for: trimmedText)
+                    collection: self.state.collection,
+                    storedRunic: self.makeStoredRunicBundle(for: trimmedText),
                 )
-                logger.info("Quote updated: \(existing.id)")
+                self.logger.info("Quote updated: \(existing.id)")
             }
 
-            state.isSaving = false
-            state.showSuccess = true
+            self.state.isSaving = false
+            self.state.showSuccess = true
         } catch {
-            state.isSaving = false
-            state.errorMessage = error.localizedDescription
-            logger.error("Save failed: \(error.localizedDescription)")
+            self.state.isSaving = false
+            self.state.errorMessage = error.localizedDescription
+            self.logger.error("Save failed: \(error.localizedDescription)")
         }
     }
 
     // MARK: - Reset for Create Another
 
     func resetForNewQuote() {
-        state = CreateEditQuoteUiState()
-        validation = QuoteFormValidation()
+        self.state = CreateEditQuoteUiState()
+        self.validation = QuoteFormValidation()
     }
 
     // MARK: - Preview
@@ -188,19 +188,19 @@ final class CreateEditQuoteViewModel: ObservableObject {
         let container = ModelContainerHelper.createPlaceholderContainer()
         return CreateEditQuoteViewModel(
             quoteRepository: SwiftDataQuoteRepository(modelContext: ModelContext(container)),
-            mode: mode
+            mode: mode,
         )
     }
 
     // MARK: - Private
 
     private func updateRunicPreview() {
-        let text = state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = self.state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else {
-            state.runicPreview = ""
+            self.state.runicPreview = ""
             return
         }
-        state.runicPreview = RunicTransliterator.transliterate(text, to: .elder)
+        self.state.runicPreview = RunicTransliterator.transliterate(text, to: .elder)
     }
 
     private func makeStoredRunicBundle(for text: String) -> RunicTextBundle? {
@@ -209,7 +209,7 @@ final class CreateEditQuoteViewModel: ObservableObject {
         return RunicTextBundle(
             elder: RunicTransliterator.transliterate(text, to: .elder),
             younger: RunicTransliterator.transliterate(text, to: .younger),
-            cirth: RunicTransliterator.transliterate(text, to: .cirth)
+            cirth: RunicTransliterator.transliterate(text, to: .cirth),
         )
     }
 }

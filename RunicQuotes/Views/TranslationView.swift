@@ -125,7 +125,7 @@ struct TranslationView: View {
             self.viewModel.state.selectedScript.displayName,
             self.viewModel.state.translationMode == .translate
                 ? self.viewModel.state.selectedFidelity.displayName
-                : "Direct"
+                : "Direct",
         ]
     }
 

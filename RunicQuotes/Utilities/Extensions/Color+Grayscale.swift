@@ -2,7 +2,7 @@
 //  Color+Grayscale.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import SwiftUI
@@ -15,14 +15,14 @@ extension Color {
     static let pureBlack = Color(white: 0.0)
 
     /// Dark grays
-    static let darkGray1 = Color(white: 0.1)  // #1A1A1A
+    static let darkGray1 = Color(white: 0.1) // #1A1A1A
     static let darkGray2 = Color(white: 0.18) // #2D2D2D
     static let darkGray3 = Color(white: 0.25) // #404040
 
     /// Mid grays
-    static let midGray1 = Color(white: 0.4)   // #666666
-    static let midGray2 = Color(white: 0.5)   // #808080
-    static let midGray3 = Color(white: 0.6)   // #999999
+    static let midGray1 = Color(white: 0.4) // #666666
+    static let midGray2 = Color(white: 0.5) // #808080
+    static let midGray3 = Color(white: 0.6) // #999999
 
     /// Light grays
     static let lightGray1 = Color(white: 0.7) // #B3B3B3
@@ -54,5 +54,7 @@ enum GlassOpacity: Double {
     case faint = 0.1
     case barely = 0.05
 
-    var value: Double { rawValue }
+    var value: Double {
+        rawValue
+    }
 }

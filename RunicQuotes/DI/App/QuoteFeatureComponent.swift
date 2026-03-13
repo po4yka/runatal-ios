@@ -2,12 +2,12 @@
 //  QuoteFeatureComponent.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import NeedleFoundation
 
-protocol QuoteFeatureDependency: Dependency { }
+protocol QuoteFeatureDependency: Dependency {}
 
 @MainActor
 final class QuoteFeatureComponent: Component<QuoteFeatureDependency> {
@@ -23,7 +23,7 @@ final class QuoteFeatureComponent: Component<QuoteFeatureDependency> {
         translationProvider: TranslationProvider,
         preferencesRepository: SwiftDataUserPreferencesRepository,
         createEditQuoteViewBuilder: CreateEditQuoteViewBuilder,
-        translationViewBuilder: TranslationViewBuilder
+        translationViewBuilder: TranslationViewBuilder,
     ) {
         self.quoteProvider = quoteProvider
         self.translationProvider = translationProvider
@@ -36,18 +36,18 @@ final class QuoteFeatureComponent: Component<QuoteFeatureDependency> {
     var viewModel: QuoteViewModel {
         shared {
             QuoteViewModel(
-                quoteProvider: quoteProvider,
-                translationProvider: translationProvider,
-                preferencesRepository: preferencesRepository
+                quoteProvider: self.quoteProvider,
+                translationProvider: self.translationProvider,
+                preferencesRepository: self.preferencesRepository,
             )
         }
     }
 
     func view() -> QuoteView {
         QuoteView(
-            viewModel: viewModel,
-            createEditQuoteViewBuilder: createEditQuoteViewBuilder,
-            translationViewBuilder: translationViewBuilder
+            viewModel: self.viewModel,
+            createEditQuoteViewBuilder: self.createEditQuoteViewBuilder,
+            translationViewBuilder: self.translationViewBuilder,
         )
     }
 }

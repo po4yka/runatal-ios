@@ -2,7 +2,7 @@
 //  UserPreferences.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
@@ -52,77 +52,77 @@ final class UserPreferences {
     /// Computed property for script
     var selectedScript: RunicScript {
         get {
-            RunicScript(rawValue: selectedScriptRaw) ?? .elder
+            RunicScript(rawValue: self.selectedScriptRaw) ?? .elder
         }
         set {
-            selectedScriptRaw = newValue.rawValue
-            lastUpdated = Date()
+            self.selectedScriptRaw = newValue.rawValue
+            self.lastUpdated = Date()
         }
     }
 
     /// Computed property for font
     var selectedFont: RunicFont {
         get {
-            RunicFont(rawValue: selectedFontRaw) ?? .noto
+            RunicFont(rawValue: self.selectedFontRaw) ?? .noto
         }
         set {
-            selectedFontRaw = newValue.rawValue
-            lastUpdated = Date()
+            self.selectedFontRaw = newValue.rawValue
+            self.lastUpdated = Date()
         }
     }
 
     /// Computed property for widget mode
     var widgetMode: WidgetMode {
         get {
-            WidgetMode(rawValue: widgetModeRaw) ?? .daily
+            WidgetMode(rawValue: self.widgetModeRaw) ?? .daily
         }
         set {
-            widgetModeRaw = newValue.rawValue
-            lastUpdated = Date()
+            self.widgetModeRaw = newValue.rawValue
+            self.lastUpdated = Date()
         }
     }
 
     /// Computed property for quote collection
     var selectedCollection: QuoteCollection {
         get {
-            QuoteCollection(rawValue: selectedCollectionRaw ?? "") ?? .all
+            QuoteCollection(rawValue: self.selectedCollectionRaw ?? "") ?? .all
         }
         set {
-            selectedCollectionRaw = newValue.rawValue
-            lastUpdated = Date()
+            self.selectedCollectionRaw = newValue.rawValue
+            self.lastUpdated = Date()
         }
     }
 
     /// Computed property for widget visual style
     var widgetStyle: WidgetStyle {
         get {
-            WidgetStyle(rawValue: widgetStyleRaw ?? "") ?? .runeFirst
+            WidgetStyle(rawValue: self.widgetStyleRaw ?? "") ?? .runeFirst
         }
         set {
-            widgetStyleRaw = newValue.rawValue
-            lastUpdated = Date()
+            self.widgetStyleRaw = newValue.rawValue
+            self.lastUpdated = Date()
         }
     }
 
     /// Whether decorative glyph identity elements are enabled in widgets.
     var widgetDecorativeGlyphsEnabled: Bool {
         get {
-            widgetDecorativeGlyphsEnabledRaw ?? true
+            self.widgetDecorativeGlyphsEnabledRaw ?? true
         }
         set {
-            widgetDecorativeGlyphsEnabledRaw = newValue
-            lastUpdated = Date()
+            self.widgetDecorativeGlyphsEnabledRaw = newValue
+            self.lastUpdated = Date()
         }
     }
 
     /// Computed property for visual theme
     var selectedTheme: AppTheme {
         get {
-            AppTheme(rawValue: selectedThemeRaw) ?? .obsidian
+            AppTheme(rawValue: self.selectedThemeRaw) ?? .obsidian
         }
         set {
-            selectedThemeRaw = newValue.rawValue
-            lastUpdated = Date()
+            self.selectedThemeRaw = newValue.rawValue
+            self.lastUpdated = Date()
         }
     }
 
@@ -135,8 +135,8 @@ final class UserPreferences {
             return ReadingPreset(rawValue: lastUsedPresetRaw)
         }
         set {
-            lastUsedPresetRaw = newValue?.rawValue
-            lastUpdated = Date()
+            self.lastUsedPresetRaw = newValue?.rawValue
+            self.lastUpdated = Date()
         }
     }
 
@@ -154,11 +154,11 @@ final class UserPreferences {
             return Set(parsed)
         }
         set {
-            savedQuoteIDsRaw = newValue
+            self.savedQuoteIDsRaw = newValue
                 .map(\.uuidString)
                 .sorted()
                 .joined(separator: ",")
-            lastUpdated = Date()
+            self.lastUpdated = Date()
         }
     }
 
@@ -172,7 +172,7 @@ final class UserPreferences {
         widgetDecorativeGlyphsEnabled: Bool = true,
         selectedTheme: AppTheme = .obsidian,
         lastUsedPreset: ReadingPreset? = nil,
-        savedQuoteIDs: Set<UUID> = []
+        savedQuoteIDs: Set<UUID> = [],
     ) {
         self.id = UUID()
         self.selectedScriptRaw = selectedScript.rawValue
@@ -192,13 +192,13 @@ final class UserPreferences {
 
     /// Check whether a quote is saved.
     func isQuoteSaved(_ id: UUID) -> Bool {
-        savedQuoteIDs.contains(id)
+        self.savedQuoteIDs.contains(id)
     }
 
     /// Toggle the saved state for a quote and return the resulting state.
     @discardableResult
     func toggleSavedQuote(_ id: UUID) -> Bool {
-        var ids = savedQuoteIDs
+        var ids = self.savedQuoteIDs
         let isNowSaved: Bool
 
         if ids.contains(id) {
@@ -209,7 +209,7 @@ final class UserPreferences {
             isNowSaved = true
         }
 
-        savedQuoteIDs = ids
+        self.savedQuoteIDs = ids
         return isNowSaved
     }
 
@@ -222,23 +222,23 @@ final class UserPreferences {
             return Set(installedPackIDsRaw.split(separator: ",").map(String.init))
         }
         set {
-            installedPackIDsRaw = newValue.sorted().joined(separator: ",")
-            lastUpdated = Date()
+            self.installedPackIDsRaw = newValue.sorted().joined(separator: ",")
+            self.lastUpdated = Date()
         }
     }
 
     /// Whether a given pack is installed.
     func isPackInstalled(_ packID: String) -> Bool {
-        installedPackIDs.contains(packID)
+        self.installedPackIDs.contains(packID)
     }
 
     /// Mark a pack as installed. Returns `true` if it was newly installed.
     @discardableResult
     func installPack(_ packID: String) -> Bool {
-        var ids = installedPackIDs
+        var ids = self.installedPackIDs
         let inserted = ids.insert(packID).inserted
         if inserted {
-            installedPackIDs = ids
+            self.installedPackIDs = ids
         }
         return inserted
     }
@@ -269,7 +269,7 @@ extension UserPreferences {
             selectedScript: .elder,
             selectedFont: .noto,
             widgetMode: .daily,
-            selectedTheme: .obsidian
+            selectedTheme: .obsidian,
         )
     }
 }

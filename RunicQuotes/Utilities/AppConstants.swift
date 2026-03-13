@@ -2,7 +2,7 @@
 //  AppConstants.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 14.11.25.
 //
 
 import Foundation
@@ -29,7 +29,7 @@ enum AppConstants {
         let daysSinceEpoch = calendar.dateComponents(
             [.day],
             from: Date(timeIntervalSince1970: 0),
-            to: startOfDay
+            to: startOfDay,
         ).day ?? 0
         return daysSinceEpoch % count
     }
@@ -41,7 +41,7 @@ enum AppConstants {
     static let urlScheme = "runicquotes"
 
     /// Maximum length for quote text (for performance)
-    static let maxQuoteLength = 10_000
+    static let maxQuoteLength = 10000
 
     /// Bundle identifier
     static let bundleIdentifier = "com.po4yka.runicquotes"

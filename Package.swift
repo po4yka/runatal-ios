@@ -7,22 +7,22 @@ let package = Package(
     name: "RunicQuotes",
     platforms: [
         .iOS(.v26),
-        .macOS(.v26)
+        .macOS(.v26),
     ],
     products: [
         .library(
             name: "RunicQuotes",
-            targets: ["RunicQuotes"]
-        )
+            targets: ["RunicQuotes"],
+        ),
     ],
     dependencies: [
-        .package(url: "https://github.com/uber/needle.git", exact: "0.25.1")
+        .package(url: "https://github.com/uber/needle.git", exact: "0.25.1"),
     ],
     targets: [
         .target(
             name: "RunicQuotes",
             dependencies: [
-                .product(name: "NeedleFoundation", package: "needle")
+                .product(name: "NeedleFoundation", package: "needle"),
             ],
             path: "RunicQuotes",
             exclude: [
@@ -31,20 +31,20 @@ let package = Package(
                 "Resources/Fonts",
                 "Resources/Assets.xcassets",
                 "Resources/LaunchScreen.storyboard",
-                "Resources/Localizations"
+                "Resources/Localizations",
             ],
             resources: [
                 .process("Resources/SeedData/quotes.json"),
-                .process("Resources/Translation")
-            ]
+                .process("Resources/Translation"),
+            ],
         ),
         .testTarget(
             name: "RunicQuotesTests",
             dependencies: ["RunicQuotes"],
             path: "RunicQuotesTests",
             exclude: [
-                "Info.plist"
-            ]
-        )
-    ]
+                "Info.plist",
+            ],
+        ),
+    ],
 )

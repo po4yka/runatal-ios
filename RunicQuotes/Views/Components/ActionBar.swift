@@ -2,27 +2,19 @@
 //  ActionBar.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
 
 struct ActionBar<Content: View>: View {
     let palette: AppThemePalette
-    let content: Content
-
-    init(
-        palette: AppThemePalette,
-        @ViewBuilder content: () -> Content
-    ) {
-        self.palette = palette
-        self.content = content()
-    }
+    @ViewBuilder let content: Content
 
     var body: some View {
-        LiquidActionCluster(palette: palette) {
+        LiquidActionCluster(palette: self.palette) {
             HStack(spacing: DesignTokens.Spacing.sm) {
-                content
+                self.content
             }
         }
     }

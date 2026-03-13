@@ -1,8 +1,8 @@
 //
 //  WidgetRootComponent.swift
-//  RunicQuotesWidget
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import NeedleFoundation
@@ -18,7 +18,7 @@ final class WidgetRootComponent: BootstrapComponent {
 
     var timelineService: WidgetTimelineService {
         shared {
-            WidgetTimelineService(modelContainer: modelContainer)
+            WidgetTimelineService(modelContainer: self.modelContainer)
         }
     }
 }

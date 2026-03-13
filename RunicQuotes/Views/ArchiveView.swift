@@ -2,7 +2,7 @@
 //  ArchiveView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
@@ -19,7 +19,7 @@ struct ArchiveView: View {
     @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     // MARK: - Initialization
@@ -31,94 +31,91 @@ struct ArchiveView: View {
     // MARK: - Body
 
     var body: some View {
-        LiquidListScaffold(palette: palette) {
+        LiquidListScaffold(palette: self.palette) {
             Section {
                 HeroHeader(
                     eyebrow: "Archive",
                     title: "Recovery Shelf",
                     subtitle: "Hidden and deleted passages rest here until you decide what returns.",
-                    meta: [viewModel.countLabel],
-                    palette: palette
+                    meta: [self.viewModel.countLabel],
+                    palette: self.palette,
                 )
                 .listRowInsets(EdgeInsets(
                     top: DesignTokens.Spacing.lg,
                     leading: DesignTokens.Spacing.md,
                     bottom: DesignTokens.Spacing.md,
-                    trailing: DesignTokens.Spacing.md
+                    trailing: DesignTokens.Spacing.md,
                 ))
             }
 
-            if restoredToastVisible {
+            if self.restoredToastVisible {
                 Section {
                     FeedbackBanner(
-                        palette: palette,
+                        palette: self.palette,
                         tone: .success,
                         title: "Restored",
-                        message: "The passage returned to your library."
+                        message: "The passage returned to your library.",
                     )
                 }
             }
 
             Section {
-                if !viewModel.hasArchivedQuotes {
-                    emptyState
+                if !self.viewModel.hasArchivedQuotes {
+                    self.emptyState
                 } else {
-                    archiveContent
+                    self.archiveContent
                 }
             }
         }
         .navigationTitle("Archive")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
-#endif
-        .task {
-            guard !didInitialize else { return }
-            didInitialize = true
-            viewModel.onAppear()
-        }
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.large)
+        #endif
+            .task {
+                guard !self.didInitialize else { return }
+                self.didInitialize = true
+                self.viewModel.onAppear()
+            }
     }
 
     // MARK: - Empty State
 
-    @ViewBuilder
     private var emptyState: some View {
         EditorialEmptyState(
-            palette: palette,
+            palette: self.palette,
             icon: "archivebox",
             eyebrow: "Archive",
             title: "Nothing is resting here",
-            message: "Hidden and deleted passages will appear here when you need to reverse a choice."
+            message: "Hidden and deleted passages will appear here when you need to reverse a choice.",
         )
     }
 
     // MARK: - Archive Content
 
-    @ViewBuilder
     private var archiveContent: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-            filterTabs
-            quotesList
+            self.filterTabs
+            self.quotesList
 
-            if viewModel.state.selectedFilter == .deleted || viewModel.state.selectedFilter == .all {
-                footerNote
+            if self.viewModel.state.selectedFilter == .deleted || self.viewModel.state.selectedFilter == .all {
+                self.footerNote
             }
         }
     }
 
     // MARK: - Filter Tabs
 
-    @ViewBuilder
     private var filterTabs: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: DesignTokens.Spacing.xs) {
                 ForEach(ArchiveFilter.allCases) { filter in
                     FilterChip(
                         title: filter.displayName,
-                        isSelected: viewModel.state.selectedFilter == filter,
-                        palette: palette
+                        isSelected: self.viewModel.state.selectedFilter == filter,
+                        palette: self.palette,
                     ) {
                         withAnimation(DesignTokens.Motion.emphasis) {
-                            viewModel.updateFilter(filter)
+                            self.viewModel.updateFilter(filter)
                         }
                     }
                 }
@@ -128,34 +125,32 @@ struct ArchiveView: View {
 
     // MARK: - Quotes List
 
-    @ViewBuilder
     private var quotesList: some View {
-        ForEach(viewModel.filteredQuotes) { quote in
-            archiveQuoteRow(quote)
+        ForEach(self.viewModel.filteredQuotes) { quote in
+            self.archiveQuoteRow(quote)
         }
     }
 
     // MARK: - Quote Row
 
-    @ViewBuilder
     private func archiveQuoteRow(_ quote: QuoteRecord) -> some View {
         QuoteListRow(
-            palette: palette,
+            palette: self.palette,
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
             author: quote.author,
             metadata: [quote.collection.displayName],
             badge: {
-                statusTag(for: quote)
+                self.statusTag(for: quote)
             },
             footer: {
-                actionButtons(for: quote)
-            }
+                self.actionButtons(for: quote)
+            },
         )
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             if quote.isDeleted {
                 Button(role: .destructive) {
-                    viewModel.eraseQuote(quote.id)
+                    self.viewModel.eraseQuote(quote.id)
                 } label: {
                     Label("Erase", systemImage: "trash")
                 }
@@ -168,7 +163,7 @@ struct ArchiveView: View {
     @ViewBuilder
     private func statusTag(for quote: QuoteRecord) -> some View {
         let label = quote.isDeleted ? "Deleted" : "Hidden"
-        let color = quote.isDeleted ? palette.error : palette.warning
+        let color = quote.isDeleted ? self.palette.error : self.palette.warning
 
         Text(label)
             .font(DesignTokens.Typography.listMeta.weight(.semibold))
@@ -177,7 +172,7 @@ struct ArchiveView: View {
             .padding(.vertical, 2)
             .background(
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xs)
-                    .fill(color.opacity(0.15))
+                    .fill(color.opacity(0.15)),
             )
     }
 
@@ -187,22 +182,22 @@ struct ArchiveView: View {
     private func actionButtons(for quote: QuoteRecord) -> some View {
         if quote.isDeleted {
             Button {
-                viewModel.restoreQuote(quote.id)
-                showRestoredToast()
+                self.viewModel.restoreQuote(quote.id)
+                self.showRestoredToast()
             } label: {
                 Label("Restore", systemImage: "arrow.uturn.backward")
                     .font(DesignTokens.Typography.controlLabel)
-                    .foregroundStyle(palette.accent)
+                    .foregroundStyle(self.palette.accent)
             }
             .buttonStyle(.plain)
         } else if quote.isHidden {
             Button {
-                viewModel.unhideQuote(quote.id)
-                showRestoredToast()
+                self.viewModel.unhideQuote(quote.id)
+                self.showRestoredToast()
             } label: {
                 Label("Unhide", systemImage: "eye")
                     .font(DesignTokens.Typography.controlLabel)
-                    .foregroundStyle(palette.accent)
+                    .foregroundStyle(self.palette.accent)
             }
             .buttonStyle(.plain)
         }
@@ -210,54 +205,52 @@ struct ArchiveView: View {
 
     // MARK: - Footer Note
 
-    @ViewBuilder
     private var footerNote: some View {
         Text("Deleted quotes are removed after 30 days.")
             .font(DesignTokens.Typography.listMeta)
-            .foregroundStyle(palette.textTertiary)
+            .foregroundStyle(self.palette.textTertiary)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.top, DesignTokens.Spacing.xs)
     }
 
     // MARK: - Restored Toast
 
-    @ViewBuilder
     private var restoredToast: some View {
         VStack {
             Spacer()
 
             HStack(spacing: DesignTokens.Spacing.xs) {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(palette.success)
+                    .foregroundStyle(self.palette.success)
                 Text("Quote restored to your library")
                     .font(.subheadline.weight(.medium))
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
             }
             .padding(.horizontal, DesignTokens.Spacing.lg)
             .padding(.vertical, DesignTokens.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(palette.surface)
-                    .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+                    .fill(self.palette.surface)
+                    .shadow(color: .black.opacity(0.2), radius: 8, y: 4),
             )
             .padding(.bottom, DesignTokens.Spacing.huge)
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
-        .animation(.spring(response: 0.4), value: restoredToastVisible)
+        .animation(.spring(response: 0.4), value: self.restoredToastVisible)
     }
 
     // MARK: - Toast Helper
 
     private func showRestoredToast() {
-        toastDismissTask?.cancel()
+        self.toastDismissTask?.cancel()
         withAnimation {
-            restoredToastVisible = true
+            self.restoredToastVisible = true
         }
-        toastDismissTask = Task {
+        self.toastDismissTask = Task {
             try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else { return }
             withAnimation {
-                restoredToastVisible = false
+                self.restoredToastVisible = false
             }
         }
     }

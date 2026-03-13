@@ -2,28 +2,30 @@
 //  RunicFont.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
 
 /// Represents the different fonts available for runic text rendering
-enum RunicFont: String, Codable, CaseIterable, Identifiable, Sendable {
+enum RunicFont: String, Codable, CaseIterable, Identifiable {
     case noto = "Noto Sans Runic"
     case babelstone = "BabelStone Runic"
     case cirth = "Cirth Angerthas"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     /// Display name for UI
     var displayName: String {
         switch self {
         case .noto:
-            return "Noto Sans"
+            "Noto Sans"
         case .babelstone:
-            return "BabelStone"
+            "BabelStone"
         case .cirth:
-            return "Angerthas"
+            "Angerthas"
         }
     }
 
@@ -31,11 +33,11 @@ enum RunicFont: String, Codable, CaseIterable, Identifiable, Sendable {
     var fileName: String {
         switch self {
         case .noto:
-            return "NotoSansRunic-Regular.ttf"
+            "NotoSansRunic-Regular.ttf"
         case .babelstone:
-            return "BabelStoneRunic.ttf"
+            "BabelStoneRunic.ttf"
         case .cirth:
-            return "CirthAngerthas.ttf"
+            "CirthAngerthas.ttf"
         }
     }
 
@@ -43,11 +45,11 @@ enum RunicFont: String, Codable, CaseIterable, Identifiable, Sendable {
     var description: String {
         switch self {
         case .noto:
-            return "Modern, clean Unicode font"
+            "Modern, clean Unicode font"
         case .babelstone:
-            return "Comprehensive historical font"
+            "Comprehensive historical font"
         case .cirth:
-            return "Tolkien's Elvish runes"
+            "Tolkien's Elvish runes"
         }
     }
 
@@ -55,13 +57,13 @@ enum RunicFont: String, Codable, CaseIterable, Identifiable, Sendable {
     func isCompatible(with script: RunicScript) -> Bool {
         switch (self, script) {
         case (.cirth, .cirth):
-            return true
+            true
         case (.noto, .elder), (.noto, .younger):
-            return true
+            true
         case (.babelstone, .elder), (.babelstone, .younger):
-            return true
+            true
         default:
-            return false
+            false
         }
     }
 }

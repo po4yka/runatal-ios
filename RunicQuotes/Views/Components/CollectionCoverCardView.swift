@@ -2,7 +2,7 @@
 //  CollectionCoverCardView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -19,59 +19,59 @@ struct CollectionCoverCardView: View {
 
     var body: some View {
         Button {
-            onSelect(cover.collection)
+            self.onSelect(self.cover.collection)
         } label: {
-            cardBody
+            self.cardBody
         }
         .buttonStyle(.plain)
-        .accessibilityIdentifier("collection_cover_\(cover.collection.rawValue)")
-        .accessibilityLabel("\(cover.collection.displayName) collection")
-        .accessibilityValue(isSelected ? "Selected" : "Not selected")
-        .accessibilityHint("Double tap to browse \(cover.collection.displayName) quotes")
+        .accessibilityIdentifier("collection_cover_\(self.cover.collection.rawValue)")
+        .accessibilityLabel("\(self.cover.collection.displayName) collection")
+        .accessibilityValue(self.isSelected ? "Selected" : "Not selected")
+        .accessibilityHint("Double tap to browse \(self.cover.collection.displayName) quotes")
     }
 
     private var cardBody: some View {
-        cardContent
+        self.cardContent
             .padding(DesignTokens.Spacing.md)
             .frame(width: 230, alignment: .leading)
             .frame(minHeight: 210, alignment: .leading)
-            .background(cardBackground)
+            .background(self.cardBackground)
             .overlay(alignment: .topLeading) {
-                topAccent
+                self.topAccent
             }
-            .overlay(cardBorder)
-            .opacity(isSelected ? 1.0 : 0.88)
+            .overlay(self.cardBorder)
+            .opacity(self.isSelected ? 1.0 : 0.88)
             .shadow(
-                color: palette.shadowColor.opacity(isSelected ? 1 : 0.7),
-                radius: isSelected ? DesignTokens.Elevation.medium : DesignTokens.Elevation.low,
+                color: self.palette.shadowColor.opacity(self.isSelected ? 1 : 0.7),
+                radius: self.isSelected ? DesignTokens.Elevation.medium : DesignTokens.Elevation.low,
                 x: 0,
-                y: isSelected ? 8 : 4
+                y: self.isSelected ? 8 : 4,
             )
-            .scaleEffect(isSelected ? 1 : 0.985)
-            .animation(DesignTokens.Motion.reveal, value: isSelected)
+            .scaleEffect(self.isSelected ? 1 : 0.985)
+            .animation(DesignTokens.Motion.reveal, value: self.isSelected)
     }
 
     private var cardContent: some View {
         VStack(alignment: .leading, spacing: 9) {
-            collectionMetadata
-            runicPreview
-            latinPreview
-            collectionTitle
-            collectionSubtitle
-            authorPreview
+            self.collectionMetadata
+            self.runicPreview
+            self.latinPreview
+            self.collectionTitle
+            self.collectionSubtitle
+            self.authorPreview
         }
     }
 
     private var cardBackground: some View {
         RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
-            .fill(cardBackgroundColor)
+            .fill(self.cardBackgroundColor)
     }
 
     private var cardBorder: some View {
         RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
             .stroke(
-                isSelected ? palette.strongCardStroke : palette.cardStroke,
-                lineWidth: isSelected ? DesignTokens.Stroke.emphasis : DesignTokens.Stroke.hairline
+                self.isSelected ? self.palette.strongCardStroke : self.palette.cardStroke,
+                lineWidth: self.isSelected ? DesignTokens.Stroke.emphasis : DesignTokens.Stroke.hairline,
             )
     }
 
@@ -79,107 +79,107 @@ struct CollectionCoverCardView: View {
         Capsule()
             .fill(
                 LinearGradient(
-                    colors: gradientColors,
+                    colors: self.gradientColors,
                     startPoint: .leading,
-                    endPoint: .trailing
-                )
+                    endPoint: .trailing,
+                ),
             )
-            .frame(width: isSelected ? 88 : 58, height: 4)
+            .frame(width: self.isSelected ? 88 : 58, height: 4)
             .padding(.top, DesignTokens.Spacing.sm)
             .padding(.leading, DesignTokens.Spacing.md)
     }
 
     private var collectionMetadata: some View {
         HStack(alignment: .top) {
-            Label(cover.collection.displayName, systemImage: cover.collection.systemImage)
+            Label(self.cover.collection.displayName, systemImage: self.cover.collection.systemImage)
                 .font(DesignTokens.Typography.label)
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(self.palette.textPrimary)
                 .labelStyle(.titleAndIcon)
 
             Spacer(minLength: 8)
 
-            Text("\(cover.quoteCount)")
+            Text("\(self.cover.quoteCount)")
                 .font(DesignTokens.Typography.metadata)
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(self.palette.textPrimary)
                 .padding(.horizontal, 7)
                 .padding(.vertical, 4)
                 .background {
                     Capsule()
-                        .fill(isSelected ? palette.chipSelectedFill : palette.bannerBackground)
+                        .fill(self.isSelected ? self.palette.chipSelectedFill : self.palette.bannerBackground)
                 }
         }
     }
 
     private var runicPreview: some View {
-        Text(cover.runicPreview)
+        Text(self.cover.runicPreview)
             .runicTextStyle(
-                script: script,
-                font: font,
+                script: self.script,
+                font: self.font,
                 style: .body,
                 minSize: 18,
-                maxSize: 30
+                maxSize: 30,
             )
-            .foregroundStyle(palette.runeText)
+            .foregroundStyle(self.palette.runeText)
             .lineLimit(2)
             .frame(maxWidth: .infinity, minHeight: 44, alignment: .topLeading)
     }
 
     private var latinPreview: some View {
-        Text(cover.latinPreview)
+        Text(self.cover.latinPreview)
             .font(DesignTokens.Typography.label)
-            .foregroundStyle(palette.textSecondary)
+            .foregroundStyle(self.palette.textSecondary)
             .lineLimit(2)
     }
 
     private var collectionTitle: some View {
-        Text(cover.collection.displayName)
+        Text(self.cover.collection.displayName)
             .font(DesignTokens.Typography.cardTitle)
-            .foregroundStyle(palette.textPrimary)
+            .foregroundStyle(self.palette.textPrimary)
     }
 
     private var collectionSubtitle: some View {
-        Text(cover.collection.subtitle)
+        Text(self.cover.collection.subtitle)
             .font(DesignTokens.Typography.callout)
-            .foregroundStyle(palette.textSecondary)
+            .foregroundStyle(self.palette.textSecondary)
             .lineLimit(2)
     }
 
     private var authorPreview: some View {
-        Text("— \(cover.authorPreview)")
+        Text("— \(self.cover.authorPreview)")
             .font(DesignTokens.Typography.label)
-            .foregroundStyle(palette.textTertiary)
+            .foregroundStyle(self.palette.textTertiary)
             .lineLimit(1)
     }
 
     private var cardBackgroundColor: Color {
-        reduceTransparency
-            ? palette.editorialSurface
-            : (isSelected ? palette.editorialSurface : palette.editorialInset)
+        self.reduceTransparency
+            ? self.palette.editorialSurface
+            : (self.isSelected ? self.palette.editorialSurface : self.palette.editorialInset)
     }
 
     private var gradientColors: [Color] {
-        let alpha = isSelected ? 1.0 : 0.85
+        let alpha = self.isSelected ? 1.0 : 0.85
 
-        switch cover.collection {
+        switch self.cover.collection {
         case .all:
             return [
-                palette.accent.opacity(0.35 * alpha),
-                palette.accentSecondary.opacity(0.72 * alpha)
+                self.palette.accent.opacity(0.35 * alpha),
+                self.palette.accentSecondary.opacity(0.72 * alpha),
             ]
         case .motivation:
             return [
-                palette.warning.opacity(0.65 * alpha),
-                palette.accent.opacity(0.72 * alpha)
+                self.palette.warning.opacity(0.65 * alpha),
+                self.palette.accent.opacity(0.72 * alpha),
             ]
         case .stoic:
             return [
-                palette.textSecondary.opacity(0.6 * alpha),
-                palette.textTertiary.opacity(0.7 * alpha)
+                self.palette.textSecondary.opacity(0.6 * alpha),
+                self.palette.textTertiary.opacity(0.7 * alpha),
             ]
         case .tolkien:
             return [
-                palette.success.opacity(0.62 * alpha),
-                palette.accentSecondary.opacity(0.7 * alpha)
+                self.palette.success.opacity(0.62 * alpha),
+                self.palette.accentSecondary.opacity(0.7 * alpha),
             ]
         }
     }

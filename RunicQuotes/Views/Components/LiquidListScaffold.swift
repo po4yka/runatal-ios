@@ -2,37 +2,29 @@
 //  LiquidListScaffold.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
 
 struct LiquidListScaffold<Content: View>: View {
     let palette: AppThemePalette
-    let content: Content
-
-    init(
-        palette: AppThemePalette,
-        @ViewBuilder content: () -> Content
-    ) {
-        self.palette = palette
-        self.content = content()
-    }
+    @ViewBuilder let content: Content
 
     var body: some View {
         List {
-            content
+            self.content
                 .listRowBackground(Color.clear)
         }
         .scrollContentBackground(.hidden)
-        .background(backgroundLayer)
+        .background(self.backgroundLayer)
     }
 
     private var backgroundLayer: some View {
         LinearGradient(
-            colors: [palette.canvasBase, palette.canvasSecondary],
+            colors: [self.palette.canvasBase, self.palette.canvasSecondary],
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
         )
         .ignoresSafeArea()
     }

@@ -2,7 +2,7 @@
 //  FeedbackBanner.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -21,23 +21,23 @@ struct FeedbackBanner: View {
 
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.sm) {
-            Image(systemName: symbolName)
+            Image(systemName: self.symbolName)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(symbolColor)
+                .foregroundStyle(self.symbolColor)
                 .frame(width: 28, height: 28)
                 .background {
                     Circle()
-                        .fill(symbolColor.opacity(0.12))
+                        .fill(self.symbolColor.opacity(0.12))
                 }
 
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                Text(title)
+                Text(self.title)
                     .font(DesignTokens.Typography.controlLabel)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
-                Text(message)
+                Text(self.message)
                     .font(DesignTokens.Typography.listMeta)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
             }
 
             Spacer(minLength: 0)
@@ -46,44 +46,44 @@ struct FeedbackBanner: View {
         .padding(.vertical, DesignTokens.Spacing.sm)
         .background {
             RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                .fill(backgroundFill)
+                .fill(self.backgroundFill)
         }
         .overlay {
             RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                .strokeBorder(symbolColor.opacity(0.2), lineWidth: DesignTokens.Stroke.hairline)
+                .strokeBorder(self.symbolColor.opacity(0.2), lineWidth: DesignTokens.Stroke.hairline)
         }
     }
 
     private var symbolName: String {
-        switch tone {
+        switch self.tone {
         case .success:
-            return "checkmark.circle.fill"
+            "checkmark.circle.fill"
         case .warning:
-            return "exclamationmark.triangle.fill"
+            "exclamationmark.triangle.fill"
         case .error:
-            return "xmark.octagon.fill"
+            "xmark.octagon.fill"
         }
     }
 
     private var symbolColor: Color {
-        switch tone {
+        switch self.tone {
         case .success:
-            return palette.success
+            self.palette.success
         case .warning:
-            return palette.warning
+            self.palette.warning
         case .error:
-            return palette.error
+            self.palette.error
         }
     }
 
     private var backgroundFill: Color {
-        switch tone {
+        switch self.tone {
         case .success:
-            return palette.successFill.opacity(0.85)
+            self.palette.successFill.opacity(0.85)
         case .warning:
-            return palette.warningFill.opacity(0.85)
+            self.palette.warningFill.opacity(0.85)
         case .error:
-            return palette.errorFill.opacity(0.92)
+            self.palette.errorFill.opacity(0.92)
         }
     }
 }

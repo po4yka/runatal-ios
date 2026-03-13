@@ -2,7 +2,7 @@
 //  SavedView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
@@ -19,7 +19,7 @@ struct SavedView: View {
     @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     // MARK: - Initialization
@@ -31,30 +31,30 @@ struct SavedView: View {
     // MARK: - Body
 
     var body: some View {
-        LiquidListScaffold(palette: palette) {
+        LiquidListScaffold(palette: self.palette) {
             Section {
                 HeroHeader(
                     eyebrow: "Saved",
                     title: "Personal Library",
                     subtitle: "The lines you chose to keep, arranged for easy return.",
-                    meta: ["\(viewModel.savedCount) saved passages"],
-                    palette: palette
+                    meta: ["\(self.viewModel.savedCount) saved passages"],
+                    palette: self.palette,
                 )
                 .listRowInsets(EdgeInsets(
                     top: DesignTokens.Spacing.lg,
                     leading: DesignTokens.Spacing.md,
                     bottom: DesignTokens.Spacing.md,
-                    trailing: DesignTokens.Spacing.md
+                    trailing: DesignTokens.Spacing.md,
                 ))
             }
 
             if let tone = feedbackTone {
                 Section {
                     FeedbackBanner(
-                        palette: palette,
+                        palette: self.palette,
                         tone: tone,
-                        title: feedbackTitle,
-                        message: feedbackMessage
+                        title: self.feedbackTitle,
+                        message: self.feedbackMessage,
                     )
                 }
             }
@@ -62,165 +62,162 @@ struct SavedView: View {
             if let error = viewModel.state.errorMessage {
                 Section {
                     FeedbackBanner(
-                        palette: palette,
+                        palette: self.palette,
                         tone: .error,
                         title: "Library unavailable",
-                        message: error
+                        message: error,
                     )
                 }
             }
 
-            if viewModel.state.isLoading {
+            if self.viewModel.state.isLoading {
                 Section {
-                    InsetCard(palette: palette) {
+                    InsetCard(palette: self.palette) {
                         HStack(spacing: DesignTokens.Spacing.sm) {
                             ProgressView()
-                                .tint(palette.accent)
+                                .tint(self.palette.accent)
                             Text("Loading saved passages...")
                                 .font(DesignTokens.Typography.callout)
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(self.palette.textSecondary)
                         }
                     }
                 }
-            } else if viewModel.state.savedQuotes.isEmpty {
+            } else if self.viewModel.state.savedQuotes.isEmpty {
                 Section {
-                    emptyState
+                    self.emptyState
                 }
             } else {
                 Section {
-                    savedList
+                    self.savedList
                 }
             }
         }
         .navigationTitle("Saved")
         .task {
-            guard !didInitialize else { return }
-            didInitialize = true
-            viewModel.onAppear()
+            guard !self.didInitialize else { return }
+            self.didInitialize = true
+            self.viewModel.onAppear()
         }
     }
 
     // MARK: - Empty State
 
-    @ViewBuilder
     private var emptyState: some View {
         EditorialEmptyState(
-            palette: palette,
+            palette: self.palette,
             icon: "bookmark",
             eyebrow: "Library",
             title: "No saved passages yet",
-            message: "When a line matters, save it from Home and it will wait here."
+            message: "When a line matters, save it from Home and it will wait here.",
         )
     }
 
     // MARK: - Saved List
 
-    @ViewBuilder
     private var savedList: some View {
-        ForEach(viewModel.state.savedQuotes, id: \.id) { quote in
-            savedQuoteRow(quote)
+        ForEach(self.viewModel.state.savedQuotes, id: \.id) { quote in
+            self.savedQuoteRow(quote)
         }
     }
 
     // MARK: - Quote Row
 
-    @ViewBuilder
     private func savedQuoteRow(_ quote: QuoteRecord) -> some View {
         QuoteListRow(
-            palette: palette,
+            palette: self.palette,
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
             author: quote.author,
             metadata: [],
             badge: {
-                collectionBadge(for: quote)
+                self.collectionBadge(for: quote)
             },
             footer: {
                 Button {
-                    removeSavedQuote(quote)
+                    self.removeSavedQuote(quote)
                 } label: {
                     Label("Remove from saved", systemImage: "bookmark.slash")
                         .font(DesignTokens.Typography.controlLabel)
-                        .foregroundStyle(palette.accent)
+                        .foregroundStyle(self.palette.accent)
                 }
                 .buttonStyle(.plain)
-            }
+            },
         )
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button {
-                copySavedQuote(quote)
+                self.copySavedQuote(quote)
             } label: {
                 Label("Copy", systemImage: "doc.on.doc")
             }
 
             Button(role: .destructive) {
-                removeSavedQuote(quote)
+                self.removeSavedQuote(quote)
             } label: {
                 Label("Remove", systemImage: "bookmark.slash")
             }
         }
         .contextMenu {
-            savedContextMenu(for: quote)
+            self.savedContextMenu(for: quote)
         }
     }
 
     private func collectionBadge(for quote: QuoteRecord) -> some View {
         Text(quote.collection.displayName)
             .font(DesignTokens.Typography.listMeta)
-            .foregroundStyle(palette.accent)
+            .foregroundStyle(self.palette.accent)
             .padding(.horizontal, DesignTokens.Spacing.sm)
             .padding(.vertical, DesignTokens.Spacing.xs)
             .background {
                 Capsule()
-                    .fill(palette.bannerBackground)
+                    .fill(self.palette.bannerBackground)
             }
     }
 
     @ViewBuilder
     private func savedContextMenu(for quote: QuoteRecord) -> some View {
         Button("Copy", systemImage: "doc.on.doc") {
-            copySavedQuote(quote)
+            self.copySavedQuote(quote)
         }
 
         Button("Remove", systemImage: "bookmark.slash", role: .destructive) {
-            removeSavedQuote(quote)
+            self.removeSavedQuote(quote)
         }
     }
 
     private func copySavedQuote(_ quote: QuoteRecord) {
-#if canImport(UIKit)
-        UIPasteboard.general.string = viewModel.copyQuoteText(quote)
-#endif
-        showFeedback(
+        #if canImport(UIKit)
+            UIPasteboard.general.string = self.viewModel.copyQuoteText(quote)
+        #endif
+        self.showFeedback(
             tone: .success,
             title: "Copied",
-            message: "The quote text is ready to paste."
+            message: "The quote text is ready to paste.",
         )
     }
 
     private func removeSavedQuote(_ quote: QuoteRecord) {
-        viewModel.toggleSaved(quote.id)
-        showFeedback(
+        self.viewModel.toggleSaved(quote.id)
+        self.showFeedback(
             tone: .success,
             title: "Removed from saved",
-            message: "The passage left your personal library."
+            message: "The passage left your personal library.",
         )
     }
 
     private func showFeedback(
         tone: FeedbackBanner.Tone,
         title: String,
-        message: String
+        message: String,
     ) {
-        feedbackTask?.cancel()
-        feedbackTone = tone
-        feedbackTitle = title
-        feedbackMessage = message
+        self.feedbackTask?.cancel()
+        self.feedbackTone = tone
+        self.feedbackTitle = title
+        self.feedbackMessage = message
 
-        feedbackTask = Task {
+        self.feedbackTask = Task {
             try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else { return }
-            feedbackTone = nil
+            self.feedbackTone = nil
         }
     }
 }

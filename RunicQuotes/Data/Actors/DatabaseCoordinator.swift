@@ -2,12 +2,12 @@
 //  DatabaseCoordinator.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 14.11.25.
 //
 
 import Foundation
-import SwiftData
 import os
+import SwiftData
 
 protocol DatabaseQuoteRepository: Sendable {
     func seedIfNeeded() throws
@@ -18,8 +18,8 @@ protocol DatabaseTranslationRepository: Sendable {
     func backfillAllQuotes() throws
 }
 
-extension SwiftDataQuoteRepository: DatabaseQuoteRepository { }
-extension SwiftDataTranslationRepository: DatabaseTranslationRepository { }
+extension SwiftDataQuoteRepository: DatabaseQuoteRepository {}
+extension SwiftDataTranslationRepository: DatabaseTranslationRepository {}
 
 /// Thread-safe coordinator for database seeding and maintenance operations.
 actor DatabaseCoordinator {
@@ -42,19 +42,19 @@ actor DatabaseCoordinator {
         quoteRepositoryFactory: @escaping QuoteRepositoryFactory = { context, translationService in
             let translationRepository = SwiftDataTranslationRepository(
                 modelContext: context,
-                translationService: translationService
+                translationService: translationService,
             )
             return SwiftDataQuoteRepository(
                 modelContext: context,
-                translationCacheRepository: translationRepository
+                translationCacheRepository: translationRepository,
             )
         },
         translationRepositoryFactory: @escaping TranslationRepositoryFactory = { context, translationService in
             SwiftDataTranslationRepository(
                 modelContext: context,
-                translationService: translationService
+                translationService: translationService,
             )
-        }
+        },
     ) {
         self.modelContainer = modelContainer
         self.translationService = translationService
@@ -73,7 +73,7 @@ actor DatabaseCoordinator {
         let task = Task {
             do {
                 let context = ModelContext(modelContainer)
-                let repository = quoteRepositoryFactory(context, translationService)
+                let repository = self.quoteRepositoryFactory(context, self.translationService)
                 try repository.seedIfNeeded()
                 Self.logger.info("Database seeding completed successfully")
             } catch {
@@ -82,7 +82,7 @@ actor DatabaseCoordinator {
             }
         }
 
-        seedingTask = task
+        self.seedingTask = task
         defer { seedingTask = nil }
 
         try await task.value
@@ -94,7 +94,7 @@ actor DatabaseCoordinator {
 
         do {
             let context = ModelContext(modelContainer)
-            let repository = quoteRepositoryFactory(context, translationService)
+            let repository = self.quoteRepositoryFactory(context, self.translationService)
             let purgedCount = try repository.purgeDeletedQuotes(before: cutoffDate)
 
             if purgedCount > 0 {
@@ -119,7 +119,7 @@ actor DatabaseCoordinator {
         let task = Task(priority: .utility) {
             do {
                 let context = ModelContext(modelContainer)
-                let repository = translationRepositoryFactory(context, translationService)
+                let repository = self.translationRepositoryFactory(context, self.translationService)
                 try repository.backfillAllQuotes()
                 Self.logger.info("Translation backfill completed successfully")
             } catch {
@@ -128,7 +128,7 @@ actor DatabaseCoordinator {
             }
         }
 
-        translationBackfillTask = task
+        self.translationBackfillTask = task
         defer { translationBackfillTask = nil }
 
         do {

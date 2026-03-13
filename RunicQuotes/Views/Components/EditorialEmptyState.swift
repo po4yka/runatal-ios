@@ -2,7 +2,7 @@
 //  EditorialEmptyState.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -23,7 +23,7 @@ struct EditorialEmptyState: View {
         title: String,
         message: String,
         actionTitle: String? = nil,
-        action: (() -> Void)? = nil
+        action: (() -> Void)? = nil,
     ) {
         self.palette = palette
         self.icon = icon
@@ -36,28 +36,28 @@ struct EditorialEmptyState: View {
 
     var body: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 0
+            shadowRadius: 0,
         ) {
             VStack(spacing: DesignTokens.Spacing.md) {
-                Image(systemName: icon)
+                Image(systemName: self.icon)
                     .font(.system(size: 28, weight: .medium))
-                    .foregroundStyle(palette.accent)
+                    .foregroundStyle(self.palette.accent)
 
                 if let eyebrow {
-                    SectionLabel(title: eyebrow, palette: palette)
+                    SectionLabel(title: eyebrow, palette: self.palette)
                 }
 
-                Text(title)
+                Text(self.title)
                     .font(DesignTokens.Typography.sectionTitle)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
                     .multilineTextAlignment(.center)
 
-                Text(message)
+                Text(self.message)
                     .font(DesignTokens.Typography.supportingBody)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .multilineTextAlignment(.center)
 
                 if let actionTitle, let action {
@@ -65,7 +65,7 @@ struct EditorialEmptyState: View {
                         Text(actionTitle)
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
+                    .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
                 }
             }
             .frame(maxWidth: .infinity)

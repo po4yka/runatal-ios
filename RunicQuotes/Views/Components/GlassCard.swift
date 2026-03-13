@@ -2,7 +2,7 @@
 //  GlassCard.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 07.10.25.
 //
 
 import SwiftUI
@@ -28,7 +28,7 @@ struct GlassCard<Content: View>: View {
         intensity: DesignTokens.GlassIntensity = .medium,
         cornerRadius: CGFloat = DesignTokens.CornerRadius.xl,
         shadowRadius: CGFloat = 10,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.content = content()
         self.intensity = intensity
@@ -44,7 +44,7 @@ struct GlassCard<Content: View>: View {
         blur: Material = .ultraThinMaterial,
         cornerRadius: CGFloat = 20,
         shadowRadius: CGFloat = 10,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.content = content()
         self.intensity = nil
@@ -58,31 +58,31 @@ struct GlassCard<Content: View>: View {
 
     var body: some View {
         LiquidCard(
-            palette: palette,
-            role: role,
-            cornerRadius: cornerRadius,
-            shadowRadius: shadowRadius,
-            interactive: intensity == .strong
+            palette: self.palette,
+            role: self.role,
+            cornerRadius: self.cornerRadius,
+            shadowRadius: self.shadowRadius,
+            interactive: self.intensity == .strong,
         ) {
-            content
+            self.content
         }
     }
 
     private var palette: AppThemePalette {
-        AppThemePalette.themed(runicTheme, for: colorScheme)
+        AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
     }
 
     private var role: LiquidSurfaceRole {
-        if reduceTransparency {
+        if self.reduceTransparency {
             return .content
         }
-        switch intensity {
+        switch self.intensity {
         case .strong:
             return .floatingCallout
         case .medium:
             return .chrome
         case .light, .none:
-            return opacity.value > 0.55 ? .chrome : .inset
+            return self.opacity.value > 0.55 ? .chrome : .inset
         }
     }
 }
@@ -95,7 +95,7 @@ struct GlassCard<Content: View>: View {
         LinearGradient(
             colors: [.black, Color(white: 0.1), .black],
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
         )
         .ignoresSafeArea()
 

@@ -2,7 +2,7 @@
 //  LiquidContentScaffold.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -23,7 +23,7 @@ struct LiquidContentScaffold<Content: View>: View {
         topPadding: CGFloat = DesignTokens.Spacing.lg,
         spacing: CGFloat = DesignTokens.Spacing.xl,
         showBackgroundExtension: Bool = true,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.palette = palette
         self.scrollEnabled = scrollEnabled
@@ -36,49 +36,49 @@ struct LiquidContentScaffold<Content: View>: View {
 
     var body: some View {
         ZStack {
-            backgroundLayer
+            self.backgroundLayer
 
             Group {
-                if scrollEnabled {
+                if self.scrollEnabled {
                     ScrollView(showsIndicators: false) {
-                        contentStack
+                        self.contentStack
                     }
                 } else {
-                    contentStack
+                    self.contentStack
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .backgroundExtensionEffect(isEnabled: showBackgroundExtension)
+        .backgroundExtensionEffect(isEnabled: self.showBackgroundExtension)
     }
 
     private var contentStack: some View {
-        VStack(alignment: .leading, spacing: spacing) {
-            content
+        VStack(alignment: .leading, spacing: self.spacing) {
+            self.content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, horizontalPadding)
-        .padding(.top, topPadding)
+        .padding(.horizontal, self.horizontalPadding)
+        .padding(.top, self.topPadding)
         .padding(.bottom, DesignTokens.Spacing.huge + DesignTokens.Spacing.xl)
     }
 
     private var backgroundLayer: some View {
         LinearGradient(
-            colors: palette.immersiveBackgroundGradient,
+            colors: self.palette.immersiveBackgroundGradient,
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
         )
         .overlay(alignment: .topTrailing) {
             Circle()
-                .fill(palette.chromeTint)
+                .fill(self.palette.chromeTint)
                 .frame(width: 220, height: 220)
                 .blur(radius: 80)
                 .offset(x: 90, y: -40)
         }
         .overlay(alignment: .bottomLeading) {
             Circle()
-                .fill(palette.ornament)
+                .fill(self.palette.ornament)
                 .frame(width: 260, height: 260)
                 .blur(radius: 110)
                 .offset(x: -100, y: 110)

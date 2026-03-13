@@ -2,13 +2,13 @@
 //  RuneInfo.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import Foundation
 
 /// A single rune entry for reference display.
-struct RuneInfo: Identifiable, Sendable {
+struct RuneInfo: Identifiable {
     let id: String
     let glyph: String
     let name: String
@@ -42,7 +42,7 @@ struct RuneInfo: Identifiable, Sendable {
         RuneInfo(id: "elder-laguz", glyph: "\u{16DA}", name: "Laguz", meaning: "Water", sound: "l", script: .elder),
         RuneInfo(id: "elder-ingwaz", glyph: "\u{16DC}", name: "Ingwaz", meaning: "Ing", sound: "ng", script: .elder),
         RuneInfo(id: "elder-dagaz", glyph: "\u{16DE}", name: "Dagaz", meaning: "Day", sound: "d", script: .elder),
-        RuneInfo(id: "elder-othala", glyph: "\u{16DF}", name: "Othala", meaning: "Heritage", sound: "o", script: .elder)
+        RuneInfo(id: "elder-othala", glyph: "\u{16DF}", name: "Othala", meaning: "Heritage", sound: "o", script: .elder),
     ]
 
     // MARK: - Younger Futhark (16 runes)
@@ -63,7 +63,7 @@ struct RuneInfo: Identifiable, Sendable {
         RuneInfo(id: "younger-bjarkan", glyph: "\u{16D2}", name: "Bjarkan", meaning: "Birch", sound: "b", script: .younger),
         RuneInfo(id: "younger-madr", glyph: "\u{16D7}", name: "Madr", meaning: "Man", sound: "m", script: .younger),
         RuneInfo(id: "younger-logr", glyph: "\u{16DA}", name: "Logr", meaning: "Water", sound: "l", script: .younger),
-        RuneInfo(id: "younger-yr", glyph: "\u{16C9}", name: "Yr", meaning: "Yew bow", sound: "R", script: .younger)
+        RuneInfo(id: "younger-yr", glyph: "\u{16C9}", name: "Yr", meaning: "Yew bow", sound: "R", script: .younger),
     ]
 
     // MARK: - Cirth (select Angerthas runes)
@@ -92,7 +92,7 @@ struct RuneInfo: Identifiable, Sendable {
         RuneInfo(id: "cirth-35", glyph: "e", name: "Certh 35", meaning: "e", sound: "e", script: .cirth),
         RuneInfo(id: "cirth-38", glyph: "o", name: "Certh 38", meaning: "o/u", sound: "o", script: .cirth),
         RuneInfo(id: "cirth-39", glyph: "y", name: "Certh 39", meaning: "y (consonant)", sound: "y", script: .cirth),
-        RuneInfo(id: "cirth-40", glyph: "y", name: "Certh 40", meaning: "y (vowel)", sound: "y", script: .cirth)
+        RuneInfo(id: "cirth-40", glyph: "y", name: "Certh 40", meaning: "y (vowel)", sound: "y", script: .cirth),
     ]
 
     // MARK: - Helpers
@@ -100,18 +100,18 @@ struct RuneInfo: Identifiable, Sendable {
     /// Returns runes for the given script.
     static func runes(for script: RunicScript) -> [RuneInfo] {
         switch script {
-        case .elder: return elderFuthark
-        case .younger: return youngerFuthark
-        case .cirth: return cirth
+        case .elder: self.elderFuthark
+        case .younger: self.youngerFuthark
+        case .cirth: self.cirth
         }
     }
 
     /// Subtitle for each script (used in grid header).
     static func subtitle(for script: RunicScript) -> String {
         switch script {
-        case .elder: return "24 runes \u{00B7} c. 150\u{2013}800 CE"
-        case .younger: return "16 runes \u{00B7} c. 800\u{2013}1100 CE"
-        case .cirth: return "24 runes \u{00B7} Tolkien's Angerthas"
+        case .elder: "24 runes \u{00B7} c. 150\u{2013}800 CE"
+        case .younger: "16 runes \u{00B7} c. 800\u{2013}1100 CE"
+        case .cirth: "24 runes \u{00B7} Tolkien's Angerthas"
         }
     }
 

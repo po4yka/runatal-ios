@@ -2,12 +2,12 @@
 //  SettingsFeatureComponent.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import NeedleFoundation
 
-protocol SettingsFeatureDependency: Dependency { }
+protocol SettingsFeatureDependency: Dependency {}
 
 @MainActor
 final class SettingsFeatureComponent: Component<SettingsFeatureDependency> {
@@ -19,7 +19,7 @@ final class SettingsFeatureComponent: Component<SettingsFeatureDependency> {
         parent: Scope,
         preferencesRepository: SwiftDataUserPreferencesRepository,
         translationViewBuilder: TranslationViewBuilder,
-        archiveViewBuilder: ArchiveViewBuilder
+        archiveViewBuilder: ArchiveViewBuilder,
     ) {
         self.preferencesRepository = preferencesRepository
         self.translationViewBuilder = translationViewBuilder
@@ -29,15 +29,15 @@ final class SettingsFeatureComponent: Component<SettingsFeatureDependency> {
 
     var viewModel: SettingsViewModel {
         shared {
-            SettingsViewModel(preferencesRepository: preferencesRepository)
+            SettingsViewModel(preferencesRepository: self.preferencesRepository)
         }
     }
 
     func view() -> SettingsView {
         SettingsView(
-            viewModel: viewModel,
-            translationViewBuilder: translationViewBuilder,
-            archiveViewBuilder: archiveViewBuilder
+            viewModel: self.viewModel,
+            translationViewBuilder: self.translationViewBuilder,
+            archiveViewBuilder: self.archiveViewBuilder,
         )
     }
 }

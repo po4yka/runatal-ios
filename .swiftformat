@@ -3,7 +3,7 @@
 
 # File options
 --swiftversion 6.1
---exclude Pods,.build,DerivedData
+--exclude Pods,.build,DerivedData,build
 
 # Format options
 --indent 4

@@ -2,18 +2,20 @@
 //  RunicScript.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
 
 /// Represents the different runic writing systems supported by the app
-enum RunicScript: String, Codable, CaseIterable, Identifiable, Sendable {
+enum RunicScript: String, Codable, CaseIterable, Identifiable {
     case elder = "Elder Futhark"
     case younger = "Younger Futhark"
     case cirth = "Cirth (Angerthas)"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     /// Display name for UI
     var displayName: String {
@@ -24,11 +26,11 @@ enum RunicScript: String, Codable, CaseIterable, Identifiable, Sendable {
     var description: String {
         switch self {
         case .elder:
-            return "Ancient Germanic runes (2nd-8th century)"
+            "Ancient Germanic runes (2nd-8th century)"
         case .younger:
-            return "Scandinavian runes (9th-11th century)"
+            "Scandinavian runes (9th-11th century)"
         case .cirth:
-            return "Tolkien's Elvish runes"
+            "Tolkien's Elvish runes"
         }
     }
 
@@ -36,9 +38,9 @@ enum RunicScript: String, Codable, CaseIterable, Identifiable, Sendable {
     var unicodeRange: ClosedRange<UInt32>? {
         switch self {
         case .elder, .younger:
-            return 0x16A0...0x16EA // Unicode Runic block
+            0x16A0 ... 0x16EA // Unicode Runic block
         case .cirth:
-            return nil // Uses Private Use Area
+            nil // Uses Private Use Area
         }
     }
 }

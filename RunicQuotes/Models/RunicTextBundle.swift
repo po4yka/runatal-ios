@@ -2,13 +2,13 @@
 //  RunicTextBundle.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
 
 /// Explicit runic strings to persist instead of on-demand transliteration.
-struct RunicTextBundle: Sendable, Codable, Equatable {
+struct RunicTextBundle: Codable, Equatable {
     let elder: String?
     let younger: String?
     let cirth: String?
@@ -16,11 +16,11 @@ struct RunicTextBundle: Sendable, Codable, Equatable {
     func text(for script: RunicScript) -> String? {
         switch script {
         case .elder:
-            return elder
+            self.elder
         case .younger:
-            return younger
+            self.younger
         case .cirth:
-            return cirth
+            self.cirth
         }
     }
 }

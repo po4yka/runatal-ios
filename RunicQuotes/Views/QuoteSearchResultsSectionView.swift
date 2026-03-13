@@ -2,7 +2,7 @@
 //  QuoteSearchResultsSectionView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -16,34 +16,34 @@ struct QuoteSearchResultsSectionView: View {
 
     var body: some View {
         InsetCard(
-            palette: palette,
+            palette: self.palette,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            contentPadding: DesignTokens.Spacing.md
+            contentPadding: DesignTokens.Spacing.md,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                SectionLabel(title: "Search Results", palette: palette)
+                SectionLabel(title: "Search Results", palette: self.palette)
 
                 MetaRow(
-                    items: [currentCollection.displayName, "\(results.count) matches"],
-                    palette: palette
+                    items: [self.currentCollection.displayName, "\(self.results.count) matches"],
+                    palette: self.palette,
                 )
 
-                if results.isEmpty {
-                    Text("No matching lines surfaced in \(currentCollection.displayName) yet.")
+                if self.results.isEmpty {
+                    Text("No matching lines surfaced in \(self.currentCollection.displayName) yet.")
                         .font(DesignTokens.Typography.supportingBody)
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(self.palette.textSecondary)
                 } else {
                     VStack(spacing: DesignTokens.Spacing.xs) {
-                        ForEach(results.prefix(4)) { result in
+                        ForEach(self.results.prefix(4)) { result in
                             Button {
-                                onSelect(result)
+                                self.onSelect(result)
                             } label: {
                                 QuoteListRow(
-                                    palette: palette,
+                                    palette: self.palette,
                                     runicSnippet: "",
                                     quoteText: result.latinText,
                                     author: result.author,
-                                    metadata: [currentCollection.displayName],
+                                    metadata: [self.currentCollection.displayName],
                                     badge: {
                                         EmptyView()
                                     },
@@ -51,11 +51,11 @@ struct QuoteSearchResultsSectionView: View {
                                         HStack {
                                             Label("Open", systemImage: "arrow.up.left")
                                                 .font(DesignTokens.Typography.controlLabel)
-                                                .foregroundStyle(palette.accent)
+                                                .foregroundStyle(self.palette.accent)
 
                                             Spacer(minLength: 0)
                                         }
-                                    }
+                                    },
                                 )
                             }
                             .buttonStyle(.plain)

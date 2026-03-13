@@ -36,13 +36,13 @@ struct SearchView: View {
                         title: "Find a Line",
                         subtitle: "Search by author, theme, or a fragment you remember.",
                         meta: self.searchMeta,
-                        palette: self.palette
+                        palette: self.palette,
                     )
                     .listRowInsets(EdgeInsets(
                         top: DesignTokens.Spacing.lg,
                         leading: DesignTokens.Spacing.md,
                         bottom: DesignTokens.Spacing.md,
-                        trailing: DesignTokens.Spacing.md
+                        trailing: DesignTokens.Spacing.md,
                     ))
                 }
             }
@@ -53,7 +53,7 @@ struct SearchView: View {
                         palette: self.palette,
                         tone: .error,
                         title: "Search unavailable",
-                        message: error
+                        message: error,
                     )
                 }
             }
@@ -103,7 +103,7 @@ struct SearchView: View {
         InsetCard(
             palette: self.palette,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            contentPadding: DesignTokens.Spacing.md
+            contentPadding: DesignTokens.Spacing.md,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 SectionLabel(title: "Suggestions", palette: self.palette)
@@ -132,7 +132,7 @@ struct SearchView: View {
             InsetCard(
                 palette: self.palette,
                 cornerRadius: DesignTokens.CornerRadius.xl,
-                contentPadding: DesignTokens.Spacing.md
+                contentPadding: DesignTokens.Spacing.md,
             ) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                     HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
@@ -161,7 +161,7 @@ struct SearchView: View {
                             tip: SearchCollectionFilterTip(),
                             palette: self.palette,
                             refreshID: self.featureDiscoveryController.refreshID,
-                            accessibilityIdentifier: "tip_search_collection_filter"
+                            accessibilityIdentifier: "tip_search_collection_filter",
                         )
                     }
 
@@ -171,7 +171,7 @@ struct SearchView: View {
                                 FilterChip(
                                     title: collection.displayName,
                                     isSelected: self.viewModel.state.selectedCollection == collection,
-                                    palette: self.palette
+                                    palette: self.palette,
                                 ) {
                                     self.viewModel.updateSelectedCollection(collection)
                                     FeatureDiscoveryEvents.searchSelectedCollectionFilter.sendDonation()
@@ -192,7 +192,7 @@ struct SearchView: View {
                     icon: "magnifyingglass",
                     eyebrow: "No matches",
                     title: "Nothing surfaced",
-                    message: "Try a different author, broader wording, or switch the collection filter."
+                    message: "Try a different author, broader wording, or switch the collection filter.",
                 )
             }
         } else {
@@ -226,7 +226,7 @@ struct SearchView: View {
             },
             footer: {
                 EmptyView()
-            }
+            },
         )
     }
 

@@ -2,62 +2,66 @@
 //  ReadingPreset.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-02-13.
+//  Created by Claude on 13.02.26.
 //
 
 import Foundation
 
 /// Curated script + font combinations for quick setup.
-enum ReadingPreset: String, Codable, CaseIterable, Identifiable, Sendable {
+enum ReadingPreset: String, Codable, CaseIterable, Identifiable {
     case elderScholar = "Elder Scholar"
     case youngerCarved = "Younger Carved"
     case cirthLore = "Cirth Lore"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
-    var displayName: String { rawValue }
+    var displayName: String {
+        rawValue
+    }
 
     var script: RunicScript {
         switch self {
         case .elderScholar:
-            return .elder
+            .elder
         case .youngerCarved:
-            return .younger
+            .younger
         case .cirthLore:
-            return .cirth
+            .cirth
         }
     }
 
     var font: RunicFont {
         switch self {
         case .elderScholar:
-            return .noto
+            .noto
         case .youngerCarved:
-            return .babelstone
+            .babelstone
         case .cirthLore:
-            return .cirth
+            .cirth
         }
     }
 
     var description: String {
         switch self {
         case .elderScholar:
-            return "Balanced for clear daily reading"
+            "Balanced for clear daily reading"
         case .youngerCarved:
-            return "Sharper historical texture"
+            "Sharper historical texture"
         case .cirthLore:
-            return "Angerthas-inspired fantasy style"
+            "Angerthas-inspired fantasy style"
         }
     }
 
     var previewLatinText: String {
         switch self {
         case .elderScholar:
-            return "Wisdom walks with patience."
+            "Wisdom walks with patience."
         case .youngerCarved:
-            return "Stone remembers every oath."
+            "Stone remembers every oath."
         case .cirthLore:
-            return "Stars guard the hidden road."
+            "Stars guard the hidden road."
         }
     }
 }

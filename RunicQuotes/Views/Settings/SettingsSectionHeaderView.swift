@@ -2,7 +2,7 @@
 //  SettingsSectionHeaderView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -15,16 +15,16 @@ struct SettingsSectionHeaderView: View {
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
             RoundedRectangle(cornerRadius: 1.5)
-                .fill(palette.accent.opacity(0.4))
+                .fill(self.palette.accent.opacity(0.4))
                 .frame(width: 3, height: 20)
 
-            Image(systemName: icon)
+            Image(systemName: self.icon)
                 .font(.headline)
-                .foregroundStyle(palette.textSecondary)
+                .foregroundStyle(self.palette.textSecondary)
 
-            Text(title)
+            Text(self.title)
                 .font(.headline)
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(self.palette.textPrimary)
 
             Spacer()
         }

@@ -60,6 +60,9 @@ cyclomatic_complexity:
   warning: 15
   error: 25
 
+trailing_comma:
+  mandatory_comma: true
+
 nesting:
   type_level:
     warning: 2

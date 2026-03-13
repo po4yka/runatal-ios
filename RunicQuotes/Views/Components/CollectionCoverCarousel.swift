@@ -2,7 +2,7 @@
 //  CollectionCoverCarousel.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-02-13.
+//  Created by Claude on 13.02.26.
 //
 
 import SwiftUI
@@ -20,22 +20,22 @@ struct CollectionCoverCarousel: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             HeroHeader(
                 eyebrow: "Collections",
-                title: selectedCollection.displayName,
-                subtitle: selectedCollection.subtitle,
-                meta: ["\(selectedCollection == .all ? totalQuoteCount : quoteCount(for: selectedCollection)) passages"],
-                palette: palette
+                title: self.selectedCollection.displayName,
+                subtitle: self.selectedCollection.subtitle,
+                meta: ["\(self.selectedCollection == .all ? self.totalQuoteCount : self.quoteCount(for: self.selectedCollection)) passages"],
+                palette: self.palette,
             )
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: DesignTokens.Spacing.sm) {
-                    ForEach(covers) { cover in
+                    ForEach(self.covers) { cover in
                         CollectionCoverCardView(
                             cover: cover,
-                            isSelected: cover.collection == selectedCollection,
-                            script: script,
-                            font: font,
-                            palette: palette,
-                            onSelect: onCollectionSelected
+                            isSelected: cover.collection == self.selectedCollection,
+                            script: self.script,
+                            font: self.font,
+                            palette: self.palette,
+                            onSelect: self.onCollectionSelected,
                         )
                     }
                 }
@@ -47,10 +47,10 @@ struct CollectionCoverCarousel: View {
     }
 
     private func quoteCount(for collection: QuoteCollection) -> Int {
-        covers.first(where: { $0.collection == collection })?.quoteCount ?? 0
+        self.covers.first(where: { $0.collection == collection })?.quoteCount ?? 0
     }
 
     private var totalQuoteCount: Int {
-        covers.first(where: { $0.collection == .all })?.quoteCount ?? covers.map(\.quoteCount).max() ?? 0
+        self.covers.first(where: { $0.collection == .all })?.quoteCount ?? self.covers.map(\.quoteCount).max() ?? 0
     }
 }

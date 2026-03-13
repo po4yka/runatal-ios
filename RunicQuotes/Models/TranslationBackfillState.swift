@@ -2,7 +2,7 @@
 //  TranslationBackfillState.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -28,7 +28,7 @@ final class TranslationBackfillState {
         startedAt: Date? = nil,
         updatedAt: Date = Date(),
         completedAt: Date? = nil,
-        isCompleted: Bool = false
+        isCompleted: Bool = false,
     ) {
         self.key = key
         self.engineVersion = engineVersion

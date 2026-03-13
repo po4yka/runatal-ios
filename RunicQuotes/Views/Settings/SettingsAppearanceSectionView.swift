@@ -2,7 +2,7 @@
 //  SettingsAppearanceSectionView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -12,43 +12,43 @@ struct SettingsAppearanceSectionView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        SettingsPanel(palette: palette) {
+        SettingsPanel(palette: self.palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SettingsSectionHeaderView(title: "Appearance", icon: "paintbrush", palette: palette)
+                SettingsSectionHeaderView(title: "Appearance", icon: "paintbrush", palette: self.palette)
 
                 VStack(spacing: DesignTokens.Spacing.sm) {
                     ForEach(AppTheme.allCases) { theme in
-                        themeButton(theme)
+                        self.themeButton(theme)
 
                         if theme != AppTheme.allCases.last {
                             Rectangle()
-                                .fill(palette.separator)
+                                .fill(self.palette.separator)
                                 .frame(height: 1)
                         }
                     }
                 }
 
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                    actionRow(
+                    self.actionRow(
                         icon: "arrow.counterclockwise",
                         title: "Reset to Defaults",
-                        isEnabled: !viewModel.isAtDefaults
+                        isEnabled: !self.viewModel.isAtDefaults,
                     ) {
                         Haptics.trigger(.saveOrShare)
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.resetToDefaults()
+                            self.viewModel.resetToDefaults()
                         }
                     }
                     .accessibilityIdentifier("settings_reset_defaults_button")
 
-                    actionRow(
+                    self.actionRow(
                         icon: "wand.and.stars",
                         title: "Restore Last Preset",
-                        isEnabled: viewModel.canRestoreLastPreset
+                        isEnabled: self.viewModel.canRestoreLastPreset,
                     ) {
                         Haptics.trigger(.saveOrShare)
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.restoreLastUsedPreset()
+                            self.viewModel.restoreLastUsedPreset()
                         }
                     }
                     .accessibilityIdentifier("settings_restore_preset_button")
@@ -61,11 +61,11 @@ struct SettingsAppearanceSectionView: View {
 
     private func themeButton(_ theme: AppTheme) -> some View {
         let themePalette = AppThemePalette.themed(theme, for: .dark)
-        let isSelected = viewModel.state.selectedTheme == theme
+        let isSelected = self.viewModel.state.selectedTheme == theme
 
         return Button {
             withAnimation(.easeInOut(duration: 0.2)) {
-                viewModel.updateTheme(theme)
+                self.viewModel.updateTheme(theme)
             }
         } label: {
             HStack(spacing: DesignTokens.Spacing.sm) {
@@ -79,18 +79,18 @@ struct SettingsAppearanceSectionView: View {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                     Text(theme.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(palette.textPrimary)
+                        .foregroundStyle(self.palette.textPrimary)
 
                     Text(theme.description)
                         .font(DesignTokens.Typography.listMeta)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                 }
 
                 Spacer()
 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(palette.accent)
+                        .foregroundStyle(self.palette.accent)
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -108,7 +108,7 @@ struct SettingsAppearanceSectionView: View {
         icon: String,
         title: String,
         isEnabled: Bool,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> some View {
         Button(action: action) {
             HStack(spacing: DesignTokens.Spacing.xs) {
@@ -117,13 +117,13 @@ struct SettingsAppearanceSectionView: View {
                 Text(title)
             }
             .font(DesignTokens.Typography.controlLabel)
-            .foregroundStyle(palette.textPrimary.opacity(isEnabled ? 0.92 : 0.3))
+            .foregroundStyle(self.palette.textPrimary.opacity(isEnabled ? 0.92 : 0.3))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, DesignTokens.Spacing.sm)
             .padding(.vertical, DesignTokens.Spacing.sm)
             .background {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
-                    .fill(isEnabled ? palette.bannerBackground : palette.editorialMutedSurface)
+                    .fill(isEnabled ? self.palette.bannerBackground : self.palette.editorialMutedSurface)
             }
         }
         .buttonStyle(.plain)

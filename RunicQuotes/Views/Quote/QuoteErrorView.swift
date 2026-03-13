@@ -2,7 +2,7 @@
 //  QuoteErrorView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -14,32 +14,32 @@ struct QuoteErrorView: View {
 
     var body: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
             shadowRadius: 0,
-            contentPadding: DesignTokens.Spacing.md
+            contentPadding: DesignTokens.Spacing.md,
         ) {
             VStack(spacing: DesignTokens.Spacing.md) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.largeTitle)
-                    .foregroundStyle(palette.error.opacity(0.8))
+                    .foregroundStyle(self.palette.error.opacity(0.8))
                     .accessibilityLabel("Error")
 
                 Text("Error")
                     .font(.headline)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
-                Text(message)
+                Text(self.message)
                     .font(DesignTokens.Typography.supportingBody)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .multilineTextAlignment(.center)
 
-                Button(action: retry) {
+                Button(action: self.retry) {
                     Label("Try Again", systemImage: "arrow.clockwise")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
+                .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
                 .accessibilityLabel("Retry loading quote")
                 .accessibilityHint("Double tap to try loading the quote again")
                 .accessibilityIdentifier("quote_retry_button")

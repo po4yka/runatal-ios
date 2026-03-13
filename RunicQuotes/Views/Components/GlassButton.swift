@@ -2,7 +2,7 @@
 //  GlassButton.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 07.10.25.
 //
 
 import SwiftUI
@@ -35,7 +35,7 @@ struct GlassButton: View {
         hapticTier: HapticTier? = nil,
         intensity: DesignTokens.GlassIntensity = .medium,
         cornerRadius: CGFloat = DesignTokens.CornerRadius.sm,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) {
         self.title = title
         self.icon = icon
@@ -55,7 +55,7 @@ struct GlassButton: View {
         opacity: GlassOpacity,
         blur: Material = .thinMaterial,
         cornerRadius: CGFloat = 12,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) {
         self.title = title
         self.icon = icon
@@ -75,107 +75,106 @@ struct GlassButton: View {
                 if let hapticTier {
                     Haptics.trigger(hapticTier)
                 }
-                action()
+                self.action()
             },
             label: {
                 HStack(spacing: 8) {
-                    if let icon = icon {
+                    if let icon {
                         Image(systemName: icon)
                             .font(.body.weight(.medium))
                             .accessibilityHidden(true)
                     }
 
-                    if !title.isEmpty {
-                        Text(title)
+                    if !self.title.isEmpty {
+                        Text(self.title)
                             .font(.body.weight(.medium))
                     }
                 }
-                .foregroundStyle(isPrimary ? Color.white : palette.textPrimary)
+                .foregroundStyle(self.isPrimary ? Color.white : self.palette.textPrimary)
                 .padding(.horizontal, DesignTokens.Spacing.lg)
                 .padding(.vertical, DesignTokens.Spacing.sm)
                 .background {
-                    buttonBackground
+                    self.buttonBackground
                 }
                 .shadow(
-                    color: palette.shadowColor.opacity(isPrimary ? 1 : 0.78),
-                    radius: isPressed ? 4 : 8,
+                    color: self.palette.shadowColor.opacity(self.isPrimary ? 1 : 0.78),
+                    radius: self.isPressed ? 4 : 8,
                     x: 0,
-                    y: isPressed ? 2 : 4
+                    y: self.isPressed ? 2 : 4,
                 )
-                .scaleEffect(isPressed ? 0.96 : 1.0)
-            }
+                .scaleEffect(self.isPressed ? 0.96 : 1.0)
+            },
         )
         .buttonStyle(.plain)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
-                    if reduceMotion {
-                        isPressed = true
+                    if self.reduceMotion {
+                        self.isPressed = true
                     } else {
                         withAnimation(.easeInOut(duration: 0.1)) {
-                            isPressed = true
+                            self.isPressed = true
                         }
                     }
                 }
                 .onEnded { _ in
-                    if reduceMotion {
-                        isPressed = false
+                    if self.reduceMotion {
+                        self.isPressed = false
                     } else {
                         withAnimation(.easeInOut(duration: 0.1)) {
-                            isPressed = false
+                            self.isPressed = false
                         }
                     }
-                }
+                },
         )
         .accessibilityAddTraits(.isButton)
     }
 
     private var palette: AppThemePalette {
-        AppThemePalette.themed(runicTheme, for: colorScheme)
+        AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
     }
 
     private var isPrimary: Bool {
-        intensity == .strong || opacity == .low
+        self.intensity == .strong || self.opacity == .low
     }
 
-    @ViewBuilder
     private var buttonBackground: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(backgroundFill)
+            RoundedRectangle(cornerRadius: self.cornerRadius)
+                .fill(self.backgroundFill)
 
-            if isPressed {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(palette.highlight)
+            if self.isPressed {
+                RoundedRectangle(cornerRadius: self.cornerRadius)
+                    .fill(self.palette.highlight)
             }
 
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .strokeBorder(borderColor, lineWidth: DesignTokens.Stroke.hairline)
+            RoundedRectangle(cornerRadius: self.cornerRadius)
+                .strokeBorder(self.borderColor, lineWidth: DesignTokens.Stroke.hairline)
         }
     }
 
     private var backgroundFill: some ShapeStyle {
-        if isPrimary {
+        if self.isPrimary {
             return AnyShapeStyle(
                 LinearGradient(
-                    colors: [palette.accent, palette.ctaAccent],
+                    colors: [self.palette.accent, self.palette.ctaAccent],
                     startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                    endPoint: .bottomTrailing,
+                ),
             )
         }
 
         return AnyShapeStyle(
             LinearGradient(
-                colors: [palette.editorialSurface, palette.editorialInset],
+                colors: [self.palette.editorialSurface, self.palette.editorialInset],
                 startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+                endPoint: .bottomTrailing,
+            ),
         )
     }
 
     private var borderColor: Color {
-        isPrimary ? palette.strongCardStroke : palette.cardStroke
+        self.isPrimary ? self.palette.strongCardStroke : self.palette.cardStroke
     }
 }
 
@@ -187,14 +186,14 @@ extension GlassButton {
         _ title: String,
         icon: String? = nil,
         hapticTier: HapticTier? = nil,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> GlassButton {
         GlassButton(
             title,
             icon: icon,
             hapticTier: hapticTier,
             intensity: .strong,
-            action: action
+            action: action,
         )
     }
 
@@ -203,14 +202,14 @@ extension GlassButton {
         _ title: String,
         icon: String? = nil,
         hapticTier: HapticTier? = nil,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> GlassButton {
         GlassButton(
             title,
             icon: icon,
             hapticTier: hapticTier,
             intensity: .light,
-            action: action
+            action: action,
         )
     }
 
@@ -219,7 +218,7 @@ extension GlassButton {
         _ title: String,
         icon: String? = nil,
         hapticTier: HapticTier? = nil,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> GlassButton {
         GlassButton(
             title,
@@ -227,7 +226,7 @@ extension GlassButton {
             hapticTier: hapticTier,
             intensity: .light,
             cornerRadius: DesignTokens.CornerRadius.sm,
-            action: action
+            action: action,
         )
     }
 }
@@ -240,7 +239,7 @@ extension GlassButton {
         LinearGradient(
             colors: [.black, Color(white: 0.1), .black],
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
         )
         .ignoresSafeArea()
 

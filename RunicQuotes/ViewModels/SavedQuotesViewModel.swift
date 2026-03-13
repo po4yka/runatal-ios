@@ -2,19 +2,19 @@
 //  SavedQuotesViewModel.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import Foundation
-import SwiftUI
 import os
+import SwiftUI
 
 /// ViewModel for the saved quotes screen
 @MainActor
 final class SavedQuotesViewModel: ObservableObject {
     // MARK: - State
 
-    struct State: Sendable {
+    struct State {
         var savedQuotes: [QuoteRecord] = []
         var isLoading: Bool = false
         var errorMessage: String?
@@ -34,14 +34,14 @@ final class SavedQuotesViewModel: ObservableObject {
 
     /// Number of currently saved quotes.
     var savedCount: Int {
-        state.savedQuotes.count
+        self.state.savedQuotes.count
     }
 
     // MARK: - Initialization
 
     init(
         quoteProvider: QuoteProvider,
-        preferencesRepository: any UserPreferencesRepository
+        preferencesRepository: any UserPreferencesRepository,
     ) {
         self.quoteProvider = quoteProvider
         self.preferencesRepository = preferencesRepository
@@ -49,20 +49,20 @@ final class SavedQuotesViewModel: ObservableObject {
 
     /// Load saved quotes when view appears.
     func onAppear() {
-        state.isLoading = true
-        state.errorMessage = nil
+        self.state.isLoading = true
+        self.state.errorMessage = nil
         Task {
-            await loadSavedQuotes()
+            await self.loadSavedQuotes()
         }
     }
 
     /// Toggle the saved state for a quote and reload the list.
     func toggleSaved(_ quoteID: UUID) {
-        preferences.toggleSavedQuote(quoteID)
-        persistChanges()
+        self.preferences.toggleSavedQuote(quoteID)
+        self.persistChanges()
 
         // Remove the quote from the local list immediately
-        state.savedQuotes.removeAll { $0.id == quoteID }
+        self.state.savedQuotes.removeAll { $0.id == quoteID }
     }
 
     /// Return copy-ready text for a saved quote.
@@ -74,24 +74,24 @@ final class SavedQuotesViewModel: ObservableObject {
 
     private func loadSavedQuotes() async {
         do {
-            preferences = try preferencesRepository.snapshot()
-            let savedIDs = preferences.savedQuoteIDs
+            self.preferences = try self.preferencesRepository.snapshot()
+            let savedIDs = self.preferences.savedQuoteIDs
 
             let allQuotes = try await quoteProvider.allQuotes()
-            state.savedQuotes = allQuotes.filter { savedIDs.contains($0.id) }
-            state.isLoading = false
+            self.state.savedQuotes = allQuotes.filter { savedIDs.contains($0.id) }
+            self.state.isLoading = false
         } catch {
-            logger.error("Failed to load saved quotes: \(error.localizedDescription)")
-            state.errorMessage = "Failed to load saved quotes: \(error.localizedDescription)"
-            state.isLoading = false
+            self.logger.error("Failed to load saved quotes: \(error.localizedDescription)")
+            self.state.errorMessage = "Failed to load saved quotes: \(error.localizedDescription)"
+            self.state.isLoading = false
         }
     }
 
     private func persistChanges() {
         do {
-            try preferencesRepository.save(preferences)
+            try self.preferencesRepository.save(self.preferences)
         } catch {
-            state.errorMessage = "Failed to save changes: \(error.localizedDescription)"
+            self.state.errorMessage = "Failed to save changes: \(error.localizedDescription)"
         }
     }
 }
@@ -106,7 +106,7 @@ extension SavedQuotesViewModel {
         let quoteRepository = SwiftDataQuoteRepository(modelContext: container.mainContext)
         return SavedQuotesViewModel(
             quoteProvider: QuoteProvider(repository: quoteRepository),
-            preferencesRepository: preferencesRepository
+            preferencesRepository: preferencesRepository,
         )
     }
 }

@@ -1,8 +1,8 @@
 //
 //  WidgetAccessoryViews.swift
-//  RunicQuotesWidget
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -12,21 +12,23 @@ struct CircularWidgetView: View {
     let entry: RunicQuoteEntry
     @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { entry.palette(for: colorScheme) }
+    private var palette: AppThemePalette {
+        self.entry.palette(for: self.colorScheme)
+    }
 
     var body: some View {
         ZStack {
-            if entry.showsDecorativeGlyphs {
-                WidgetGlyphRing(glyph: entry.decorativeGlyph, palette: palette)
+            if self.entry.showsDecorativeGlyphs {
+                WidgetGlyphRing(glyph: self.entry.decorativeGlyph, palette: self.palette)
                     .padding(1)
             }
 
-            Text(entry.decorativeGlyph)
-                .font(.custom(entry.widgetFontName, size: 23))
+            Text(self.entry.decorativeGlyph)
+                .font(.custom(self.entry.widgetFontName, size: 23))
                 .bold()
                 .lineLimit(1)
         }
-        .accessibilityLabel("Runic quote: \(entry.quote.textLatin)")
+        .accessibilityLabel("Runic quote: \(self.entry.quote.textLatin)")
     }
 }
 
@@ -34,40 +36,45 @@ struct CircularWidgetView: View {
 struct RectangularWidgetView: View {
     let entry: RunicQuoteEntry
 
-    private var runicLine: String { entry.compactRunic(maxCharacters: 26) }
-    private var translationLine: String { entry.compactLatin(maxCharacters: 42) }
+    private var runicLine: String {
+        self.entry.compactRunic(maxCharacters: 26)
+    }
+
+    private var translationLine: String {
+        self.entry.compactLatin(maxCharacters: 42)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            if entry.widgetStyle == .runeFirst {
-                Text(runicLine)
-                    .font(.custom(entry.widgetFontName, size: 14))
+            if self.entry.widgetStyle == .runeFirst {
+                Text(self.runicLine)
+                    .font(.custom(self.entry.widgetFontName, size: 14))
                     .fontWeight(.medium)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .minimumScaleFactor(0.75)
 
-                Text(translationLine)
+                Text(self.translationLine)
                     .font(DesignTokens.Typography.widgetMeta)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .truncationMode(.tail)
             } else {
-                Text(translationLine)
+                Text(self.translationLine)
                     .font(.caption)
                     .bold()
                     .lineLimit(1)
                     .truncationMode(.tail)
 
-                Text(runicLine)
-                    .font(.custom(entry.widgetFontName, size: 12))
+                Text(self.runicLine)
+                    .font(.custom(self.entry.widgetFontName, size: 12))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .truncationMode(.tail)
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(entry.widgetAccessibilityLabel)
+        .accessibilityLabel(self.entry.widgetAccessibilityLabel)
     }
 }
 
@@ -76,18 +83,18 @@ struct InlineWidgetView: View {
     let entry: RunicQuoteEntry
 
     var body: some View {
-        if entry.widgetStyle == .runeFirst {
-            Text("\(entry.compactRunic(maxCharacters: 13)) \u{00B7} \(entry.compactAuthor(maxCharacters: 10))")
-                .font(.custom(entry.widgetFontName, size: 12))
+        if self.entry.widgetStyle == .runeFirst {
+            Text("\(self.entry.compactRunic(maxCharacters: 13)) \u{00B7} \(self.entry.compactAuthor(maxCharacters: 10))")
+                .font(.custom(self.entry.widgetFontName, size: 12))
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .accessibilityLabel(entry.widgetAccessibilityLabel)
+                .accessibilityLabel(self.entry.widgetAccessibilityLabel)
         } else {
-            Text("\(entry.compactLatin(maxCharacters: 20)) \u{00B7} \(entry.decorativeGlyph)")
+            Text("\(self.entry.compactLatin(maxCharacters: 20)) \u{00B7} \(self.entry.decorativeGlyph)")
                 .font(.caption)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .accessibilityLabel(entry.widgetAccessibilityLabel)
+                .accessibilityLabel(self.entry.widgetAccessibilityLabel)
         }
     }
 }
@@ -102,20 +109,20 @@ struct WidgetDecorativeBackground: View {
         CGPoint(x: 0.43, y: 0.28),
         CGPoint(x: 0.58, y: 0.72),
         CGPoint(x: 0.74, y: 0.19),
-        CGPoint(x: 0.88, y: 0.77)
+        CGPoint(x: 0.88, y: 0.77),
     ]
 
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                ForEach(Array(points.enumerated()), id: \.offset) { index, point in
-                    Text(glyph)
+                ForEach(Array(self.points.enumerated()), id: \.offset) { index, point in
+                    Text(self.glyph)
                         .font(.system(size: 16 + CGFloat(index % 3) * 7, weight: .semibold))
-                        .foregroundStyle((index.isMultiple(of: 2) ? palette.accent : palette.separator).opacity(0.16))
+                        .foregroundStyle((index.isMultiple(of: 2) ? self.palette.accent : self.palette.separator).opacity(0.16))
                         .rotationEffect(.degrees(Double(index) * 31))
                         .position(
                             x: proxy.size.width * point.x,
-                            y: proxy.size.height * point.y
+                            y: proxy.size.height * point.y,
                         )
                 }
             }
@@ -123,8 +130,8 @@ struct WidgetDecorativeBackground: View {
                 LinearGradient(
                     colors: [.clear, .white, .white, .clear],
                     startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                    endPoint: .bottomTrailing,
+                ),
             )
         }
         .allowsHitTesting(false)
@@ -138,31 +145,31 @@ private struct WidgetGlyphRing: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(palette.accent.opacity(0.42), lineWidth: 1.1)
+                .stroke(self.palette.accent.opacity(0.42), lineWidth: 1.1)
 
             Circle()
                 .stroke(
-                    palette.separator.opacity(0.65),
-                    style: StrokeStyle(lineWidth: 0.8, dash: [2.2, 3.4])
+                    self.palette.separator.opacity(0.65),
+                    style: StrokeStyle(lineWidth: 0.8, dash: [2.2, 3.4]),
                 )
                 .padding(3)
 
             VStack {
-                Text(glyph)
+                Text(self.glyph)
                 Spacer()
-                Text(glyph)
+                Text(self.glyph)
             }
             .font(.system(size: 9, weight: .bold))
-            .foregroundStyle(palette.textTertiary.opacity(0.85))
+            .foregroundStyle(self.palette.textTertiary.opacity(0.85))
             .padding(.vertical, 3)
 
             HStack {
-                Text(glyph)
+                Text(self.glyph)
                 Spacer()
-                Text(glyph)
+                Text(self.glyph)
             }
             .font(.system(size: 9, weight: .bold))
-            .foregroundStyle(palette.textTertiary.opacity(0.85))
+            .foregroundStyle(self.palette.textTertiary.opacity(0.85))
             .padding(.horizontal, 3)
         }
     }
@@ -174,7 +181,7 @@ extension RunicQuoteEntry {
         return LinearGradient(
             colors: palette.immersiveBackgroundGradient,
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
         )
     }
 
@@ -195,9 +202,9 @@ extension RunicQuoteEntry {
     var decorativeGlyph: String {
         switch script {
         case .elder, .younger:
-            return "\u{16A0}"
+            "\u{16A0}"
         case .cirth:
-            return "\u{2E38}"
+            "\u{2E38}"
         }
     }
 

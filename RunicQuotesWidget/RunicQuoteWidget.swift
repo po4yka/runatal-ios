@@ -1,12 +1,12 @@
 //
 //  RunicQuoteWidget.swift
-//  RunicQuotesWidget
+//  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 09.10.25.
 //
 
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 /// Main widget definition with AppIntent configuration
 struct RunicQuoteWidget: Widget {
@@ -14,9 +14,9 @@ struct RunicQuoteWidget: Widget {
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
-            kind: kind,
+            kind: self.kind,
             intent: RunicQuoteConfigurationIntent.self,
-            provider: QuoteTimelineProvider()
+            provider: QuoteTimelineProvider(),
         ) { entry in
             RunicQuoteWidgetEntryView(entry: entry)
                 .containerBackground(for: .widget) {
@@ -31,7 +31,7 @@ struct RunicQuoteWidget: Widget {
             .systemLarge,
             .accessoryCircular,
             .accessoryRectangular,
-            .accessoryInline
+            .accessoryInline,
         ])
     }
 }
@@ -42,11 +42,11 @@ private struct WidgetBackgroundView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let palette = AppThemePalette.themed(entry.theme, for: colorScheme)
+        let palette = AppThemePalette.themed(self.entry.theme, for: self.colorScheme)
         LinearGradient(
             colors: palette.widgetBackgroundGradient,
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
         )
     }
 }

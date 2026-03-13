@@ -2,7 +2,7 @@
 //  QuoteLoadingView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -13,14 +13,14 @@ struct QuoteLoadingView: View {
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.lg) {
             ProgressView()
-                .tint(palette.accent)
+                .tint(self.palette.accent)
                 .scaleEffect(1.5)
                 .accessibilityLabel("Loading")
                 .accessibilityIdentifier("quote_loading_indicator")
 
             Text("Loading quote...")
                 .font(.caption)
-                .foregroundStyle(palette.textTertiary)
+                .foregroundStyle(self.palette.textTertiary)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Loading quote")

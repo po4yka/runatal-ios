@@ -2,7 +2,7 @@
 //  SearchViewModel.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import Foundation
@@ -13,7 +13,7 @@ import SwiftUI
 final class SearchViewModel: ObservableObject {
     // MARK: - State
 
-    struct State: Sendable {
+    struct State {
         var filteredQuotes: [QuoteRecord] = []
         var isSearchActive: Bool = false
         var searchText: String = ""
@@ -44,65 +44,65 @@ final class SearchViewModel: ObservableObject {
 
     /// Load all visible quotes into cache when the view appears.
     func onAppear() {
-        state.isLoading = true
-        state.errorMessage = nil
+        self.state.isLoading = true
+        self.state.errorMessage = nil
         Task {
-            await loadQuotes()
+            await self.loadQuotes()
         }
     }
 
     /// Update the search text and recompute filtered results.
     func updateSearchText(_ text: String) {
-        state.searchText = text
-        state.isSearchActive = !text.isEmpty
-        applyFilters()
+        self.state.searchText = text
+        self.state.isSearchActive = !text.isEmpty
+        self.applyFilters()
     }
 
     /// Toggle the selected collection filter and recompute results.
     func updateSelectedCollection(_ collection: QuoteCollection?) {
-        if state.selectedCollection == collection {
-            state.selectedCollection = nil
+        if self.state.selectedCollection == collection {
+            self.state.selectedCollection = nil
         } else {
-            state.selectedCollection = collection
+            self.state.selectedCollection = collection
         }
-        applyFilters()
+        self.applyFilters()
     }
 
     /// Reset search state to initial values.
     func clearSearch() {
-        state.searchText = ""
-        state.selectedCollection = nil
-        state.isSearchActive = false
-        state.filteredQuotes = []
+        self.state.searchText = ""
+        self.state.selectedCollection = nil
+        self.state.isSearchActive = false
+        self.state.filteredQuotes = []
     }
 
     // MARK: - Private Methods
 
     private func loadQuotes() async {
         do {
-            cachedQuotes = try await quoteProvider.allQuotes()
-            applyFilters()
-            state.isLoading = false
+            self.cachedQuotes = try await self.quoteProvider.allQuotes()
+            self.applyFilters()
+            self.state.isLoading = false
         } catch {
-            state.errorMessage = error.localizedDescription
-            state.isLoading = false
+            self.state.errorMessage = error.localizedDescription
+            self.state.isLoading = false
         }
     }
 
     private func applyFilters() {
-        guard state.isSearchActive else {
-            state.filteredQuotes = []
+        guard self.state.isSearchActive else {
+            self.state.filteredQuotes = []
             return
         }
 
-        var results = cachedQuotes
+        var results = self.cachedQuotes
 
         if let collection = state.selectedCollection, collection != .all {
             results = results.filter { $0.collection == collection }
         }
 
-        let query = state.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        state.filteredQuotes = results.filter { quote in
+        let query = self.state.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.state.filteredQuotes = results.filter { quote in
             quote.textLatin.localizedStandardContains(query)
                 || quote.author.localizedStandardContains(query)
         }

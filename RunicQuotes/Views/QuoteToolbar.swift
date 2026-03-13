@@ -2,7 +2,7 @@
 //  QuoteToolbar.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -16,9 +16,9 @@ struct QuoteToolbar: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
-            Text(currentCollection.displayName)
+            Text(self.currentCollection.displayName)
                 .font(DesignTokens.Typography.toolbarLabel)
-                .foregroundStyle(palette.textTertiary)
+                .foregroundStyle(self.palette.textTertiary)
         }
 
         ToolbarItemGroup(placement: .primaryAction) {
@@ -29,15 +29,15 @@ struct QuoteToolbar: ToolbarContent {
                     .labelStyle(.iconOnly)
                     .symbolRenderingMode(.monochrome)
             }
-            .foregroundStyle(palette.textPrimary)
+            .foregroundStyle(self.palette.textPrimary)
             .accessibilityIdentifier("quote_notifications_button")
 
             Menu {
-                Button(action: createQuote) {
+                Button(action: self.createQuote) {
                     Label(String(localized: "translation.menu.newQuote"), systemImage: "plus")
                 }
 
-                Button(action: openTranslation) {
+                Button(action: self.openTranslation) {
                     Label(String(localized: "translation.menu.translate"), systemImage: "character.cursor.ibeam")
                 }
             } label: {
@@ -45,7 +45,7 @@ struct QuoteToolbar: ToolbarContent {
                     .labelStyle(.iconOnly)
                     .symbolRenderingMode(.monochrome)
             }
-            .foregroundStyle(palette.textPrimary)
+            .foregroundStyle(self.palette.textPrimary)
             .accessibilityIdentifier("quote_create_menu")
         }
     }

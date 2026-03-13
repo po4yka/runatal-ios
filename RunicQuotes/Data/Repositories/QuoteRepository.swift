@@ -2,18 +2,18 @@
 //  QuoteRepository.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
 import Foundation
-import SwiftData
 import os
+import SwiftData
 
 // swiftlint:disable file_length
 // swiftlint:disable function_parameter_count
 
 /// Sendable snapshot of a Quote model used across actor boundaries.
-struct QuoteRecord: Identifiable, Sendable {
+struct QuoteRecord: Identifiable {
     let id: UUID
     let textLatin: String
     let author: String
@@ -29,29 +29,29 @@ struct QuoteRecord: Identifiable, Sendable {
     let isUserGenerated: Bool
 
     init(from quote: Quote) {
-        id = quote.id
-        textLatin = quote.textLatin
-        author = quote.author
-        source = quote.source
-        collection = quote.collection
-        runicElder = quote.runicElder
-        runicYounger = quote.runicYounger
-        runicCirth = quote.runicCirth
-        createdAt = quote.createdAt
-        isHidden = quote.isHidden
-        isDeleted = quote.isSoftDeleted
-        deletedAt = quote.deletedAt
-        isUserGenerated = quote.isUserGenerated
+        self.id = quote.id
+        self.textLatin = quote.textLatin
+        self.author = quote.author
+        self.source = quote.source
+        self.collection = quote.collection
+        self.runicElder = quote.runicElder
+        self.runicYounger = quote.runicYounger
+        self.runicCirth = quote.runicCirth
+        self.createdAt = quote.createdAt
+        self.isHidden = quote.isHidden
+        self.isDeleted = quote.isSoftDeleted
+        self.deletedAt = quote.deletedAt
+        self.isUserGenerated = quote.isUserGenerated
     }
 
     func runicText(for script: RunicScript) -> String? {
         switch script {
         case .elder:
-            return runicElder
+            self.runicElder
         case .younger:
-            return runicYounger
+            self.runicYounger
         case .cirth:
-            return runicCirth
+            self.runicCirth
         }
     }
 }
@@ -82,7 +82,7 @@ protocol QuoteRepository: Sendable {
         author: String,
         source: String?,
         collection: QuoteCollection,
-        storedRunic: RunicTextBundle?
+        storedRunic: RunicTextBundle?,
     ) throws -> QuoteRecord
 
     /// Update an existing quote by ID.
@@ -92,7 +92,7 @@ protocol QuoteRepository: Sendable {
         author: String,
         source: String?,
         collection: QuoteCollection,
-        storedRunic: RunicTextBundle?
+        storedRunic: RunicTextBundle?,
     ) throws -> QuoteRecord
 
     /// Hide a quote without deleting it.
@@ -125,7 +125,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     init(
         modelContext: ModelContext,
-        translationCacheRepository: TranslationRepository? = nil
+        translationCacheRepository: TranslationRepository? = nil,
     ) {
         self.modelContext = modelContext
         self.translationCacheRepository = translationCacheRepository
@@ -140,13 +140,13 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         let existingQuotes = try modelContext.fetch(descriptor)
 
         guard existingQuotes.isEmpty else {
-            try backfillCollectionsIfNeeded(for: existingQuotes)
-            try retransliterateCirthIfNeeded(for: existingQuotes)
-            logger.info("Database already seeded with \(existingQuotes.count) quotes")
+            try self.backfillCollectionsIfNeeded(for: existingQuotes)
+            try self.retransliterateCirthIfNeeded(for: existingQuotes)
+            self.logger.info("Database already seeded with \(existingQuotes.count) quotes")
             return
         }
 
-        logger.info("Seeding database with quotes...")
+        self.logger.info("Seeding database with quotes...")
 
         // Load quotes from JSON
         guard let url = seedDataURL() else {
@@ -161,19 +161,19 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             let quote = Quote(
                 textLatin: quoteData.textLatin,
                 author: quoteData.author,
-                collection: quoteData.collection
+                collection: quoteData.collection,
             )
 
             // Precompute runic transliterations
-            quote.runicElder = transliterator.transliterate(quoteData.textLatin, to: .elder)
-            quote.runicYounger = transliterator.transliterate(quoteData.textLatin, to: .younger)
-            quote.runicCirth = transliterator.transliterate(quoteData.textLatin, to: .cirth)
+            quote.runicElder = self.transliterator.transliterate(quoteData.textLatin, to: .elder)
+            quote.runicYounger = self.transliterator.transliterate(quoteData.textLatin, to: .younger)
+            quote.runicCirth = self.transliterator.transliterate(quoteData.textLatin, to: .cirth)
 
-            modelContext.insert(quote)
+            self.modelContext.insert(quote)
         }
 
-        try modelContext.save()
-        logger.info("Database seeded with \(quoteDataArray.count) quotes")
+        try self.modelContext.save()
+        self.logger.info("Database seeded with \(quoteDataArray.count) quotes")
     }
 
     // MARK: - Quote Retrieval
@@ -201,7 +201,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             throw QuoteRepositoryError.noQuotesAvailable
         }
 
-        let randomIndex = Int.random(in: 0..<allQuotes.count)
+        let randomIndex = Int.random(in: 0 ..< allQuotes.count)
         let quote = allQuotes[randomIndex]
 
         // Ensure the quote has the runic transliteration for the requested script
@@ -211,19 +211,19 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     }
 
     func allQuotes() throws -> [QuoteRecord] {
-        try fetchVisibleQuotes().map(QuoteRecord.init(from:))
+        try self.fetchVisibleQuotes().map(QuoteRecord.init(from:))
     }
 
     func quote(id: UUID) throws -> QuoteRecord? {
-        try fetchQuote(id: id).map(QuoteRecord.init(from:))
+        try self.fetchQuote(id: id).map(QuoteRecord.init(from:))
     }
 
     func archivedQuotes() throws -> [QuoteRecord] {
         let descriptor = FetchDescriptor<Quote>(
             predicate: #Predicate { $0.isHidden || $0.isSoftDeleted },
-            sortBy: [SortDescriptor(\.createdAt)]
+            sortBy: [SortDescriptor(\.createdAt)],
         )
-        return try modelContext.fetch(descriptor).map(QuoteRecord.init(from:))
+        return try self.modelContext.fetch(descriptor).map(QuoteRecord.init(from:))
     }
 
     // MARK: - Create / Update
@@ -233,20 +233,20 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         author: String,
         source: String?,
         collection: QuoteCollection,
-        storedRunic: RunicTextBundle? = nil
+        storedRunic: RunicTextBundle? = nil,
     ) throws -> QuoteRecord {
         let quote = Quote(
             textLatin: textLatin,
             author: author,
             collection: collection,
-            isUserGenerated: true
+            isUserGenerated: true,
         )
         quote.source = source
-        applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
+        self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
 
-        modelContext.insert(quote)
-        try modelContext.save()
-        logger.info("Created user quote: \(quote.id)")
+        self.modelContext.insert(quote)
+        try self.modelContext.save()
+        self.logger.info("Created user quote: \(quote.id)")
         return QuoteRecord(from: quote)
     }
 
@@ -256,10 +256,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         author: String,
         source: String?,
         collection: QuoteCollection,
-        storedRunic: RunicTextBundle? = nil
+        storedRunic: RunicTextBundle? = nil,
     ) throws -> QuoteRecord {
         var descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { $0.id == id }
+            predicate: #Predicate { $0.id == id },
         )
         descriptor.fetchLimit = 1
         guard let quote = try modelContext.fetch(descriptor).first else {
@@ -271,13 +271,13 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         quote.author = author
         quote.source = source
         quote.collection = collection
-        applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
+        self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
 
-        try modelContext.save()
+        try self.modelContext.save()
         if textDidChange {
-            try translationCacheRepository.deleteTranslations(for: id)
+            try self.translationCacheRepository.deleteTranslations(for: id)
         }
-        logger.info("Updated quote: \(quote.id)")
+        self.logger.info("Updated quote: \(quote.id)")
         return QuoteRecord(from: quote)
     }
 
@@ -286,7 +286,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         quote.isHidden = true
         quote.isSoftDeleted = false
         quote.deletedAt = nil
-        try modelContext.save()
+        try self.modelContext.save()
         return QuoteRecord(from: quote)
     }
 
@@ -295,7 +295,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         quote.isSoftDeleted = true
         quote.isHidden = false
         quote.deletedAt = deletedAt
-        try modelContext.save()
+        try self.modelContext.save()
         return QuoteRecord(from: quote)
     }
 
@@ -304,20 +304,20 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         quote.isHidden = false
         quote.isSoftDeleted = false
         quote.deletedAt = nil
-        try modelContext.save()
+        try self.modelContext.save()
         return QuoteRecord(from: quote)
     }
 
     func eraseQuote(id: UUID) throws {
         let quote = try requireQuote(id: id)
-        modelContext.delete(quote)
-        try modelContext.save()
-        try translationCacheRepository.deleteTranslations(for: id)
+        self.modelContext.delete(quote)
+        try self.modelContext.save()
+        try self.translationCacheRepository.deleteTranslations(for: id)
     }
 
     func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int {
         let descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { $0.isSoftDeleted && $0.deletedAt != nil }
+            predicate: #Predicate { $0.isSoftDeleted && $0.deletedAt != nil },
         )
         let deletedQuotes = try modelContext.fetch(descriptor)
         var purgedCount = 0
@@ -325,13 +325,13 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         for quote in deletedQuotes {
             guard let deletedAt = quote.deletedAt, deletedAt < cutoffDate else { continue }
             let quoteID = quote.id
-            modelContext.delete(quote)
+            self.modelContext.delete(quote)
             purgedCount += 1
-            try translationCacheRepository.deleteTranslations(for: quoteID)
+            try self.translationCacheRepository.deleteTranslations(for: quoteID)
         }
 
         if purgedCount > 0 {
-            try modelContext.save()
+            try self.modelContext.save()
         }
 
         return purgedCount
@@ -340,17 +340,17 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     private func fetchVisibleQuotes() throws -> [Quote] {
         let descriptor = FetchDescriptor<Quote>(
             predicate: #Predicate { !$0.isHidden && !$0.isSoftDeleted },
-            sortBy: [SortDescriptor(\.createdAt)]
+            sortBy: [SortDescriptor(\.createdAt)],
         )
-        return try modelContext.fetch(descriptor)
+        return try self.modelContext.fetch(descriptor)
     }
 
     private func fetchQuote(id: UUID) throws -> Quote? {
         var descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { $0.id == id }
+            predicate: #Predicate { $0.id == id },
         )
         descriptor.fetchLimit = 1
-        return try modelContext.fetch(descriptor).first
+        return try self.modelContext.fetch(descriptor).first
     }
 
     private func requireQuote(id: UUID) throws -> Quote {
@@ -368,9 +368,9 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             return
         }
 
-        quote.runicElder = transliterator.transliterate(textLatin, to: .elder)
-        quote.runicYounger = transliterator.transliterate(textLatin, to: .younger)
-        quote.runicCirth = transliterator.transliterate(textLatin, to: .cirth)
+        quote.runicElder = self.transliterator.transliterate(textLatin, to: .elder)
+        quote.runicYounger = self.transliterator.transliterate(textLatin, to: .younger)
+        quote.runicCirth = self.transliterator.transliterate(textLatin, to: .cirth)
     }
 
     // MARK: - Private Helpers
@@ -382,23 +382,23 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         switch script {
         case .elder:
             if quote.runicElder == nil {
-                quote.runicElder = transliterator.transliterate(quote.textLatin, to: .elder)
+                quote.runicElder = self.transliterator.transliterate(quote.textLatin, to: .elder)
                 needsSave = true
             }
         case .younger:
             if quote.runicYounger == nil {
-                quote.runicYounger = transliterator.transliterate(quote.textLatin, to: .younger)
+                quote.runicYounger = self.transliterator.transliterate(quote.textLatin, to: .younger)
                 needsSave = true
             }
         case .cirth:
             if quote.runicCirth == nil {
-                quote.runicCirth = transliterator.transliterate(quote.textLatin, to: .cirth)
+                quote.runicCirth = self.transliterator.transliterate(quote.textLatin, to: .cirth)
                 needsSave = true
             }
         }
 
         if needsSave {
-            try modelContext.save()
+            try self.modelContext.save()
         }
     }
 
@@ -413,7 +413,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         do {
             return try JSONDecoder().decode([SeedQuoteData].self, from: data)
         } catch {
-            logger.error("Invalid seed data format: \(error.localizedDescription)")
+            self.logger.error("Invalid seed data format: \(error.localizedDescription)")
             throw QuoteRepositoryError.invalidSeedData
         }
     }
@@ -433,10 +433,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         guard needsMigration else { return }
 
         for quote in quotes {
-            quote.runicCirth = transliterator.transliterate(quote.textLatin, to: .cirth)
+            quote.runicCirth = self.transliterator.transliterate(quote.textLatin, to: .cirth)
         }
-        try modelContext.save()
-        logger.info("Re-transliterated Cirth text for \(quotes.count) quotes (PUA migration)")
+        try self.modelContext.save()
+        self.logger.info("Re-transliterated Cirth text for \(quotes.count) quotes (PUA migration)")
     }
 
     private func backfillCollectionsIfNeeded(for existingQuotes: [Quote]) throws {
@@ -453,27 +453,27 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         let seedData = try decodeSeedData(from: data)
         let seedCollectionByKey = Dictionary(
             uniqueKeysWithValues: seedData.map {
-                (seedQuoteKey(textLatin: $0.textLatin, author: $0.author), $0.collection)
-            }
+                (self.seedQuoteKey(textLatin: $0.textLatin, author: $0.author), $0.collection)
+            },
         )
 
         var didUpdate = false
 
         for quote in quotesNeedingBackfill {
-            let key = seedQuoteKey(textLatin: quote.textLatin, author: quote.author)
+            let key = self.seedQuoteKey(textLatin: quote.textLatin, author: quote.author)
             guard let collection = seedCollectionByKey[key] else { continue }
             quote.collection = collection
             didUpdate = true
         }
 
         if didUpdate {
-            try modelContext.save()
-            logger.info("Backfilled collection tags for existing quotes")
+            try self.modelContext.save()
+            self.logger.info("Backfilled collection tags for existing quotes")
         }
     }
 
     private func seedQuoteKey(textLatin: String, author: String) -> String {
-        "\(normalizeSeedField(textLatin))||\(normalizeSeedField(author))"
+        "\(self.normalizeSeedField(textLatin))||\(self.normalizeSeedField(author))"
     }
 
     private func normalizeSeedField(_ value: String) -> String {
@@ -484,32 +484,32 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     /// Locate seed data in both SwiftPM and app bundle layouts.
     private func seedDataURL() -> URL? {
-#if SWIFT_PACKAGE
-        if let packageURL = Bundle.module.url(forResource: "quotes", withExtension: "json") {
-            return packageURL
-        }
-        if let packageSubdirectoryURL = Bundle.module.url(
-            forResource: "quotes",
-            withExtension: "json",
-            subdirectory: "SeedData"
-        ) {
-            return packageSubdirectoryURL
-        }
-#endif
+        #if SWIFT_PACKAGE
+            if let packageURL = Bundle.module.url(forResource: "quotes", withExtension: "json") {
+                return packageURL
+            }
+            if let packageSubdirectoryURL = Bundle.module.url(
+                forResource: "quotes",
+                withExtension: "json",
+                subdirectory: "SeedData",
+            ) {
+                return packageSubdirectoryURL
+            }
+        #endif
         if let appURL = Bundle.main.url(forResource: "quotes", withExtension: "json") {
             return appURL
         }
         if let appSeedSubdirectoryURL = Bundle.main.url(
             forResource: "quotes",
             withExtension: "json",
-            subdirectory: "SeedData"
+            subdirectory: "SeedData",
         ) {
             return appSeedSubdirectoryURL
         }
         if let appResourcesSeedURL = Bundle.main.url(
             forResource: "quotes",
             withExtension: "json",
-            subdirectory: "Resources/SeedData"
+            subdirectory: "Resources/SeedData",
         ) {
             return appResourcesSeedURL
         }
@@ -517,6 +517,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         return nil
     }
 }
+
 // swiftlint:enable type_body_length
 
 // MARK: - Errors
@@ -530,15 +531,16 @@ enum QuoteRepositoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .seedDataNotFound:
-            return "Could not find seed data file (quotes.json)"
+            "Could not find seed data file (quotes.json)"
         case .noQuotesAvailable:
-            return "No quotes available in the database"
+            "No quotes available in the database"
         case .invalidSeedData:
-            return "Seed data is invalid or missing collection tags"
+            "Seed data is invalid or missing collection tags"
         case .quoteNotFound:
-            return "Quote not found"
+            "Quote not found"
         }
     }
 }
+
 // swiftlint:enable function_parameter_count
 // swiftlint:enable file_length
