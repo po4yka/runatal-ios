@@ -150,7 +150,7 @@ jobs:
           PY
 
       - name: Upload package coverage summaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: package-coverage-summaries
           path: ${{ env.REPORTS_DIR }}/package-coverage*.txt
@@ -283,7 +283,7 @@ jobs:
 
       - name: Upload Xcode artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: xcode-validation-artifacts
           path: |
@@ -347,7 +347,7 @@ jobs:
 
       - name: Upload UI smoke artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ui-smoke-artifacts
           path: |
