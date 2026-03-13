@@ -37,6 +37,19 @@ enum AppTab: String, Codable, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    var role: TabRole? {
+        switch self {
+        case .search:
+            return .search
+        default:
+            return nil
+        }
+    }
+
+    var supportsBottomAccessory: Bool {
+        self == .home
+    }
+
     var accessibilityID: String {
         "\(rawValue)_tab"
     }

@@ -172,7 +172,7 @@ extension RunicQuoteEntry {
     func widgetBackgroundGradient(for colorScheme: ColorScheme) -> some View {
         let palette = palette(for: colorScheme)
         return LinearGradient(
-            colors: palette.widgetBackgroundGradient,
+            colors: palette.immersiveBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )

@@ -70,21 +70,31 @@ struct NotificationCenterView: View {
     // MARK: - Body
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
-            HeroHeader(
-                eyebrow: "Notifications",
-                title: "Inbox",
-                subtitle: notifications.isEmpty
-                    ? "This build does not keep a synced notification history yet."
-                    : "Updates tied to your reading cadence appear here.",
-                meta: [hasUnread ? "Unread items waiting" : "No unread items"],
-                palette: palette
-            )
+        LiquidListScaffold(palette: palette) {
+            Section {
+                HeroHeader(
+                    eyebrow: "Notifications",
+                    title: "Inbox",
+                    subtitle: notifications.isEmpty
+                        ? "This build does not keep a synced notification history yet."
+                        : "Updates tied to your reading cadence appear here.",
+                    meta: [hasUnread ? "Unread items waiting" : "No unread items"],
+                    palette: palette
+                )
+                .listRowInsets(EdgeInsets(
+                    top: DesignTokens.Spacing.lg,
+                    leading: DesignTokens.Spacing.md,
+                    bottom: DesignTokens.Spacing.md,
+                    trailing: DesignTokens.Spacing.md
+                ))
+            }
 
-            if notifications.isEmpty {
-                emptyState
-            } else {
-                notificationList
+            Section {
+                if notifications.isEmpty {
+                    emptyState
+                } else {
+                    notificationList
+                }
             }
         }
         .navigationTitle("Notifications")

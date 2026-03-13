@@ -9,8 +9,7 @@ import SwiftUI
 
 // MARK: - Design Tokens
 
-/// Centralized design tokens for spacing, corner radius, and glass materials.
-/// Based on the Scandinavian cold-slate design system with 4px base grid.
+/// Centralized design tokens for spacing, typography, motion, and liquid surfaces.
 enum DesignTokens: Sendable {
 
     // MARK: - Spacing
@@ -65,15 +64,19 @@ enum DesignTokens: Sendable {
 
     enum Typography: Sendable {
         static let eyebrow = Font.system(.caption, design: .rounded).weight(.semibold)
+        static let display = Font.system(size: 42, weight: .semibold, design: .serif)
         static let hero = Font.system(size: 38, weight: .semibold, design: .serif)
         static let heroCompact = Font.system(size: 30, weight: .semibold, design: .serif)
+        static let pageTitle = Font.system(.title2, design: .serif).weight(.semibold)
         static let sectionTitle = Font.system(.title3, design: .serif).weight(.semibold)
         static let cardTitle = Font.system(.headline, design: .serif).weight(.semibold)
+        static let bodyLarge = Font.system(.body, design: .default).weight(.medium)
         static let body = Font.body
         static let bodyEmphasis = Font.body.weight(.semibold)
         static let callout = Font.callout
         static let label = Font.system(.caption, design: .rounded).weight(.medium)
         static let metadata = Font.system(.caption2, design: .rounded).weight(.semibold)
+        static let toolbarLabel = Font.system(.footnote, design: .rounded).weight(.semibold)
     }
 
     // MARK: - Motion
@@ -98,11 +101,12 @@ enum DesignTokens: Sendable {
         static let low: CGFloat = 6
         static let medium: CGFloat = 12
         static let hero: CGFloat = 22
+        static let chrome: CGFloat = 16
     }
 
-    // MARK: - Glass Material
+    // MARK: - Liquid Glass
 
-    /// Liquid glass intensity levels for glassmorphism components.
+    /// Legacy intensity levels kept for compatibility with older wrappers.
     enum GlassIntensity: Sendable {
         case strong
         case medium

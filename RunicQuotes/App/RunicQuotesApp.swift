@@ -37,6 +37,7 @@ struct RunicQuotesApp: App {
                     Self.logger.error("Failed to seed database: \(error.localizedDescription)")
                 }
                 await DatabaseActor.shared.purgeExpiredQuotes(using: container)
+                await DatabaseActor.shared.backfillTranslations(using: container)
             }
         } catch {
             Self.logger.critical("Failed to create ModelContainer: \(error.localizedDescription)")
@@ -152,26 +153,38 @@ struct RunicQuotesApp: App {
 /// Main tab view with Home, Collections, Search, Saved, and Settings screens.
 struct MainTabView: View {
     @State private var selectedTab: AppTab = .home
-    @State private var isTabBarHidden = false
+    @StateObject private var searchCoordinator = AppSearchCoordinator()
+    @StateObject private var homeAccessoryController = HomeAccessoryController()
 
     var body: some View {
         TabView(selection: $selectedTab) {
             ForEach(AppTab.allCases) { tab in
-                NavigationStack {
+                Tab(tab.title, systemImage: tab.systemImage, value: tab, role: tab.role) {
                     tabContent(for: tab)
+                        .environmentObject(searchCoordinator)
+                        .environmentObject(homeAccessoryController)
                 }
-                .tabItem {
-                    Label(tab.title, systemImage: tab.systemImage)
-                }
-                .tag(tab)
                 .accessibilityIdentifier(tab.accessibilityID)
             }
         }
-        .toolbar(isTabBarHidden ? .hidden : .visible, for: .tabBar)
-        .toolbarBackground(.visible, for: .tabBar)
+        .tabBarMinimizeBehavior(.onScrollDown)
+        .searchable(
+            text: $searchCoordinator.query,
+            isPresented: $searchCoordinator.isPresented,
+            prompt: "Quotes, authors, themes..."
+        )
+        .tabViewBottomAccessory {
+            if selectedTab.supportsBottomAccessory && homeAccessoryController.isVisible {
+                HomeBottomAccessoryView {
+                    NotificationCenter.default.post(name: .loadNextQuote, object: nil)
+                }
+                .environmentObject(homeAccessoryController)
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .switchToTab)) { notification in
             if let tab = notification.userInfo?["tab"] as? AppTab {
                 selectedTab = tab
+                searchCoordinator.isPresented = tab == .search
             }
             // Forward collection selection if included (e.g. from CollectionsView)
             if let collection = notification.userInfo?["collection"] as? QuoteCollection {
@@ -184,25 +197,14 @@ struct MainTabView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { _ in
             selectedTab = .home
+            searchCoordinator.isPresented = false
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToSettingsTab)) { _ in
             selectedTab = .settings
         }
-        .onReceive(NotificationCenter.default.publisher(for: .quoteTabBarVisibilityChanged)) { notification in
-            guard selectedTab == .home else {
-                isTabBarHidden = false
-                return
-            }
-
-            let hidden = notification.userInfo?["hidden"] as? Bool ?? false
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isTabBarHidden = hidden
-            }
-        }
         .onChange(of: selectedTab) { _, newTab in
-            if newTab != .home {
-                isTabBarHidden = false
-            }
+            searchCoordinator.isPresented = newTab == .search
+            if newTab != .home { homeAccessoryController.hide() }
         }
     }
 
@@ -210,17 +212,19 @@ struct MainTabView: View {
 
     @ViewBuilder
     private func tabContent(for tab: AppTab) -> some View {
-        switch tab {
-        case .home:
-            QuoteView()
-        case .collections:
-            CollectionsView()
-        case .search:
-            SearchView()
-        case .saved:
-            SavedView()
-        case .settings:
-            SettingsView()
+        NavigationStack {
+            switch tab {
+            case .home:
+                QuoteView()
+            case .collections:
+                CollectionsView()
+            case .search:
+                SearchView()
+            case .saved:
+                SavedView()
+            case .settings:
+                SettingsView()
+            }
         }
     }
 }

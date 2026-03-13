@@ -20,17 +20,10 @@ struct ActionBar<Content: View>: View {
     }
 
     var body: some View {
-        HStack(spacing: DesignTokens.Spacing.sm) {
-            content
-        }
-        .padding(DesignTokens.Spacing.xs)
-        .background {
-            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                .fill(palette.bannerBackground)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                .strokeBorder(palette.cardStroke, lineWidth: DesignTokens.Stroke.hairline)
+        LiquidActionCluster(palette: palette) {
+            HStack(spacing: DesignTokens.Spacing.sm) {
+                content
+            }
         }
     }
 }

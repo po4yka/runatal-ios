@@ -26,15 +26,14 @@ struct InsetCard<Content: View>: View {
     }
 
     var body: some View {
-        content
-            .padding(contentPadding)
-            .background {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(palette.editorialInset)
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .strokeBorder(palette.cardStroke.opacity(0.8), lineWidth: DesignTokens.Stroke.hairline)
-            }
+        ContentPlate(
+            palette: palette,
+            tone: .secondary,
+            cornerRadius: cornerRadius,
+            shadowRadius: 0,
+            contentPadding: contentPadding
+        ) {
+            content
+        }
     }
 }

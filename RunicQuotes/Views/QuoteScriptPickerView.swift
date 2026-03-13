@@ -23,21 +23,28 @@ struct QuoteScriptPickerView: View {
     }
 
     var body: some View {
-        EditorialCard(
+        LiquidCard(
             palette: palette,
-            tone: .secondary,
+            role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: DesignTokens.Elevation.low,
+            shadowRadius: DesignTokens.Elevation.chrome,
             contentPadding: DesignTokens.Spacing.md
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                HeroHeader(
-                    eyebrow: "Script",
-                    title: selectedScript.displayName,
-                    subtitle: "Choose the alphabet that shapes the current passage.",
-                    meta: ["Visible on Home and widgets"],
-                    palette: palette
-                )
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        SectionLabel(title: "Script", palette: palette)
+                        Text(selectedScript.displayName)
+                            .font(DesignTokens.Typography.pageTitle)
+                            .foregroundStyle(palette.textPrimary)
+                    }
+
+                    Spacer()
+
+                    Text("Widgets follow this alphabet")
+                        .font(DesignTokens.Typography.metadata)
+                        .foregroundStyle(palette.textTertiary)
+                }
 
                 GlassScriptSelector(selectedScript: selection)
                     .accessibilityLabel("Runic script selector")

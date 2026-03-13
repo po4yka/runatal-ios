@@ -27,7 +27,7 @@ struct QuoteCardSectionView: View {
     @State private var appearOpacity = 1.0
 
     var body: some View {
-        EditorialCard(
+        ContentPlate(
             palette: palette,
             tone: .hero,
             cornerRadius: DesignTokens.CornerRadius.xxl,
@@ -105,7 +105,7 @@ struct QuoteCardSectionView: View {
 
                     Spacer()
                 }
-                .padding(.top, DesignTokens.Spacing.sm)
+                    .padding(.top, DesignTokens.Spacing.sm)
 
                 actionBar
                     .padding(.top, DesignTokens.Spacing.md)
@@ -115,7 +115,7 @@ struct QuoteCardSectionView: View {
                 Text(decorativeGlyph)
                     .font(.system(size: 60))
                     .foregroundStyle(palette.ornament)
-                    .opacity(0.6)
+                    .opacity(0.32)
                     .rotationEffect(.degrees(-12))
                     .padding(.top, DesignTokens.Spacing.sm)
                     .padding(.trailing, DesignTokens.Spacing.md)
@@ -145,7 +145,9 @@ struct QuoteCardSectionView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             SectionLabel(title: "Current Reading", palette: palette)
-            MetaRow(items: [script.displayName, font.displayName], palette: palette)
+            Text("Rendered in \(script.displayName)")
+                .font(DesignTokens.Typography.metadata)
+                .foregroundStyle(palette.textTertiary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -181,23 +183,20 @@ struct QuoteCardSectionView: View {
     ) -> some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
-                .font(DesignTokens.Typography.label)
-                .foregroundStyle(emphasized ? palette.chipSelectedForeground : palette.textPrimary)
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal, DesignTokens.Spacing.sm)
-                .padding(.vertical, DesignTokens.Spacing.sm)
-                .background {
-                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                        .fill(emphasized ? palette.chipSelectedFill : palette.editorialInset)
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                        .strokeBorder(
-                            emphasized ? palette.strongCardStroke : palette.cardStroke,
-                            lineWidth: DesignTokens.Stroke.hairline
-                        )
-                }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: emphasized))
+        .accessibilityIdentifier(accessibilityID(for: title))
+    }
+
+    private func accessibilityID(for title: String) -> String {
+        switch title {
+        case "New Quote":
+            return "quote_next_button"
+        case "Save", "Saved":
+            return "quote_save_button"
+        default:
+            return "quote_actions_button"
+        }
     }
 }

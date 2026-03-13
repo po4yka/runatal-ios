@@ -59,31 +59,35 @@ extension AppThemePalette {
     }
 
     var heroBackgroundGradient: [Color] {
-        appBackgroundGradient
+        [canvasBase, canvasElevated, canvasBase]
+    }
+
+    var immersiveBackgroundGradient: [Color] {
+        [canvasBase, canvasSecondary, canvasBase]
     }
 
     var editorialSurface: Color {
-        surfaceElevated
+        contentPlateElevated
     }
 
     var editorialInset: Color {
-        surface
+        insetPlate
     }
 
     var editorialMutedSurface: Color {
-        groupedBG
+        groupedBG.opacity(0.76)
     }
 
     var cardStroke: Color {
-        separator.opacity(0.82)
+        contentStroke
     }
 
     var strongCardStroke: Color {
-        accent.opacity(0.24)
+        accent.opacity(0.34)
     }
 
     var chipFill: Color {
-        surfaceElevated.opacity(0.92)
+        chromeFallback
     }
 
     var chipSelectedFill: Color {
@@ -95,23 +99,23 @@ extension AppThemePalette {
     }
 
     var ornament: Color {
-        runeText.opacity(0.12)
+        runeText.opacity(0.08)
     }
 
     var ornamentSecondary: Color {
-        accent.opacity(0.10)
+        accent.opacity(0.07)
     }
 
     var shadowColor: Color {
-        Color.black.opacity(0.24)
+        Color.black.opacity(0.16)
     }
 
     var highlight: Color {
-        textPrimary.opacity(0.06)
+        textPrimary.opacity(0.05)
     }
 
     var bannerBackground: Color {
-        surface.opacity(0.84)
+        chromeFallback
     }
 
     var successFill: Color {
@@ -124,6 +128,70 @@ extension AppThemePalette {
 
     var errorFill: Color {
         error.opacity(0.15)
+    }
+
+    var canvasBase: Color {
+        background
+    }
+
+    var canvasSecondary: Color {
+        groupedBG.opacity(0.96)
+    }
+
+    var canvasElevated: Color {
+        surface.opacity(0.94)
+    }
+
+    var contentPlate: Color {
+        surface.opacity(0.94)
+    }
+
+    var contentPlateElevated: Color {
+        surfaceElevated.opacity(0.96)
+    }
+
+    var insetPlate: Color {
+        groupedBG.opacity(0.72)
+    }
+
+    var chromeTint: Color {
+        accent.opacity(0.22)
+    }
+
+    var chromeFill: Color {
+        surface.opacity(0.42)
+    }
+
+    var chromeFallback: Color {
+        surfaceElevated.opacity(0.78)
+    }
+
+    var contentStroke: Color {
+        separator.opacity(0.6)
+    }
+
+    var chromeStroke: Color {
+        separator.opacity(0.42)
+    }
+
+    var rowFill: Color {
+        surface.opacity(0.88)
+    }
+
+    var rowInsetFill: Color {
+        groupedBG.opacity(0.62)
+    }
+
+    var fieldFill: Color {
+        surface.opacity(0.78)
+    }
+
+    var toolbarBadgeFill: Color {
+        surfaceElevated.opacity(0.72)
+    }
+
+    var subtleAccentText: Color {
+        accent.opacity(0.92)
     }
 
     private static let obsidianDark = AppThemePalette(

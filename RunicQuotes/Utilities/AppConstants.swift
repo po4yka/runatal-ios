@@ -75,5 +75,5 @@ extension Notification.Name {
 
     static let loadNextQuote = Notification.Name("LoadNextQuote")
     static let preferencesDidChange = Notification.Name("PreferencesDidChange")
-    static let quoteTabBarVisibilityChanged = Notification.Name("QuoteTabBarVisibilityChanged")
+    static let translationCacheUpdated = Notification.Name("TranslationCacheUpdated")
 }

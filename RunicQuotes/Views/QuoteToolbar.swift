@@ -12,25 +12,13 @@ struct QuoteToolbar: ToolbarContent {
     let currentCollection: QuoteCollection
     let palette: AppThemePalette
     let createQuote: () -> Void
+    let openTranslation: () -> Void
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
             Text(currentCollection.displayName)
-                .font(DesignTokens.Typography.metadata)
+                .font(DesignTokens.Typography.toolbarLabel)
                 .foregroundStyle(palette.textTertiary)
-                .padding(.horizontal, DesignTokens.Spacing.sm)
-                .padding(.vertical, DesignTokens.Spacing.xs)
-                .background {
-                    Capsule()
-                        .fill(palette.bannerBackground)
-                }
-                .overlay {
-                    Capsule()
-                        .strokeBorder(
-                            palette.cardStroke,
-                            lineWidth: DesignTokens.Stroke.hairline
-                        )
-                }
         }
 
         ToolbarItemGroup(placement: .primaryAction) {
@@ -44,13 +32,21 @@ struct QuoteToolbar: ToolbarContent {
             .foregroundStyle(palette.textPrimary)
             .accessibilityIdentifier("quote_notifications_button")
 
-            Button(action: createQuote) {
+            Menu {
+                Button(action: createQuote) {
+                    Label("New Quote", systemImage: "plus")
+                }
+
+                Button(action: openTranslation) {
+                    Label("Translate", systemImage: "character.cursor.ibeam")
+                }
+            } label: {
                 Label("Create quote", systemImage: "plus")
                     .labelStyle(.iconOnly)
                     .symbolRenderingMode(.monochrome)
             }
             .foregroundStyle(palette.textPrimary)
-            .accessibilityIdentifier("quote_create_button")
+            .accessibilityIdentifier("quote_create_menu")
         }
     }
 }

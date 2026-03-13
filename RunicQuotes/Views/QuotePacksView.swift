@@ -30,25 +30,35 @@ struct QuotePacksView: View {
     // MARK: - Body
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
-            HeroHeader(
-                eyebrow: "Quote Packs",
-                title: "Collectible Volumes",
-                subtitle: "Curated additions that extend the library without changing the rhythm of reading.",
-                meta: ["\(filteredPacks.count) available"],
-                palette: palette
-            )
-
-            if filteredPacks.isEmpty {
-                EditorialEmptyState(
-                    palette: palette,
-                    icon: "books.vertical",
-                    eyebrow: "No packs",
-                    title: "Nothing matched that search",
-                    message: "Try a broader title or clear the search field."
+        LiquidListScaffold(palette: palette) {
+            Section {
+                HeroHeader(
+                    eyebrow: "Quote Packs",
+                    title: "Collectible Volumes",
+                    subtitle: "Curated additions that extend the library without changing the rhythm of reading.",
+                    meta: ["\(filteredPacks.count) available"],
+                    palette: palette
                 )
-            } else {
-                packList
+                .listRowInsets(EdgeInsets(
+                    top: DesignTokens.Spacing.lg,
+                    leading: DesignTokens.Spacing.md,
+                    bottom: DesignTokens.Spacing.md,
+                    trailing: DesignTokens.Spacing.md
+                ))
+            }
+
+            Section {
+                if filteredPacks.isEmpty {
+                    EditorialEmptyState(
+                        palette: palette,
+                        icon: "books.vertical",
+                        eyebrow: "No packs",
+                        title: "Nothing matched that search",
+                        message: "Try a broader title or clear the search field."
+                    )
+                } else {
+                    packList
+                }
             }
         }
         .searchable(text: $searchText, prompt: "Search packs")
@@ -62,10 +72,8 @@ struct QuotePacksView: View {
 
     @ViewBuilder
     private var packList: some View {
-        LazyVStack(spacing: DesignTokens.Spacing.sm) {
-            ForEach(filteredPacks) { pack in
-                packRow(for: pack)
-            }
+        ForEach(filteredPacks) { pack in
+            packRow(for: pack)
         }
     }
 

@@ -37,28 +37,40 @@ struct ArchiveView: View {
     // MARK: - Body
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
-            HeroHeader(
-                eyebrow: "Archive",
-                title: "Recovery Shelf",
-                subtitle: "Hidden and deleted passages rest here until you decide what returns.",
-                meta: [viewModel.countLabel],
-                palette: palette
-            )
-
-            if restoredToastVisible {
-                FeedbackBanner(
-                    palette: palette,
-                    tone: .success,
-                    title: "Restored",
-                    message: "The passage returned to your library."
+        LiquidListScaffold(palette: palette) {
+            Section {
+                HeroHeader(
+                    eyebrow: "Archive",
+                    title: "Recovery Shelf",
+                    subtitle: "Hidden and deleted passages rest here until you decide what returns.",
+                    meta: [viewModel.countLabel],
+                    palette: palette
                 )
+                .listRowInsets(EdgeInsets(
+                    top: DesignTokens.Spacing.lg,
+                    leading: DesignTokens.Spacing.md,
+                    bottom: DesignTokens.Spacing.md,
+                    trailing: DesignTokens.Spacing.md
+                ))
             }
 
-            if !viewModel.hasArchivedQuotes {
-                emptyState
-            } else {
-                archiveContent
+            if restoredToastVisible {
+                Section {
+                    FeedbackBanner(
+                        palette: palette,
+                        tone: .success,
+                        title: "Restored",
+                        message: "The passage returned to your library."
+                    )
+                }
+            }
+
+            Section {
+                if !viewModel.hasArchivedQuotes {
+                    emptyState
+                } else {
+                    archiveContent
+                }
             }
         }
         .navigationTitle("Archive")
@@ -125,10 +137,8 @@ struct ArchiveView: View {
 
     @ViewBuilder
     private var quotesList: some View {
-        LazyVStack(spacing: DesignTokens.Spacing.sm) {
-            ForEach(viewModel.filteredQuotes) { quote in
-                archiveQuoteCard(quote)
-            }
+        ForEach(viewModel.filteredQuotes) { quote in
+            archiveQuoteCard(quote)
         }
     }
 

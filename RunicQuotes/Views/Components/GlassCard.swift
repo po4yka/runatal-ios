@@ -57,11 +57,12 @@ struct GlassCard<Content: View>: View {
     // MARK: - Body
 
     var body: some View {
-        EditorialCard(
+        LiquidCard(
             palette: palette,
-            tone: tone,
+            role: role,
             cornerRadius: cornerRadius,
-            shadowRadius: shadowRadius
+            shadowRadius: shadowRadius,
+            interactive: intensity == .strong
         ) {
             content
         }
@@ -71,18 +72,17 @@ struct GlassCard<Content: View>: View {
         AppThemePalette.themed(runicTheme, for: colorScheme)
     }
 
-    private var tone: EditorialCardTone {
+    private var role: LiquidSurfaceRole {
         if reduceTransparency {
-            return .secondary
+            return .content
         }
-
         switch intensity {
         case .strong:
-            return .hero
+            return .floatingCallout
         case .medium:
-            return .primary
+            return .chrome
         case .light, .none:
-            return opacity.value > 0.55 ? .primary : .secondary
+            return opacity.value > 0.55 ? .chrome : .inset
         }
     }
 }

@@ -20,11 +20,11 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable, Sendable {
     var description: String {
         switch self {
         case .obsidian:
-            return "High-contrast dark glass with deep mineral tones"
+            return "Dark mineral canvas with restrained liquid chrome"
         case .parchment:
-            return "Warm sepia glow inspired by aged manuscripts"
+            return "Warm manuscript tint with soft amber glass accents"
         case .nordicDawn:
-            return "Cool arctic gradient with misty morning blues"
+            return "Pale atmospheric canvas with cool glass highlights"
         }
     }
 }

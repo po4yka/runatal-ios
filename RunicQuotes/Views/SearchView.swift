@@ -13,6 +13,7 @@ struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
     @Environment(\.runicTheme) private var runicTheme
+    @EnvironmentObject private var searchCoordinator: AppSearchCoordinator
     @StateObject private var viewModel: SearchViewModel
     @State private var didInitialize = false
 
@@ -31,15 +32,15 @@ struct SearchView: View {
 
     var body: some View {
         ScreenScaffold(palette: palette) {
-            HeroHeader(
-                eyebrow: "Search",
-                title: viewModel.state.isSearchActive ? "Discovery" : "Find a Line",
-                subtitle: viewModel.state.isSearchActive
-                    ? "Filter the archive without losing the shape of the quote."
-                    : "Search by author, theme, or a fragment you remember.",
-                meta: searchMeta,
-                palette: palette
-            )
+            if !viewModel.state.isSearchActive {
+                HeroHeader(
+                    eyebrow: "Search",
+                    title: "Find a Line",
+                    subtitle: "Search by author, theme, or a fragment you remember.",
+                    meta: searchMeta,
+                    palette: palette
+                )
+            }
 
             if let error = viewModel.state.errorMessage {
                 FeedbackBanner(
@@ -68,18 +69,21 @@ struct SearchView: View {
             }
         }
         .navigationTitle("Search")
-        .searchable(
-            text: Binding(
-                get: { viewModel.state.searchText },
-                set: { viewModel.updateSearchText($0) }
-            ),
-            prompt: "Quotes, authors, themes..."
-        )
         .task {
             guard !didInitialize else { return }
             didInitialize = true
             viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
+            viewModel.updateSearchText(searchCoordinator.query)
+        }
+        .onAppear {
+            searchCoordinator.isPresented = true
+        }
+        .onDisappear {
+            searchCoordinator.isPresented = false
+        }
+        .onChange(of: searchCoordinator.query) { _, newValue in
+            viewModel.updateSearchText(newValue)
         }
     }
 
@@ -133,6 +137,7 @@ struct SearchView: View {
 
                     Button("Clear") {
                         viewModel.clearSearch()
+                        searchCoordinator.clear()
                     }
                     .font(DesignTokens.Typography.label)
                     .foregroundStyle(palette.accent)

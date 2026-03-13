@@ -49,12 +49,16 @@ struct GlassScriptSelector: View {
         }
         .padding(4)
         .background {
-            RoundedRectangle(cornerRadius: cornerRadius + 4)
-                .fill(palette.bannerBackground)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: cornerRadius + 4)
-                .strokeBorder(palette.cardStroke, lineWidth: DesignTokens.Stroke.hairline)
+            LiquidCard(
+                palette: palette,
+                role: .chrome,
+                cornerRadius: cornerRadius + 4,
+                shadowRadius: 0,
+                contentPadding: 0,
+                interactive: true
+            ) {
+                Color.clear
+            }
         }
     }
 
@@ -90,12 +94,8 @@ private struct ScriptButton: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .padding(.horizontal, 8)
-            .background {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(isSelected ? palette.chipSelectedFill : Color.clear)
-            }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: isSelected))
     }
 
     private var palette: AppThemePalette {

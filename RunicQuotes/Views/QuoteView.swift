@@ -25,16 +25,16 @@ struct QuoteView: View {
     @State private var scriptMorphTask: Task<Void, Never>?
     @State private var showShareView = false
     @State private var showCreateQuote = false
+    @State private var showTranslationView = false
     @State private var showActionsSheet = false
     @State private var showDeleteConfirmation = false
     @State private var editingQuoteRecord: QuoteRecord?
-    @State private var searchQuery = ""
     @State private var showCoachMarks = false
-    @State private var lastKnownScrollOffset: CGFloat = 0
     @AppStorage(AppConstants.featureTourCompletedKey) private var hasCompletedFeatureTour = false
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
+    @EnvironmentObject private var homeAccessoryController: HomeAccessoryController
 
     // MARK: - Initialization
 
@@ -69,7 +69,7 @@ struct QuoteView: View {
 
             RunicAtmosphere(script: viewModel.state.currentScript)
                 .ignoresSafeArea()
-                .opacity(0.18)
+                .opacity(0.08)
                 .allowsHitTesting(false)
 
             // Coach marks overlay
@@ -106,18 +106,27 @@ struct QuoteView: View {
             Haptics.trigger(.newQuote)
             viewModel.onNextQuoteTapped()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .translationCacheUpdated)) { notification in
+            let quoteID = notification.userInfo?["quoteID"] as? UUID
+            viewModel.onTranslationCacheUpdated(for: quoteID)
+        }
+        .onChange(of: viewModel.state.currentCollection) { _, _ in
+            syncHomeAccessory()
+        }
+        .onChange(of: viewModel.state.currentScript) { _, _ in
+            syncHomeAccessory()
+        }
+        .onChange(of: viewModel.state.latinText) { _, _ in
+            syncHomeAccessory()
+        }
         .onDisappear {
-            NotificationCenter.default.post(
-                name: .quoteTabBarVisibilityChanged,
-                object: nil,
-                userInfo: ["hidden": false]
-            )
             scriptMorphTask?.cancel()
             scriptMorphTask = nil
+            homeAccessoryController.hide()
         }
         .navigationTitle("Home")
 #if os(iOS)
-        .navigationBarTitleDisplayMode(.automatic)
+        .navigationBarTitleDisplayMode(.inline)
 #endif
         .toolbar {
             QuoteToolbar(
@@ -125,31 +134,11 @@ struct QuoteView: View {
                 palette: palette,
                 createQuote: {
                     showCreateQuote = true
+                },
+                openTranslation: {
+                    showTranslationView = true
                 }
             )
-        }
-        .searchable(text: $searchQuery, prompt: "Search quotes or authors")
-        .searchSuggestions {
-            ForEach(searchResults) { result in
-                Button {
-                    viewModel.showQuote(withID: result.id)
-                    searchQuery = ""
-                } label: {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(result.latinText)
-                            .lineLimit(1)
-                        Text("— \(result.author)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-        }
-        .onSubmit(of: .search) {
-            if let firstResult = searchResults.first {
-                viewModel.showQuote(withID: firstResult.id)
-                searchQuery = ""
-            }
         }
         .sheet(isPresented: $showShareView) {
             NavigationStack {
@@ -169,10 +158,23 @@ struct QuoteView: View {
                 }
             }
         }
-        .sheet(isPresented: $showActionsSheet) {
-            QuoteActionsSheet(isSaved: viewModel.state.isCurrentQuoteSaved) { action in
-                handleQuoteAction(action)
+        .sheet(isPresented: $showTranslationView) {
+            NavigationStack {
+                TranslationView()
             }
+        }
+        .confirmationDialog(
+            "Current passage",
+            isPresented: $showActionsSheet,
+            titleVisibility: .visible
+        ) {
+            ForEach(availableQuoteActions) { action in
+                Button(action.title, role: action.isDestructive ? .destructive : nil) {
+                    handleQuoteAction(action)
+                }
+            }
+        } message: {
+            Text("Choose how this quote should be handled.")
         }
         .sheet(item: $editingQuoteRecord) { record in
             NavigationStack {
@@ -189,6 +191,9 @@ struct QuoteView: View {
         } message: {
             Text("This will move the quote to your archive. You can restore it later from Settings > Archive.")
         }
+        .task(id: viewModel.state.currentQuoteID) {
+            syncHomeAccessory()
+        }
     }
 
     private var palette: AppThemePalette {
@@ -203,8 +208,16 @@ struct QuoteView: View {
         }
     }
 
-    private var searchResults: [QuoteSearchResult] {
-        viewModel.searchResults(for: searchQuery)
+    private var availableQuoteActions: [QuoteAction] {
+        [
+            .share,
+            viewModel.state.isCurrentQuoteSaved ? .removeFromFavorites : .addToFavorites,
+            .addToCollection,
+            .copyText,
+            .edit,
+            .hide,
+            .delete
+        ]
     }
 
     // MARK: - Quote Content
@@ -213,8 +226,8 @@ struct QuoteView: View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             HeroHeader(
                 eyebrow: "Home",
-                title: "Today's Reading",
-                subtitle: viewModel.state.currentCollection.heroLatinText,
+                title: "Reading",
+                subtitle: "One passage, one quiet focal point.",
                 meta: [
                     viewModel.state.currentCollection.displayName,
                     viewModel.state.currentScript.displayName,
@@ -223,15 +236,7 @@ struct QuoteView: View {
                 palette: palette
             )
 
-            QuoteScriptPickerView(
-                palette: palette,
-                selectedScript: viewModel.state.currentScript
-            ) { newScript in
-                Haptics.trigger(.scriptSwitch)
-                viewModel.onScriptChanged(newScript)
-            }
-
-            collectionCarousel
+            homeChrome
 
             QuoteCardSectionView(
                 runicText: viewModel.state.runicText,
@@ -256,48 +261,81 @@ struct QuoteView: View {
                     showActionsSheet = true
                 }
             )
+        }
+    }
 
-            if !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                QuoteSearchResultsSectionView(
-                    currentCollection: viewModel.state.currentCollection,
-                    results: searchResults,
-                    palette: palette
-                ) { result in
-                    withAnimation(DesignTokens.Motion.emphasis) {
-                        viewModel.showQuote(withID: result.id)
+    private var homeChrome: some View {
+        VStack(spacing: DesignTokens.Spacing.md) {
+            QuoteScriptPickerView(
+                palette: palette,
+                selectedScript: viewModel.state.currentScript
+            ) { newScript in
+                Haptics.trigger(.scriptSwitch)
+                viewModel.onScriptChanged(newScript)
+            }
+
+            CollectionCoverCarousel(
+                covers: viewModel.state.collectionCovers,
+                selectedCollection: viewModel.state.currentCollection,
+                script: viewModel.state.currentScript,
+                font: viewModel.state.currentFont,
+                palette: palette
+            ) { collection in
+                guard collection != viewModel.state.currentCollection else { return }
+                Haptics.trigger(.scriptSwitch)
+                viewModel.onCollectionChanged(collection)
+            }
+
+            Button {
+                NotificationCenter.default.post(
+                    name: .switchToTab,
+                    object: nil,
+                    userInfo: ["tab": AppTab.search]
+                )
+            } label: {
+                LiquidCard(
+                    palette: palette,
+                    role: .chrome,
+                    cornerRadius: DesignTokens.CornerRadius.xl,
+                    shadowRadius: DesignTokens.Elevation.chrome,
+                    contentPadding: DesignTokens.Spacing.md,
+                    interactive: true
+                ) {
+                    HStack(spacing: DesignTokens.Spacing.sm) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(palette.subtleAccentText)
+
+                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                            Text("Search the library")
+                                .font(DesignTokens.Typography.bodyLarge)
+                                .foregroundStyle(palette.textPrimary)
+
+                            Text("Move into the dedicated Search tab for authors, fragments, and collections.")
+                                .font(DesignTokens.Typography.metadata)
+                                .foregroundStyle(palette.textTertiary)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "arrow.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(palette.subtleAccentText)
                     }
                 }
             }
+            .buttonStyle(.plain)
         }
-        .background(
-            GeometryReader { proxy in
-                Color.clear.preference(
-                    key: QuoteScrollOffsetKey.self,
-                    value: proxy.frame(in: .named("quote_scroll")).minY
-                )
-            }
-        )
-        .coordinateSpace(name: "quote_scroll")
-        .onPreferenceChange(QuoteScrollOffsetKey.self) { offset in
-            handleScrollOffsetChange(offset)
-        }
+        .padding(.horizontal, DesignTokens.Spacing.md)
     }
 
-    private var collectionCarousel: some View {
-        CollectionCoverCarousel(
-            covers: viewModel.state.collectionCovers,
-            selectedCollection: viewModel.state.currentCollection,
+    private func syncHomeAccessory() {
+        guard didInitialize else { return }
+        homeAccessoryController.update(
+            collection: viewModel.state.currentCollection,
             script: viewModel.state.currentScript,
-            font: viewModel.state.currentFont,
-            palette: palette
-        ) { collection in
-            guard collection != viewModel.state.currentCollection else { return }
-            Haptics.trigger(.scriptSwitch)
-            viewModel.onCollectionChanged(collection)
-        }
-        .accessibilityIdentifier("quote_collection_carousel")
+            caption: viewModel.state.author.isEmpty ? "Continue reading" : viewModel.state.author
+        )
     }
-
     // MARK: - Script Morph Animation
 
     private func startScriptMorphTransition() {
@@ -314,19 +352,6 @@ struct QuoteView: View {
                 isScriptMorphing = false
             }
         }
-    }
-
-    private func handleScrollOffsetChange(_ offset: CGFloat) {
-        let delta = offset - lastKnownScrollOffset
-        guard abs(delta) > 14 else { return }
-
-        let shouldHideTabBar = delta < 0 && offset < -22
-        NotificationCenter.default.post(
-            name: .quoteTabBarVisibilityChanged,
-            object: nil,
-            userInfo: ["hidden": shouldHideTabBar]
-        )
-        lastKnownScrollOffset = offset
     }
 
     private func copyCurrentQuote() {
@@ -364,14 +389,6 @@ struct QuoteView: View {
         }
     }
 
-}
-
-private struct QuoteScrollOffsetKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
 }
 
 // MARK: - Preview

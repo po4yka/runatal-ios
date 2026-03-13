@@ -31,20 +31,41 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
-            SettingsHeaderView(palette: palette)
-            SettingsLivePreviewSectionView(viewModel: viewModel, palette: palette)
-            SettingsAppearanceSectionView(viewModel: viewModel, palette: palette)
-            SettingsScriptSectionView(viewModel: viewModel, palette: palette)
-            SettingsTypographySectionView(viewModel: viewModel, palette: palette)
-            SettingsWidgetSectionView(viewModel: viewModel, palette: palette)
-            SettingsAccessibilitySectionView(
-                palette: palette,
-                reduceTransparency: reduceTransparency,
-                reduceMotion: reduceMotion
+        ZStack {
+            LinearGradient(
+                colors: [palette.canvasBase, palette.canvasSecondary],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
-            SettingsNavigationLinksSectionView(palette: palette)
-            SettingsAboutSectionView(palette: palette)
+            .ignoresSafeArea()
+
+            Form {
+                Section {
+                    SettingsHeaderView(palette: palette)
+                }
+
+                Section {
+                    SettingsLivePreviewSectionView(viewModel: viewModel, palette: palette)
+                }
+
+                Section {
+                    SettingsAppearanceSectionView(viewModel: viewModel, palette: palette)
+                    SettingsScriptSectionView(viewModel: viewModel, palette: palette)
+                    SettingsTypographySectionView(viewModel: viewModel, palette: palette)
+                    SettingsWidgetSectionView(viewModel: viewModel, palette: palette)
+                    SettingsAccessibilitySectionView(
+                        palette: palette,
+                        reduceTransparency: reduceTransparency,
+                        reduceMotion: reduceMotion
+                    )
+                }
+
+                Section {
+                    SettingsNavigationLinksSectionView(palette: palette)
+                    SettingsAboutSectionView(palette: palette)
+                }
+            }
+            .scrollContentBackground(.hidden)
         }
         .task {
             guard !didInitialize else { return }

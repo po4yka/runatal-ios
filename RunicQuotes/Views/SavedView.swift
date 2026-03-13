@@ -37,47 +37,65 @@ struct SavedView: View {
     // MARK: - Body
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
-            HeroHeader(
-                eyebrow: "Saved",
-                title: "Personal Library",
-                subtitle: "The lines you chose to keep, arranged for easy return.",
-                meta: ["\(viewModel.savedCount) saved passages"],
-                palette: palette
-            )
+        LiquidListScaffold(palette: palette) {
+            Section {
+                HeroHeader(
+                    eyebrow: "Saved",
+                    title: "Personal Library",
+                    subtitle: "The lines you chose to keep, arranged for easy return.",
+                    meta: ["\(viewModel.savedCount) saved passages"],
+                    palette: palette
+                )
+                .listRowInsets(EdgeInsets(
+                    top: DesignTokens.Spacing.lg,
+                    leading: DesignTokens.Spacing.md,
+                    bottom: DesignTokens.Spacing.md,
+                    trailing: DesignTokens.Spacing.md
+                ))
+            }
 
             if let tone = feedbackTone {
-                FeedbackBanner(
-                    palette: palette,
-                    tone: tone,
-                    title: feedbackTitle,
-                    message: feedbackMessage
-                )
+                Section {
+                    FeedbackBanner(
+                        palette: palette,
+                        tone: tone,
+                        title: feedbackTitle,
+                        message: feedbackMessage
+                    )
+                }
             }
 
             if let error = viewModel.state.errorMessage {
-                FeedbackBanner(
-                    palette: palette,
-                    tone: .error,
-                    title: "Library unavailable",
-                    message: error
-                )
+                Section {
+                    FeedbackBanner(
+                        palette: palette,
+                        tone: .error,
+                        title: "Library unavailable",
+                        message: error
+                    )
+                }
             }
 
             if viewModel.state.isLoading {
-                InsetCard(palette: palette) {
-                    HStack(spacing: DesignTokens.Spacing.sm) {
-                        ProgressView()
-                            .tint(palette.accent)
-                        Text("Loading saved passages...")
-                            .font(DesignTokens.Typography.callout)
-                            .foregroundStyle(palette.textSecondary)
+                Section {
+                    InsetCard(palette: palette) {
+                        HStack(spacing: DesignTokens.Spacing.sm) {
+                            ProgressView()
+                                .tint(palette.accent)
+                            Text("Loading saved passages...")
+                                .font(DesignTokens.Typography.callout)
+                                .foregroundStyle(palette.textSecondary)
+                        }
                     }
                 }
             } else if viewModel.state.savedQuotes.isEmpty {
-                emptyState
+                Section {
+                    emptyState
+                }
             } else {
-                savedList
+                Section {
+                    savedList
+                }
             }
         }
         .navigationTitle("Saved")
@@ -106,10 +124,8 @@ struct SavedView: View {
 
     @ViewBuilder
     private var savedList: some View {
-        LazyVStack(spacing: DesignTokens.Spacing.sm) {
-            ForEach(viewModel.state.savedQuotes, id: \.id) { quote in
-                savedQuoteCard(quote)
-            }
+        ForEach(viewModel.state.savedQuotes, id: \.id) { quote in
+            savedQuoteCard(quote)
         }
     }
 
@@ -122,49 +138,79 @@ struct SavedView: View {
             quoteText: quote.textLatin,
             author: quote.author,
             badge: {
-                Text(quote.collection.displayName)
-                    .font(DesignTokens.Typography.metadata)
-                    .foregroundStyle(palette.accent)
-                    .padding(.horizontal, DesignTokens.Spacing.sm)
-                    .padding(.vertical, DesignTokens.Spacing.xs)
-                    .background {
-                        Capsule()
-                            .fill(palette.bannerBackground)
-                    }
+                collectionBadge(for: quote)
             },
             actions: {
-                HStack(spacing: DesignTokens.Spacing.xs) {
-                    Button {
-                        viewModel.toggleSaved(quote.id)
-                        showFeedback(
-                            tone: .success,
-                            title: "Removed from saved",
-                            message: "The passage left your personal library."
-                        )
-                    } label: {
-                        Label("Remove", systemImage: "bookmark.slash")
-                            .font(DesignTokens.Typography.label)
-                            .foregroundStyle(palette.accent)
-                    }
-                    .buttonStyle(.plain)
-
-                    Button {
-#if canImport(UIKit)
-                        UIPasteboard.general.string = viewModel.copyQuoteText(quote)
-#endif
-                        showFeedback(
-                            tone: .success,
-                            title: "Copied",
-                            message: "The quote text is ready to paste."
-                        )
-                    } label: {
-                        Label("Copy", systemImage: "doc.on.doc")
-                            .font(DesignTokens.Typography.label)
-                            .foregroundStyle(palette.textPrimary)
-                    }
-                    .buttonStyle(.plain)
-                }
+                inlineActions(for: quote)
             }
+        )
+        .contextMenu {
+            savedContextMenu(for: quote)
+        }
+    }
+
+    private func collectionBadge(for quote: QuoteRecord) -> some View {
+        Text(quote.collection.displayName)
+            .font(DesignTokens.Typography.metadata)
+            .foregroundStyle(palette.accent)
+            .padding(.horizontal, DesignTokens.Spacing.sm)
+            .padding(.vertical, DesignTokens.Spacing.xs)
+            .background {
+                Capsule()
+                    .fill(palette.bannerBackground)
+            }
+    }
+
+    private func inlineActions(for quote: QuoteRecord) -> some View {
+        HStack(spacing: DesignTokens.Spacing.xs) {
+            Button {
+                removeSavedQuote(quote)
+            } label: {
+                Label("Remove", systemImage: "bookmark.slash")
+                    .font(DesignTokens.Typography.label)
+                    .foregroundStyle(palette.accent)
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                copySavedQuote(quote)
+            } label: {
+                Label("Copy", systemImage: "doc.on.doc")
+                    .font(DesignTokens.Typography.label)
+                    .foregroundStyle(palette.textPrimary)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private func savedContextMenu(for quote: QuoteRecord) -> some View {
+        Button("Copy", systemImage: "doc.on.doc") {
+            copySavedQuote(quote)
+        }
+
+        Button("Remove", systemImage: "bookmark.slash", role: .destructive) {
+            removeSavedQuote(quote)
+        }
+    }
+
+    private func copySavedQuote(_ quote: QuoteRecord) {
+#if canImport(UIKit)
+        UIPasteboard.general.string = viewModel.copyQuoteText(quote)
+#endif
+        showFeedback(
+            tone: .success,
+            title: "Copied",
+            message: "The quote text is ready to paste."
+        )
+    }
+
+    private func removeSavedQuote(_ quote: QuoteRecord) {
+        viewModel.toggleSaved(quote.id)
+        showFeedback(
+            tone: .success,
+            title: "Removed from saved",
+            message: "The passage left your personal library."
         )
     }
 

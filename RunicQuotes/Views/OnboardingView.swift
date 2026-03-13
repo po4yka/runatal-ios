@@ -52,6 +52,7 @@ struct OnboardingView: View {
             backgroundGradient
             RunicAtmosphere(script: selectedScript ?? .elder)
                 .ignoresSafeArea()
+                .opacity(0.12)
 
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
@@ -77,23 +78,23 @@ struct OnboardingView: View {
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: palette.heroBackgroundGradient,
+            colors: palette.immersiveBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         .overlay(alignment: .topTrailing) {
             Circle()
-                .fill(palette.ornamentSecondary)
-                .frame(width: 240, height: 240)
-                .blur(radius: 100)
-                .offset(x: 100, y: -40)
+                .fill(palette.chromeTint)
+                .frame(width: 220, height: 220)
+                .blur(radius: 90)
+                .offset(x: 90, y: -30)
         }
         .overlay(alignment: .bottomLeading) {
             Circle()
                 .fill(palette.ornament)
-                .frame(width: 280, height: 280)
-                .blur(radius: 120)
-                .offset(x: -120, y: 120)
+                .frame(width: 250, height: 250)
+                .blur(radius: 110)
+                .offset(x: -100, y: 110)
         }
         .ignoresSafeArea()
     }
@@ -169,9 +170,9 @@ struct OnboardingView: View {
     // MARK: - Page: Intro
 
     private var introPage: some View {
-        EditorialCard(
+        LiquidCard(
             palette: palette,
-            tone: .hero,
+            role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xxl,
             shadowRadius: DesignTokens.Elevation.hero,
             contentPadding: DesignTokens.Spacing.xl
@@ -256,11 +257,11 @@ struct OnboardingView: View {
     // MARK: - Page: Notifications
 
     private var notificationsPage: some View {
-        EditorialCard(
+        LiquidCard(
             palette: palette,
-            tone: .primary,
+            role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.medium,
+            shadowRadius: DesignTokens.Elevation.chrome,
             contentPadding: DesignTokens.Spacing.xl
         ) {
             VStack(spacing: DesignTokens.Spacing.xl) {
@@ -298,9 +299,9 @@ struct OnboardingView: View {
     // MARK: - Page: Ready
 
     private var readyPage: some View {
-        EditorialCard(
+        LiquidCard(
             palette: palette,
-            tone: .hero,
+            role: .chrome,
             cornerRadius: DesignTokens.CornerRadius.xxl,
             shadowRadius: DesignTokens.Elevation.hero,
             contentPadding: DesignTokens.Spacing.xl

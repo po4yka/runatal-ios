@@ -22,18 +22,28 @@ struct CollectionsView: View {
     // MARK: - Body
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
-            HeroHeader(
-                eyebrow: "Collections",
-                title: "Curated Shelves",
-                subtitle: "Browse by tone, then continue reading on Home.",
-                meta: ["\(quotes.count) visible quotes", "\(QuotePack.catalog.count) quote packs"],
-                palette: palette
-            )
+        LiquidListScaffold(palette: palette) {
+            Section {
+                HeroHeader(
+                    eyebrow: "Collections",
+                    title: "Curated Shelves",
+                    subtitle: "Browse by tone, then continue reading on Home.",
+                    meta: ["\(quotes.count) visible quotes", "\(QuotePack.catalog.count) quote packs"],
+                    palette: palette
+                )
+                .listRowInsets(EdgeInsets(
+                    top: DesignTokens.Spacing.lg,
+                    leading: DesignTokens.Spacing.md,
+                    bottom: DesignTokens.Spacing.md,
+                    trailing: DesignTokens.Spacing.md
+                ))
+            }
 
-            quotePacksLink
+            Section {
+                quotePacksLink
+            }
 
-            LazyVStack(spacing: DesignTokens.Spacing.md) {
+            Section {
                 ForEach(QuoteCollection.allCases) { collection in
                     collectionCard(for: collection)
                 }

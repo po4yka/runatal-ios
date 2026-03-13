@@ -132,8 +132,8 @@ struct MediumWidgetView: View {
             entry.widgetBackgroundGradient(for: colorScheme)
 
             RoundedRectangle(cornerRadius: 0)
-                .fill(palette.bannerBackground)
-                .opacity(0.9)
+                .fill(palette.rowFill)
+                .opacity(0.7)
 
             if entry.showsDecorativeGlyphs {
                 WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
@@ -234,8 +234,8 @@ struct LargeWidgetView: View {
             entry.widgetBackgroundGradient(for: colorScheme)
 
             RoundedRectangle(cornerRadius: 0)
-                .fill(palette.bannerBackground)
-                .opacity(0.88)
+                .fill(palette.rowFill)
+                .opacity(0.68)
 
             if entry.showsDecorativeGlyphs {
                 WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
