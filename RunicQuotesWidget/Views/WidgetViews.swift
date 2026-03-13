@@ -44,7 +44,7 @@ struct SmallWidgetView: View {
     let entry: RunicQuoteEntry
     @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { AppThemePalette.adaptive(for: colorScheme) }
+    private var palette: AppThemePalette { entry.palette(for: colorScheme) }
 
     var body: some View {
         ZStack {
@@ -125,15 +125,15 @@ struct MediumWidgetView: View {
     let entry: RunicQuoteEntry
     @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { AppThemePalette.adaptive(for: colorScheme) }
+    private var palette: AppThemePalette { entry.palette(for: colorScheme) }
 
     var body: some View {
         ZStack {
             entry.widgetBackgroundGradient(for: colorScheme)
 
             RoundedRectangle(cornerRadius: 0)
-                .fill(.ultraThinMaterial)
-                .opacity(0.18)
+                .fill(palette.bannerBackground)
+                .opacity(0.9)
 
             if entry.showsDecorativeGlyphs {
                 WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
@@ -227,15 +227,15 @@ struct LargeWidgetView: View {
     let entry: RunicQuoteEntry
     @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { AppThemePalette.adaptive(for: colorScheme) }
+    private var palette: AppThemePalette { entry.palette(for: colorScheme) }
 
     var body: some View {
         ZStack {
             entry.widgetBackgroundGradient(for: colorScheme)
 
             RoundedRectangle(cornerRadius: 0)
-                .fill(.ultraThinMaterial)
-                .opacity(0.14)
+                .fill(palette.bannerBackground)
+                .opacity(0.88)
 
             if entry.showsDecorativeGlyphs {
                 WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
@@ -275,12 +275,11 @@ struct LargeWidgetView: View {
                         .font(.caption)
                         .foregroundStyle(palette.textSecondary)
                 }
-                .padding(DesignTokens.Spacing.sm)
-                .background(
-                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                        .fill(.thinMaterial)
-                        .opacity(0.3)
-                )
+                    .padding(DesignTokens.Spacing.sm)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                            .fill(palette.bannerBackground)
+                    )
 
                 Spacer(minLength: 0)
 
@@ -302,8 +301,7 @@ struct LargeWidgetView: View {
                     .padding(DesignTokens.Spacing.sm)
                     .background(
                         RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                            .fill(.thinMaterial)
-                            .opacity(0.32)
+                            .fill(palette.bannerBackground)
                     )
 
                 Text("\u{2014} \(entry.compactAuthor(maxCharacters: 34))")

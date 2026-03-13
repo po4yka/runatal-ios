@@ -14,6 +14,7 @@ import UIKit
 import AppKit
 #endif
 
+// swiftlint:disable type_body_length
 /// Main view for displaying runic quotes
 struct QuoteView: View {
     // MARK: - Properties
@@ -33,6 +34,7 @@ struct QuoteView: View {
     @AppStorage(AppConstants.featureTourCompletedKey) private var hasCompletedFeatureTour = false
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     // MARK: - Initialization
 
@@ -48,22 +50,27 @@ struct QuoteView: View {
 
     var body: some View {
         ZStack {
-            // Liquid glass background
-            QuoteBackgroundView(palette: palette)
+            ScreenScaffold(
+                palette: palette,
+                scrollEnabled: !viewModel.state.isLoading && viewModel.state.errorMessage == nil
+            ) {
+                if viewModel.state.isLoading {
+                    QuoteLoadingView(palette: palette)
+                        .frame(maxWidth: .infinity, minHeight: 480, alignment: .center)
+                } else if let error = viewModel.state.errorMessage {
+                    QuoteErrorView(message: error, palette: palette) {
+                        viewModel.refresh()
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 480, alignment: .center)
+                } else {
+                    quoteContentView
+                }
+            }
 
             RunicAtmosphere(script: viewModel.state.currentScript)
                 .ignoresSafeArea()
-
-            // Content
-            if viewModel.state.isLoading {
-                QuoteLoadingView(palette: palette)
-            } else if let error = viewModel.state.errorMessage {
-                QuoteErrorView(message: error, palette: palette) {
-                    viewModel.refresh()
-                }
-            } else {
-                quoteContentView
-            }
+                .opacity(0.18)
+                .allowsHitTesting(false)
 
             // Coach marks overlay
             if showCoachMarks {
@@ -108,29 +115,16 @@ struct QuoteView: View {
             scriptMorphTask?.cancel()
             scriptMorphTask = nil
         }
-        .navigationTitle("Runic Quotes")
+        .navigationTitle("Home")
 #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.automatic)
 #endif
         .toolbar {
             QuoteToolbar(
                 currentCollection: viewModel.state.currentCollection,
                 palette: palette,
-                isCurrentQuoteSaved: viewModel.state.isCurrentQuoteSaved,
                 createQuote: {
                     showCreateQuote = true
-                },
-                nextQuote: {
-                    Haptics.trigger(.newQuote)
-                    viewModel.onNextQuoteTapped()
-                },
-                toggleSave: {
-                    Haptics.trigger(.saveOrShare)
-                    viewModel.onToggleSaveTapped()
-                },
-                showActions: {
-                    Haptics.trigger(.saveOrShare)
-                    showActionsSheet = true
                 }
             )
         }
@@ -198,7 +192,7 @@ struct QuoteView: View {
     }
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     private var decorativeGlyph: String {
@@ -216,58 +210,73 @@ struct QuoteView: View {
     // MARK: - Quote Content
 
     private var quoteContentView: some View {
-        ScrollView {
-            VStack(spacing: DesignTokens.Spacing.xxl) {
-                Spacer()
-                    .frame(height: DesignTokens.Spacing.lg)
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            HeroHeader(
+                eyebrow: "Home",
+                title: "Today's Reading",
+                subtitle: viewModel.state.currentCollection.heroLatinText,
+                meta: [
+                    viewModel.state.currentCollection.displayName,
+                    viewModel.state.currentScript.displayName,
+                    viewModel.state.currentWidgetMode.displayName
+                ],
+                palette: palette
+            )
 
-                QuoteScriptPickerView(selectedScript: viewModel.state.currentScript) { newScript in
-                    Haptics.trigger(.scriptSwitch)
-                    viewModel.onScriptChanged(newScript)
-                }
+            QuoteScriptPickerView(
+                palette: palette,
+                selectedScript: viewModel.state.currentScript
+            ) { newScript in
+                Haptics.trigger(.scriptSwitch)
+                viewModel.onScriptChanged(newScript)
+            }
 
-                // Collection cover cards
-                collectionCarousel
+            collectionCarousel
 
-                if !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    QuoteSearchResultsSectionView(
-                        currentCollection: viewModel.state.currentCollection,
-                        results: searchResults,
-                        palette: palette
-                    ) { result in
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.showQuote(withID: result.id)
-                        }
-                    }
-                }
-
-                // Quote card
-                QuoteCardSectionView(
-                    runicText: viewModel.state.runicText,
-                    latinText: viewModel.state.latinText,
-                    author: viewModel.state.author,
-                    script: viewModel.state.currentScript,
-                    font: viewModel.state.currentFont,
-                    decorativeGlyph: decorativeGlyph,
-                    palette: palette,
-                    isScriptMorphing: isScriptMorphing
-                ) {
+            QuoteCardSectionView(
+                runicText: viewModel.state.runicText,
+                latinText: viewModel.state.latinText,
+                author: viewModel.state.author,
+                script: viewModel.state.currentScript,
+                font: viewModel.state.currentFont,
+                decorativeGlyph: decorativeGlyph,
+                palette: palette,
+                isScriptMorphing: isScriptMorphing,
+                isSaved: viewModel.state.isCurrentQuoteSaved,
+                onNextQuote: {
+                    Haptics.trigger(.newQuote)
+                    viewModel.onNextQuoteTapped()
+                },
+                onToggleSave: {
+                    Haptics.trigger(.saveOrShare)
+                    viewModel.onToggleSaveTapped()
+                },
+                onShowActions: {
                     Haptics.trigger(.saveOrShare)
                     showActionsSheet = true
                 }
-
-                Spacer()
-                    .frame(height: DesignTokens.Spacing.lg)
-            }
-            .background(
-                GeometryReader { proxy in
-                    Color.clear.preference(
-                        key: QuoteScrollOffsetKey.self,
-                        value: proxy.frame(in: .named("quote_scroll")).minY
-                    )
-                }
             )
+
+            if !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                QuoteSearchResultsSectionView(
+                    currentCollection: viewModel.state.currentCollection,
+                    results: searchResults,
+                    palette: palette
+                ) { result in
+                    withAnimation(DesignTokens.Motion.emphasis) {
+                        viewModel.showQuote(withID: result.id)
+                    }
+                }
+            }
         }
+        .background(
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: QuoteScrollOffsetKey.self,
+                    value: proxy.frame(in: .named("quote_scroll")).minY
+                )
+            }
+        )
         .coordinateSpace(name: "quote_scroll")
         .onPreferenceChange(QuoteScrollOffsetKey.self) { offset in
             handleScrollOffsetChange(offset)
@@ -386,3 +395,4 @@ private struct QuoteScrollOffsetKey: PreferenceKey {
     return QuoteView()
         .modelContainer(container)
 }
+// swiftlint:enable type_body_length

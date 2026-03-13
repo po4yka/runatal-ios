@@ -42,7 +42,7 @@ private struct WidgetBackgroundView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let palette = AppThemePalette.adaptive(for: colorScheme)
+        let palette = AppThemePalette.themed(entry.theme, for: colorScheme)
         LinearGradient(
             colors: palette.widgetBackgroundGradient,
             startPoint: .topLeading,

@@ -12,7 +12,7 @@ struct CircularWidgetView: View {
     let entry: RunicQuoteEntry
     @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: AppThemePalette { AppThemePalette.adaptive(for: colorScheme) }
+    private var palette: AppThemePalette { entry.palette(for: colorScheme) }
 
     var body: some View {
         ZStack {
@@ -170,12 +170,16 @@ private struct WidgetGlyphRing: View {
 
 extension RunicQuoteEntry {
     func widgetBackgroundGradient(for colorScheme: ColorScheme) -> some View {
-        let palette = AppThemePalette.adaptive(for: colorScheme)
+        let palette = palette(for: colorScheme)
         return LinearGradient(
             colors: palette.widgetBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+    }
+
+    func palette(for colorScheme: ColorScheme) -> AppThemePalette {
+        AppThemePalette.themed(theme, for: colorScheme)
     }
 
     var widgetFontName: String {

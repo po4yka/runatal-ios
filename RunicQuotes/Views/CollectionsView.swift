@@ -11,39 +11,34 @@ import SwiftData
 /// Browse quotes organized by collection in a 2-column grid.
 struct CollectionsView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
     @Query(filter: #Predicate<Quote> { !$0.isDeleted && !$0.isHidden })
     private var quotes: [Quote]
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
-                LazyVGrid(
-                    columns: [
-                        GridItem(.flexible(), spacing: DesignTokens.Spacing.sm),
-                        GridItem(.flexible(), spacing: DesignTokens.Spacing.sm)
-                    ],
-                    spacing: DesignTokens.Spacing.sm
-                ) {
-                    ForEach(QuoteCollection.allCases) { collection in
-                        collectionCard(for: collection)
-                    }
-                }
+        ScreenScaffold(palette: palette) {
+            HeroHeader(
+                eyebrow: "Collections",
+                title: "Curated Shelves",
+                subtitle: "Browse by tone, then continue reading on Home.",
+                meta: ["\(quotes.count) visible quotes", "\(QuotePack.catalog.count) quote packs"],
+                palette: palette
+            )
 
-                // Quote Packs link
-                quotePacksLink
+            quotePacksLink
+
+            LazyVStack(spacing: DesignTokens.Spacing.md) {
+                ForEach(QuoteCollection.allCases) { collection in
+                    collectionCard(for: collection)
+                }
             }
-            .padding(.horizontal, DesignTokens.Spacing.sm)
-            .padding(.top, DesignTokens.Spacing.sm)
-            .padding(.bottom, DesignTokens.Spacing.huge)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(palette.background)
         .navigationTitle("Collections")
         .navigationDestination(for: String.self) { destination in
             if destination == "quotePacks" {
@@ -61,40 +56,60 @@ struct CollectionsView: View {
         Button {
             switchToCollection(collection)
         } label: {
-            GlassCard(
-                intensity: .light,
-                cornerRadius: DesignTokens.CornerRadius.lg,
-                shadowRadius: 6
+            EditorialCard(
+                palette: palette,
+                tone: collection == .all ? .hero : .primary,
+                cornerRadius: DesignTokens.CornerRadius.xl,
+                shadowRadius: DesignTokens.Elevation.medium,
+                contentPadding: DesignTokens.Spacing.md
             ) {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                            SectionLabel(title: "Collection", palette: palette)
+                            Label(collection.displayName, systemImage: collection.systemImage)
+                                .font(DesignTokens.Typography.cardTitle)
+                                .foregroundStyle(palette.textPrimary)
+                        }
+
+                        Spacer()
+
+                        Text("\(count) quotes")
+                            .font(DesignTokens.Typography.metadata)
+                            .foregroundStyle(palette.textPrimary)
+                            .padding(.horizontal, DesignTokens.Spacing.sm)
+                            .padding(.vertical, DesignTokens.Spacing.xs)
+                            .background {
+                                Capsule()
+                                    .fill(palette.bannerBackground)
+                            }
+                    }
+
                     Text(collection.heroRunicText)
-                        .font(.title2)
-                        .foregroundStyle(palette.runeText.opacity(0.5))
+                        .font(.system(size: 34, weight: .medium, design: .serif))
+                        .foregroundStyle(palette.runeText)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Spacer(minLength: DesignTokens.Spacing.lg)
-
-                    Text(collection.displayName)
-                        .font(.headline)
+                    Text(collection.heroLatinText)
+                        .font(DesignTokens.Typography.sectionTitle)
                         .foregroundStyle(palette.textPrimary)
 
                     Text(collection.subtitle)
-                        .font(.caption)
+                        .font(DesignTokens.Typography.callout)
                         .foregroundStyle(palette.textSecondary)
-                        .lineLimit(1)
+                        .lineLimit(2)
 
-                    HStack(spacing: DesignTokens.Spacing.xxs) {
-                        Circle()
-                            .fill(palette.accent)
-                            .frame(width: 3, height: 3)
+                    HStack(spacing: DesignTokens.Spacing.sm) {
+                        MetaRow(items: [collection.displayName, "\(count) quotes"], palette: palette)
 
-                        Text("\(count) quotes")
-                            .font(.caption2)
-                            .foregroundStyle(palette.textTertiary)
+                        Spacer()
+
+                        Image(systemName: "arrow.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(palette.accent)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(minHeight: 90)
             }
         }
         .buttonStyle(.plain)
@@ -107,31 +122,38 @@ struct CollectionsView: View {
     @ViewBuilder
     private var quotePacksLink: some View {
         NavigationLink(value: "quotePacks") {
-            GlassCard(
-                intensity: .light,
-                cornerRadius: DesignTokens.CornerRadius.lg,
-                shadowRadius: 4
+            EditorialCard(
+                palette: palette,
+                tone: .hero,
+                cornerRadius: DesignTokens.CornerRadius.xxl,
+                shadowRadius: DesignTokens.Elevation.medium,
+                contentPadding: DesignTokens.Spacing.md
             ) {
-                HStack(spacing: DesignTokens.Spacing.sm) {
-                    Text("\u{16B1}")
-                        .font(.title2)
-                        .foregroundStyle(palette.runeText)
-
+                HStack(spacing: DesignTokens.Spacing.md) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        Text("Quote Packs")
-                            .font(.headline)
-                            .foregroundStyle(palette.textPrimary)
+                        SectionLabel(title: "Quote Packs", palette: palette)
 
                         Text("Expand your wisdom library")
-                            .font(.subheadline)
+                            .font(DesignTokens.Typography.sectionTitle)
+                            .foregroundStyle(palette.textPrimary)
+
+                        Text("Curated additions that feel like collectible volumes, not utilities.")
+                            .font(DesignTokens.Typography.callout)
                             .foregroundStyle(palette.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
 
                     Spacer()
 
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(palette.textTertiary)
+                    VStack(alignment: .trailing, spacing: DesignTokens.Spacing.xxs) {
+                        Text("\(QuotePack.catalog.count) packs")
+                            .font(DesignTokens.Typography.metadata)
+                            .foregroundStyle(palette.textTertiary)
+
+                        Image(systemName: "arrow.right.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(palette.accent)
+                    }
                 }
             }
         }

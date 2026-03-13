@@ -21,48 +21,7 @@ struct CollectionCoverCardView: View {
         Button {
             onSelect(cover.collection)
         } label: {
-            VStack(alignment: .leading, spacing: 9) {
-                collectionMetadata
-                runicPreview
-                latinPreview
-                collectionTitle
-                collectionSubtitle
-                authorPreview
-            }
-            .padding(12)
-            .frame(width: 210, alignment: .leading)
-            .background {
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(cardBackgroundColor)
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(
-                        Color.white.opacity(isSelected ? 0.15 : 0.08),
-                        lineWidth: isSelected ? 1.3 : 0.8
-                    )
-            }
-            .overlay(alignment: .topLeading) {
-                Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: gradientColors,
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(width: isSelected ? 74 : 52, height: 4)
-                    .padding(.top, 9)
-                    .padding(.leading, 10)
-            }
-            .opacity(isSelected ? 1.0 : 0.75)
-            .shadow(
-                color: .black.opacity(isSelected ? 0.28 : 0.16),
-                radius: isSelected ? 12 : 7,
-                x: 0,
-                y: 5
-            )
-            .animation(AnimationPresets.gentleSpring, value: isSelected)
+            cardBody
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("collection_cover_\(cover.collection.rawValue)")
@@ -71,22 +30,82 @@ struct CollectionCoverCardView: View {
         .accessibilityHint("Double tap to browse \(cover.collection.displayName) quotes")
     }
 
+    private var cardBody: some View {
+        cardContent
+            .padding(DesignTokens.Spacing.md)
+            .frame(width: 230, alignment: .leading)
+            .frame(minHeight: 210, alignment: .leading)
+            .background(cardBackground)
+            .overlay(alignment: .topLeading) {
+                topAccent
+            }
+            .overlay(cardBorder)
+            .opacity(isSelected ? 1.0 : 0.88)
+            .shadow(
+                color: palette.shadowColor.opacity(isSelected ? 1 : 0.7),
+                radius: isSelected ? DesignTokens.Elevation.medium : DesignTokens.Elevation.low,
+                x: 0,
+                y: isSelected ? 8 : 4
+            )
+            .scaleEffect(isSelected ? 1 : 0.985)
+            .animation(DesignTokens.Motion.reveal, value: isSelected)
+    }
+
+    private var cardContent: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            collectionMetadata
+            runicPreview
+            latinPreview
+            collectionTitle
+            collectionSubtitle
+            authorPreview
+        }
+    }
+
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
+            .fill(cardBackgroundColor)
+    }
+
+    private var cardBorder: some View {
+        RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
+            .stroke(
+                isSelected ? palette.strongCardStroke : palette.cardStroke,
+                lineWidth: isSelected ? DesignTokens.Stroke.emphasis : DesignTokens.Stroke.hairline
+            )
+    }
+
+    private var topAccent: some View {
+        Capsule()
+            .fill(
+                LinearGradient(
+                    colors: gradientColors,
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .frame(width: isSelected ? 88 : 58, height: 4)
+            .padding(.top, DesignTokens.Spacing.sm)
+            .padding(.leading, DesignTokens.Spacing.md)
+    }
+
     private var collectionMetadata: some View {
         HStack(alignment: .top) {
-            Image(systemName: cover.collection.systemImage)
-                .font(.caption.weight(.bold))
-                .foregroundStyle(palette.primaryText)
+            Label(cover.collection.displayName, systemImage: cover.collection.systemImage)
+                .font(DesignTokens.Typography.label)
+                .foregroundStyle(palette.textPrimary)
+                .labelStyle(.titleAndIcon)
 
             Spacer(minLength: 8)
 
             Text("\(cover.quoteCount)")
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(palette.primaryText)
+                .font(DesignTokens.Typography.metadata)
+                .foregroundStyle(palette.textPrimary)
                 .padding(.horizontal, 7)
                 .padding(.vertical, 4)
                 .background {
                     Capsule()
-                        .fill(.white.opacity(isSelected ? 0.35 : 0.18))
+                        .fill(isSelected ? palette.chipSelectedFill : palette.bannerBackground)
                 }
         }
     }
@@ -100,42 +119,42 @@ struct CollectionCoverCardView: View {
                 minSize: 18,
                 maxSize: 30
             )
-            .foregroundStyle(palette.primaryText)
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, minHeight: 34, alignment: .topLeading)
+            .foregroundStyle(palette.runeText)
+            .lineLimit(2)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .topLeading)
     }
 
     private var latinPreview: some View {
         Text(cover.latinPreview)
-            .font(.caption)
-            .foregroundStyle(palette.secondaryText)
-            .lineLimit(1)
+            .font(DesignTokens.Typography.label)
+            .foregroundStyle(palette.textSecondary)
+            .lineLimit(2)
     }
 
     private var collectionTitle: some View {
         Text(cover.collection.displayName)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(palette.primaryText)
+            .font(DesignTokens.Typography.cardTitle)
+            .foregroundStyle(palette.textPrimary)
     }
 
     private var collectionSubtitle: some View {
         Text(cover.collection.subtitle)
-            .font(.caption2)
-            .foregroundStyle(palette.tertiaryText)
-            .lineLimit(1)
+            .font(DesignTokens.Typography.callout)
+            .foregroundStyle(palette.textSecondary)
+            .lineLimit(2)
     }
 
     private var authorPreview: some View {
         Text("— \(cover.authorPreview)")
-            .font(.caption2)
-            .foregroundStyle(palette.tertiaryText)
+            .font(DesignTokens.Typography.label)
+            .foregroundStyle(palette.textTertiary)
             .lineLimit(1)
     }
 
     private var cardBackgroundColor: Color {
         reduceTransparency
-            ? Color.black.opacity(0.45)
-            : Color.black.opacity(isSelected ? 0.25 : 0.16)
+            ? palette.editorialSurface
+            : (isSelected ? palette.editorialSurface : palette.editorialInset)
     }
 
     private var gradientColors: [Color] {
@@ -144,23 +163,23 @@ struct CollectionCoverCardView: View {
         switch cover.collection {
         case .all:
             return [
-                Color.white.opacity(0.10 * alpha),
-                Color.black.opacity(0.22 * alpha)
+                palette.accent.opacity(0.35 * alpha),
+                palette.accentSecondary.opacity(0.72 * alpha)
             ]
         case .motivation:
             return [
-                Color(red: 0.80, green: 0.44, blue: 0.14).opacity(0.55 * alpha),
-                Color(red: 0.57, green: 0.23, blue: 0.08).opacity(0.65 * alpha)
+                palette.warning.opacity(0.65 * alpha),
+                palette.accent.opacity(0.72 * alpha)
             ]
         case .stoic:
             return [
-                Color(red: 0.28, green: 0.38, blue: 0.50).opacity(0.56 * alpha),
-                Color(red: 0.17, green: 0.23, blue: 0.33).opacity(0.66 * alpha)
+                palette.textSecondary.opacity(0.6 * alpha),
+                palette.textTertiary.opacity(0.7 * alpha)
             ]
         case .tolkien:
             return [
-                Color(red: 0.21, green: 0.42, blue: 0.27).opacity(0.56 * alpha),
-                Color(red: 0.12, green: 0.25, blue: 0.18).opacity(0.66 * alpha)
+                palette.success.opacity(0.62 * alpha),
+                palette.accentSecondary.opacity(0.7 * alpha)
             ]
         }
     }

@@ -12,11 +12,12 @@ import SwiftData
 struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.runicTheme) private var runicTheme
     @StateObject private var viewModel: SearchViewModel
     @State private var didInitialize = false
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     init() {
@@ -29,20 +30,43 @@ struct SearchView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                if viewModel.state.isSearchActive {
-                    resultsContent
-                } else {
-                    suggestionsContent
-                }
+        ScreenScaffold(palette: palette) {
+            HeroHeader(
+                eyebrow: "Search",
+                title: viewModel.state.isSearchActive ? "Discovery" : "Find a Line",
+                subtitle: viewModel.state.isSearchActive
+                    ? "Filter the archive without losing the shape of the quote."
+                    : "Search by author, theme, or a fragment you remember.",
+                meta: searchMeta,
+                palette: palette
+            )
+
+            if let error = viewModel.state.errorMessage {
+                FeedbackBanner(
+                    palette: palette,
+                    tone: .error,
+                    title: "Search unavailable",
+                    message: error
+                )
             }
-            .padding(.horizontal, DesignTokens.Spacing.md)
-            .padding(.top, DesignTokens.Spacing.sm)
-            .padding(.bottom, DesignTokens.Spacing.huge)
+
+            if viewModel.state.isLoading {
+                InsetCard(palette: palette) {
+                    HStack(spacing: DesignTokens.Spacing.sm) {
+                        ProgressView()
+                            .tint(palette.accent)
+
+                        Text("Preparing the archive...")
+                            .font(DesignTokens.Typography.callout)
+                            .foregroundStyle(palette.textSecondary)
+                    }
+                }
+            } else if viewModel.state.isSearchActive {
+                resultsContent
+            } else {
+                suggestionsContent
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(palette.background)
         .navigationTitle("Search")
         .searchable(
             text: Binding(
@@ -63,12 +87,25 @@ struct SearchView: View {
 
     @ViewBuilder
     private var suggestionsContent: some View {
-        sectionHeader("Suggestions")
+        EditorialCard(
+            palette: palette,
+            tone: .secondary,
+            cornerRadius: DesignTokens.CornerRadius.xl,
+            shadowRadius: DesignTokens.Elevation.low
+        ) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                SectionLabel(title: "Suggestions", palette: palette)
 
-        FlowLayout(spacing: DesignTokens.Spacing.xs) {
-            ForEach(viewModel.suggestionKeywords, id: \.self) { keyword in
-                chipButton(keyword) {
-                    viewModel.updateSearchText(keyword)
+                Text("Start with an author, a mood, or a single remembered word.")
+                    .font(DesignTokens.Typography.callout)
+                    .foregroundStyle(palette.textSecondary)
+
+                FlowLayout(spacing: DesignTokens.Spacing.xs) {
+                    ForEach(viewModel.suggestionKeywords, id: \.self) { keyword in
+                        FilterChip(title: keyword, isSelected: false, palette: palette) {
+                            viewModel.updateSearchText(keyword)
+                        }
+                    }
                 }
             }
         }
@@ -78,40 +115,54 @@ struct SearchView: View {
 
     @ViewBuilder
     private var resultsContent: some View {
-        // Results count + clear
-        HStack {
-            Text("\(viewModel.state.filteredQuotes.count) results")
-                .font(.subheadline)
-                .foregroundStyle(palette.accent)
+        InsetCard(
+            palette: palette,
+            cornerRadius: DesignTokens.CornerRadius.xl,
+            contentPadding: DesignTokens.Spacing.md
+        ) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                HStack {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        SectionLabel(title: "Active Search", palette: palette)
+                        Text("\(viewModel.state.filteredQuotes.count) results")
+                            .font(DesignTokens.Typography.sectionTitle)
+                            .foregroundStyle(palette.textPrimary)
+                    }
 
-            Spacer()
+                    Spacer()
 
-            Button("Clear") {
-                viewModel.clearSearch()
-            }
-            .font(.subheadline)
-            .foregroundStyle(palette.textPrimary)
-        }
+                    Button("Clear") {
+                        viewModel.clearSearch()
+                    }
+                    .font(DesignTokens.Typography.label)
+                    .foregroundStyle(palette.accent)
+                }
 
-        // Collection filter chips
-        ScrollView(.horizontal) {
-            HStack(spacing: DesignTokens.Spacing.xs) {
-                ForEach(QuoteCollection.allCases) { collection in
-                    chipButton(
-                        collection.displayName,
-                        isSelected: viewModel.state.selectedCollection == collection
-                    ) {
-                        viewModel.updateSelectedCollection(collection)
+                ScrollView(.horizontal) {
+                    HStack(spacing: DesignTokens.Spacing.xs) {
+                        ForEach(QuoteCollection.allCases) { collection in
+                            FilterChip(
+                                title: collection.displayName,
+                                isSelected: viewModel.state.selectedCollection == collection,
+                                palette: palette
+                            ) {
+                                viewModel.updateSelectedCollection(collection)
+                            }
+                        }
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
-        .scrollIndicators(.hidden)
 
-        // Result cards
         if viewModel.state.filteredQuotes.isEmpty {
-            ContentUnavailableView.search
-                .foregroundStyle(palette.textPrimary, palette.textSecondary)
+            EditorialEmptyState(
+                palette: palette,
+                icon: "magnifyingglass",
+                eyebrow: "No matches",
+                title: "Nothing surfaced",
+                message: "Try a different author, broader wording, or switch the collection filter."
+            )
         } else {
             LazyVStack(spacing: DesignTokens.Spacing.sm) {
                 ForEach(viewModel.state.filteredQuotes, id: \.id) { quote in
@@ -131,8 +182,14 @@ struct SearchView: View {
             author: quote.author,
             badge: {
                 Text(quote.collection.displayName)
-                    .font(.caption)
+                    .font(DesignTokens.Typography.metadata)
                     .foregroundStyle(palette.accent)
+                    .padding(.horizontal, DesignTokens.Spacing.sm)
+                    .padding(.vertical, DesignTokens.Spacing.xs)
+                    .background {
+                        Capsule()
+                            .fill(palette.bannerBackground)
+                    }
             },
             actions: {
                 EmptyView()
@@ -140,41 +197,12 @@ struct SearchView: View {
         )
     }
 
-    // MARK: - Chip Button
-
-    @ViewBuilder
-    private func chipButton(
-        _ title: String,
-        isSelected: Bool = false,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.subheadline)
-                .foregroundStyle(isSelected ? palette.background : palette.textPrimary)
-                .padding(.horizontal, DesignTokens.Spacing.sm)
-                .padding(.vertical, DesignTokens.Spacing.xs)
-                .background {
-                    if isSelected {
-                        Capsule()
-                            .fill(palette.accent)
-                    } else {
-                        Capsule()
-                            .strokeBorder(palette.separator, lineWidth: 1)
-                    }
-                }
+    private var searchMeta: [String] {
+        var items = ["Authors", "Collections", "Fragments"]
+        if let collection = viewModel.state.selectedCollection {
+            items.append(collection.displayName)
         }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Section Header
-
-    @ViewBuilder
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.subheadline)
-            .foregroundStyle(palette.accent)
-            .padding(.top, DesignTokens.Spacing.xs)
+        return items
     }
 }
 

@@ -75,9 +75,10 @@ struct QuoteActionsSheet: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     private var actions: [QuoteAction] {
@@ -96,14 +97,21 @@ struct QuoteActionsSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Drag indicator
             Capsule()
                 .fill(palette.textTertiary.opacity(0.3))
                 .frame(width: 36, height: 5)
                 .padding(.top, DesignTokens.Spacing.sm)
                 .padding(.bottom, DesignTokens.Spacing.md)
 
-            // Action rows
+            HeroHeader(
+                eyebrow: "Actions",
+                title: "Current passage",
+                subtitle: "Choose how this quote should be handled.",
+                palette: palette
+            )
+            .padding(.horizontal, DesignTokens.Spacing.lg)
+            .padding(.bottom, DesignTokens.Spacing.sm)
+
             ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
                 actionRow(action)
 
@@ -124,7 +132,7 @@ struct QuoteActionsSheet: View {
             Spacer()
                 .frame(height: DesignTokens.Spacing.md)
         }
-        .background(palette.surface)
+        .background(palette.editorialSurface)
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(DesignTokens.CornerRadius.xl)

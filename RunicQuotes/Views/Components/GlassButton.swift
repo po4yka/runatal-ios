@@ -24,6 +24,7 @@ struct GlassButton: View {
     @State private var isPressed = false
     @Environment(\.accessibilityReduceMotion) var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     // MARK: - Initialization
 
@@ -89,18 +90,14 @@ struct GlassButton: View {
                             .font(.body.weight(.medium))
                     }
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(isPrimary ? Color.white : palette.textPrimary)
                 .padding(.horizontal, DesignTokens.Spacing.lg)
                 .padding(.vertical, DesignTokens.Spacing.sm)
                 .background {
-                    if let intensity {
-                        adaptiveGlassBackground(intensity: intensity)
-                    } else {
-                        legacyGlassBackground
-                    }
+                    buttonBackground
                 }
                 .shadow(
-                    color: .black.opacity(0.22),
+                    color: palette.shadowColor.opacity(isPrimary ? 1 : 0.78),
                     radius: isPressed ? 4 : 8,
                     x: 0,
                     y: isPressed ? 2 : 4
@@ -108,7 +105,7 @@ struct GlassButton: View {
                 .scaleEffect(isPressed ? 0.96 : 1.0)
             }
         )
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -133,43 +130,52 @@ struct GlassButton: View {
         .accessibilityAddTraits(.isButton)
     }
 
-    // MARK: - Glass Rendering
+    private var palette: AppThemePalette {
+        AppThemePalette.themed(runicTheme, for: colorScheme)
+    }
 
-    @ViewBuilder
-    private func adaptiveGlassBackground(intensity: DesignTokens.GlassIntensity) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(intensity.material)
-
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(DesignTokens.GlassColor.background(for: colorScheme))
-
-            // Brightened overlay on press
-            if isPressed {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Color.white.opacity(0.08))
-            }
-
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .strokeBorder(
-                    DesignTokens.GlassColor.border(for: colorScheme),
-                    lineWidth: 0.5
-                )
-        }
+    private var isPrimary: Bool {
+        intensity == .strong || opacity == .low
     }
 
     @ViewBuilder
-    private var legacyGlassBackground: some View {
+    private var buttonBackground: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(blur)
-                .opacity(opacity.value)
+                .fill(backgroundFill)
 
             if isPressed {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Color.white.opacity(0.08))
+                    .fill(palette.highlight)
             }
+
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .strokeBorder(borderColor, lineWidth: DesignTokens.Stroke.hairline)
         }
+    }
+
+    private var backgroundFill: some ShapeStyle {
+        if isPrimary {
+            return AnyShapeStyle(
+                LinearGradient(
+                    colors: [palette.accent, palette.ctaAccent],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+        }
+
+        return AnyShapeStyle(
+            LinearGradient(
+                colors: [palette.editorialSurface, palette.editorialInset],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+    }
+
+    private var borderColor: Color {
+        isPrimary ? palette.strongCardStroke : palette.cardStroke
     }
 }
 

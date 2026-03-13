@@ -58,6 +58,7 @@ struct CoachMarksView: View {
     @State private var currentStep: CoachMarkStep = .swipeQuotes
     @State private var tooltipOpacity: Double = 0
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     // MARK: - Body
 
@@ -92,7 +93,7 @@ struct CoachMarksView: View {
     // MARK: - Tooltip Card
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     private var tooltipCard: some View {
@@ -145,17 +146,14 @@ struct CoachMarksView: View {
             .padding(.top, DesignTokens.Spacing.xs)
         }
         .padding(DesignTokens.Spacing.lg)
-        .background(
+        .background {
             RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                        .stroke(
-                            DesignTokens.GlassColor.border(for: colorScheme),
-                            lineWidth: 0.5
-                        )
-                )
-        )
+                .fill(palette.editorialSurface)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .stroke(palette.cardStroke, lineWidth: DesignTokens.Stroke.hairline)
+        }
         .id(currentStep)
         .transition(.opacity.combined(with: .move(edge: .bottom)))
         .accessibilityElement(children: .contain)

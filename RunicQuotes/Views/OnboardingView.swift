@@ -10,6 +10,7 @@ import SwiftData
 import UserNotifications
 import os
 
+// swiftlint:disable type_body_length
 /// Five-step onboarding flow: Splash -> Intro -> Atmosphere -> Notifications -> Ready.
 struct OnboardingView: View {
 
@@ -31,6 +32,7 @@ struct OnboardingView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     @State private var currentPage: Page = .splash
     @State private var selectedScript: RunicScript?
@@ -40,7 +42,7 @@ struct OnboardingView: View {
     let onComplete: () -> Void
 
     private var palette: AppThemePalette {
-        AppThemePalette.adaptive(for: colorScheme)
+        AppThemePalette.themed(runicTheme, for: colorScheme)
     }
 
     // MARK: - Body
@@ -75,10 +77,24 @@ struct OnboardingView: View {
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: [palette.background, palette.groupedBG, palette.surface, palette.groupedBG, palette.background],
+            colors: palette.heroBackgroundGradient,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+        .overlay(alignment: .topTrailing) {
+            Circle()
+                .fill(palette.ornamentSecondary)
+                .frame(width: 240, height: 240)
+                .blur(radius: 100)
+                .offset(x: 100, y: -40)
+        }
+        .overlay(alignment: .bottomLeading) {
+            Circle()
+                .fill(palette.ornament)
+                .frame(width: 280, height: 280)
+                .blur(radius: 120)
+                .offset(x: -120, y: 120)
+        }
         .ignoresSafeArea()
     }
 
@@ -129,9 +145,15 @@ struct OnboardingView: View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             Spacer()
 
-            Text("R")
-                .font(.system(size: 64, weight: .light, design: .serif))
-                .foregroundStyle(palette.textPrimary)
+            VStack(spacing: DesignTokens.Spacing.sm) {
+                Text("ᚱ")
+                    .font(.system(size: 72, weight: .light, design: .serif))
+                    .foregroundStyle(palette.runeText)
+
+                Text("RunicQuotes")
+                    .font(DesignTokens.Typography.heroCompact)
+                    .foregroundStyle(palette.textPrimary)
+            }
 
             Spacer()
         }
@@ -147,36 +169,43 @@ struct OnboardingView: View {
     // MARK: - Page: Intro
 
     private var introPage: some View {
-        VStack(spacing: DesignTokens.Spacing.xl) {
-            // Decorative rune glyphs
-            Text("\u{16A0}\u{16B1}\u{16BA}\u{16C7}\u{16D2}\u{16A8}\u{16C1}")
-                .font(.system(size: 20))
-                .foregroundStyle(palette.accent.opacity(0.6))
-                .tracking(8)
+        EditorialCard(
+            palette: palette,
+            tone: .hero,
+            cornerRadius: DesignTokens.CornerRadius.xxl,
+            shadowRadius: DesignTokens.Elevation.hero,
+            contentPadding: DesignTokens.Spacing.xl
+        ) {
+            VStack(spacing: DesignTokens.Spacing.lg) {
+                Text("\u{16A0}\u{16B1}\u{16BA}\u{16C7}\u{16D2}\u{16A8}\u{16C1}")
+                    .font(.system(size: 20))
+                    .foregroundStyle(palette.accent.opacity(0.65))
+                    .tracking(8)
 
-            VStack(spacing: DesignTokens.Spacing.sm) {
-                Text("Ancient Scripts, Modern Wisdom")
-                    .font(.title.bold())
-                    .foregroundStyle(palette.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text("Discover the beauty of Elder Futhark, Younger Futhark, and Cirth rune systems")
-                    .font(.body)
-                    .foregroundStyle(palette.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
+                HeroHeader(
+                    eyebrow: "Welcome",
+                    title: "Ancient scripts, modern ritual",
+                    subtitle: "Begin with a quieter reading cadence and choose the alphabet that feels like yours.",
+                    meta: ["Elder Futhark", "Younger Futhark", "Cirth"],
+                    palette: palette,
+                    alignment: .center
+                )
             }
         }
-        .padding(.horizontal, DesignTokens.Spacing.md)
     }
 
     // MARK: - Page: Atmosphere
 
     private var atmospherePage: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
-            Text("Choose Your Atmosphere")
-                .font(.title2.bold())
-                .foregroundStyle(palette.textPrimary)
+            HeroHeader(
+                eyebrow: "Choose Tone",
+                title: "Pick the script that sets the mood",
+                subtitle: "This becomes your default atmosphere when the app opens.",
+                meta: ["You can change it later in Settings"],
+                palette: palette,
+                alignment: .center
+            )
 
             VStack(spacing: DesignTokens.Spacing.sm) {
                 OnboardingAtmosphereOption(
@@ -227,66 +256,71 @@ struct OnboardingView: View {
     // MARK: - Page: Notifications
 
     private var notificationsPage: some View {
-        VStack(spacing: DesignTokens.Spacing.xxl) {
-            VStack(spacing: DesignTokens.Spacing.sm) {
-                Text("Receive Daily Rune Wisdom")
-                    .font(.title2.bold())
-                    .foregroundStyle(palette.textPrimary)
-                    .multilineTextAlignment(.center)
+        EditorialCard(
+            palette: palette,
+            tone: .primary,
+            cornerRadius: DesignTokens.CornerRadius.xxl,
+            shadowRadius: DesignTokens.Elevation.medium,
+            contentPadding: DesignTokens.Spacing.xl
+        ) {
+            VStack(spacing: DesignTokens.Spacing.xl) {
+                HeroHeader(
+                    eyebrow: "Cadence",
+                    title: "Receive a daily rune",
+                    subtitle: "Let one line arrive on its own rhythm instead of asking you to remember.",
+                    meta: ["Optional", "Can be changed later"],
+                    palette: palette,
+                    alignment: .center
+                )
 
-                Text("Get a new runic quote each day to inspire your journey")
-                    .font(.body)
-                    .foregroundStyle(palette.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+                InsetCard(palette: palette, cornerRadius: DesignTokens.CornerRadius.lg) {
+                    HStack(spacing: DesignTokens.Spacing.sm) {
+                        Image(systemName: "bell.badge")
+                            .font(.title2)
+                            .foregroundStyle(palette.accent)
 
-            // Notification preview card
-            GlassCard(intensity: .light, cornerRadius: DesignTokens.CornerRadius.lg) {
-                HStack(spacing: DesignTokens.Spacing.sm) {
-                    Image(systemName: "bell.badge")
-                        .font(.title2)
-                        .foregroundStyle(palette.accent)
+                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                            Text("Daily Rune")
+                                .font(.headline)
+                                .foregroundStyle(palette.textPrimary)
+                            Text("Your morning wisdom awaits")
+                                .font(.subheadline)
+                                .foregroundStyle(palette.textSecondary)
+                        }
 
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        Text("Daily Rune")
-                            .font(.headline)
-                            .foregroundStyle(palette.textPrimary)
-                        Text("Your morning wisdom awaits")
-                            .font(.subheadline)
-                            .foregroundStyle(palette.textSecondary)
+                        Spacer()
                     }
-
-                    Spacer()
                 }
             }
         }
-        .padding(.horizontal, DesignTokens.Spacing.xs)
     }
 
     // MARK: - Page: Ready
 
     private var readyPage: some View {
-        VStack(spacing: DesignTokens.Spacing.xl) {
-            // Decorative rune glyphs
-            Text("\u{16A8}\u{16C7}\u{16B1}\u{16BA}\u{16D2}")
-                .font(.system(size: 20))
-                .foregroundStyle(palette.accent.opacity(0.6))
-                .tracking(8)
+        EditorialCard(
+            palette: palette,
+            tone: .hero,
+            cornerRadius: DesignTokens.CornerRadius.xxl,
+            shadowRadius: DesignTokens.Elevation.hero,
+            contentPadding: DesignTokens.Spacing.xl
+        ) {
+            VStack(spacing: DesignTokens.Spacing.lg) {
+                Text("\u{16A8}\u{16C7}\u{16B1}\u{16BA}\u{16D2}")
+                    .font(.system(size: 20))
+                    .foregroundStyle(palette.accent.opacity(0.6))
+                    .tracking(8)
 
-            VStack(spacing: DesignTokens.Spacing.sm) {
-                Text("Ready to Begin")
-                    .font(.title.bold())
-                    .foregroundStyle(palette.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text("Your runic journey starts now")
-                    .font(.body)
-                    .foregroundStyle(palette.textSecondary)
-                    .multilineTextAlignment(.center)
+                HeroHeader(
+                    eyebrow: "Begin",
+                    title: "Ready to read",
+                    subtitle: "Your defaults are set. Step into the library and let the first passage arrive.",
+                    meta: [notificationsEnabled ? "Notifications on" : "Notifications optional"],
+                    palette: palette,
+                    alignment: .center
+                )
             }
         }
-        .padding(.horizontal, DesignTokens.Spacing.md)
     }
 
     // MARK: - Page Actions
@@ -361,3 +395,4 @@ struct OnboardingView: View {
     OnboardingView(onComplete: {})
         .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }
+// swiftlint:enable type_body_length

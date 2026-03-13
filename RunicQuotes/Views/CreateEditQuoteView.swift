@@ -15,6 +15,7 @@ struct CreateEditQuoteView: View {
     @StateObject private var viewModel: CreateEditQuoteViewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
     @Environment(\.modelContext) private var modelContext
     @State private var didInitialize = false
 
@@ -36,7 +37,7 @@ struct CreateEditQuoteView: View {
     // MARK: - Body
 
     var body: some View {
-        let palette = AppThemePalette.adaptive(for: colorScheme)
+        let palette = AppThemePalette.themed(runicTheme, for: colorScheme)
 
         ZStack {
             palette.background.ignoresSafeArea()

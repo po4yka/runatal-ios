@@ -196,6 +196,10 @@ final class SettingsViewModel: ObservableObject {
             state.widgetDecorativeGlyphsEnabled = preferences?.widgetDecorativeGlyphsEnabled ?? true
             state.selectedTheme = preferences?.selectedTheme ?? .obsidian
             state.lastUsedPreset = preferences?.lastUsedPreset
+            UserDefaults.standard.set(
+                state.selectedTheme.rawValue,
+                forKey: AppConstants.selectedThemeStorageKey
+            )
 
             state.isLoading = false
         } catch {
@@ -217,6 +221,10 @@ final class SettingsViewModel: ObservableObject {
 
         do {
             try modelContext.save()
+            UserDefaults.standard.set(
+                state.selectedTheme.rawValue,
+                forKey: AppConstants.selectedThemeStorageKey
+            )
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
             state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"

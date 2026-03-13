@@ -17,6 +17,9 @@ struct QuoteCardSectionView: View {
     let decorativeGlyph: String
     let palette: AppThemePalette
     let isScriptMorphing: Bool
+    let isSaved: Bool
+    let onNextQuote: () -> Void
+    let onToggleSave: () -> Void
     let onShowActions: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -24,8 +27,16 @@ struct QuoteCardSectionView: View {
     @State private var appearOpacity = 1.0
 
     var body: some View {
-        GlassCard(intensity: .strong) {
+        EditorialCard(
+            palette: palette,
+            tone: .hero,
+            cornerRadius: DesignTokens.CornerRadius.xxl,
+            shadowRadius: DesignTokens.Elevation.hero,
+            contentPadding: DesignTokens.Spacing.lg
+        ) {
             VStack(spacing: 0) {
+                header
+
                 Text(runicText)
                     .runicTextStyle(
                         script: script,
@@ -37,8 +48,8 @@ struct QuoteCardSectionView: View {
                     .foregroundStyle(palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineSpacing(10)
-                    .frame(maxWidth: .infinity, minHeight: 220, alignment: .center)
-                    .padding(.horizontal, DesignTokens.Spacing.sm)
+                    .frame(maxWidth: .infinity, minHeight: 200, alignment: .center)
+                    .padding(.horizontal, DesignTokens.Spacing.xs)
                     .padding(.top, DesignTokens.Spacing.xs)
                     .padding(.bottom, DesignTokens.Spacing.lg)
                     .opacity(isScriptMorphing ? 0.2 : 1.0)
@@ -54,9 +65,9 @@ struct QuoteCardSectionView: View {
                         LinearGradient(
                             colors: [
                                 .clear,
-                                palette.separator.opacity(0.5),
-                                palette.separator.opacity(0.7),
-                                palette.separator.opacity(0.5),
+                                palette.separator.opacity(0.35),
+                                palette.accent.opacity(0.55),
+                                palette.separator.opacity(0.35),
                                 .clear
                             ],
                             startPoint: .leading,
@@ -68,10 +79,10 @@ struct QuoteCardSectionView: View {
                     .accessibilityHidden(true)
 
                 Text(latinText)
-                    .font(.body)
-                    .foregroundStyle(palette.textSecondary)
+                    .font(DesignTokens.Typography.sectionTitle)
+                    .foregroundStyle(palette.textPrimary)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(4)
+                    .lineSpacing(6)
                     .padding(.horizontal, DesignTokens.Spacing.md)
                     .padding(.top, DesignTokens.Spacing.md)
                     .padding(.bottom, DesignTokens.Spacing.sm)
@@ -85,7 +96,7 @@ struct QuoteCardSectionView: View {
 
                 HStack {
                     Text("— \(author)")
-                        .font(.callout)
+                        .font(DesignTokens.Typography.callout)
                         .foregroundStyle(palette.textTertiary)
                         .italic()
                         .accessibilityLabel("Author")
@@ -94,16 +105,17 @@ struct QuoteCardSectionView: View {
 
                     Spacer()
                 }
-                .padding(.horizontal, DesignTokens.Spacing.md)
-                .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
-                .background(palette.surface)
+                .padding(.top, DesignTokens.Spacing.sm)
+
+                actionBar
+                    .padding(.top, DesignTokens.Spacing.md)
             }
-            .frame(maxWidth: .infinity, minHeight: 360, alignment: .top)
+            .frame(maxWidth: .infinity, minHeight: 380, alignment: .top)
             .overlay(alignment: .topTrailing) {
                 Text(decorativeGlyph)
                     .font(.system(size: 60))
-                    .foregroundStyle(palette.textPrimary)
-                    .opacity(0.03)
+                    .foregroundStyle(palette.ornament)
+                    .opacity(0.6)
                     .rotationEffect(.degrees(-12))
                     .padding(.top, DesignTokens.Spacing.sm)
                     .padding(.trailing, DesignTokens.Spacing.md)
@@ -128,8 +140,64 @@ struct QuoteCardSectionView: View {
         .accessibilityAction(named: "More actions") {
             onShowActions()
         }
-        .onLongPressGesture {
-            onShowActions()
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+            SectionLabel(title: "Current Reading", palette: palette)
+            MetaRow(items: [script.displayName, font.displayName], palette: palette)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var actionBar: some View {
+        ActionBar(palette: palette) {
+            actionButton(
+                title: "New Quote",
+                systemImage: "sparkles",
+                emphasized: true,
+                action: onNextQuote
+            )
+            actionButton(
+                title: isSaved ? "Saved" : "Save",
+                systemImage: isSaved ? "bookmark.fill" : "bookmark",
+                emphasized: false,
+                action: onToggleSave
+            )
+            actionButton(
+                title: "Actions",
+                systemImage: "ellipsis.circle",
+                emphasized: false,
+                action: onShowActions
+            )
+        }
+    }
+
+    private func actionButton(
+        title: String,
+        systemImage: String,
+        emphasized: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .font(DesignTokens.Typography.label)
+                .foregroundStyle(emphasized ? palette.chipSelectedForeground : palette.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, DesignTokens.Spacing.sm)
+                .padding(.vertical, DesignTokens.Spacing.sm)
+                .background {
+                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                        .fill(emphasized ? palette.chipSelectedFill : palette.editorialInset)
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                        .strokeBorder(
+                            emphasized ? palette.strongCardStroke : palette.cardStroke,
+                            lineWidth: DesignTokens.Stroke.hairline
+                        )
+                }
+        }
+        .buttonStyle(.plain)
     }
 }

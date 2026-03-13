@@ -11,14 +11,13 @@ struct SettingsHeaderView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        HStack(spacing: DesignTokens.Spacing.xs) {
-            Text("Settings")
-                .font(.largeTitle.bold())
-                .foregroundStyle(palette.textPrimary)
-
-            Spacer()
-        }
-        .padding(.top, DesignTokens.Spacing.md)
+        HeroHeader(
+            eyebrow: "Settings",
+            title: "Reading Studio",
+            subtitle: "Tune the atmosphere, type, and widget presence without losing the quiet of the app.",
+            meta: ["Preview first", "Changes save immediately"],
+            palette: palette
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Settings")
         .accessibilityIdentifier("settings_header")

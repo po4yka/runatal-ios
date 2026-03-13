@@ -17,11 +17,17 @@ struct CollectionCoverCarousel: View {
     let onCollectionSelected: (QuoteCollection) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            header
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            HeroHeader(
+                eyebrow: "Collections",
+                title: selectedCollection.displayName,
+                subtitle: selectedCollection.subtitle,
+                meta: ["\(selectedCollection == .all ? totalQuoteCount : quoteCount(for: selectedCollection)) passages"],
+                palette: palette
+            )
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
                     ForEach(covers) { cover in
                         CollectionCoverCardView(
                             cover: cover,
@@ -33,24 +39,18 @@ struct CollectionCoverCarousel: View {
                         )
                     }
                 }
-                .padding(.vertical, 6)
+                .padding(.vertical, DesignTokens.Spacing.xxs)
             }
             .scrollClipDisabled()
         }
-        .padding(.horizontal)
+        .padding(.horizontal, DesignTokens.Spacing.md)
     }
 
-    private var header: some View {
-        HStack {
-            Text("Collections")
-                .font(.headline)
-                .foregroundStyle(palette.primaryText)
+    private func quoteCount(for collection: QuoteCollection) -> Int {
+        covers.first(where: { $0.collection == collection })?.quoteCount ?? 0
+    }
 
-            Spacer()
-
-            Text(selectedCollection.displayName)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(palette.tertiaryText)
-        }
+    private var totalQuoteCount: Int {
+        covers.first(where: { $0.collection == .all })?.quoteCount ?? covers.map(\.quoteCount).max() ?? 0
     }
 }

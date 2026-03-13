@@ -14,11 +14,12 @@ struct SettingsView: View {
     @State private var didInitialize = false
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     init() {
@@ -30,31 +31,20 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        ZStack {
-            backgroundGradient
-
-            ScrollView {
-                VStack(spacing: DesignTokens.Spacing.xl) {
-                    SettingsHeaderView(palette: palette)
-                    SettingsLivePreviewSectionView(viewModel: viewModel, palette: palette)
-                    SettingsAppearanceSectionView(viewModel: viewModel, palette: palette)
-                    SettingsScriptSectionView(viewModel: viewModel, palette: palette)
-                    SettingsTypographySectionView(viewModel: viewModel, palette: palette)
-                    SettingsWidgetSectionView(viewModel: viewModel, palette: palette)
-                    SettingsAccessibilitySectionView(
-                        palette: palette,
-                        reduceTransparency: reduceTransparency,
-                        reduceMotion: reduceMotion
-                    )
-                    SettingsNavigationLinksSectionView(palette: palette)
-                    SettingsAboutSectionView(palette: palette)
-
-                    Spacer()
-                        .frame(height: DesignTokens.Spacing.lg)
-                }
-                .padding(.horizontal, DesignTokens.Spacing.md)
-                .padding(.vertical, DesignTokens.Spacing.xs)
-            }
+        ScreenScaffold(palette: palette) {
+            SettingsHeaderView(palette: palette)
+            SettingsLivePreviewSectionView(viewModel: viewModel, palette: palette)
+            SettingsAppearanceSectionView(viewModel: viewModel, palette: palette)
+            SettingsScriptSectionView(viewModel: viewModel, palette: palette)
+            SettingsTypographySectionView(viewModel: viewModel, palette: palette)
+            SettingsWidgetSectionView(viewModel: viewModel, palette: palette)
+            SettingsAccessibilitySectionView(
+                palette: palette,
+                reduceTransparency: reduceTransparency,
+                reduceMotion: reduceMotion
+            )
+            SettingsNavigationLinksSectionView(palette: palette)
+            SettingsAboutSectionView(palette: palette)
         }
         .task {
             guard !didInitialize else { return }
@@ -62,15 +52,6 @@ struct SettingsView: View {
             viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
         }
-    }
-
-    private var backgroundGradient: some View {
-        LinearGradient(
-            colors: palette.appBackgroundGradient,
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
     }
 }
 

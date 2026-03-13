@@ -17,6 +17,7 @@ struct RunicQuotesApp: App {
 
     let modelContainer: ModelContainer
     @AppStorage(AppConstants.onboardingCompletedKey) private var hasCompletedOnboarding = false
+    @AppStorage(AppConstants.selectedThemeStorageKey) private var selectedThemeRaw = AppTheme.obsidian.rawValue
     @State private var showDatabaseError = false
     @State private var databaseErrorMessage = ""
     @State private var showOnboarding = false
@@ -53,6 +54,10 @@ struct RunicQuotesApp: App {
 
     // MARK: - Body
 
+    private var selectedTheme: AppTheme {
+        AppTheme.fromStorage(selectedThemeRaw)
+    }
+
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -81,7 +86,10 @@ struct RunicQuotesApp: App {
                 }
             }
             .modelContainer(modelContainer)
+            .environment(\.runicTheme, selectedTheme)
+            .animation(DesignTokens.Motion.themeTransition, value: selectedThemeRaw)
             .task {
+                await syncThemeFromPreferences()
                 guard !hasCompletedOnboarding else { return }
                 showOnboarding = true
             }
@@ -91,6 +99,19 @@ struct RunicQuotesApp: App {
                     showOnboarding = false
                 }
             }
+        }
+    }
+
+    @MainActor
+    private func syncThemeFromPreferences() async {
+        do {
+            let preferences = try UserPreferences.getOrCreate(in: modelContainer.mainContext)
+            let storedTheme = preferences.selectedTheme.rawValue
+            if selectedThemeRaw != storedTheme {
+                selectedThemeRaw = storedTheme
+            }
+        } catch {
+            Self.logger.error("Failed to sync selected theme: \(error.localizedDescription)")
         }
     }
 

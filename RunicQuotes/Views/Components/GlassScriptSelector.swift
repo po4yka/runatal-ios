@@ -15,6 +15,8 @@ struct GlassScriptSelector: View {
 
     let cornerRadius: CGFloat
     let spacing: CGFloat
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     // MARK: - Initialization
 
@@ -48,9 +50,16 @@ struct GlassScriptSelector: View {
         .padding(4)
         .background {
             RoundedRectangle(cornerRadius: cornerRadius + 4)
-                .fill(.ultraThinMaterial)
-                .opacity(0.3)
+                .fill(palette.bannerBackground)
         }
+        .overlay {
+            RoundedRectangle(cornerRadius: cornerRadius + 4)
+                .strokeBorder(palette.cardStroke, lineWidth: DesignTokens.Stroke.hairline)
+        }
+    }
+
+    private var palette: AppThemePalette {
+        AppThemePalette.themed(runicTheme, for: colorScheme)
     }
 }
 
@@ -61,34 +70,36 @@ private struct ScriptButton: View {
     let isSelected: Bool
     let cornerRadius: CGFloat
     let action: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
                 // Script icon/symbol
                 Text(scriptSymbol)
-                    .font(.title3)
+                    .font(.system(size: 20, weight: .medium, design: .serif))
                     .fontWeight(.medium)
 
                 // Script name
                 Text(script.displayName)
-                    .font(.caption2)
+                    .font(DesignTokens.Typography.metadata)
                     .fontWeight(isSelected ? .semibold : .regular)
             }
-            .foregroundStyle(isSelected ? .white : .white.opacity(0.6))
+            .foregroundStyle(isSelected ? palette.chipSelectedForeground : palette.textSecondary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .padding(.horizontal, 8)
             .background {
-                if isSelected {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(.ultraThinMaterial)
-                        .opacity(0.5)
-                        .shadow(color: .black.opacity(0.22), radius: 4, x: 0, y: 2)
-                }
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(isSelected ? palette.chipSelectedFill : Color.clear)
             }
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
+    }
+
+    private var palette: AppThemePalette {
+        AppThemePalette.themed(runicTheme, for: colorScheme)
     }
 
     private var scriptSymbol: String {
@@ -111,6 +122,8 @@ struct GlassFontSelector: View {
     let availableFonts: [RunicFont]
 
     let cornerRadius: CGFloat
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     init(
         selectedFont: Binding<RunicFont>,
@@ -138,6 +151,10 @@ struct GlassFontSelector: View {
             }
         }
     }
+
+    private var palette: AppThemePalette {
+        AppThemePalette.themed(runicTheme, for: colorScheme)
+    }
 }
 
 // MARK: - Font Button
@@ -147,42 +164,54 @@ private struct FontButton: View {
     let isSelected: Bool
     let cornerRadius: CGFloat
     let action: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     var body: some View {
         Button(action: action) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(font.displayName)
-                        .font(.headline)
-                        .foregroundStyle(.white)
+                        .font(DesignTokens.Typography.cardTitle)
+                        .foregroundStyle(palette.textPrimary)
 
                     Text(font.description)
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.55))
+                        .foregroundStyle(palette.textSecondary)
                 }
 
                 Spacer()
 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.55))
+                        .foregroundStyle(palette.accent)
                         .font(.title3)
                 }
             }
             .padding()
             .background {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(.ultraThinMaterial)
-                    .opacity(isSelected ? 0.5 : 0.2)
+                    .fill(isSelected ? palette.chipFill : palette.editorialInset)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(
+                        isSelected ? palette.strongCardStroke : palette.cardStroke,
+                        lineWidth: DesignTokens.Stroke.hairline
+                    )
             }
             .shadow(
-                color: .black.opacity(isSelected ? 0.22 : 0),
+                color: palette.shadowColor.opacity(isSelected ? 1 : 0),
                 radius: 4,
                 x: 0,
                 y: 2
             )
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
+    }
+
+    private var palette: AppThemePalette {
+        AppThemePalette.themed(runicTheme, for: colorScheme)
     }
 }
 

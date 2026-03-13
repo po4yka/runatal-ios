@@ -56,10 +56,11 @@ struct NotificationItem: Identifiable, Sendable {
 /// In-app notification inbox matching the Figma Notification Center design.
 struct NotificationCenterView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
     @State private var notifications: [NotificationItem] = []
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     private var hasUnread: Bool {
@@ -69,8 +70,16 @@ struct NotificationCenterView: View {
     // MARK: - Body
 
     var body: some View {
-        ZStack {
-            palette.background.ignoresSafeArea()
+        ScreenScaffold(palette: palette) {
+            HeroHeader(
+                eyebrow: "Notifications",
+                title: "Inbox",
+                subtitle: notifications.isEmpty
+                    ? "This build does not keep a synced notification history yet."
+                    : "Updates tied to your reading cadence appear here.",
+                meta: [hasUnread ? "Unread items waiting" : "No unread items"],
+                palette: palette
+            )
 
             if notifications.isEmpty {
                 emptyState
@@ -98,7 +107,12 @@ struct NotificationCenterView: View {
     // MARK: - Notification List
 
     private var notificationList: some View {
-        ScrollView {
+        EditorialCard(
+            palette: palette,
+            tone: .secondary,
+            cornerRadius: DesignTokens.CornerRadius.xxl,
+            shadowRadius: DesignTokens.Elevation.low
+        ) {
             LazyVStack(spacing: 0) {
                 ForEach(Array(notifications.enumerated()), id: \.element.id) { index, notification in
                     notificationRow(notification)
@@ -156,12 +170,13 @@ struct NotificationCenterView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        ContentUnavailableView(
-            "Notifications Unavailable",
-            systemImage: "bell.slash",
-            description: Text("This build does not sync notification history yet.")
+        EditorialEmptyState(
+            palette: palette,
+            icon: "bell.slash",
+            eyebrow: "Coming Later",
+            title: "History is not stored here yet",
+            message: "Notification permissions and widget refresh still work, but past alerts are not collected into an inbox in this build."
         )
-        .foregroundStyle(palette.textPrimary, palette.textSecondary)
     }
 
     // MARK: - Actions

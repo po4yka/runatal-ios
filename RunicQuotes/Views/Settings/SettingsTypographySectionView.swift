@@ -121,10 +121,16 @@ struct SettingsTypographySectionView: View {
             .frame(width: 250, alignment: .leading)
             .background {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                    .fill(.ultraThinMaterial)
-                    .opacity(isActive ? 0.5 : 0.2)
+                    .fill(isActive ? palette.bannerBackground : palette.editorialInset)
             }
-            .shadow(color: .black.opacity(isActive ? 0.22 : 0), radius: 4, x: 0, y: 2)
+            .overlay {
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                    .strokeBorder(
+                        isActive ? palette.strongCardStroke : palette.cardStroke,
+                        lineWidth: DesignTokens.Stroke.hairline
+                    )
+            }
+            .shadow(color: palette.shadowColor.opacity(isActive ? 0.9 : 0), radius: 4, x: 0, y: 2)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("settings_preset_\(preset.rawValue.replacing(" ", with: "_"))")

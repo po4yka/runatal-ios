@@ -60,7 +60,7 @@ struct SettingsAppearanceSectionView: View {
     }
 
     private func themeButton(_ theme: AppTheme) -> some View {
-        let themePalette = theme.palette
+        let themePalette = AppThemePalette.themed(theme, for: .dark)
         let isSelected = viewModel.state.selectedTheme == theme
 
         return Button {
@@ -123,8 +123,7 @@ struct SettingsAppearanceSectionView: View {
             .padding(.vertical, DesignTokens.Spacing.sm)
             .background {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
-                    .fill(.ultraThinMaterial)
-                    .opacity(isEnabled ? 0.35 : 0.15)
+                    .fill(isEnabled ? palette.bannerBackground : palette.editorialMutedSurface)
             }
         }
         .buttonStyle(.plain)

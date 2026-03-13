@@ -15,52 +15,67 @@ struct QuoteSearchResultsSectionView: View {
     let onSelect: (QuoteSearchResult) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            Text("Search Results")
-                .font(.headline)
-                .foregroundStyle(palette.textPrimary)
+        InsetCard(
+            palette: palette,
+            cornerRadius: DesignTokens.CornerRadius.xl,
+            contentPadding: DesignTokens.Spacing.md
+        ) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                SectionLabel(title: "Search Results", palette: palette)
 
-            if results.isEmpty {
-                Text("No matches found in \(currentCollection.displayName).")
-                    .font(.caption)
-                    .foregroundStyle(palette.textTertiary)
-            } else {
-                VStack(spacing: DesignTokens.Spacing.xs) {
-                    ForEach(results.prefix(4)) { result in
-                        Button {
-                            onSelect(result)
-                        } label: {
-                            HStack(spacing: DesignTokens.Spacing.sm) {
-                                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                                    Text(result.latinText)
-                                        .font(.subheadline)
-                                        .foregroundStyle(palette.textPrimary)
-                                        .lineLimit(1)
+                MetaRow(
+                    items: [currentCollection.displayName, "\(results.count) matches"],
+                    palette: palette
+                )
 
-                                    Text("— \(result.author)")
-                                        .font(.caption)
-                                        .foregroundStyle(palette.textTertiary)
-                                        .lineLimit(1)
+                if results.isEmpty {
+                    Text("No matching lines surfaced in \(currentCollection.displayName) yet.")
+                        .font(DesignTokens.Typography.callout)
+                        .foregroundStyle(palette.textSecondary)
+                } else {
+                    VStack(spacing: DesignTokens.Spacing.xs) {
+                        ForEach(results.prefix(4)) { result in
+                            Button {
+                                onSelect(result)
+                            } label: {
+                                HStack(spacing: DesignTokens.Spacing.sm) {
+                                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                                        Text(result.latinText)
+                                            .font(DesignTokens.Typography.bodyEmphasis)
+                                            .foregroundStyle(palette.textPrimary)
+                                            .lineLimit(2)
+
+                                        Text("— \(result.author)")
+                                            .font(DesignTokens.Typography.label)
+                                            .foregroundStyle(palette.textTertiary)
+                                            .lineLimit(1)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "arrow.up.left")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(palette.textSecondary)
                                 }
-
-                                Spacer()
-
-                                Image(systemName: "arrow.up.left")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(palette.textSecondary)
+                                .padding(.horizontal, DesignTokens.Spacing.sm)
+                                .padding(.vertical, DesignTokens.Spacing.sm)
+                                .background {
+                                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                                        .fill(palette.bannerBackground)
+                                }
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                                        .strokeBorder(
+                                            palette.cardStroke,
+                                            lineWidth: DesignTokens.Stroke.hairline
+                                        )
+                                }
                             }
-                            .padding(.horizontal, DesignTokens.Spacing.sm)
-                            .padding(.vertical, DesignTokens.Spacing.sm)
-                            .background {
-                                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
-                                    .fill(.ultraThinMaterial)
-                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
             }
         }
-        .padding(.horizontal, DesignTokens.Spacing.md)
     }
 }

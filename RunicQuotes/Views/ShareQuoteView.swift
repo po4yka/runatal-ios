@@ -46,13 +46,14 @@ struct ShareQuoteView: View {
     @State private var shareItems: [Any] = []
     @State private var showSavedConfirmation = false
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
     @Environment(\.dismiss) private var dismiss
     @Environment(\.displayScale) private var displayScale
 
     // MARK: - Body
 
     var body: some View {
-        let palette = AppThemePalette.adaptive(for: colorScheme)
+        let palette = AppThemePalette.themed(runicTheme, for: colorScheme)
 
         ZStack {
             // Background
@@ -111,7 +112,7 @@ struct ShareQuoteView: View {
         }
         .overlay {
             if showSavedConfirmation {
-                savedConfirmationOverlay(palette: AppThemePalette.adaptive(for: colorScheme))
+                savedConfirmationOverlay(palette: AppThemePalette.themed(runicTheme, for: colorScheme))
             }
         }
     }

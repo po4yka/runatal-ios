@@ -54,6 +54,9 @@ enum AppConstants {
 
     /// UserDefaults key tracking whether the feature tour (coach marks) has been seen
     static let featureTourCompletedKey = "hasCompletedFeatureTour"
+
+    /// UserDefaults key storing the selected visual theme for immediate UI updates.
+    static let selectedThemeStorageKey = "selectedThemeRaw"
 }
 
 /// Notification names for app-wide events.

@@ -9,6 +9,7 @@ import SwiftUI
 
 /// Script picker used on the home quote screen.
 struct QuoteScriptPickerView: View {
+    let palette: AppThemePalette
     let selectedScript: RunicScript
     let onSelect: (RunicScript) -> Void
 
@@ -22,16 +23,28 @@ struct QuoteScriptPickerView: View {
     }
 
     var body: some View {
-        Picker("Runic Script", selection: selection) {
-            ForEach(RunicScript.allCases) { script in
-                Text(script.displayName).tag(script)
+        EditorialCard(
+            palette: palette,
+            tone: .secondary,
+            cornerRadius: DesignTokens.CornerRadius.xl,
+            shadowRadius: DesignTokens.Elevation.low,
+            contentPadding: DesignTokens.Spacing.md
+        ) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                HeroHeader(
+                    eyebrow: "Script",
+                    title: selectedScript.displayName,
+                    subtitle: "Choose the alphabet that shapes the current passage.",
+                    meta: ["Visible on Home and widgets"],
+                    palette: palette
+                )
+
+                GlassScriptSelector(selectedScript: selection)
+                    .accessibilityLabel("Runic script selector")
+                    .accessibilityValue(selectedScript.rawValue)
+                    .accessibilityHint("Select which runic script to display")
+                    .accessibilityIdentifier("quote_script_selector")
             }
         }
-        .pickerStyle(.segmented)
-        .padding(.horizontal, DesignTokens.Spacing.md)
-        .accessibilityLabel("Runic script selector")
-        .accessibilityValue(selectedScript.rawValue)
-        .accessibilityHint("Select which runic script to display")
-        .accessibilityIdentifier("quote_script_selector")
     }
 }

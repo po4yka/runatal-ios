@@ -12,17 +12,26 @@ struct SettingsLivePreviewSectionView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        GlassCard(intensity: .strong) {
+        EditorialCard(
+            palette: palette,
+            tone: .hero,
+            cornerRadius: DesignTokens.CornerRadius.xxl,
+            shadowRadius: DesignTokens.Elevation.medium,
+            contentPadding: DesignTokens.Spacing.md
+        ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 HStack {
-                    Label("Live Preview", systemImage: "eye")
-                        .font(.headline)
-                        .foregroundStyle(palette.textPrimary)
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        SectionLabel(title: "Live Preview", palette: palette)
+                        Text("Current atmosphere")
+                            .font(DesignTokens.Typography.sectionTitle)
+                            .foregroundStyle(palette.textPrimary)
+                    }
 
                     Spacer()
 
                     Text(viewModel.state.selectedTheme.displayName)
-                        .font(.caption)
+                        .font(DesignTokens.Typography.metadata)
                         .foregroundStyle(palette.textTertiary)
                 }
 
@@ -53,7 +62,6 @@ struct SettingsLivePreviewSectionView: View {
                     previewPill(label: "Font", value: viewModel.state.selectedFont.displayName)
                 }
             }
-            .padding(DesignTokens.Spacing.xxs)
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings_live_preview")
@@ -74,8 +82,7 @@ struct SettingsLivePreviewSectionView: View {
         .padding(.vertical, DesignTokens.Spacing.xs)
         .background {
             RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
-                .fill(.ultraThinMaterial)
-                .opacity(0.35)
+                .fill(palette.bannerBackground)
         }
     }
 }

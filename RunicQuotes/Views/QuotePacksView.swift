@@ -10,11 +10,12 @@ import SwiftUI
 /// Browse and search the catalog of quote packs.
 struct QuotePacksView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
     @State private var searchText = ""
     @State private var selectedPack: QuotePack?
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     private var filteredPacks: [QuotePack] {
@@ -29,37 +30,32 @@ struct QuotePacksView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                headerSection
+        ScreenScaffold(palette: palette) {
+            HeroHeader(
+                eyebrow: "Quote Packs",
+                title: "Collectible Volumes",
+                subtitle: "Curated additions that extend the library without changing the rhythm of reading.",
+                meta: ["\(filteredPacks.count) available"],
+                palette: palette
+            )
 
-                if filteredPacks.isEmpty {
-                    ContentUnavailableView.search
-                        .foregroundStyle(palette.textPrimary, palette.textSecondary)
-                } else {
-                    packList
-                }
+            if filteredPacks.isEmpty {
+                EditorialEmptyState(
+                    palette: palette,
+                    icon: "books.vertical",
+                    eyebrow: "No packs",
+                    title: "Nothing matched that search",
+                    message: "Try a broader title or clear the search field."
+                )
+            } else {
+                packList
             }
-            .padding(.horizontal, DesignTokens.Spacing.md)
-            .padding(.bottom, DesignTokens.Spacing.huge)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(palette.background)
         .searchable(text: $searchText, prompt: "Search packs")
         .navigationTitle("Quote Packs")
         .navigationDestination(item: $selectedPack) { pack in
             QuotePackDetailView(pack: pack)
         }
-    }
-
-    // MARK: - Header
-
-    @ViewBuilder
-    private var headerSection: some View {
-        Text("Expand your wisdom library")
-            .font(.subheadline)
-            .foregroundStyle(palette.textSecondary)
-            .padding(.top, DesignTokens.Spacing.xs)
     }
 
     // MARK: - Pack List
@@ -80,37 +76,37 @@ struct QuotePacksView: View {
         Button {
             selectedPack = pack
         } label: {
-            GlassCard(
-                intensity: .light,
-                cornerRadius: DesignTokens.CornerRadius.lg,
-                shadowRadius: 4
+            EditorialCard(
+                palette: palette,
+                tone: .primary,
+                cornerRadius: DesignTokens.CornerRadius.xl,
+                shadowRadius: DesignTokens.Elevation.low,
+                contentPadding: DesignTokens.Spacing.md
             ) {
-                HStack(spacing: DesignTokens.Spacing.sm) {
-                    // Runic glyph
+                HStack(spacing: DesignTokens.Spacing.md) {
                     Text(pack.runicGlyph)
-                        .font(.title)
+                        .font(.system(size: 32, weight: .medium, design: .serif))
                         .foregroundStyle(palette.runeText)
-                        .frame(width: 40, alignment: .center)
+                        .frame(width: 44, alignment: .center)
 
-                    // Title, subtitle, count
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        SectionLabel(title: "Pack", palette: palette)
                         Text(pack.title)
-                            .font(.headline)
+                            .font(DesignTokens.Typography.cardTitle)
                             .foregroundStyle(palette.textPrimary)
 
                         Text(pack.subtitle)
-                            .font(.subheadline)
+                            .font(DesignTokens.Typography.callout)
                             .foregroundStyle(palette.textSecondary)
-                            .lineLimit(1)
+                            .lineLimit(2)
 
                         Text("\(pack.quoteCount) quotes")
-                            .font(.caption)
+                            .font(DesignTokens.Typography.metadata)
                             .foregroundStyle(palette.textTertiary)
                     }
 
                     Spacer()
 
-                    // Chevron
                     Image(systemName: "chevron.right")
                         .font(.caption)
                         .foregroundStyle(palette.textTertiary)

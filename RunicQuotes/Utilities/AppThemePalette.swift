@@ -9,9 +9,6 @@ import SwiftUI
 
 /// Theme-driven visual tokens used by the app and widget.
 struct AppThemePalette {
-
-    // MARK: - Legacy Tokens (3-theme system)
-
     let appBackgroundGradient: [Color]
     let widgetBackgroundGradient: [Color]
     let primaryText: Color
@@ -21,8 +18,6 @@ struct AppThemePalette {
     let accent: Color
     let ctaAccent: Color
     let footerBackground: Color
-
-    // MARK: - Adaptive Tokens (dark/light system)
 
     let background: Color
     let groupedBG: Color
@@ -39,105 +34,310 @@ struct AppThemePalette {
     let separator: Color
 }
 
-// MARK: - Adaptive Palette Factory
-
 extension AppThemePalette {
-
-    /// Creates a palette with the new Scandinavian cold-slate design system tokens,
-    /// adapting colors for the given color scheme. Fills legacy tokens from the
-    /// corresponding adaptive values for consistency.
     static func adaptive(for colorScheme: ColorScheme) -> AppThemePalette {
-        switch colorScheme {
-        case .dark:
-            return darkPalette
-        case .light:
-            return lightPalette
+        themed(.obsidian, for: colorScheme)
+    }
+
+    static func themed(_ theme: AppTheme, for colorScheme: ColorScheme) -> AppThemePalette {
+        switch (theme, colorScheme) {
+        case (.obsidian, .dark):
+            return obsidianDark
+        case (.obsidian, .light):
+            return obsidianLight
+        case (.parchment, .dark):
+            return parchmentDark
+        case (.parchment, .light):
+            return parchmentLight
+        case (.nordicDawn, .dark):
+            return nordicDawnDark
+        case (.nordicDawn, .light):
+            return nordicDawnLight
         @unknown default:
-            return darkPalette
+            return obsidianDark
         }
     }
 
-    // MARK: - Dark Palette
+    var heroBackgroundGradient: [Color] {
+        appBackgroundGradient
+    }
 
-    private static let darkPalette = AppThemePalette(
-        // Legacy tokens mapped from new dark system
+    var editorialSurface: Color {
+        surfaceElevated
+    }
+
+    var editorialInset: Color {
+        surface
+    }
+
+    var editorialMutedSurface: Color {
+        groupedBG
+    }
+
+    var cardStroke: Color {
+        separator.opacity(0.82)
+    }
+
+    var strongCardStroke: Color {
+        accent.opacity(0.24)
+    }
+
+    var chipFill: Color {
+        surfaceElevated.opacity(0.92)
+    }
+
+    var chipSelectedFill: Color {
+        accent
+    }
+
+    var chipSelectedForeground: Color {
+        background
+    }
+
+    var ornament: Color {
+        runeText.opacity(0.12)
+    }
+
+    var ornamentSecondary: Color {
+        accent.opacity(0.10)
+    }
+
+    var shadowColor: Color {
+        Color.black.opacity(0.24)
+    }
+
+    var highlight: Color {
+        textPrimary.opacity(0.06)
+    }
+
+    var bannerBackground: Color {
+        surface.opacity(0.84)
+    }
+
+    var successFill: Color {
+        success.opacity(0.15)
+    }
+
+    var warningFill: Color {
+        warning.opacity(0.15)
+    }
+
+    var errorFill: Color {
+        error.opacity(0.15)
+    }
+
+    private static let obsidianDark = AppThemePalette(
         appBackgroundGradient: [
-            Color(hex: 0x070A10),
-            Color(hex: 0x0C1118),
-            Color(hex: 0x141C28),
-            Color(hex: 0x0C1118),
-            Color(hex: 0x070A10)
+            Color(hex: 0x080B11),
+            Color(hex: 0x11161D),
+            Color(hex: 0x1A202A),
+            Color(hex: 0x12171F),
+            Color(hex: 0x090C12)
         ],
         widgetBackgroundGradient: [
-            Color(hex: 0x070A10),
-            Color(hex: 0x141C28),
-            Color(hex: 0x070A10)
+            Color(hex: 0x0B0F15),
+            Color(hex: 0x171E28),
+            Color(hex: 0x0B0F15)
         ],
-        primaryText: Color(hex: 0xE6EEF8),
-        secondaryText: Color(hex: 0x7C8DA6),
-        tertiaryText: Color(hex: 0x4E5C72),
-        divider: Color(hex: 0x1E2836),
-        accent: Color(hex: 0x8C9AB0),
-        ctaAccent: Color(hex: 0x7494AE),
-        footerBackground: Color(hex: 0x141C28),
-        // New adaptive tokens
-        background: Color(hex: 0x070A10),
-        groupedBG: Color(hex: 0x0C1118),
-        surface: Color(hex: 0x141C28),
-        surfaceElevated: Color(hex: 0x1A2434),
-        accentSecondary: Color(hex: 0x7494AE),
-        textPrimary: Color(hex: 0xE6EEF8),
-        textSecondary: Color(hex: 0x7C8DA6),
-        textTertiary: Color(hex: 0x4E5C72),
-        runeText: Color(hex: 0xA8B8D0),
-        success: Color(hex: 0x68A878),
-        warning: Color(hex: 0x98926C),
-        error: Color(hex: 0xBE5E5E),
-        separator: Color(hex: 0x1E2836)
+        primaryText: Color(hex: 0xF4EFE6),
+        secondaryText: Color(hex: 0xC3B8A7),
+        tertiaryText: Color(hex: 0x8C857C),
+        divider: Color(hex: 0x2F3743),
+        accent: Color(hex: 0xC6A46A),
+        ctaAccent: Color(hex: 0xA7824D),
+        footerBackground: Color(hex: 0x181D25),
+        background: Color(hex: 0x080B11),
+        groupedBG: Color(hex: 0x11161D),
+        surface: Color(hex: 0x181D25),
+        surfaceElevated: Color(hex: 0x202733),
+        accentSecondary: Color(hex: 0x8C6B3C),
+        textPrimary: Color(hex: 0xF4EFE6),
+        textSecondary: Color(hex: 0xC3B8A7),
+        textTertiary: Color(hex: 0x8C857C),
+        runeText: Color(hex: 0xE6D4B2),
+        success: Color(hex: 0x7BAA7C),
+        warning: Color(hex: 0xC8A45B),
+        error: Color(hex: 0xC37A73),
+        separator: Color(hex: 0x2F3743)
     )
 
-    // MARK: - Light Palette
-
-    private static let lightPalette = AppThemePalette(
-        // Legacy tokens mapped from new light system
+    private static let obsidianLight = AppThemePalette(
         appBackgroundGradient: [
-            Color(hex: 0xF2F4F8),
-            Color(hex: 0xEAECF1),
-            Color(hex: 0xF2F4F8)
+            Color(hex: 0xF3EEE6),
+            Color(hex: 0xE8E2D7),
+            Color(hex: 0xDDD6CA),
+            Color(hex: 0xECE5DA),
+            Color(hex: 0xF8F3EB)
         ],
         widgetBackgroundGradient: [
-            Color(hex: 0xF2F4F8),
-            Color(hex: 0xEAECF1),
-            Color(hex: 0xF2F4F8)
+            Color(hex: 0xEEE7DA),
+            Color(hex: 0xE2D9C9),
+            Color(hex: 0xF7F1E7)
         ],
-        primaryText: Color(hex: 0x0A0F17),
-        secondaryText: Color(hex: 0x48566A),
-        tertiaryText: Color(hex: 0x48566A).opacity(0.7),
-        divider: Color(hex: 0x48566A).opacity(0.2),
-        accent: Color(hex: 0x3B4B5E),
-        ctaAccent: Color(hex: 0x4A6A82),
-        footerBackground: Color(hex: 0xEAECF1),
-        // New adaptive tokens
-        background: Color(hex: 0xF2F4F8),
-        groupedBG: Color(hex: 0xEAECF1),
-        surface: .white,
-        surfaceElevated: Color(hex: 0xFAFBFD),
-        accentSecondary: Color(hex: 0x4A6A82),
-        textPrimary: Color(hex: 0x0A0F17),
-        textSecondary: Color(hex: 0x48566A),
-        textTertiary: Color(hex: 0x48566A).opacity(0.7),
-        runeText: Color(hex: 0x1A2434),
-        success: Color(hex: 0x387850),
-        warning: Color(hex: 0x98926C),
-        error: Color(hex: 0x9E3636),
-        separator: Color(hex: 0x48566A).opacity(0.2)
+        primaryText: Color(hex: 0x211B15),
+        secondaryText: Color(hex: 0x5D5347),
+        tertiaryText: Color(hex: 0x8C7F70),
+        divider: Color(hex: 0xD2C6B6),
+        accent: Color(hex: 0x8C6633),
+        ctaAccent: Color(hex: 0xA17842),
+        footerBackground: Color(hex: 0xE8E0D2),
+        background: Color(hex: 0xF8F3EB),
+        groupedBG: Color(hex: 0xF0E9DE),
+        surface: Color(hex: 0xFBF7F0),
+        surfaceElevated: Color(hex: 0xF4EBDD),
+        accentSecondary: Color(hex: 0xB08B58),
+        textPrimary: Color(hex: 0x211B15),
+        textSecondary: Color(hex: 0x5D5347),
+        textTertiary: Color(hex: 0x8C7F70),
+        runeText: Color(hex: 0x6D522A),
+        success: Color(hex: 0x4F7B55),
+        warning: Color(hex: 0xA17A32),
+        error: Color(hex: 0xA6524C),
+        separator: Color(hex: 0xD2C6B6)
+    )
+
+    private static let parchmentDark = AppThemePalette(
+        appBackgroundGradient: [
+            Color(hex: 0x1A120C),
+            Color(hex: 0x261B12),
+            Color(hex: 0x3B2A1B),
+            Color(hex: 0x2A1E14),
+            Color(hex: 0x16100B)
+        ],
+        widgetBackgroundGradient: [
+            Color(hex: 0x24190F),
+            Color(hex: 0x3A2A1B),
+            Color(hex: 0x24190F)
+        ],
+        primaryText: Color(hex: 0xF3E5CE),
+        secondaryText: Color(hex: 0xDABF96),
+        tertiaryText: Color(hex: 0xA88B67),
+        divider: Color(hex: 0x57412C),
+        accent: Color(hex: 0xD39D4B),
+        ctaAccent: Color(hex: 0xBD8241),
+        footerBackground: Color(hex: 0x312318),
+        background: Color(hex: 0x16100B),
+        groupedBG: Color(hex: 0x24190F),
+        surface: Color(hex: 0x312318),
+        surfaceElevated: Color(hex: 0x432F20),
+        accentSecondary: Color(hex: 0x9F6931),
+        textPrimary: Color(hex: 0xF3E5CE),
+        textSecondary: Color(hex: 0xDABF96),
+        textTertiary: Color(hex: 0xA88B67),
+        runeText: Color(hex: 0xE8BE74),
+        success: Color(hex: 0x7E9C67),
+        warning: Color(hex: 0xC69A52),
+        error: Color(hex: 0xC87A6A),
+        separator: Color(hex: 0x57412C)
+    )
+
+    private static let parchmentLight = AppThemePalette(
+        appBackgroundGradient: [
+            Color(hex: 0xFBF2E4),
+            Color(hex: 0xF3E5D0),
+            Color(hex: 0xEAD8BE),
+            Color(hex: 0xF6E8D6),
+            Color(hex: 0xFFF8EF)
+        ],
+        widgetBackgroundGradient: [
+            Color(hex: 0xF6E8D6),
+            Color(hex: 0xE9D6B8),
+            Color(hex: 0xFFF7EC)
+        ],
+        primaryText: Color(hex: 0x2F2215),
+        secondaryText: Color(hex: 0x735A3F),
+        tertiaryText: Color(hex: 0x9A7E60),
+        divider: Color(hex: 0xDFC8A7),
+        accent: Color(hex: 0xA96A28),
+        ctaAccent: Color(hex: 0xB98042),
+        footerBackground: Color(hex: 0xF1E0C7),
+        background: Color(hex: 0xFFF8EF),
+        groupedBG: Color(hex: 0xF8EDDD),
+        surface: Color(hex: 0xFEF8F1),
+        surfaceElevated: Color(hex: 0xF5E7D2),
+        accentSecondary: Color(hex: 0xC58E53),
+        textPrimary: Color(hex: 0x2F2215),
+        textSecondary: Color(hex: 0x735A3F),
+        textTertiary: Color(hex: 0x9A7E60),
+        runeText: Color(hex: 0x8F581C),
+        success: Color(hex: 0x5F8251),
+        warning: Color(hex: 0xA37729),
+        error: Color(hex: 0xAE5A46),
+        separator: Color(hex: 0xDFC8A7)
+    )
+
+    private static let nordicDawnDark = AppThemePalette(
+        appBackgroundGradient: [
+            Color(hex: 0x0A141B),
+            Color(hex: 0x13232E),
+            Color(hex: 0x20384A),
+            Color(hex: 0x162A36),
+            Color(hex: 0x0C151D)
+        ],
+        widgetBackgroundGradient: [
+            Color(hex: 0x0D1921),
+            Color(hex: 0x1B3140),
+            Color(hex: 0x0D1921)
+        ],
+        primaryText: Color(hex: 0xEAF4F7),
+        secondaryText: Color(hex: 0xB8CCD6),
+        tertiaryText: Color(hex: 0x819AA8),
+        divider: Color(hex: 0x2A4352),
+        accent: Color(hex: 0x8BC7D8),
+        ctaAccent: Color(hex: 0x6BA6BB),
+        footerBackground: Color(hex: 0x152833),
+        background: Color(hex: 0x0A141B),
+        groupedBG: Color(hex: 0x0F1C24),
+        surface: Color(hex: 0x152833),
+        surfaceElevated: Color(hex: 0x1E3543),
+        accentSecondary: Color(hex: 0x6BA6BB),
+        textPrimary: Color(hex: 0xEAF4F7),
+        textSecondary: Color(hex: 0xB8CCD6),
+        textTertiary: Color(hex: 0x819AA8),
+        runeText: Color(hex: 0xBDE2ED),
+        success: Color(hex: 0x78A890),
+        warning: Color(hex: 0xB4A05A),
+        error: Color(hex: 0xC27474),
+        separator: Color(hex: 0x2A4352)
+    )
+
+    private static let nordicDawnLight = AppThemePalette(
+        appBackgroundGradient: [
+            Color(hex: 0xF5FAFB),
+            Color(hex: 0xE8F1F4),
+            Color(hex: 0xD8E6EB),
+            Color(hex: 0xEEF5F7),
+            Color(hex: 0xFBFEFE)
+        ],
+        widgetBackgroundGradient: [
+            Color(hex: 0xEAF3F5),
+            Color(hex: 0xD7E6EB),
+            Color(hex: 0xF8FCFD)
+        ],
+        primaryText: Color(hex: 0x10212A),
+        secondaryText: Color(hex: 0x49606C),
+        tertiaryText: Color(hex: 0x728995),
+        divider: Color(hex: 0xC8D7DD),
+        accent: Color(hex: 0x3E7F92),
+        ctaAccent: Color(hex: 0x5B9EB0),
+        footerBackground: Color(hex: 0xE4EEF1),
+        background: Color(hex: 0xFBFEFE),
+        groupedBG: Color(hex: 0xF1F7F8),
+        surface: Color(hex: 0xFFFFFF),
+        surfaceElevated: Color(hex: 0xEAF2F4),
+        accentSecondary: Color(hex: 0x5B9EB0),
+        textPrimary: Color(hex: 0x10212A),
+        textSecondary: Color(hex: 0x49606C),
+        textTertiary: Color(hex: 0x728995),
+        runeText: Color(hex: 0x28596B),
+        success: Color(hex: 0x4D7A68),
+        warning: Color(hex: 0x9A8747),
+        error: Color(hex: 0xA55656),
+        separator: Color(hex: 0xC8D7DD)
     )
 }
 
-// MARK: - Color Hex Initializer
-
 extension Color {
-    /// Creates a color from a hex integer (e.g., `0x070A10`).
     init(hex: UInt32) {
         let red = Double((hex >> 16) & 0xFF) / 255.0
         let green = Double((hex >> 8) & 0xFF) / 255.0
@@ -146,116 +346,8 @@ extension Color {
     }
 }
 
-// MARK: - Legacy Theme Palettes
-
 extension AppTheme {
     var palette: AppThemePalette {
-        switch self {
-        case .obsidian:
-            return AppThemePalette(
-                appBackgroundGradient: [
-                    Color(red: 0.02, green: 0.03, blue: 0.07),
-                    Color(red: 0.08, green: 0.11, blue: 0.18),
-                    Color(red: 0.14, green: 0.16, blue: 0.26),
-                    Color(red: 0.06, green: 0.09, blue: 0.15),
-                    Color(red: 0.01, green: 0.02, blue: 0.05)
-                ],
-                widgetBackgroundGradient: [
-                    Color(red: 0.03, green: 0.05, blue: 0.10),
-                    Color(red: 0.10, green: 0.14, blue: 0.22),
-                    Color(red: 0.03, green: 0.05, blue: 0.10)
-                ],
-                primaryText: .white,
-                secondaryText: Color.white.opacity(0.86),
-                tertiaryText: Color.white.opacity(0.70),
-                divider: Color.white.opacity(0.30),
-                accent: Color(red: 0.57, green: 0.80, blue: 0.98),
-                ctaAccent: Color(red: 0.40, green: 0.58, blue: 0.75),
-                footerBackground: Color.white.opacity(0.06),
-                background: Color(hex: 0x070A10),
-                groupedBG: Color(hex: 0x0C1118),
-                surface: Color(hex: 0x141C28),
-                surfaceElevated: Color(hex: 0x1A2434),
-                accentSecondary: Color(hex: 0x7494AE),
-                textPrimary: .white,
-                textSecondary: Color.white.opacity(0.86),
-                textTertiary: Color.white.opacity(0.70),
-                runeText: Color(hex: 0xA8B8D0),
-                success: Color(hex: 0x68A878),
-                warning: Color(hex: 0x98926C),
-                error: Color(hex: 0xBE5E5E),
-                separator: Color.white.opacity(0.30)
-            )
-        case .parchment:
-            return AppThemePalette(
-                appBackgroundGradient: [
-                    Color(red: 0.14, green: 0.09, blue: 0.05),
-                    Color(red: 0.24, green: 0.15, blue: 0.09),
-                    Color(red: 0.36, green: 0.24, blue: 0.15),
-                    Color(red: 0.23, green: 0.14, blue: 0.09),
-                    Color(red: 0.12, green: 0.07, blue: 0.04)
-                ],
-                widgetBackgroundGradient: [
-                    Color(red: 0.18, green: 0.11, blue: 0.07),
-                    Color(red: 0.31, green: 0.20, blue: 0.12),
-                    Color(red: 0.18, green: 0.11, blue: 0.07)
-                ],
-                primaryText: Color(red: 0.97, green: 0.92, blue: 0.84),
-                secondaryText: Color(red: 0.92, green: 0.84, blue: 0.73),
-                tertiaryText: Color(red: 0.84, green: 0.74, blue: 0.61),
-                divider: Color(red: 0.95, green: 0.88, blue: 0.75).opacity(0.35),
-                accent: Color(red: 0.96, green: 0.74, blue: 0.45),
-                ctaAccent: Color(red: 0.72, green: 0.55, blue: 0.38),
-                footerBackground: Color(red: 0.63, green: 0.44, blue: 0.27).opacity(0.35),
-                background: Color(red: 0.14, green: 0.09, blue: 0.05),
-                groupedBG: Color(red: 0.18, green: 0.11, blue: 0.07),
-                surface: Color(red: 0.24, green: 0.15, blue: 0.09),
-                surfaceElevated: Color(red: 0.31, green: 0.20, blue: 0.12),
-                accentSecondary: Color(red: 0.72, green: 0.55, blue: 0.38),
-                textPrimary: Color(red: 0.97, green: 0.92, blue: 0.84),
-                textSecondary: Color(red: 0.92, green: 0.84, blue: 0.73),
-                textTertiary: Color(red: 0.84, green: 0.74, blue: 0.61),
-                runeText: Color(red: 0.96, green: 0.74, blue: 0.45),
-                success: Color(hex: 0x68A878),
-                warning: Color(hex: 0x98926C),
-                error: Color(hex: 0xBE5E5E),
-                separator: Color(red: 0.95, green: 0.88, blue: 0.75).opacity(0.35)
-            )
-        case .nordicDawn:
-            return AppThemePalette(
-                appBackgroundGradient: [
-                    Color(red: 0.03, green: 0.12, blue: 0.19),
-                    Color(red: 0.08, green: 0.22, blue: 0.33),
-                    Color(red: 0.16, green: 0.33, blue: 0.46),
-                    Color(red: 0.10, green: 0.24, blue: 0.35),
-                    Color(red: 0.04, green: 0.12, blue: 0.20)
-                ],
-                widgetBackgroundGradient: [
-                    Color(red: 0.04, green: 0.15, blue: 0.24),
-                    Color(red: 0.11, green: 0.28, blue: 0.41),
-                    Color(red: 0.04, green: 0.15, blue: 0.24)
-                ],
-                primaryText: Color(red: 0.95, green: 0.98, blue: 1.00),
-                secondaryText: Color(red: 0.86, green: 0.93, blue: 0.98),
-                tertiaryText: Color(red: 0.72, green: 0.83, blue: 0.92),
-                divider: Color(red: 0.82, green: 0.90, blue: 0.97).opacity(0.35),
-                accent: Color(red: 0.58, green: 0.86, blue: 1.00),
-                ctaAccent: Color(red: 0.42, green: 0.62, blue: 0.76),
-                footerBackground: Color(red: 0.33, green: 0.53, blue: 0.66).opacity(0.25),
-                background: Color(red: 0.03, green: 0.12, blue: 0.19),
-                groupedBG: Color(red: 0.04, green: 0.15, blue: 0.24),
-                surface: Color(red: 0.08, green: 0.22, blue: 0.33),
-                surfaceElevated: Color(red: 0.16, green: 0.33, blue: 0.46),
-                accentSecondary: Color(red: 0.42, green: 0.62, blue: 0.76),
-                textPrimary: Color(red: 0.95, green: 0.98, blue: 1.00),
-                textSecondary: Color(red: 0.86, green: 0.93, blue: 0.98),
-                textTertiary: Color(red: 0.72, green: 0.83, blue: 0.92),
-                runeText: Color(red: 0.58, green: 0.86, blue: 1.00),
-                success: Color(hex: 0x68A878),
-                warning: Color(hex: 0x98926C),
-                error: Color(hex: 0xBE5E5E),
-                separator: Color(red: 0.82, green: 0.90, blue: 0.97).opacity(0.35)
-            )
-        }
+        AppThemePalette.themed(self, for: .dark)
     }
 }

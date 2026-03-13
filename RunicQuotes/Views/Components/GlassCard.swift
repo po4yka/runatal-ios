@@ -19,6 +19,7 @@ struct GlassCard<Content: View>: View {
     let shadowRadius: CGFloat
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     // MARK: - Initialization
 
@@ -56,92 +57,32 @@ struct GlassCard<Content: View>: View {
     // MARK: - Body
 
     var body: some View {
-        content
-            .padding()
-            .background {
-                ZStack {
-                    if let intensity {
-                        // New design-system glass rendering
-                        adaptiveGlassBackground(intensity: intensity)
-                    } else {
-                        // Legacy glass rendering
-                        legacyGlassBackground
-                    }
-                }
-            }
-            .shadow(
-                color: .black.opacity(0.22),
-                radius: shadowRadius,
-                x: 0,
-                y: 4
-            )
-    }
-
-    // MARK: - Glass Rendering
-
-    @ViewBuilder
-    private func adaptiveGlassBackground(intensity: DesignTokens.GlassIntensity) -> some View {
-        // Material blur layer
-        RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(
-                reduceTransparency
-                    ? AnyShapeStyle(Color.black.opacity(0.62))
-                    : AnyShapeStyle(intensity.material)
-            )
-
-        if !reduceTransparency {
-            // Glass background tint
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(DesignTokens.GlassColor.background(for: colorScheme))
-
-            // Glass border
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .strokeBorder(
-                    DesignTokens.GlassColor.border(for: colorScheme),
-                    lineWidth: 0.5
-                )
-
-            // Inner highlight
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            DesignTokens.GlassColor.highlight(for: colorScheme),
-                            .clear
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .center
-                    )
-                )
-                .allowsHitTesting(false)
+        EditorialCard(
+            palette: palette,
+            tone: tone,
+            cornerRadius: cornerRadius,
+            shadowRadius: shadowRadius
+        ) {
+            content
         }
     }
 
-    @ViewBuilder
-    private var legacyGlassBackground: some View {
-        // Glass blur effect
-        RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(
-                reduceTransparency
-                    ? AnyShapeStyle(Color.black.opacity(0.62))
-                    : AnyShapeStyle(blur)
-            )
-            .opacity(reduceTransparency ? 1.0 : opacity.value)
+    private var palette: AppThemePalette {
+        AppThemePalette.themed(runicTheme, for: colorScheme)
+    }
 
-        // Inner highlight -- simulates top-left light source
-        if !reduceTransparency {
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            .white.opacity(0.07),
-                            .clear
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .center
-                    )
-                )
-                .allowsHitTesting(false)
+    private var tone: EditorialCardTone {
+        if reduceTransparency {
+            return .secondary
+        }
+
+        switch intensity {
+        case .strong:
+            return .hero
+        case .medium:
+            return .primary
+        case .light, .none:
+            return opacity.value > 0.55 ? .primary : .secondary
         }
     }
 }

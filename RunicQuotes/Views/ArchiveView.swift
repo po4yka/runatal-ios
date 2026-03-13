@@ -18,9 +18,10 @@ struct ArchiveView: View {
     @State private var toastDismissTask: Task<Void, Never>?
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     // MARK: - Initialization
@@ -36,18 +37,28 @@ struct ArchiveView: View {
     // MARK: - Body
 
     var body: some View {
-        ZStack {
-            palette.background
-                .ignoresSafeArea()
+        ScreenScaffold(palette: palette) {
+            HeroHeader(
+                eyebrow: "Archive",
+                title: "Recovery Shelf",
+                subtitle: "Hidden and deleted passages rest here until you decide what returns.",
+                meta: [viewModel.countLabel],
+                palette: palette
+            )
+
+            if restoredToastVisible {
+                FeedbackBanner(
+                    palette: palette,
+                    tone: .success,
+                    title: "Restored",
+                    message: "The passage returned to your library."
+                )
+            }
 
             if !viewModel.hasArchivedQuotes {
                 emptyState
             } else {
                 archiveContent
-            }
-
-            if restoredToastVisible {
-                restoredToast
             }
         }
         .navigationTitle("Archive")
@@ -66,46 +77,26 @@ struct ArchiveView: View {
 
     @ViewBuilder
     private var emptyState: some View {
-        VStack(spacing: DesignTokens.Spacing.xl) {
-            Spacer()
-
-            Text("\u{16A8}\u{16B1}\u{16B2}")
-                .font(.system(size: 48))
-                .foregroundStyle(palette.textTertiary)
-
-            VStack(spacing: DesignTokens.Spacing.xs) {
-                Text("Nothing archived")
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(palette.textPrimary)
-
-                Text("Hidden and deleted quotes will appear here.")
-                    .font(.subheadline)
-                    .foregroundStyle(palette.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
-
-            Spacer()
-        }
-        .padding(.horizontal, DesignTokens.Spacing.xl)
+        EditorialEmptyState(
+            palette: palette,
+            icon: "archivebox",
+            eyebrow: "Archive",
+            title: "Nothing is resting here",
+            message: "Hidden and deleted passages will appear here when you need to reverse a choice."
+        )
     }
 
     // MARK: - Archive Content
 
     @ViewBuilder
     private var archiveContent: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                filterTabs
-                countHeader
-                quotesList
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            filterTabs
+            quotesList
 
-                if viewModel.state.selectedFilter == .deleted || viewModel.state.selectedFilter == .all {
-                    footerNote
-                }
+            if viewModel.state.selectedFilter == .deleted || viewModel.state.selectedFilter == .all {
+                footerNote
             }
-            .padding(.top, DesignTokens.Spacing.sm)
-            .padding(.bottom, DesignTokens.Spacing.huge)
         }
     }
 
@@ -113,48 +104,21 @@ struct ArchiveView: View {
 
     @ViewBuilder
     private var filterTabs: some View {
-        HStack(spacing: 2) {
-            ForEach(ArchiveFilter.allCases) { filter in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        viewModel.updateFilter(filter)
-                    }
-                } label: {
-                    Text(filter.displayName)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(
-                            viewModel.state.selectedFilter == filter
-                                ? palette.textPrimary
-                                : palette.textSecondary
-                        )
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, DesignTokens.Spacing.xs)
-                        .background {
-                            if viewModel.state.selectedFilter == filter {
-                                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                                    .fill(palette.surface)
-                            }
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
+                ForEach(ArchiveFilter.allCases) { filter in
+                    FilterChip(
+                        title: filter.displayName,
+                        isSelected: viewModel.state.selectedFilter == filter,
+                        palette: palette
+                    ) {
+                        withAnimation(DesignTokens.Motion.emphasis) {
+                            viewModel.updateFilter(filter)
                         }
+                    }
                 }
-                .buttonStyle(.plain)
             }
         }
-        .padding(2)
-        .background(
-            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                .fill(palette.surface.opacity(0.3))
-        )
-        .padding(.horizontal, DesignTokens.Spacing.md)
-    }
-
-    // MARK: - Count Header
-
-    @ViewBuilder
-    private var countHeader: some View {
-        Text(viewModel.countLabel)
-            .font(.subheadline)
-            .foregroundStyle(palette.textSecondary)
-            .padding(.horizontal, DesignTokens.Spacing.lg)
     }
 
     // MARK: - Quotes List
@@ -166,7 +130,6 @@ struct ArchiveView: View {
                 archiveQuoteCard(quote)
             }
         }
-        .padding(.horizontal, DesignTokens.Spacing.sm)
     }
 
     // MARK: - Quote Card

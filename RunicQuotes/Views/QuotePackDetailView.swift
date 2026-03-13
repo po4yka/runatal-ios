@@ -12,6 +12,7 @@ import SwiftUI
 struct QuotePackDetailView: View {
     let pack: QuotePack
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showSuccess = false
@@ -19,27 +20,36 @@ struct QuotePackDetailView: View {
     @State private var errorMessage: String?
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
-                    packHeader
-                    descriptionSection
-                    previewSection
-                    Spacer(minLength: DesignTokens.Spacing.huge + 60)
-                }
-                .padding(.horizontal, DesignTokens.Spacing.md)
-                .padding(.bottom, DesignTokens.Spacing.huge)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(palette.background)
+            ScreenScaffold(palette: palette) {
+                HeroHeader(
+                    eyebrow: "Quote Pack",
+                    title: pack.title,
+                    subtitle: pack.subtitle,
+                    meta: ["\(pack.quoteCount) quotes"],
+                    palette: palette
+                )
 
-            // Bottom install button
+                if let errorMessage {
+                    FeedbackBanner(
+                        palette: palette,
+                        tone: .error,
+                        title: "Couldn't install pack",
+                        message: errorMessage
+                    )
+                }
+
+                packHeader
+                descriptionSection
+                previewSection
+            }
+
             if !showSuccess {
                 VStack {
                     Spacer()
@@ -71,10 +81,11 @@ struct QuotePackDetailView: View {
 
     @ViewBuilder
     private var packHeader: some View {
-        GlassCard(
-            intensity: .medium,
-            cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 6
+        EditorialCard(
+            palette: palette,
+            tone: .hero,
+            cornerRadius: DesignTokens.CornerRadius.xxl,
+            shadowRadius: DesignTokens.Elevation.medium
         ) {
             VStack(spacing: DesignTokens.Spacing.sm) {
                 Text(pack.runicGlyph)
@@ -97,37 +108,52 @@ struct QuotePackDetailView: View {
 
     @ViewBuilder
     private var descriptionSection: some View {
-        Text(pack.description)
-            .font(.body)
-            .foregroundStyle(palette.textSecondary)
+        EditorialCard(
+            palette: palette,
+            tone: .secondary,
+            cornerRadius: DesignTokens.CornerRadius.xl,
+            shadowRadius: DesignTokens.Elevation.low
+        ) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                SectionLabel(title: "Description", palette: palette)
+                Text(pack.description)
+                    .font(.body)
+                    .foregroundStyle(palette.textSecondary)
+            }
+        }
     }
 
     // MARK: - Preview Section
 
     @ViewBuilder
     private var previewSection: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            Text("Preview")
-                .font(.headline)
-                .foregroundStyle(palette.textPrimary)
+        EditorialCard(
+            palette: palette,
+            tone: .secondary,
+            cornerRadius: DesignTokens.CornerRadius.xl,
+            shadowRadius: DesignTokens.Elevation.low
+        ) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                SectionLabel(title: "Preview", palette: palette)
 
-            ForEach(Array(pack.previewQuotes.enumerated()), id: \.offset) { index, quote in
-                HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
-                    Text("\(index + 1)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(palette.accent)
-                        .frame(width: 20, alignment: .trailing)
+                ForEach(Array(pack.previewQuotes.enumerated()), id: \.offset) { index, quote in
+                    HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
+                        Text("\(index + 1)")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(palette.accent)
+                            .frame(width: 20, alignment: .trailing)
 
-                    Text("\"\(quote)\"")
-                        .font(.body)
-                        .foregroundStyle(palette.textPrimary)
-                        .italic()
-                }
-                .padding(.vertical, DesignTokens.Spacing.xxs)
+                        Text("\"\(quote)\"")
+                            .font(.body)
+                            .foregroundStyle(palette.textPrimary)
+                            .italic()
+                    }
+                    .padding(.vertical, DesignTokens.Spacing.xxs)
 
-                if index < pack.previewQuotes.count - 1 {
-                    Divider()
-                        .overlay(palette.separator)
+                    if index < pack.previewQuotes.count - 1 {
+                        Divider()
+                            .overlay(palette.separator)
+                    }
                 }
             }
         }
@@ -216,6 +242,7 @@ struct QuotePackDetailView: View {
         do {
             let preferences = try UserPreferences.getOrCreate(in: modelContext)
             preferences.installPack(pack.id)
+            try modelContext.save()
             withAnimation(.easeInOut(duration: 0.4)) {
                 showSuccess = true
             }

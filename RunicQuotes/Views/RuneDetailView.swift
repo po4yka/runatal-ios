@@ -11,9 +11,10 @@ import SwiftUI
 struct RuneDetailView: View {
     let rune: RuneInfo
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     /// Position of this rune within its script catalog (1-based).
@@ -47,23 +48,18 @@ struct RuneDetailView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                heroSection
+        ScreenScaffold(palette: palette) {
+            HeroHeader(
+                eyebrow: rune.script.displayName,
+                title: rune.name,
+                subtitle: "\(rune.meaning) · /\(rune.sound)/",
+                meta: [position, unicodeLabel],
+                palette: palette
+            )
 
-                infoRow
-
-                Divider()
-                    .background(palette.separator)
-                    .padding(.horizontal, DesignTokens.Spacing.lg)
-                    .padding(.top, DesignTokens.Spacing.md)
-
-                aboutSection
-            }
-            .padding(.bottom, DesignTokens.Spacing.huge)
+            heroSection
+            aboutSection
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(palette.background)
         .navigationTitle(rune.name)
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -74,31 +70,26 @@ struct RuneDetailView: View {
 
     @ViewBuilder
     private var heroSection: some View {
-        VStack(spacing: DesignTokens.Spacing.xs) {
-            // Glyph circle
-            ZStack {
-                Circle()
-                    .fill(palette.surface)
-                    .frame(width: 80, height: 80)
+        EditorialCard(
+            palette: palette,
+            tone: .hero,
+            cornerRadius: DesignTokens.CornerRadius.xxl,
+            shadowRadius: DesignTokens.Elevation.medium
+        ) {
+            VStack(spacing: DesignTokens.Spacing.md) {
+                ZStack {
+                    Circle()
+                        .fill(palette.bannerBackground)
+                        .frame(width: 96, height: 96)
 
-                Text(rune.glyph)
-                    .font(.system(size: 40))
-                    .foregroundStyle(palette.runeText)
+                    Text(rune.glyph)
+                        .font(.system(size: 46))
+                        .foregroundStyle(palette.runeText)
+                }
+
+                infoRow
             }
-
-            // Name
-            Text(rune.name)
-                .font(.title2.bold())
-                .foregroundStyle(palette.textPrimary)
-
-            // Meaning and sound
-            Text("\(rune.meaning) \u{00B7} /\(rune.sound)/")
-                .font(.subheadline)
-                .foregroundStyle(palette.textSecondary)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, DesignTokens.Spacing.xl)
-        .padding(.bottom, DesignTokens.Spacing.md)
     }
 
     // MARK: - Info Row
@@ -136,19 +127,20 @@ struct RuneDetailView: View {
 
     @ViewBuilder
     private var aboutSection: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-            Text("About")
-                .font(.subheadline.bold())
-                .foregroundStyle(palette.textPrimary)
-
-            Text(runeDescription)
-                .font(.subheadline)
-                .foregroundStyle(palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
+        EditorialCard(
+            palette: palette,
+            tone: .secondary,
+            cornerRadius: DesignTokens.CornerRadius.xl,
+            shadowRadius: DesignTokens.Elevation.low
+        ) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                SectionLabel(title: "About", palette: palette)
+                Text(runeDescription)
+                    .font(.subheadline)
+                    .foregroundStyle(palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, DesignTokens.Spacing.lg)
-        .padding(.top, DesignTokens.Spacing.md)
     }
 
     /// Description text for each rune.

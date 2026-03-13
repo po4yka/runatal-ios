@@ -61,6 +61,45 @@ enum DesignTokens: Sendable {
         static let full: CGFloat = 100
     }
 
+    // MARK: - Typography
+
+    enum Typography: Sendable {
+        static let eyebrow = Font.system(.caption, design: .rounded).weight(.semibold)
+        static let hero = Font.system(size: 38, weight: .semibold, design: .serif)
+        static let heroCompact = Font.system(size: 30, weight: .semibold, design: .serif)
+        static let sectionTitle = Font.system(.title3, design: .serif).weight(.semibold)
+        static let cardTitle = Font.system(.headline, design: .serif).weight(.semibold)
+        static let body = Font.body
+        static let bodyEmphasis = Font.body.weight(.semibold)
+        static let callout = Font.callout
+        static let label = Font.system(.caption, design: .rounded).weight(.medium)
+        static let metadata = Font.system(.caption2, design: .rounded).weight(.semibold)
+    }
+
+    // MARK: - Motion
+
+    enum Motion: Sendable {
+        static let quoteTransition = Animation.spring(response: 0.42, dampingFraction: 0.84)
+        static let emphasis = Animation.easeInOut(duration: 0.24)
+        static let themeTransition = Animation.easeInOut(duration: 0.35)
+        static let reveal = Animation.spring(response: 0.48, dampingFraction: 0.82)
+    }
+
+    // MARK: - Stroke
+
+    enum Stroke: Sendable {
+        static let hairline: CGFloat = 1
+        static let emphasis: CGFloat = 1.25
+    }
+
+    // MARK: - Elevation
+
+    enum Elevation: Sendable {
+        static let low: CGFloat = 6
+        static let medium: CGFloat = 12
+        static let hero: CGFloat = 22
+    }
+
     // MARK: - Glass Material
 
     /// Liquid glass intensity levels for glassmorphism components.

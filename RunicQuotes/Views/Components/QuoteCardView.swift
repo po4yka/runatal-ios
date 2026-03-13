@@ -21,9 +21,10 @@ struct QuoteCardView<Badge: View, Actions: View>: View {
     let actions: Actions
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.runicTheme) private var runicTheme
 
     private var palette: AppThemePalette {
-        .adaptive(for: colorScheme)
+        .themed(runicTheme, for: colorScheme)
     }
 
     // MARK: - Initialization
@@ -45,39 +46,41 @@ struct QuoteCardView<Badge: View, Actions: View>: View {
     // MARK: - Body
 
     var body: some View {
-        GlassCard(
-            intensity: .light,
+        EditorialCard(
+            palette: palette,
+            tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: 4
+            shadowRadius: DesignTokens.Elevation.low,
+            contentPadding: DesignTokens.Spacing.md
         ) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                // Top row: runic text + trailing badge
-                HStack(alignment: .top) {
-                    Text(runicSnippet)
-                        .font(.caption2)
-                        .foregroundStyle(palette.runeText.opacity(0.6))
-                        .lineLimit(1)
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        SectionLabel(title: "Passage", palette: palette)
 
-                    Spacer()
+                        Text(runicSnippet.isEmpty ? "ᚱᚢᚾᚨ" : runicSnippet)
+                            .font(.caption)
+                            .foregroundStyle(palette.runeText)
+                            .lineLimit(2)
+                    }
+
+                    Spacer(minLength: DesignTokens.Spacing.sm)
 
                     badge
                 }
 
-                // Quote text
-                Text("\u{201C}\(quoteText)\u{201D}")
-                    .font(.body)
+                Text("“\(quoteText)”")
+                    .font(DesignTokens.Typography.body)
                     .foregroundStyle(palette.textPrimary)
-                    .lineLimit(3)
+                    .lineLimit(4)
 
-                // Bottom row: author + actions
-                HStack {
-                    Text(author)
-                        .font(.subheadline)
-                        .foregroundStyle(palette.accent)
+                MetaRow(items: [author], palette: palette)
 
-                    Spacer()
-
-                    actions
+                if Actions.self != EmptyView.self {
+                    ActionBar(palette: palette) {
+                        Spacer(minLength: 0)
+                        actions
+                    }
                 }
             }
         }
@@ -101,8 +104,8 @@ extension QuoteCardView where Badge == Text {
             author: author,
             badge: {
                 Text(badgeText)
-                    .font(.caption2)
-                    .foregroundStyle(AppThemePalette.adaptive(for: .dark).accent)
+                    .font(DesignTokens.Typography.metadata)
+                    .foregroundStyle(AppThemePalette.themed(.obsidian, for: .dark).accent)
             },
             actions: actions
         )
