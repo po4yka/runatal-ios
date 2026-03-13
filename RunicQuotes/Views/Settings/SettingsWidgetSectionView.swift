@@ -14,7 +14,7 @@ struct SettingsWidgetSectionView: View {
     let tipRefreshID: UUID
 
     var body: some View {
-        GlassCard(intensity: .medium) {
+        SettingsPanel(palette: self.palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 SettingsSectionHeaderView(title: "Widget", icon: "rectangle.on.rectangle", palette: self.palette)
 
@@ -55,7 +55,7 @@ struct SettingsWidgetSectionView: View {
 
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     Text("Widget Style")
-                        .font(.subheadline.weight(.semibold))
+                        .font(DesignTokens.Typography.controlLabel)
                         .foregroundStyle(self.palette.textSecondary)
 
                     VStack(spacing: DesignTokens.Spacing.sm) {
@@ -90,11 +90,11 @@ struct SettingsWidgetSectionView: View {
                 Toggle(isOn: self.widgetDecorativeGlyphsEnabled) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                         Text("Decorative Glyph Identity")
-                            .font(.subheadline.weight(.medium))
+                            .font(DesignTokens.Typography.supportingBody.weight(.medium))
                             .foregroundStyle(self.palette.textPrimary)
 
                         Text("Enable glyph ring and background pattern in widgets")
-                            .font(.caption)
+                            .font(DesignTokens.Typography.listMeta)
                             .foregroundStyle(self.palette.textTertiary)
                     }
                 }
@@ -126,11 +126,11 @@ struct SettingsWidgetSectionView: View {
             HStack {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                     Text(title)
-                        .font(.subheadline.weight(.medium))
+                        .font(DesignTokens.Typography.supportingBody.weight(.medium))
                         .foregroundStyle(self.palette.textPrimary)
 
                     Text(subtitle)
-                        .font(.caption)
+                        .font(DesignTokens.Typography.listMeta)
                         .foregroundStyle(self.palette.textTertiary)
                 }
 

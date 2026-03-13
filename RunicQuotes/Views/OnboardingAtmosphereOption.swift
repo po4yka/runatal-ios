@@ -33,10 +33,12 @@ struct OnboardingAtmosphereOption: View {
         Button {
             onSelect(isSelected ? nil : script)
         } label: {
-            GlassCard(
-                intensity: isSelected ? .medium : .light,
+            ContentPlate(
+                palette: palette,
+                tone: isSelected ? .primary : .secondary,
                 cornerRadius: DesignTokens.CornerRadius.lg,
-                shadowRadius: isSelected ? 14 : 8
+                shadowRadius: isSelected ? DesignTokens.Elevation.low : 0,
+                contentPadding: DesignTokens.Spacing.md
             ) {
                 HStack(spacing: DesignTokens.Spacing.sm) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
@@ -56,7 +58,7 @@ struct OnboardingAtmosphereOption: View {
                         }
 
                         Text(subtitle)
-                            .font(.caption)
+                            .font(DesignTokens.Typography.listMeta)
                             .foregroundStyle(palette.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
 
@@ -76,7 +78,7 @@ struct OnboardingAtmosphereOption: View {
             }
             .overlay {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                    .stroke(isSelected ? palette.accent.opacity(0.4) : .clear, lineWidth: 1)
+                    .stroke(isSelected ? palette.accent.opacity(0.4) : palette.contentStroke.opacity(0.45), lineWidth: 1)
             }
         }
         .buttonStyle(.plain)

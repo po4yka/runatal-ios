@@ -17,7 +17,7 @@ struct SettingsAccessibilitySectionView: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
-        GlassCard(intensity: .medium) {
+        SettingsPanel(palette: palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 SettingsSectionHeaderView(title: "Accessibility", icon: "accessibility", palette: palette)
 
@@ -47,7 +47,7 @@ struct SettingsAccessibilitySectionView: View {
                     } label: {
                         HStack {
                             Text("Open System Settings")
-                                .font(.subheadline.weight(.medium))
+                                .font(DesignTokens.Typography.controlLabel)
                                 .foregroundStyle(palette.accent)
 
                             Spacer()
@@ -69,18 +69,18 @@ struct SettingsAccessibilitySectionView: View {
         HStack {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                 Text(title)
-                    .font(.subheadline.weight(.medium))
+                    .font(DesignTokens.Typography.supportingBody.weight(.medium))
                     .foregroundStyle(palette.textPrimary)
 
                 Text(subtitle)
-                    .font(.caption)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(palette.textTertiary)
             }
 
             Spacer()
 
             Text(isEnabled ? "On" : "Off")
-                .font(.subheadline)
+                .font(DesignTokens.Typography.controlLabel)
                 .foregroundStyle(isEnabled ? palette.accent : palette.textTertiary)
         }
     }

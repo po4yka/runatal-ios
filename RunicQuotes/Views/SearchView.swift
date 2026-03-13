@@ -28,41 +28,55 @@ struct SearchView: View {
     // MARK: - Body
 
     var body: some View {
-        ScreenScaffold(palette: self.palette) {
+        LiquidListScaffold(palette: self.palette) {
             if !self.viewModel.state.isSearchActive {
-                HeroHeader(
-                    eyebrow: "Search",
-                    title: "Find a Line",
-                    subtitle: "Search by author, theme, or a fragment you remember.",
-                    meta: self.searchMeta,
-                    palette: self.palette,
-                )
+                Section {
+                    HeroHeader(
+                        eyebrow: "Search",
+                        title: "Find a Line",
+                        subtitle: "Search by author, theme, or a fragment you remember.",
+                        meta: self.searchMeta,
+                        palette: self.palette
+                    )
+                    .listRowInsets(EdgeInsets(
+                        top: DesignTokens.Spacing.lg,
+                        leading: DesignTokens.Spacing.md,
+                        bottom: DesignTokens.Spacing.md,
+                        trailing: DesignTokens.Spacing.md
+                    ))
+                }
             }
 
             if let error = viewModel.state.errorMessage {
-                FeedbackBanner(
-                    palette: self.palette,
-                    tone: .error,
-                    title: "Search unavailable",
-                    message: error,
-                )
+                Section {
+                    FeedbackBanner(
+                        palette: self.palette,
+                        tone: .error,
+                        title: "Search unavailable",
+                        message: error
+                    )
+                }
             }
 
             if self.viewModel.state.isLoading {
-                InsetCard(palette: self.palette) {
-                    HStack(spacing: DesignTokens.Spacing.sm) {
-                        ProgressView()
-                            .tint(self.palette.accent)
+                Section {
+                    InsetCard(palette: self.palette) {
+                        HStack(spacing: DesignTokens.Spacing.sm) {
+                            ProgressView()
+                                .tint(self.palette.accent)
 
-                        Text("Preparing the archive...")
-                            .font(DesignTokens.Typography.callout)
-                            .foregroundStyle(self.palette.textSecondary)
+                            Text("Preparing the archive...")
+                                .font(DesignTokens.Typography.supportingBody)
+                                .foregroundStyle(self.palette.textSecondary)
+                        }
                     }
                 }
             } else if self.viewModel.state.isSearchActive {
                 self.resultsContent
             } else {
-                self.suggestionsContent
+                Section {
+                    self.suggestionsContent
+                }
             }
         }
         .navigationTitle("Search")
@@ -86,17 +100,16 @@ struct SearchView: View {
     // MARK: - Suggestions Content
 
     private var suggestionsContent: some View {
-        EditorialCard(
+        InsetCard(
             palette: self.palette,
-            tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: DesignTokens.Elevation.low,
+            contentPadding: DesignTokens.Spacing.md
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 SectionLabel(title: "Suggestions", palette: self.palette)
 
                 Text("Start with an author, a mood, or a single remembered word.")
-                    .font(DesignTokens.Typography.callout)
+                    .font(DesignTokens.Typography.supportingBody)
                     .foregroundStyle(self.palette.textSecondary)
 
                 FlowLayout(spacing: DesignTokens.Spacing.xs) {
@@ -115,85 +128,94 @@ struct SearchView: View {
 
     @ViewBuilder
     private var resultsContent: some View {
-        InsetCard(
-            palette: self.palette,
-            cornerRadius: DesignTokens.CornerRadius.xl,
-            contentPadding: DesignTokens.Spacing.md,
-        ) {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                HStack {
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        SectionLabel(title: "Active Search", palette: self.palette)
-                        Text("\(self.viewModel.state.filteredQuotes.count) results")
-                            .font(DesignTokens.Typography.sectionTitle)
-                            .foregroundStyle(self.palette.textPrimary)
+        Section {
+            InsetCard(
+                palette: self.palette,
+                cornerRadius: DesignTokens.CornerRadius.xl,
+                contentPadding: DesignTokens.Spacing.md
+            ) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                    HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
+                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                            SectionLabel(title: "Active Search", palette: self.palette)
+                            Text("\(self.viewModel.state.filteredQuotes.count) results")
+                                .font(DesignTokens.Typography.sectionTitle)
+                                .foregroundStyle(self.palette.textPrimary)
+                            Text("Refine with one collection at a time.")
+                                .font(DesignTokens.Typography.listMeta)
+                                .foregroundStyle(self.palette.textTertiary)
+                        }
+
+                        Spacer()
+
+                        Button("Clear") {
+                            self.viewModel.clearSearch()
+                            self.searchCoordinator.clear()
+                        }
+                        .font(DesignTokens.Typography.controlLabel)
+                        .foregroundStyle(self.palette.accent)
                     }
 
-                    Spacer()
-
-                    Button("Clear") {
-                        self.viewModel.clearSearch()
-                        self.searchCoordinator.clear()
+                    if !self.viewModel.state.filteredQuotes.isEmpty {
+                        RunicInlineTip(
+                            tip: SearchCollectionFilterTip(),
+                            palette: self.palette,
+                            refreshID: self.featureDiscoveryController.refreshID,
+                            accessibilityIdentifier: "tip_search_collection_filter"
+                        )
                     }
-                    .font(DesignTokens.Typography.label)
-                    .foregroundStyle(self.palette.accent)
-                }
 
-                if !self.viewModel.state.filteredQuotes.isEmpty {
-                    RunicInlineTip(
-                        tip: SearchCollectionFilterTip(),
-                        palette: self.palette,
-                        refreshID: self.featureDiscoveryController.refreshID,
-                        accessibilityIdentifier: "tip_search_collection_filter",
-                    )
-                }
-
-                ScrollView(.horizontal) {
-                    HStack(spacing: DesignTokens.Spacing.xs) {
-                        ForEach(QuoteCollection.allCases) { collection in
-                            FilterChip(
-                                title: collection.displayName,
-                                isSelected: self.viewModel.state.selectedCollection == collection,
-                                palette: self.palette,
-                            ) {
-                                self.viewModel.updateSelectedCollection(collection)
-                                FeatureDiscoveryEvents.searchSelectedCollectionFilter.sendDonation()
-                                SearchCollectionFilterTip().invalidate(reason: .actionPerformed)
+                    ScrollView(.horizontal) {
+                        HStack(spacing: DesignTokens.Spacing.xs) {
+                            ForEach(QuoteCollection.allCases) { collection in
+                                FilterChip(
+                                    title: collection.displayName,
+                                    isSelected: self.viewModel.state.selectedCollection == collection,
+                                    palette: self.palette
+                                ) {
+                                    self.viewModel.updateSelectedCollection(collection)
+                                    FeatureDiscoveryEvents.searchSelectedCollectionFilter.sendDonation()
+                                    SearchCollectionFilterTip().invalidate(reason: .actionPerformed)
+                                }
                             }
                         }
                     }
+                    .scrollIndicators(.hidden)
                 }
-                .scrollIndicators(.hidden)
             }
         }
 
         if self.viewModel.state.filteredQuotes.isEmpty {
-            EditorialEmptyState(
-                palette: self.palette,
-                icon: "magnifyingglass",
-                eyebrow: "No matches",
-                title: "Nothing surfaced",
-                message: "Try a different author, broader wording, or switch the collection filter.",
-            )
+            Section {
+                EditorialEmptyState(
+                    palette: self.palette,
+                    icon: "magnifyingglass",
+                    eyebrow: "No matches",
+                    title: "Nothing surfaced",
+                    message: "Try a different author, broader wording, or switch the collection filter."
+                )
+            }
         } else {
-            LazyVStack(spacing: DesignTokens.Spacing.sm) {
+            Section {
                 ForEach(self.viewModel.state.filteredQuotes, id: \.id) { quote in
-                    self.quoteResultCard(quote)
+                    self.quoteResultRow(quote)
                 }
             }
         }
     }
 
-    // MARK: - Quote Result Card
+    // MARK: - Quote Result Row
 
-    private func quoteResultCard(_ quote: QuoteRecord) -> some View {
-        QuoteCardView(
+    private func quoteResultRow(_ quote: QuoteRecord) -> some View {
+        QuoteListRow(
+            palette: self.palette,
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
             author: quote.author,
+            metadata: [],
             badge: {
                 Text(quote.collection.displayName)
-                    .font(DesignTokens.Typography.metadata)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(self.palette.accent)
                     .padding(.horizontal, DesignTokens.Spacing.sm)
                     .padding(.vertical, DesignTokens.Spacing.xs)
@@ -202,9 +224,9 @@ struct SearchView: View {
                             .fill(self.palette.bannerBackground)
                     }
             },
-            actions: {
+            footer: {
                 EmptyView()
-            },
+            }
         )
     }
 

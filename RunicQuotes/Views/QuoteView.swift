@@ -186,9 +186,10 @@ struct QuoteView: View {
 
     private var rootContent: some View {
         ZStack {
-            ScreenScaffold(
+            LiquidContentScaffold(
                 palette: self.palette,
                 scrollEnabled: !self.viewModel.state.isLoading && self.viewModel.state.errorMessage == nil,
+                showBackgroundExtension: true
             ) {
                 if self.viewModel.state.isLoading {
                     QuoteLoadingView(palette: self.palette)
@@ -205,7 +206,7 @@ struct QuoteView: View {
 
             RunicAtmosphere(script: self.viewModel.state.currentScript)
                 .ignoresSafeArea()
-                .opacity(0.08)
+                .opacity(0.045)
                 .allowsHitTesting(false)
         }
     }
@@ -230,7 +231,7 @@ struct QuoteView: View {
             .copyText,
             .edit,
             .hide,
-            .delete,
+            .delete
         ]
     }
 
@@ -245,7 +246,7 @@ struct QuoteView: View {
                 meta: [
                     self.viewModel.state.currentCollection.displayName,
                     self.viewModel.state.currentScript.displayName,
-                    self.viewModel.state.currentWidgetMode.displayName,
+                    self.viewModel.state.currentWidgetMode.displayName
                 ],
                 palette: self.palette,
             )
@@ -327,7 +328,7 @@ struct QuoteView: View {
                                 .foregroundStyle(self.palette.textPrimary)
 
                             Text("Move into the dedicated Search tab for authors, fragments, and collections.")
-                                .font(DesignTokens.Typography.metadata)
+                                .font(DesignTokens.Typography.listMeta)
                                 .foregroundStyle(self.palette.textTertiary)
                         }
 

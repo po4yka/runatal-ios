@@ -53,7 +53,7 @@ struct SettingsNavigationLinksSectionView: View {
 
                 if let description = description(for: title) {
                     Text(description)
-                        .font(DesignTokens.Typography.metadata)
+                        .font(DesignTokens.Typography.listMeta)
                         .foregroundStyle(palette.textSecondary)
                 }
             }

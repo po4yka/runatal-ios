@@ -131,25 +131,36 @@ struct ArchiveView: View {
     @ViewBuilder
     private var quotesList: some View {
         ForEach(viewModel.filteredQuotes) { quote in
-            archiveQuoteCard(quote)
+            archiveQuoteRow(quote)
         }
     }
 
-    // MARK: - Quote Card
+    // MARK: - Quote Row
 
     @ViewBuilder
-    private func archiveQuoteCard(_ quote: QuoteRecord) -> some View {
-        QuoteCardView(
+    private func archiveQuoteRow(_ quote: QuoteRecord) -> some View {
+        QuoteListRow(
+            palette: palette,
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
             author: quote.author,
+            metadata: [quote.collection.displayName],
             badge: {
                 statusTag(for: quote)
             },
-            actions: {
+            footer: {
                 actionButtons(for: quote)
             }
         )
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            if quote.isDeleted {
+                Button(role: .destructive) {
+                    viewModel.eraseQuote(quote.id)
+                } label: {
+                    Label("Erase", systemImage: "trash")
+                }
+            }
+        }
     }
 
     // MARK: - Status Tag
@@ -160,7 +171,7 @@ struct ArchiveView: View {
         let color = quote.isDeleted ? palette.error : palette.warning
 
         Text(label)
-            .font(.caption2.weight(.medium))
+            .font(DesignTokens.Typography.listMeta.weight(.semibold))
             .foregroundStyle(color)
             .padding(.horizontal, DesignTokens.Spacing.xs)
             .padding(.vertical, 2)
@@ -179,18 +190,9 @@ struct ArchiveView: View {
                 viewModel.restoreQuote(quote.id)
                 showRestoredToast()
             } label: {
-                Text("Restore")
-                    .font(.caption.weight(.medium))
+                Label("Restore", systemImage: "arrow.uturn.backward")
+                    .font(DesignTokens.Typography.controlLabel)
                     .foregroundStyle(palette.accent)
-            }
-            .buttonStyle(.plain)
-
-            Button {
-                viewModel.eraseQuote(quote.id)
-            } label: {
-                Text("Erase")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(palette.error)
             }
             .buttonStyle(.plain)
         } else if quote.isHidden {
@@ -198,8 +200,8 @@ struct ArchiveView: View {
                 viewModel.unhideQuote(quote.id)
                 showRestoredToast()
             } label: {
-                Text("Unhide")
-                    .font(.caption.weight(.medium))
+                Label("Unhide", systemImage: "eye")
+                    .font(DesignTokens.Typography.controlLabel)
                     .foregroundStyle(palette.accent)
             }
             .buttonStyle(.plain)
@@ -211,7 +213,7 @@ struct ArchiveView: View {
     @ViewBuilder
     private var footerNote: some View {
         Text("Deleted quotes are removed after 30 days.")
-            .font(.caption)
+            .font(DesignTokens.Typography.listMeta)
             .foregroundStyle(palette.textTertiary)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.top, DesignTokens.Spacing.xs)

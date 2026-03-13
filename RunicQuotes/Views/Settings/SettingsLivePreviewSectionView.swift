@@ -12,12 +12,9 @@ struct SettingsLivePreviewSectionView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        EditorialCard(
+        SettingsPanel(
             palette: palette,
-            tone: .hero,
-            cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.medium,
-            contentPadding: DesignTokens.Spacing.md
+            tone: .hero
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 HStack {
@@ -31,7 +28,7 @@ struct SettingsLivePreviewSectionView: View {
                     Spacer()
 
                     Text(viewModel.state.selectedTheme.displayName)
-                        .font(DesignTokens.Typography.metadata)
+                        .font(DesignTokens.Typography.listMeta)
                         .foregroundStyle(palette.textTertiary)
                 }
 
@@ -70,11 +67,11 @@ struct SettingsLivePreviewSectionView: View {
     private func previewPill(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
             Text(label)
-                .font(.caption)
+                .font(DesignTokens.Typography.listMeta)
                 .foregroundStyle(palette.textTertiary)
 
             Text(value)
-                .font(.caption.weight(.semibold))
+                .font(DesignTokens.Typography.controlLabel)
                 .foregroundStyle(palette.textPrimary)
                 .lineLimit(1)
         }

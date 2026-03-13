@@ -38,8 +38,6 @@ struct CreateEditQuoteView: View {
         let palette = AppThemePalette.themed(runicTheme, for: colorScheme)
 
         ZStack {
-            palette.background.ignoresSafeArea()
-
             if viewModel.state.showSuccess, case .create = viewModel.mode {
                 successOverlay(palette: palette)
             } else {
@@ -76,16 +74,16 @@ struct CreateEditQuoteView: View {
 
     @ViewBuilder
     private func formContent(palette: AppThemePalette) -> some View {
-        ScrollView {
-            VStack(spacing: DesignTokens.Spacing.xl) {
-                quoteSection(palette: palette)
-                attributionSection(palette: palette)
-                collectionSection(palette: palette)
-                runePreviewSection(palette: palette)
-            }
-            .padding(.horizontal, DesignTokens.Spacing.md)
-            .padding(.top, DesignTokens.Spacing.md)
-            .padding(.bottom, DesignTokens.Spacing.xxxl)
+        LiquidContentScaffold(
+            palette: palette,
+            topPadding: DesignTokens.Spacing.md,
+            spacing: DesignTokens.Spacing.xl,
+            showBackgroundExtension: false
+        ) {
+            quoteSection(palette: palette)
+            attributionSection(palette: palette)
+            collectionSection(palette: palette)
+            runePreviewSection(palette: palette)
         }
     }
 
@@ -96,7 +94,13 @@ struct CreateEditQuoteView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             sectionHeader("Quote", palette: palette)
 
-            GlassCard(intensity: .light) {
+            ContentPlate(
+                palette: palette,
+                tone: .secondary,
+                cornerRadius: DesignTokens.CornerRadius.xl,
+                shadowRadius: 0,
+                contentPadding: DesignTokens.Spacing.md
+            ) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     TextField(
                         "Enter your quote text...",
@@ -113,11 +117,10 @@ struct CreateEditQuoteView: View {
 
                     if let error = viewModel.validation.quoteTextError {
                         Text(error)
-                            .font(.caption)
+                            .font(DesignTokens.Typography.listMeta)
                             .foregroundStyle(palette.error)
                     }
                 }
-                .padding(DesignTokens.Spacing.md)
             }
         }
     }
@@ -129,7 +132,13 @@ struct CreateEditQuoteView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             sectionHeader("Attribution", palette: palette)
 
-            GlassCard(intensity: .light) {
+            ContentPlate(
+                palette: palette,
+                tone: .secondary,
+                cornerRadius: DesignTokens.CornerRadius.xl,
+                shadowRadius: 0,
+                contentPadding: 0
+            ) {
                 VStack(spacing: 0) {
                     fieldRow(
                         label: "Author",
@@ -167,15 +176,20 @@ struct CreateEditQuoteView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             sectionHeader("Collection", palette: palette)
 
-            GlassCard(intensity: .light) {
+            ContentPlate(
+                palette: palette,
+                tone: .secondary,
+                cornerRadius: DesignTokens.CornerRadius.xl,
+                shadowRadius: 0,
+                contentPadding: DesignTokens.Spacing.md
+            ) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     Text("Add to Collection")
-                        .font(.subheadline)
+                        .font(DesignTokens.Typography.supportingBody)
                         .foregroundStyle(palette.textSecondary)
 
                     collectionChips(palette: palette)
                 }
-                .padding(DesignTokens.Spacing.md)
             }
         }
     }
@@ -192,7 +206,7 @@ struct CreateEditQuoteView: View {
                         viewModel.updateCollection(collection)
                     } label: {
                         Text(collection.displayName)
-                            .font(.subheadline.weight(.medium))
+                            .font(DesignTokens.Typography.controlLabel)
                             .foregroundStyle(isSelected ? palette.background : palette.textPrimary)
                             .padding(.horizontal, DesignTokens.Spacing.sm)
                             .padding(.vertical, DesignTokens.Spacing.xs)
@@ -221,11 +235,17 @@ struct CreateEditQuoteView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             sectionHeader("Rune Preview", palette: palette)
 
-            GlassCard(intensity: .medium) {
+            ContentPlate(
+                palette: palette,
+                tone: .secondary,
+                cornerRadius: DesignTokens.CornerRadius.xl,
+                shadowRadius: 0,
+                contentPadding: DesignTokens.Spacing.md
+            ) {
                 VStack(spacing: DesignTokens.Spacing.sm) {
                     if viewModel.state.runicPreview.isEmpty {
                         Text("Type a quote to see the runic preview")
-                            .font(.subheadline)
+                            .font(DesignTokens.Typography.supportingBody)
                             .foregroundStyle(palette.textTertiary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, DesignTokens.Spacing.xl)
@@ -237,7 +257,6 @@ struct CreateEditQuoteView: View {
                             .lineLimit(4)
                     }
                 }
-                .padding(DesignTokens.Spacing.md)
             }
         }
     }
@@ -246,43 +265,49 @@ struct CreateEditQuoteView: View {
 
     @ViewBuilder
     private func successOverlay(palette: AppThemePalette) -> some View {
-        VStack(spacing: DesignTokens.Spacing.xl) {
-            Spacer()
+        Color.black.opacity(0.12)
+            .ignoresSafeArea()
+            .overlay {
+                ContentPlate(
+                    palette: palette,
+                    tone: .hero,
+                    cornerRadius: DesignTokens.CornerRadius.xxl,
+                    shadowRadius: DesignTokens.Elevation.hero,
+                    contentPadding: DesignTokens.Spacing.xl
+                ) {
+                    VStack(spacing: DesignTokens.Spacing.lg) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 56))
+                            .foregroundStyle(palette.accent)
 
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(palette.accent)
+                        Text("Quote Created")
+                            .font(DesignTokens.Typography.pageTitle)
+                            .foregroundStyle(palette.textPrimary)
 
-            Text("Quote Created")
-                .font(.title.weight(.bold))
-                .foregroundStyle(palette.textPrimary)
+                        Text("Your quote has been added to the \(viewModel.state.collection.displayName) collection and is ready to inspire runic wisdom.")
+                            .font(DesignTokens.Typography.supportingBody)
+                            .foregroundStyle(palette.textSecondary)
+                            .multilineTextAlignment(.center)
 
-            Text("Your quote has been added to the \(viewModel.state.collection.displayName) collection and is ready to inspire runic wisdom.")
-                .font(.body)
-                .foregroundStyle(palette.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, DesignTokens.Spacing.xxl)
+                        Button {
+                            onSaved?(viewModel.state.createdQuoteID)
+                            dismiss()
+                        } label: {
+                            Text("View Quote")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
 
-            Spacer()
-
-            VStack(spacing: DesignTokens.Spacing.md) {
-                GlassButton.primary("View Quote", icon: nil, hapticTier: nil) {
-                    onSaved?(viewModel.state.createdQuoteID)
-                    dismiss()
+                        Button("Create another") {
+                            viewModel.resetForNewQuote()
+                        }
+                        .font(DesignTokens.Typography.controlLabel)
+                        .foregroundStyle(palette.accent)
+                    }
+                    .frame(maxWidth: 360)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, DesignTokens.Spacing.xxl)
-
-                Button("Create another") {
-                    viewModel.resetForNewQuote()
-                }
-                .font(.body)
-                .foregroundStyle(palette.accent)
+                .padding(DesignTokens.Spacing.xl)
             }
-
-            Spacer()
-                .frame(height: DesignTokens.Spacing.huge)
-        }
     }
 
     // MARK: - Helpers
@@ -290,7 +315,7 @@ struct CreateEditQuoteView: View {
     @ViewBuilder
     private func sectionHeader(_ title: String, palette: AppThemePalette) -> some View {
         Text(title)
-            .font(.headline)
+            .font(DesignTokens.Typography.cardTitle)
             .foregroundStyle(palette.textPrimary)
     }
 
@@ -305,7 +330,7 @@ struct CreateEditQuoteView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
             HStack {
                 Text(label)
-                    .font(.subheadline)
+                    .font(DesignTokens.Typography.supportingBody)
                     .foregroundStyle(palette.textSecondary)
                     .frame(width: 70, alignment: .leading)
 
@@ -319,7 +344,7 @@ struct CreateEditQuoteView: View {
 
             if let error {
                 Text(error)
-                    .font(.caption)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(palette.error)
                     .padding(.horizontal, DesignTokens.Spacing.md)
                     .padding(.bottom, DesignTokens.Spacing.xxs)

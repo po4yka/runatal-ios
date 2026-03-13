@@ -73,10 +73,14 @@ enum DesignTokens: Sendable {
         static let bodyLarge = Font.system(.body, design: .default).weight(.medium)
         static let body = Font.body
         static let bodyEmphasis = Font.body.weight(.semibold)
+        static let supportingBody = Font.system(.subheadline, design: .default)
         static let callout = Font.callout
         static let label = Font.system(.caption, design: .rounded).weight(.medium)
-        static let metadata = Font.system(.caption2, design: .rounded).weight(.semibold)
-        static let toolbarLabel = Font.system(.footnote, design: .rounded).weight(.semibold)
+        static let controlLabel = Font.system(.footnote, design: .rounded).weight(.semibold)
+        static let listMeta = Font.system(.footnote, design: .rounded).weight(.medium)
+        static let widgetMeta = Font.system(.caption, design: .rounded).weight(.medium)
+        static let metadata = listMeta
+        static let toolbarLabel = controlLabel
     }
 
     // MARK: - Motion

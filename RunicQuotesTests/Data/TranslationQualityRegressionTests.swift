@@ -5,45 +5,44 @@
 //  Created by Claude on 13.03.26.
 //
 
+import Testing
 @testable import RunicQuotes
-import XCTest
 
-final class TranslationQualityRegressionTests: XCTestCase {
+@Suite(.tags(.dataset))
+struct TranslationQualityRegressionTests {
     private let provider = AssetTranslationDatasetProvider()
     private let service = HistoricalTranslationService()
 
-    func testGoldCorpusBenchmarksRemainStable() throws {
-        let benchmarks = self.provider.goldCorpus().benchmarks
-        XCTAssertFalse(benchmarks.isEmpty)
+    @Test
+    func goldCorpusBenchmarksRemainStable() throws {
+        let benchmarks = provider.goldCorpus().benchmarks
+        #expect(!benchmarks.isEmpty)
 
         for benchmark in benchmarks {
             for expectation in benchmark.expectations {
-                let script = try XCTUnwrap(RunicScript(translationScriptName: expectation.script))
-                let fidelity = try XCTUnwrap(TranslationFidelity(rawValue: expectation.fidelity))
+                let script = try #require(RunicScript(translationScriptName: expectation.script))
+                let fidelity = try #require(TranslationFidelity(rawValue: expectation.fidelity))
                 let variant = expectation.requestedVariant.flatMap(YoungerFutharkVariant.init(rawValue:)) ?? .longBranch
 
-                let result = self.service.translate(
+                let result = service.translate(
                     text: benchmark.sourceText,
                     script: script,
                     fidelity: fidelity,
                     youngerVariant: variant,
-                    sourceLanguage: .english,
+                    sourceLanguage: .english
                 )
 
-                XCTAssertEqual(result.normalizedForm, expectation.normalizedForm, benchmark.id)
-                XCTAssertEqual(result.diplomaticForm, expectation.diplomaticForm, benchmark.id)
-                XCTAssertEqual(result.glyphOutput, expectation.glyphOutput, benchmark.id)
-                XCTAssertEqual(result.resolutionStatus.rawValue, expectation.resolutionStatus, benchmark.id)
-                XCTAssertEqual(result.evidenceTier.rawValue, expectation.evidenceTier, benchmark.id)
-                XCTAssertEqual(result.supportLevel.rawValue, expectation.supportLevel, benchmark.id)
-                XCTAssertEqual(result.attestationRefs, expectation.attestationRefs, benchmark.id)
+                #expect(result.normalizedForm == expectation.normalizedForm)
+                #expect(result.diplomaticForm == expectation.diplomaticForm)
+                #expect(result.glyphOutput == expectation.glyphOutput)
+                #expect(result.resolutionStatus.rawValue == expectation.resolutionStatus)
+                #expect(result.evidenceTier.rawValue == expectation.evidenceTier)
+                #expect(result.supportLevel.rawValue == expectation.supportLevel)
+                #expect(result.attestationRefs == expectation.attestationRefs)
 
                 let warningsBlob = result.userFacingWarnings.joined(separator: " ")
                 for fragment in expectation.warningFragments {
-                    XCTAssertTrue(
-                        warningsBlob.localizedCaseInsensitiveContains(fragment),
-                        "Expected warning fragment '\(fragment)' for \(benchmark.id)",
-                    )
+                    #expect(warningsBlob.localizedCaseInsensitiveContains(fragment))
                 }
             }
         }

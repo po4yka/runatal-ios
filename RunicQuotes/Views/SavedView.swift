@@ -118,25 +118,47 @@ struct SavedView: View {
     @ViewBuilder
     private var savedList: some View {
         ForEach(viewModel.state.savedQuotes, id: \.id) { quote in
-            savedQuoteCard(quote)
+            savedQuoteRow(quote)
         }
     }
 
-    // MARK: - Quote Card
+    // MARK: - Quote Row
 
     @ViewBuilder
-    private func savedQuoteCard(_ quote: QuoteRecord) -> some View {
-        QuoteCardView(
+    private func savedQuoteRow(_ quote: QuoteRecord) -> some View {
+        QuoteListRow(
+            palette: palette,
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
             author: quote.author,
+            metadata: [],
             badge: {
                 collectionBadge(for: quote)
             },
-            actions: {
-                inlineActions(for: quote)
+            footer: {
+                Button {
+                    removeSavedQuote(quote)
+                } label: {
+                    Label("Remove from saved", systemImage: "bookmark.slash")
+                        .font(DesignTokens.Typography.controlLabel)
+                        .foregroundStyle(palette.accent)
+                }
+                .buttonStyle(.plain)
             }
         )
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button {
+                copySavedQuote(quote)
+            } label: {
+                Label("Copy", systemImage: "doc.on.doc")
+            }
+
+            Button(role: .destructive) {
+                removeSavedQuote(quote)
+            } label: {
+                Label("Remove", systemImage: "bookmark.slash")
+            }
+        }
         .contextMenu {
             savedContextMenu(for: quote)
         }
@@ -144,7 +166,7 @@ struct SavedView: View {
 
     private func collectionBadge(for quote: QuoteRecord) -> some View {
         Text(quote.collection.displayName)
-            .font(DesignTokens.Typography.metadata)
+            .font(DesignTokens.Typography.listMeta)
             .foregroundStyle(palette.accent)
             .padding(.horizontal, DesignTokens.Spacing.sm)
             .padding(.vertical, DesignTokens.Spacing.xs)
@@ -152,28 +174,6 @@ struct SavedView: View {
                 Capsule()
                     .fill(palette.bannerBackground)
             }
-    }
-
-    private func inlineActions(for quote: QuoteRecord) -> some View {
-        HStack(spacing: DesignTokens.Spacing.xs) {
-            Button {
-                removeSavedQuote(quote)
-            } label: {
-                Label("Remove", systemImage: "bookmark.slash")
-                    .font(DesignTokens.Typography.label)
-                    .foregroundStyle(palette.accent)
-            }
-            .buttonStyle(.plain)
-
-            Button {
-                copySavedQuote(quote)
-            } label: {
-                Label("Copy", systemImage: "doc.on.doc")
-                    .font(DesignTokens.Typography.label)
-                    .foregroundStyle(palette.textPrimary)
-            }
-            .buttonStyle(.plain)
-        }
     }
 
     @ViewBuilder

@@ -51,7 +51,7 @@ struct OnboardingView: View {
             backgroundGradient
             RunicAtmosphere(script: selectedScript ?? .elder)
                 .ignoresSafeArea()
-                .opacity(0.12)
+                .opacity(0.05)
 
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
@@ -84,16 +84,16 @@ struct OnboardingView: View {
         .overlay(alignment: .topTrailing) {
             Circle()
                 .fill(palette.chromeTint)
-                .frame(width: 220, height: 220)
-                .blur(radius: 90)
-                .offset(x: 90, y: -30)
+                .frame(width: 180, height: 180)
+                .blur(radius: 80)
+                .offset(x: 84, y: -24)
         }
         .overlay(alignment: .bottomLeading) {
             Circle()
                 .fill(palette.ornament)
-                .frame(width: 250, height: 250)
-                .blur(radius: 110)
-                .offset(x: -100, y: 110)
+                .frame(width: 220, height: 220)
+                .blur(radius: 100)
+                .offset(x: -94, y: 104)
         }
         .ignoresSafeArea()
     }

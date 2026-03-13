@@ -117,23 +117,8 @@ struct NotificationCenterView: View {
     // MARK: - Notification List
 
     private var notificationList: some View {
-        EditorialCard(
-            palette: palette,
-            tone: .secondary,
-            cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.low
-        ) {
-            LazyVStack(spacing: 0) {
-                ForEach(Array(notifications.enumerated()), id: \.element.id) { index, notification in
-                    notificationRow(notification)
-
-                    if index < notifications.count - 1 {
-                        palette.separator
-                            .frame(height: 0.5)
-                            .padding(.leading, DesignTokens.Spacing.lg + DesignTokens.Spacing.sm + 7)
-                    }
-                }
-            }
+        ForEach(notifications) { notification in
+            notificationRow(notification)
         }
     }
 
@@ -144,34 +129,48 @@ struct NotificationCenterView: View {
             markAsRead(notification.id)
         } label: {
             HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
-                // Unread indicator dot
                 Circle()
-                    .fill(notification.isRead ? Color.clear : palette.accent)
-                    .frame(width: 7, height: 7)
-                    .padding(.top, 6)
+                    .fill(notification.isRead ? palette.separator.opacity(0.4) : palette.accent)
+                    .frame(width: 8, height: 8)
+                    .padding(.top, 5)
 
-                // Content
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                    HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                         Text(notification.title)
-                            .font(.subheadline.weight(.semibold))
+                            .font(DesignTokens.Typography.bodyEmphasis)
                             .foregroundStyle(palette.textPrimary)
 
-                        Spacer()
+                        Spacer(minLength: DesignTokens.Spacing.sm)
 
                         Text(notification.timestamp)
-                            .font(.caption2)
+                            .font(DesignTokens.Typography.listMeta)
                             .foregroundStyle(palette.textTertiary)
                     }
 
                     Text(notification.body)
-                        .font(.subheadline)
+                        .font(DesignTokens.Typography.supportingBody)
                         .foregroundStyle(palette.textSecondary)
                         .lineLimit(2)
                 }
             }
-            .padding(.horizontal, DesignTokens.Spacing.md)
-            .padding(.vertical, DesignTokens.Spacing.sm + 1)
+            .padding(DesignTokens.Spacing.md)
+            .background {
+                RoundedRectangle(
+                    cornerRadius: DesignTokens.CornerRadius.lg,
+                    style: .continuous
+                )
+                .fill(palette.rowFill)
+            }
+            .overlay {
+                RoundedRectangle(
+                    cornerRadius: DesignTokens.CornerRadius.lg,
+                    style: .continuous
+                )
+                .strokeBorder(
+                    palette.contentStroke.opacity(0.85),
+                    lineWidth: DesignTokens.Stroke.hairline
+                )
+            }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

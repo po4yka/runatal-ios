@@ -25,7 +25,7 @@ struct MetaRow: View {
                 }
 
                 Text(item)
-                    .font(DesignTokens.Typography.metadata)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(palette.textTertiary)
             }
         }

@@ -224,7 +224,7 @@ struct ShareQuoteView: View {
                 )
 
                 Text(label)
-                    .font(.caption2)
+                    .font(DesignTokens.Typography.controlLabel)
                     .foregroundStyle(palette.textTertiary)
             }
         }

@@ -5,63 +5,71 @@
 //  Created by Claude on 13.03.26.
 //
 
+import Foundation
+import Testing
 @testable import RunicQuotes
-import XCTest
 
-final class TranslationDatasetValidationTests: XCTestCase {
+@Suite(.tags(.dataset))
+struct TranslationDatasetValidationTests {
     private let provider = AssetTranslationDatasetProvider()
 
-    func testDatasetManifestDeclaresSourceOfTruthPackage() {
-        let manifest = self.provider.datasetManifest()
+    @Test
+    func datasetManifestDeclaresSourceOfTruthPackage() {
+        let manifest = provider.datasetManifest()
 
-        XCTAssertEqual(manifest.version, "2026.03-curated-v3")
-        XCTAssertEqual(manifest.sourceOfTruthPackage, "TranslationCuration/translation-curation-v1")
+        #expect(manifest.version == "2026.03-curated-v3")
+        #expect(manifest.sourceOfTruthPackage == "TranslationCuration/translation-curation-v1")
     }
 
-    func testSourceManifestEntriesHaveLicenseNotesAndValidURLs() {
-        for source in self.provider.sourceManifest().sources {
-            XCTAssertFalse((source.licenseNote ?? "").isEmpty, "Missing license note for source \(source.id)")
-            XCTAssertNotNil(URL(string: source.url), "Invalid URL for source \(source.id)")
+    @Test
+    func sourceManifestEntriesHaveLicenseNotesAndValidURLs() {
+        for source in provider.sourceManifest().sources {
+            #expect(!(source.licenseNote ?? "").isEmpty)
+            #expect(URL(string: source.url) != nil)
         }
     }
 
-    func testStrictEntriesHaveStableIDsAndCitations() {
-        let oldNorse = self.provider.oldNorseLexicon()
-        let protoNorse = self.provider.protoNorseLexicon()
+    @Test
+    func strictEntriesHaveStableIDsAndCitations() {
+        let oldNorse = provider.oldNorseLexicon()
+        let protoNorse = provider.protoNorseLexicon()
 
-        XCTAssertEqual(Set(oldNorse.map(\.id)).count, oldNorse.count)
-        XCTAssertEqual(Set(protoNorse.map(\.id)).count, protoNorse.count)
+        #expect(Set(oldNorse.map(\.id)).count == oldNorse.count)
+        #expect(Set(protoNorse.map(\.id)).count == protoNorse.count)
 
         for entry in oldNorse.filter(\.strictEligible) {
-            XCTAssertFalse(entry.citations.isEmpty, "Strict Old Norse entry \(entry.id) requires citations")
-            XCTAssertTrue(entry.inventory.isStrictEligible, "Strict Old Norse entry \(entry.id) must be in a strict inventory")
+            #expect(!entry.citations.isEmpty)
+            #expect(entry.inventory.isStrictEligible)
         }
 
         for entry in protoNorse.filter(\.strictEligible) {
-            XCTAssertFalse(entry.citations.isEmpty, "Strict Proto-Norse entry \(entry.id) requires citations")
-            XCTAssertTrue(entry.inventory.isStrictEligible, "Strict Proto-Norse entry \(entry.id) must be in a strict inventory")
+            #expect(!entry.citations.isEmpty)
+            #expect(entry.inventory.isStrictEligible)
         }
     }
 
-    func testOnpEntriesExposeLemmaAuthorityIdentifiers() {
-        let onpEntries = self.provider.oldNorseLexicon().filter { $0.sourceID == "onp" }
+    @Test
+    func onpEntriesExposeLemmaAuthorityIdentifiers() {
+        let onpEntries = provider.oldNorseLexicon().filter { $0.sourceID == "onp" }
 
-        XCTAssertFalse(onpEntries.isEmpty, "Expected at least one ONP-backed entry")
-        XCTAssertTrue(onpEntries.allSatisfy { ($0.lemmaAuthorityID ?? "").hasPrefix("ONP:") })
+        #expect(!onpEntries.isEmpty)
+        #expect(onpEntries.allSatisfy { ($0.lemmaAuthorityID ?? "").hasPrefix("ONP:") })
     }
 
-    func testGoldCorpusBenchmarksReferenceKnownAttestationIDs() {
+    @Test
+    func goldCorpusBenchmarksReferenceKnownAttestationIDs() {
         let referenceIDs = Set(provider.runicCorpusReferences().map(\.id))
-        let goldCorpus = self.provider.goldCorpus()
+        let goldCorpus = provider.goldCorpus()
 
-        XCTAssertFalse(goldCorpus.benchmarks.isEmpty)
+        #expect(!goldCorpus.benchmarks.isEmpty)
 
         for benchmark in goldCorpus.benchmarks {
-            XCTAssertFalse(benchmark.id.isEmpty)
-            XCTAssertFalse(benchmark.expectations.isEmpty)
+            #expect(!benchmark.id.isEmpty)
+            #expect(!benchmark.expectations.isEmpty)
+
             for expectation in benchmark.expectations {
                 for referenceID in expectation.attestationRefs {
-                    XCTAssertTrue(referenceIDs.contains(referenceID), "Unknown attestation ref \(referenceID) in \(benchmark.id)")
+                    #expect(referenceIDs.contains(referenceID))
                 }
             }
         }

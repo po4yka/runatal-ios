@@ -79,7 +79,7 @@ final class HistoricalTranslationService: @unchecked Sendable {
         [
             self.engineFactory.create(.elder).engineVersion,
             self.engineFactory.create(.younger).engineVersion,
-            self.engineFactory.create(.cirth).engineVersion,
+            self.engineFactory.create(.cirth).engineVersion
         ].joined(separator: "|")
     }
 
@@ -176,7 +176,7 @@ final class HistoricalTranslationService: @unchecked Sendable {
             inputLanguage: .unsupported,
             userFacingWarnings: [
                 "Translation currently supports English input only.",
-                "Use transliteration mode for non-English text.",
+                "Use transliteration mode for non-English text."
             ],
             engineVersion: self.versionSignature,
             datasetVersion: self.datasetVersion,
@@ -679,8 +679,7 @@ private struct EnglishSyntaxParser {
 
             if let auxiliaryLemma = grammarRules.auxiliaryMap[normalized] {
                 if self.collapsibleAuxiliaries.contains(normalized),
-                   self.hasFollowingContentWord(after: index, in: mergedTokens)
-                {
+                   self.hasFollowingContentWord(after: index, in: mergedTokens) {
                     warnings.append("Auxiliary chains are simplified to the main lexical verb.")
                     continue
                 }
@@ -712,8 +711,7 @@ private struct EnglishSyntaxParser {
            let firstWord = tokens.first,
            firstWord.type == .word,
            !grammarRules.pronounMap.keys.contains(firstWord.normalized),
-           !grammarRules.removableWords.contains(firstWord.normalized)
-        {
+           !grammarRules.removableWords.contains(firstWord.normalized) {
             warnings.append("Imperative readings are handled conservatively and may stay approximate.")
         }
 
@@ -1519,7 +1517,7 @@ private struct YoungerFutharkRenderer {
         "a": "ᛅ", "ą": "ᚬ", "r": "ᚱ", "ʀ": "ᛦ", "k": "ᚴ",
         "g": "ᚴ", "h": "ᚼ", "n": "ᚾ", "i": "ᛁ", "j": "ᛁ",
         "s": "ᛋ", "t": "ᛏ", "d": "ᛏ", "b": "ᛒ", "p": "ᛒ",
-        "m": "ᛘ", "l": "ᛚ", " ": " ",
+        "m": "ᛘ", "l": "ᛚ", " ": " "
     ]
 
     private let shortTwigMap: [Character: Character] = [
@@ -1527,7 +1525,7 @@ private struct YoungerFutharkRenderer {
         "a": "ᛆ", "ą": "ᚭ", "r": "ᚱ", "ʀ": "ᛧ", "k": "ᚴ",
         "g": "ᚴ", "h": "ᚽ", "n": "ᚿ", "i": "ᛁ", "j": "ᛁ",
         "s": "ᛌ", "t": "ᛐ", "d": "ᛐ", "b": "ᛓ", "p": "ᛓ",
-        "m": "ᛙ", "l": "ᛚ", " ": " ",
+        "m": "ᛙ", "l": "ᛚ", " ": " "
     ]
 
     func render(_ text: String, variant: YoungerFutharkVariant) -> String {
@@ -1591,7 +1589,7 @@ private struct ProtoNorseLexicalStage {
                     self.lexiconLookup.provenanceFor(
                         sourceID: "internal_heuristics",
                         detail: "Readable-mode paraphrase",
-                    ),
+                    )
                 ],
             )
         }
@@ -1606,7 +1604,7 @@ private struct ProtoNorseLexicalStage {
                     self.lexiconLookup.provenanceFor(
                         sourceID: "internal_heuristics",
                         detail: "Proper-name preservation fallback",
-                    ),
+                    )
                 ],
             )
         }
@@ -1620,7 +1618,7 @@ private struct ProtoNorseLexicalStage {
                 self.lexiconLookup.provenanceFor(
                     sourceID: "internal_heuristics",
                     detail: "Proto-Norse preservation fallback",
-                ),
+                )
             ],
         )
     }
@@ -1739,7 +1737,7 @@ private struct CirthOrthographyStage {
             glyphs: self.renderer.render(diplomatic: diplomatic),
             notes: [
                 appliedCanonicalRule ? "Applied Erebor sequence-table transcription." : nil,
-                approximated ? "Used readable-mode character fallback for an unsupported Erebor sequence." : nil,
+                approximated ? "Used readable-mode character fallback for an unsupported Erebor sequence." : nil
             ].compactMap { $0 },
             resolutionStatus: approximated ? .approximated : .reconstructed,
             unresolvedToken: nil,
@@ -1747,7 +1745,7 @@ private struct CirthOrthographyStage {
                 self.sourceCatalog.provenanceFor(
                     sourceID: "tolkien_appendix_e",
                     detail: "Erebor orthography table",
-                ),
+                )
             ],
         )
     }
@@ -1834,8 +1832,7 @@ private struct TranslationEvidenceSynthesizer {
 
         if request.fidelity == .strict,
            resolutionStatus != .unavailable,
-           provenance.isEmpty
-        {
+           provenance.isEmpty {
             return TranslationResult(
                 sourceText: request.sourceText,
                 script: evidenceRequest.script,

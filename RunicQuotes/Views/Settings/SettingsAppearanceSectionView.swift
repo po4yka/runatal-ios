@@ -12,7 +12,7 @@ struct SettingsAppearanceSectionView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        GlassCard(intensity: .medium) {
+        SettingsPanel(palette: palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 SettingsSectionHeaderView(title: "Appearance", icon: "paintbrush", palette: palette)
 
@@ -82,7 +82,7 @@ struct SettingsAppearanceSectionView: View {
                         .foregroundStyle(palette.textPrimary)
 
                     Text(theme.description)
-                        .font(.caption)
+                        .font(DesignTokens.Typography.listMeta)
                         .foregroundStyle(palette.textTertiary)
                 }
 
@@ -116,7 +116,7 @@ struct SettingsAppearanceSectionView: View {
                     .font(.caption.weight(.semibold))
                 Text(title)
             }
-            .font(.subheadline.weight(.medium))
+            .font(DesignTokens.Typography.controlLabel)
             .foregroundStyle(palette.textPrimary.opacity(isEnabled ? 0.92 : 0.3))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, DesignTokens.Spacing.sm)

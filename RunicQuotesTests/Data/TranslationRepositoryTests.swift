@@ -5,78 +5,66 @@
 //  Created by Claude on 13.03.26.
 //
 
-@testable import RunicQuotes
 import SwiftData
-import XCTest
+import Testing
+@testable import RunicQuotes
 
-final class TranslationRepositoryTests: XCTestCase {
-    private var modelContainer: ModelContainer?
-    private var modelContext: ModelContext?
-    private var quoteRepository: SwiftDataQuoteRepository?
-    private var translationRepository: SwiftDataTranslationRepository?
+@Suite(.serialized, .tags(.repository))
+struct TranslationRepositoryTests {
+    @Test
+    func cacheAndLatestTranslationRoundTrip() throws {
+        let context = try TestSupport.makeModelContext()
+        let quoteRepository = SwiftDataQuoteRepository(modelContext: context)
+        let translationRepository = SwiftDataTranslationRepository(modelContext: context)
 
-    override func setUpWithError() throws {
-        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: config)
-        self.modelContainer = container
-        let context = ModelContext(container)
-        self.modelContext = context
-        self.quoteRepository = SwiftDataQuoteRepository(modelContext: context)
-        self.translationRepository = SwiftDataTranslationRepository(modelContext: context)
-    }
-
-    override func tearDownWithError() throws {
-        self.modelContainer = nil
-        self.modelContext = nil
-        self.quoteRepository = nil
-        self.translationRepository = nil
-    }
-
-    func testCacheAndLatestTranslationRoundTrip() throws {
-        let quote = try XCTUnwrap(quoteRepository).createQuote(
+        let quote = try quoteRepository.createQuote(
             textLatin: "The wolf hunts at night",
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: nil,
+            storedRunic: nil
         )
         let result = HistoricalTranslationService().translate(
             text: quote.textLatin,
             script: .younger,
             fidelity: .strict,
-            youngerVariant: .longBranch,
+            youngerVariant: .longBranch
         )
 
-        try XCTUnwrap(self.translationRepository).cache(result: result, for: quote.id, sourceText: quote.textLatin)
-        let cached = try XCTUnwrap(try XCTUnwrap(translationRepository).latestTranslation(for: quote.id, script: .younger))
+        try translationRepository.cache(result: result, for: quote.id, sourceText: quote.textLatin)
+        let cached = try #require(try translationRepository.latestTranslation(for: quote.id, script: .younger))
 
-        XCTAssertEqual(cached.glyphOutput, result.glyphOutput)
-        XCTAssertEqual(cached.engineVersion, result.engineVersion)
-        XCTAssertEqual(cached.datasetVersion, result.datasetVersion)
-        XCTAssertEqual(cached.evidenceTier, result.evidenceTier)
-        XCTAssertEqual(cached.supportLevel, result.supportLevel)
+        #expect(cached.glyphOutput == result.glyphOutput)
+        #expect(cached.engineVersion == result.engineVersion)
+        #expect(cached.datasetVersion == result.datasetVersion)
+        #expect(cached.evidenceTier == result.evidenceTier)
+        #expect(cached.supportLevel == result.supportLevel)
     }
 
-    func testDeleteTranslationsRemovesCachedEntries() throws {
-        let quote = try XCTUnwrap(quoteRepository).createQuote(
+    @Test
+    func deleteTranslationsRemovesCachedEntries() throws {
+        let context = try TestSupport.makeModelContext()
+        let quoteRepository = SwiftDataQuoteRepository(modelContext: context)
+        let translationRepository = SwiftDataTranslationRepository(modelContext: context)
+
+        let quote = try quoteRepository.createQuote(
             textLatin: "The wolf hunts at night",
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: nil,
+            storedRunic: nil
         )
         let result = HistoricalTranslationService().translate(
             text: quote.textLatin,
             script: .elder,
-            fidelity: .strict,
+            fidelity: .strict
         )
 
-        try XCTUnwrap(self.translationRepository).cache(result: result, for: quote.id, sourceText: quote.textLatin)
-        XCTAssertNotNil(try XCTUnwrap(self.translationRepository).latestTranslation(for: quote.id, script: .elder))
+        try translationRepository.cache(result: result, for: quote.id, sourceText: quote.textLatin)
+        #expect(try translationRepository.latestTranslation(for: quote.id, script: .elder) != nil)
 
-        try XCTUnwrap(self.translationRepository).deleteTranslations(for: quote.id)
+        try translationRepository.deleteTranslations(for: quote.id)
 
-        XCTAssertNil(try XCTUnwrap(self.translationRepository).latestTranslation(for: quote.id, script: .elder))
+        #expect(try translationRepository.latestTranslation(for: quote.id, script: .elder) == nil)
     }
 }

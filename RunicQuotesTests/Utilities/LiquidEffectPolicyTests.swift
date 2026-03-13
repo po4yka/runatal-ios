@@ -5,47 +5,32 @@
 //  Created by Codex on 2026-03-13.
 //
 
-import XCTest
+import Testing
 @testable import RunicQuotes
 
-final class LiquidEffectPolicyTests: XCTestCase {
-    func testChromeUsesGlassWhenAccessibilityAllowsIt() {
-        let policy = LiquidEffectPolicy(
-            role: .chrome,
-            reduceTransparency: false,
-            isNested: false
-        )
-
-        XCTAssertTrue(policy.shouldUseGlass)
+@Suite(.tags(.utility))
+struct LiquidEffectPolicyTests {
+    @Test
+    func chromeUsesGlassWhenAccessibilityAllowsIt() {
+        let policy = LiquidEffectPolicy(role: .chrome, reduceTransparency: false, isNested: false)
+        #expect(policy.shouldUseGlass)
     }
 
-    func testContentRoleNeverUsesGlass() {
-        let policy = LiquidEffectPolicy(
-            role: .content,
-            reduceTransparency: false,
-            isNested: false
-        )
-
-        XCTAssertFalse(policy.shouldUseGlass)
+    @Test
+    func contentRoleNeverUsesGlass() {
+        let policy = LiquidEffectPolicy(role: .content, reduceTransparency: false, isNested: false)
+        #expect(!policy.shouldUseGlass)
     }
 
-    func testNestedGlassIsDisabled() {
-        let policy = LiquidEffectPolicy(
-            role: .floatingCallout,
-            reduceTransparency: false,
-            isNested: true
-        )
-
-        XCTAssertFalse(policy.shouldUseGlass)
+    @Test
+    func nestedGlassIsDisabled() {
+        let policy = LiquidEffectPolicy(role: .floatingCallout, reduceTransparency: false, isNested: true)
+        #expect(!policy.shouldUseGlass)
     }
 
-    func testReduceTransparencyDisablesGlass() {
-        let policy = LiquidEffectPolicy(
-            role: .chrome,
-            reduceTransparency: true,
-            isNested: false
-        )
-
-        XCTAssertFalse(policy.shouldUseGlass)
+    @Test
+    func reduceTransparencyDisablesGlass() {
+        let policy = LiquidEffectPolicy(role: .chrome, reduceTransparency: true, isNested: false)
+        #expect(!policy.shouldUseGlass)
     }
 }

@@ -5,69 +5,55 @@
 //  Created by Claude on 2025-11-15.
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import RunicQuotes
 
-/// Tests for shared data types used by both the main app and the widget extension.
-/// Widget extension binaries (app extensions) do not export Swift symbols for testing,
-/// so these tests verify the shared RunicQuotes module types that power widget behaviour.
-final class QuoteTimelineProviderTests: XCTestCase {
-
-    // MARK: - RunicScript Tests
-
-    func testRunicScriptCasesExist() {
+/// Widget extension binaries do not export symbols for direct unit testing, so these tests
+/// validate the shared RunicQuotes types that power widget behaviour.
+@Suite(.tags(.widget))
+struct QuoteTimelineProviderTests {
+    @Test
+    func runicScriptCasesExistAndAreIdentifiable() {
         let scripts: [RunicScript] = [.elder, .younger, .cirth]
-        XCTAssertEqual(scripts.count, 3, "Should have three runic script cases")
+        #expect(scripts.count == 3)
+        #expect(RunicScript.elder.id == RunicScript.elder.rawValue)
+        #expect(RunicScript.younger.id == RunicScript.younger.rawValue)
+        #expect(RunicScript.cirth.id == RunicScript.cirth.rawValue)
+        #expect(RunicScript.allCases.count == 3)
     }
 
-    func testRunicScriptIsIdentifiable() {
-        XCTAssertEqual(RunicScript.elder.id, RunicScript.elder.rawValue)
-        XCTAssertEqual(RunicScript.younger.id, RunicScript.younger.rawValue)
-        XCTAssertEqual(RunicScript.cirth.id, RunicScript.cirth.rawValue)
+    @Test
+    func dailyQuoteIndexIsStableAndBounded() {
+        let stableDate = Date(timeIntervalSinceReferenceDate: 0)
+        let stableIndex = AppConstants.dailyQuoteIndex(for: stableDate, totalQuotes: 100)
+
+        #expect(stableIndex == AppConstants.dailyQuoteIndex(for: stableDate, totalQuotes: 100))
+
+        let boundedIndex = AppConstants.dailyQuoteIndex(for: .now, totalQuotes: 50)
+        #expect(boundedIndex >= 0)
+        #expect(boundedIndex < 50)
     }
 
-    func testRunicScriptAllCasesCount() {
-        XCTAssertEqual(RunicScript.allCases.count, 3)
+    @Test
+    func quoteCollectionIncludesAllCase() {
+        #expect(!QuoteCollection.allCases.isEmpty)
+        #expect(QuoteCollection.allCases.contains(.all))
     }
 
-    // MARK: - Widget-relevant AppConstants Tests
+    @Test
+    func deepLinkAndQuoteDataSupportWidgetRoutingAndFallback() throws {
+        let parsed = try #require(DeepLink.from(url: DeepLink.openQuote(script: .elder, mode: .daily).url))
+        let quote = QuoteData(
+            textLatin: "Fortune favors the bold.",
+            author: "Virgil",
+            runicElder: "ᚠᛟᚱᛏᚢᚾᛖ",
+            runicYounger: nil,
+            runicCirth: nil
+        )
 
-    func testDailyQuoteIndexIsStable() {
-        // Same date should always return the same index
-        let date = Date(timeIntervalSinceReferenceDate: 0)
-        let index1 = AppConstants.dailyQuoteIndex(for: date, totalQuotes: 100)
-        let index2 = AppConstants.dailyQuoteIndex(for: date, totalQuotes: 100)
-        XCTAssertEqual(index1, index2, "Daily quote index should be deterministic")
-    }
-
-    func testDailyQuoteIndexIsWithinBounds() {
-        let totalQuotes = 50
-        let date = Date()
-        let index = AppConstants.dailyQuoteIndex(for: date, totalQuotes: totalQuotes)
-        XCTAssertGreaterThanOrEqual(index, 0)
-        XCTAssertLessThan(index, totalQuotes)
-    }
-
-    func testDailyQuoteIndexDifferentDatesCanDiffer() {
-        let date1 = Date(timeIntervalSinceReferenceDate: 0)
-        let date2 = Date(timeIntervalSinceReferenceDate: 86400) // +1 day
-        let totalQuotes = 100
-        let index1 = AppConstants.dailyQuoteIndex(for: date1, totalQuotes: totalQuotes)
-        let index2 = AppConstants.dailyQuoteIndex(for: date2, totalQuotes: totalQuotes)
-        // Different days should (generally) produce different indices — just verify both are valid
-        XCTAssertGreaterThanOrEqual(index1, 0)
-        XCTAssertGreaterThanOrEqual(index2, 0)
-        XCTAssertLessThan(index1, totalQuotes)
-        XCTAssertLessThan(index2, totalQuotes)
-    }
-
-    // MARK: - Quote Collection Tests
-
-    func testQuoteCollectionCasesExist() {
-        XCTAssertFalse(QuoteCollection.allCases.isEmpty)
-    }
-
-    func testAllCollectionCaseExists() {
-        XCTAssertTrue(QuoteCollection.allCases.contains(.all))
+        #expect(parsed == .openQuote(script: .elder, mode: .daily))
+        #expect(quote.runicText(for: .elder) == "ᚠᛟᚱᛏᚢᚾᛖ")
+        #expect(quote.runicText(for: .younger) == quote.textLatin)
     }
 }

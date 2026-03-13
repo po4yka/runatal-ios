@@ -52,7 +52,7 @@ struct SmallWidgetView: View {
 
             if entry.showsDecorativeGlyphs {
                 WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
-                    .opacity(0.8)
+                    .opacity(0.42)
             }
 
             content
@@ -77,7 +77,7 @@ struct SmallWidgetView: View {
                     .minimumScaleFactor(0.65)
 
                 Text(entry.compactLatin(maxCharacters: 58))
-                    .font(.caption2)
+                    .font(DesignTokens.Typography.widgetMeta)
                     .foregroundStyle(palette.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -114,7 +114,7 @@ struct SmallWidgetView: View {
 
     private var widgetScriptIndicator: some View {
         Text(entry.script.displayName)
-            .font(.caption2)
+            .font(DesignTokens.Typography.widgetMeta)
             .foregroundStyle(palette.textTertiary)
     }
 }
@@ -133,11 +133,11 @@ struct MediumWidgetView: View {
 
             RoundedRectangle(cornerRadius: 0)
                 .fill(palette.rowFill)
-                .opacity(0.7)
+                .opacity(0.45)
 
             if entry.showsDecorativeGlyphs {
                 WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
-                    .opacity(0.75)
+                    .opacity(0.32)
             }
 
             content
@@ -161,7 +161,7 @@ struct MediumWidgetView: View {
                     Spacer()
 
                     Text("Quote of the Day")
-                        .font(.caption2)
+                        .font(DesignTokens.Typography.widgetMeta)
                         .foregroundStyle(palette.textTertiary)
                 }
 
@@ -190,14 +190,14 @@ struct MediumWidgetView: View {
 
                 HStack(spacing: DesignTokens.Spacing.xs) {
                     Text("\u{2014} \(entry.compactAuthor(maxCharacters: 26))")
-                        .font(.caption2)
+                        .font(DesignTokens.Typography.widgetMeta)
                         .foregroundStyle(palette.textTertiary)
                         .lineLimit(1)
 
                     Spacer()
 
                     Text(entry.script.displayName)
-                        .font(.caption2)
+                        .font(DesignTokens.Typography.widgetMeta)
                         .foregroundStyle(palette.textTertiary)
                 }
 
@@ -235,11 +235,11 @@ struct LargeWidgetView: View {
 
             RoundedRectangle(cornerRadius: 0)
                 .fill(palette.rowFill)
-                .opacity(0.68)
+                .opacity(0.42)
 
             if entry.showsDecorativeGlyphs {
                 WidgetDecorativeBackground(glyph: entry.decorativeGlyph, palette: palette)
-                    .opacity(0.65)
+                    .opacity(0.28)
             }
 
             content
@@ -333,7 +333,7 @@ struct LargeWidgetView: View {
             Spacer()
 
             Text("Daily Wisdom")
-                .font(.caption2)
+                .font(DesignTokens.Typography.widgetMeta)
                 .foregroundStyle(palette.textTertiary)
         }
     }
@@ -345,7 +345,7 @@ struct LargeWidgetView: View {
                 .foregroundStyle(palette.textTertiary)
 
             Text("Runic Quotes")
-                .font(.caption2)
+                .font(DesignTokens.Typography.widgetMeta)
                 .foregroundStyle(palette.textTertiary)
         }
     }

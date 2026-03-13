@@ -223,8 +223,7 @@ final class QuoteViewModel: ObservableObject {
 
             if previousScript != self.state.currentScript ||
                 previousMode != self.state.currentWidgetMode ||
-                previousCollection != self.state.currentCollection
-            {
+                previousCollection != self.state.currentCollection {
                 await self.loadQuote(using: self.state.currentWidgetMode, updateContext: true)
             }
         }

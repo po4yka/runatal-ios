@@ -7,11 +7,13 @@
 
 import Foundation
 import SwiftData
-import XCTest
+import Testing
 @testable import RunicQuotes
 
-final class DatabaseCoordinatorTests: XCTestCase {
-    func testSeedIfNeededCoalescesConcurrentRequests() async throws {
+@Suite(.serialized, .tags(.actors))
+struct DatabaseCoordinatorTests {
+    @Test
+    func seedIfNeededCoalescesConcurrentRequests() async throws {
         let container = try makeContainer()
         let quoteRepository = DatabaseQuoteRepositorySpy(seedDelay: 0.05)
         let translationRepository = DatabaseTranslationRepositorySpy()
@@ -28,11 +30,12 @@ final class DatabaseCoordinatorTests: XCTestCase {
         async let secondSeed: Void = coordinator.seedIfNeeded()
         _ = try await (firstSeed, secondSeed)
 
-        XCTAssertEqual(quoteRepository.seedCallCount, 1)
-        XCTAssertEqual(quoteRepository.factoryUseCount, 1)
+        #expect(quoteRepository.seedCallCount == 1)
+        #expect(quoteRepository.factoryUseCount == 1)
     }
 
-    func testPurgeExpiredQuotesUsesInjectedRepository() async throws {
+    @Test
+    func purgeExpiredQuotesUsesInjectedRepository() async throws {
         let container = try makeContainer()
         let quoteRepository = DatabaseQuoteRepositorySpy()
         let translationRepository = DatabaseTranslationRepositorySpy()
@@ -47,11 +50,12 @@ final class DatabaseCoordinatorTests: XCTestCase {
 
         await coordinator.purgeExpiredQuotes()
 
-        XCTAssertEqual(quoteRepository.purgeCallCount, 1)
-        XCTAssertNotNil(quoteRepository.lastCutoffDate)
+        #expect(quoteRepository.purgeCallCount == 1)
+        #expect(quoteRepository.lastCutoffDate != nil)
     }
 
-    func testBackfillTranslationsUsesInjectedRepository() async throws {
+    @Test
+    func backfillTranslationsUsesInjectedRepository() async throws {
         let container = try makeContainer()
         let quoteRepository = DatabaseQuoteRepositorySpy()
         let translationRepository = DatabaseTranslationRepositorySpy()
@@ -63,13 +67,11 @@ final class DatabaseCoordinatorTests: XCTestCase {
 
         await coordinator.backfillTranslations()
 
-        XCTAssertEqual(translationRepository.backfillCallCount, 1)
+        #expect(translationRepository.backfillCallCount == 1)
     }
 
     private func makeContainer() throws -> ModelContainer {
-        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        return try ModelContainer(for: schema, configurations: config)
+        try TestSupport.makeModelContainer()
     }
 }
 
@@ -96,6 +98,7 @@ private final class DatabaseQuoteRepositorySpy: DatabaseQuoteRepository, @unchec
         lock.lock()
         seedCallCount += 1
         lock.unlock()
+
         if seedDelay > 0 {
             Thread.sleep(forTimeInterval: seedDelay)
         }

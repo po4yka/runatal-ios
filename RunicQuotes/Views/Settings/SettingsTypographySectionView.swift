@@ -14,13 +14,13 @@ struct SettingsTypographySectionView: View {
     let tipRefreshID: UUID
 
     var body: some View {
-        GlassCard(intensity: .medium) {
+        SettingsPanel(palette: self.palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 SettingsSectionHeaderView(title: "Typography", icon: "textformat.size", palette: self.palette)
 
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     Text("Font")
-                        .font(.subheadline.weight(.semibold))
+                        .font(DesignTokens.Typography.controlLabel)
                         .foregroundStyle(self.palette.textSecondary)
 
                     GlassFontSelector(
@@ -39,7 +39,7 @@ struct SettingsTypographySectionView: View {
 
                 if let error = viewModel.state.errorMessage {
                     Text(error)
-                        .font(.caption)
+                        .font(DesignTokens.Typography.listMeta)
                         .foregroundStyle(self.palette.error)
                         .accessibilityLabel("Error: \(error)")
                 }
@@ -65,7 +65,7 @@ struct SettingsTypographySectionView: View {
             )
 
             Text("Recommended Combinations")
-                .font(.subheadline.weight(.semibold))
+                .font(DesignTokens.Typography.controlLabel)
                 .foregroundStyle(self.palette.textSecondary)
 
             ScrollView(.horizontal) {
@@ -90,64 +90,72 @@ struct SettingsTypographySectionView: View {
             FeatureDiscoveryEvents.settingsAppliedPreset.sendDonation()
             SettingsTypographyPresetTip().invalidate(reason: .actionPerformed)
         } label: {
-            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                HStack(alignment: .top) {
-                    Text(preset.displayName)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(self.palette.textPrimary)
-
-                    Spacer(minLength: DesignTokens.Spacing.xs)
-
-                    if isActive {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(self.palette.accent)
-                            .font(.caption)
-                    }
-                }
-
-                Text("\(preset.script.displayName) + \(preset.font.displayName)")
-                    .font(.caption)
-                    .foregroundStyle(self.palette.textTertiary)
-                    .lineLimit(1)
-
-                Text(self.viewModel.presetPreviewRunicText(for: preset))
-                    .runicTextStyle(
-                        script: preset.script,
-                        font: preset.font,
-                        style: .body,
-                        minSize: 16,
-                        maxSize: 24,
-                    )
-                    .foregroundStyle(self.palette.runeText)
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                Text(preset.previewLatinText)
-                    .font(.caption)
-                    .foregroundStyle(self.palette.textSecondary)
-                    .lineLimit(2)
-
-                Text(preset.description)
-                    .font(.caption)
-                    .foregroundStyle(self.palette.textTertiary)
-                    .lineLimit(2)
-            }
-            .padding(DesignTokens.Spacing.sm)
-            .frame(width: 250, alignment: .leading)
-            .background {
-                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                    .fill(isActive ? self.palette.bannerBackground : self.palette.editorialInset)
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                    .strokeBorder(
-                        isActive ? self.palette.strongCardStroke : self.palette.cardStroke,
-                        lineWidth: DesignTokens.Stroke.hairline,
-                    )
-            }
-            .shadow(color: self.palette.shadowColor.opacity(isActive ? 0.9 : 0), radius: 4, x: 0, y: 2)
+            self.presetCardBody(preset, isActive: isActive)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("settings_preset_\(preset.rawValue.replacing(" ", with: "_"))")
+    }
+
+    private func presetCardBody(_ preset: ReadingPreset, isActive: Bool) -> some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+            self.presetCardHeader(preset, isActive: isActive)
+
+            Text("\(preset.script.displayName) + \(preset.font.displayName)")
+                .font(DesignTokens.Typography.listMeta)
+                .foregroundStyle(self.palette.textTertiary)
+                .lineLimit(1)
+
+            Text(self.viewModel.presetPreviewRunicText(for: preset))
+                .runicTextStyle(
+                    script: preset.script,
+                    font: preset.font,
+                    style: .body,
+                    minSize: 16,
+                    maxSize: 24,
+                )
+                .foregroundStyle(self.palette.runeText)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(preset.previewLatinText)
+                .font(DesignTokens.Typography.listMeta)
+                .foregroundStyle(self.palette.textSecondary)
+                .lineLimit(2)
+
+            Text(preset.description)
+                .font(DesignTokens.Typography.listMeta)
+                .foregroundStyle(self.palette.textTertiary)
+                .lineLimit(2)
+        }
+        .padding(DesignTokens.Spacing.sm)
+        .frame(width: 250, alignment: .leading)
+        .background {
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                .fill(isActive ? self.palette.bannerBackground : self.palette.editorialInset)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                .strokeBorder(
+                    isActive ? self.palette.strongCardStroke : self.palette.cardStroke,
+                    lineWidth: DesignTokens.Stroke.hairline,
+                )
+        }
+        .shadow(color: self.palette.shadowColor.opacity(isActive ? 0.9 : 0), radius: 4, x: 0, y: 2)
+    }
+
+    private func presetCardHeader(_ preset: ReadingPreset, isActive: Bool) -> some View {
+        HStack(alignment: .top) {
+            Text(preset.displayName)
+                .font(DesignTokens.Typography.supportingBody.weight(.semibold))
+                .foregroundStyle(self.palette.textPrimary)
+
+            Spacer(minLength: DesignTokens.Spacing.xs)
+
+            if isActive {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(self.palette.accent)
+                    .font(.caption)
+            }
+        }
     }
 }

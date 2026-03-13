@@ -16,7 +16,7 @@ struct FilterChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(DesignTokens.Typography.label)
+                .font(DesignTokens.Typography.controlLabel)
                 .foregroundStyle(isSelected ? palette.chipSelectedForeground : palette.textPrimary)
                 .padding(.horizontal, DesignTokens.Spacing.sm)
                 .padding(.vertical, DesignTokens.Spacing.xs)

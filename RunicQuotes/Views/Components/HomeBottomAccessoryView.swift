@@ -41,7 +41,7 @@ struct HomeBottomAccessoryView: View {
 
                     if !isInline {
                         Text("\(controller.scriptName) · \(controller.caption)")
-                            .font(DesignTokens.Typography.metadata)
+                            .font(DesignTokens.Typography.listMeta)
                             .foregroundStyle(palette.textTertiary)
                             .lineLimit(1)
                     }

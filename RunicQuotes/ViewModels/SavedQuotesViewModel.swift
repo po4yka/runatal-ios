@@ -49,6 +49,8 @@ final class SavedQuotesViewModel: ObservableObject {
 
     /// Load saved quotes when view appears.
     func onAppear() {
+        state.isLoading = true
+        state.errorMessage = nil
         Task {
             await loadSavedQuotes()
         }
@@ -71,9 +73,6 @@ final class SavedQuotesViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func loadSavedQuotes() async {
-        state.isLoading = true
-        state.errorMessage = nil
-
         do {
             preferences = try preferencesRepository.snapshot()
             let savedIDs = preferences.savedQuoteIDs

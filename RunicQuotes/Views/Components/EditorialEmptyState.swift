@@ -35,11 +35,11 @@ struct EditorialEmptyState: View {
     }
 
     var body: some View {
-        EditorialCard(
+        ContentPlate(
             palette: palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: DesignTokens.Elevation.low
+            shadowRadius: 0
         ) {
             VStack(spacing: DesignTokens.Spacing.md) {
                 Image(systemName: icon)
@@ -56,12 +56,16 @@ struct EditorialEmptyState: View {
                     .multilineTextAlignment(.center)
 
                 Text(message)
-                    .font(DesignTokens.Typography.callout)
+                    .font(DesignTokens.Typography.supportingBody)
                     .foregroundStyle(palette.textSecondary)
                     .multilineTextAlignment(.center)
 
                 if let actionTitle, let action {
-                    GlassButton.primary(actionTitle, icon: nil, hapticTier: nil, action: action)
+                    Button(action: action) {
+                        Text(actionTitle)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
                 }
             }
             .frame(maxWidth: .infinity)

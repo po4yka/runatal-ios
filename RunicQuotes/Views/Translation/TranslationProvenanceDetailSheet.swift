@@ -145,7 +145,7 @@ struct TranslationProvenanceDetailSheet: View {
                 regressionID: nil,
                 detail: "Bundled lexical source used for the selected term.",
                 url: "https://example.com",
-            ),
+            )
         ],
     )
 }

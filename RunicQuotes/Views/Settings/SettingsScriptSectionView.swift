@@ -12,7 +12,7 @@ struct SettingsScriptSectionView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        GlassCard(intensity: .medium) {
+        SettingsPanel(palette: palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 SettingsSectionHeaderView(title: "Default Script", icon: "character.book.closed", palette: palette)
 
@@ -55,7 +55,7 @@ struct SettingsScriptSectionView: View {
                     .frame(width: 40, alignment: .center)
 
                 Text(script.displayName)
-                    .font(.subheadline.weight(.medium))
+                    .font(DesignTokens.Typography.supportingBody.weight(.medium))
                     .foregroundStyle(palette.textPrimary)
 
                 Spacer()

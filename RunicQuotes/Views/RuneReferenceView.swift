@@ -36,7 +36,11 @@ struct RuneReferenceView: View {
     // MARK: - Body
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
+        LiquidContentScaffold(
+            palette: palette,
+            spacing: DesignTokens.Spacing.lg,
+            showBackgroundExtension: false
+        ) {
             HeroHeader(
                 eyebrow: "Rune Reference",
                 title: selectedScript.displayName,
@@ -67,12 +71,6 @@ struct RuneReferenceView: View {
                 set: { selectedScript = $0 }
             )
         )
-        .padding(.horizontal, DesignTokens.Spacing.xxs)
-        .background {
-            InsetCard(palette: palette, cornerRadius: DesignTokens.CornerRadius.xl) {
-                EmptyView()
-            }
-        }
     }
 
     // MARK: - Rune Grid
@@ -109,11 +107,11 @@ struct RuneReferenceView: View {
 
     @ViewBuilder
     private func runeCell(_ rune: RuneInfo) -> some View {
-        EditorialCard(
+        ContentPlate(
             palette: palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.md,
-            shadowRadius: DesignTokens.Elevation.low,
+            shadowRadius: 0,
             contentPadding: DesignTokens.Spacing.sm
         ) {
             VStack(spacing: DesignTokens.Spacing.xxs) {
@@ -123,13 +121,13 @@ struct RuneReferenceView: View {
                     .frame(height: 40)
 
                 Text(rune.name)
-                    .font(.caption.bold())
+                    .font(DesignTokens.Typography.controlLabel)
                     .foregroundStyle(palette.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
                 Text(rune.meaning)
-                    .font(.caption)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(palette.textTertiary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)

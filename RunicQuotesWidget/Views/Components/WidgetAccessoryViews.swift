@@ -48,7 +48,7 @@ struct RectangularWidgetView: View {
                     .minimumScaleFactor(0.75)
 
                 Text(translationLine)
-                    .font(.caption2)
+                    .font(DesignTokens.Typography.widgetMeta)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .truncationMode(.tail)

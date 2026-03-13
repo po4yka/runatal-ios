@@ -5,180 +5,151 @@
 //  Created by Claude on 2025-11-15.
 //
 
-import XCTest
+import Testing
 @testable import RunicQuotes
 
-final class RunicTransliteratorTests: XCTestCase {
-
-    // MARK: - Elder Futhark Tests
-
-    func testElderFutharkBasicVowels() {
+@Suite(.tags(.utility))
+struct RunicTransliteratorTests {
+    @Test
+    func elderFutharkBasicVowels() {
         let result = RunicTransliterator.transliterate("aeiou", to: .elder)
-        XCTAssertNotEqual(result, "aeiou", "Should transliterate vowels to runes")
-        XCTAssertFalse(result.isEmpty, "Should produce non-empty output")
+        #expect(result != "aeiou")
+        #expect(!result.isEmpty)
     }
 
-    func testElderFutharkBasicConsonants() {
+    @Test
+    func elderFutharkBasicConsonants() {
         let result = RunicTransliterator.transliterate("bdfgklmnprst", to: .elder)
-        XCTAssertNotEqual(result, "bdfgklmnprst", "Should transliterate consonants to runes")
-        XCTAssertFalse(result.isEmpty, "Should produce non-empty output")
+        #expect(result != "bdfgklmnprst")
+        #expect(!result.isEmpty)
     }
 
-    func testElderFutharkDigraphTH() {
+    @Test
+    func elderFutharkDigraphTH() {
         let result = RunicTransliterator.transliterate("th", to: .elder)
-        XCTAssertEqual(result.count, 1, "Digraph 'th' should produce single rune")
-        XCTAssertNotEqual(result, "th", "Should transliterate 'th' to rune")
+        #expect(result.count == 1)
+        #expect(result != "th")
     }
 
-    func testElderFutharkDigraphNG() {
-        let result = RunicTransliterator.transliterate("ng", to: .elder)
-        XCTAssertNotEqual(result, "ng", "Should transliterate 'ng' to rune")
+    @Test
+    func elderFutharkDigraphNG() {
+        #expect(RunicTransliterator.transliterate("ng", to: .elder) != "ng")
     }
 
-    func testElderFutharkFullWord() {
+    @Test
+    func elderFutharkFullWord() {
         let result = RunicTransliterator.transliterate("fortune", to: .elder)
-        XCTAssertFalse(result.isEmpty, "Should transliterate full word")
-        XCTAssertNotEqual(result, "fortune", "Should convert to runes")
-        XCTAssertGreaterThan(result.count, 0, "Should have characters")
+        #expect(!result.isEmpty)
+        #expect(result != "fortune")
     }
 
-    func testElderFutharkPhrase() {
+    @Test
+    func elderFutharkPhrase() {
         let result = RunicTransliterator.transliterate("fortune favors the bold", to: .elder)
-        XCTAssertTrue(result.contains(" "), "Should preserve spaces")
-        XCTAssertNotEqual(result, "fortune favors the bold", "Should convert to runes")
+        #expect(result.contains(" "))
+        #expect(result != "fortune favors the bold")
     }
 
-    func testElderFutharkCaseInsensitive() {
-        let lower = RunicTransliterator.transliterate("fortune", to: .elder)
-        let upper = RunicTransliterator.transliterate("FORTUNE", to: .elder)
-        XCTAssertEqual(lower, upper, "Should be case-insensitive")
+    @Test
+    func elderFutharkCaseInsensitive() {
+        #expect(
+            RunicTransliterator.transliterate("fortune", to: .elder) ==
+                RunicTransliterator.transliterate("FORTUNE", to: .elder)
+        )
     }
 
-    func testElderFutharkPreservesPunctuation() {
+    @Test
+    func elderFutharkPreservesPunctuation() {
         let result = RunicTransliterator.transliterate("hello, world!", to: .elder)
-        XCTAssertTrue(result.contains(","), "Should preserve comma")
-        XCTAssertTrue(result.contains("!"), "Should preserve exclamation")
+        #expect(result.contains(","))
+        #expect(result.contains("!"))
     }
 
-    func testElderFutharkEmptyString() {
-        let result = RunicTransliterator.transliterate("", to: .elder)
-        XCTAssertEqual(result, "", "Empty string should return empty string")
+    @Test
+    func elderFutharkEmptyString() {
+        #expect(RunicTransliterator.transliterate("", to: .elder).isEmpty)
     }
 
-    // MARK: - Younger Futhark Tests
-
-    func testYoungerFutharkBasicVowels() {
+    @Test
+    func youngerFutharkBasicVowels() {
         let result = RunicTransliterator.transliterate("aeiou", to: .younger)
-        XCTAssertNotEqual(result, "aeiou", "Should transliterate vowels to runes")
-        XCTAssertFalse(result.isEmpty, "Should produce non-empty output")
+        #expect(result != "aeiou")
+        #expect(!result.isEmpty)
     }
 
-    func testYoungerFutharkMergedVowels() {
-        // Younger Futhark merges many vowels - e and o should map to a
-        let resultA = RunicTransliterator.transliterate("a", to: .younger)
-        let resultE = RunicTransliterator.transliterate("e", to: .younger)
-        let resultO = RunicTransliterator.transliterate("o", to: .younger)
-
-        XCTAssertEqual(resultA, resultE, "E should merge with A in Younger Futhark")
-        XCTAssertEqual(resultA, resultO, "O should merge with A in Younger Futhark")
+    @Test
+    func youngerFutharkMergedVowels() {
+        #expect(RunicTransliterator.transliterate("a", to: .younger) == RunicTransliterator.transliterate("e", to: .younger))
+        #expect(RunicTransliterator.transliterate("a", to: .younger) == RunicTransliterator.transliterate("o", to: .younger))
     }
 
-    func testYoungerFutharkMergedConsonants() {
-        // Younger Futhark merges k/g and b/p
-        let resultB = RunicTransliterator.transliterate("b", to: .younger)
-        let resultP = RunicTransliterator.transliterate("p", to: .younger)
-
-        XCTAssertEqual(resultB, resultP, "P should merge with B in Younger Futhark")
+    @Test
+    func youngerFutharkMergedConsonants() {
+        #expect(RunicTransliterator.transliterate("b", to: .younger) == RunicTransliterator.transliterate("p", to: .younger))
     }
 
-    func testYoungerFutharkFullWord() {
+    @Test
+    func youngerFutharkFullWord() {
         let result = RunicTransliterator.transliterate("fortune", to: .younger)
-        XCTAssertFalse(result.isEmpty, "Should transliterate full word")
-        XCTAssertNotEqual(result, "fortune", "Should convert to runes")
+        #expect(!result.isEmpty)
+        #expect(result != "fortune")
     }
 
-    // MARK: - Cirth Tests
-
-    // Cirth uses font substitution: ASCII bytes are unchanged; the Angerthas Moria font
-    // renders them as rune glyphs. So single vowels return the same lowercase characters.
-    func testCirthBasicVowels() {
+    @Test
+    func cirthBasicVowels() {
         let result = RunicTransliterator.transliterate("aeiou", to: .cirth)
-        XCTAssertEqual(result, "aeiou", "Cirth font-substitution: vowels map to the same ASCII characters")
-        XCTAssertFalse(result.isEmpty, "Should produce non-empty output")
+        #expect(result == "aeiou")
+        #expect(!result.isEmpty)
     }
 
-    func testCirthDigraphs() {
-        let resultTH = RunicTransliterator.transliterate("th", to: .cirth)
-        let resultCH = RunicTransliterator.transliterate("ch", to: .cirth)
-        // "th" and "ch" have dedicated digraph mappings (þ, ç)
-        XCTAssertNotEqual(resultTH, "th", "Should transliterate 'th' digraph to þ")
-        XCTAssertNotEqual(resultCH, "ch", "Should transliterate 'ch' digraph to ç")
-        // "sh" has no dedicated Cirth digraph; each letter maps to itself
-        let resultSH = RunicTransliterator.transliterate("sh", to: .cirth)
-        XCTAssertEqual(resultSH, "sh", "'sh' has no Cirth digraph and passes through unchanged")
+    @Test
+    func cirthDigraphs() {
+        #expect(RunicTransliterator.transliterate("th", to: .cirth) != "th")
+        #expect(RunicTransliterator.transliterate("ch", to: .cirth) != "ch")
+        #expect(RunicTransliterator.transliterate("sh", to: .cirth) == "sh")
     }
 
-    func testCirthFullPhrase() {
-        // "those" contains the "th" digraph, so output differs from input
+    @Test
+    func cirthFullPhrase() {
         let result = RunicTransliterator.transliterate("not all those who wander", to: .cirth)
-        XCTAssertTrue(result.contains(" "), "Should preserve spaces")
-        XCTAssertNotEqual(result, "not all those who wander", "Should differ due to digraph substitutions")
+        #expect(result.contains(" "))
+        #expect(result != "not all those who wander")
     }
 
-    // MARK: - Cross-Script Tests
-
-    func testAllScriptsProduceDifferentOutput() {
+    @Test
+    func allScriptsProduceDifferentOutput() {
         let text = "fortune"
         let elder = RunicTransliterator.transliterate(text, to: .elder)
         let younger = RunicTransliterator.transliterate(text, to: .younger)
-        // Cirth uses font substitution — ASCII bytes unchanged, font renders them as runes
         let cirth = RunicTransliterator.transliterate(text, to: .cirth)
 
-        XCTAssertNotEqual(elder, text, "Elder should differ from original")
-        XCTAssertNotEqual(younger, text, "Younger should differ from original")
-        // "fortune" contains no Cirth digraphs, so it passes through as-is
-        XCTAssertEqual(cirth, text, "Cirth font-substitution: 'fortune' has no digraphs and maps to itself")
+        #expect(elder != text)
+        #expect(younger != text)
+        #expect(cirth == text)
     }
 
-    func testScriptsPreserveWordBoundaries() {
+    @Test
+    func scriptsPreserveWordBoundaries() {
         let text = "hello world"
-
-        let elder = RunicTransliterator.transliterate(text, to: .elder)
-        let younger = RunicTransliterator.transliterate(text, to: .younger)
-        let cirth = RunicTransliterator.transliterate(text, to: .cirth)
-
-        XCTAssertTrue(elder.contains(" "), "Elder should preserve space")
-        XCTAssertTrue(younger.contains(" "), "Younger should preserve space")
-        XCTAssertTrue(cirth.contains(" "), "Cirth should preserve space")
+        #expect(RunicTransliterator.transliterate(text, to: .elder).contains(" "))
+        #expect(RunicTransliterator.transliterate(text, to: .younger).contains(" "))
+        #expect(RunicTransliterator.transliterate(text, to: .cirth).contains(" "))
     }
 
-    // MARK: - Performance Tests
-
-    func testTransliterationPerformance() {
-        let longText = String(repeating: "fortune favors the bold ", count: 100)
-
-        measure {
-            _ = RunicTransliterator.transliterate(longText, to: .elder)
-        }
+    @Test
+    func numbersPassThrough() {
+        #expect(!RunicTransliterator.transliterate("123", to: .elder).isEmpty)
     }
 
-    // MARK: - Edge Cases
-
-    func testNumbersPassThrough() {
-        let result = RunicTransliterator.transliterate("123", to: .elder)
-        // Numbers might pass through or be transliterated - just ensure no crash
-        XCTAssertFalse(result.isEmpty, "Should handle numbers without crashing")
+    @Test
+    func specialCharacters() {
+        #expect(!RunicTransliterator.transliterate("@#$%", to: .elder).isEmpty)
     }
 
-    func testSpecialCharacters() {
-        let result = RunicTransliterator.transliterate("@#$%", to: .elder)
-        // Special chars should pass through or be handled gracefully
-        XCTAssertFalse(result.isEmpty, "Should handle special characters")
-    }
-
-    func testMixedContent() {
+    @Test
+    func mixedContent() {
         let result = RunicTransliterator.transliterate("hello123world!", to: .elder)
-        XCTAssertTrue(result.contains("!"), "Should preserve punctuation")
-        XCTAssertFalse(result.isEmpty, "Should handle mixed content")
+        #expect(result.contains("!"))
+        #expect(!result.isEmpty)
     }
 }

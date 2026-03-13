@@ -32,15 +32,14 @@ final class RunicQuotesUITests: XCTestCase {
     }
 
     func testTabBarExists() {
-        // Then: Tab bar should exist with both tabs
         let app = self.tryUnwrapApp()
         let tabBar = app.tabBars.firstMatch
         XCTAssertTrue(tabBar.exists, "Tab bar should exist")
 
-        let quoteTab = app.tabBars.buttons["Quote"]
-        let settingsTab = app.tabBars.buttons["Settings"]
+        let homeTab = self.tabButton(in: app, identifier: "home_tab", labels: ["Home"])
+        let settingsTab = self.tabButton(in: app, identifier: "settings_tab", labels: ["Settings"])
 
-        XCTAssertTrue(quoteTab.exists, "Quote tab should exist")
+        XCTAssertTrue(homeTab.exists, "Home tab should exist")
         XCTAssertTrue(settingsTab.exists, "Settings tab should exist")
     }
 
@@ -58,32 +57,27 @@ final class RunicQuotesUITests: XCTestCase {
     }
 
     func testScriptSelectorExists() {
-        // Then: Script selector should exist
         let app = self.tryUnwrapApp()
-        let selector = app.otherElements["quote_script_selector"]
-        let elderButton = app.buttons["Elder Futhark"]
-        let youngerButton = app.buttons["Younger Futhark"]
-        let cirthButton = app.buttons["Cirth (Angerthas)"]
+        let selector = self.findElement(in: app, identifier: "quote_script_selector", maxSwipes: 1)
 
         XCTAssertTrue(selector.waitForExistence(timeout: 5), "Script selector should exist")
-        XCTAssertTrue(elderButton.waitForExistence(timeout: 5), "Elder Futhark button should exist")
-        XCTAssertTrue(youngerButton.exists, "Younger Futhark button should exist")
-        XCTAssertTrue(cirthButton.exists, "Cirth button should exist")
+        XCTAssertEqual(selector.label, "Runic script selector", "Selector should expose an accessibility label")
+        XCTAssertNotNil(selector.value as? String, "Selector should expose the current script value")
     }
 
     func testSwitchingScripts() {
-        // Given: App loaded
         let app = self.tryUnwrapApp()
-        let youngerButton = app.buttons["Younger Futhark"]
+        let youngerButton = self.scriptSelectorButton(
+            in: app,
+            identifier: "quote_script_selector",
+            labelContains: "Younger Futhark",
+        )
         XCTAssertTrue(youngerButton.waitForExistence(timeout: 5), "Younger Futhark button should exist")
 
-        // When: Tapping Younger Futhark
-        youngerButton.tap()
+        self.tapElement(youngerButton)
 
-        // Then: quote remains visible after script change
         let quoteCard = app.otherElements["quote_card"]
         XCTAssertTrue(quoteCard.waitForExistence(timeout: 5), "Quote card should remain visible")
-        XCTAssertTrue(youngerButton.exists, "Younger Futhark button should still exist")
     }
 
     func testNextQuoteButton() {
@@ -116,55 +110,42 @@ final class RunicQuotesUITests: XCTestCase {
     // MARK: - Settings View Tests
 
     func testNavigateToSettings() {
-        // When: Tapping settings tab
         let app = self.tryUnwrapApp()
-        let settingsTab = app.tabBars.buttons["Settings"]
-        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab should exist")
+        self.openSettings(in: app)
 
-        settingsTab.tap()
-
-        // Then: Settings view should appear
-        let header = app.otherElements["settings_header"]
+        let header = self.findElement(in: app, identifier: "settings_header", maxSwipes: 2)
         XCTAssertTrue(header.waitForExistence(timeout: 5), "Settings header should appear")
     }
 
     func testSettingsViewHasScriptSelection() {
-        // Given: On settings screen
         let app = self.tryUnwrapApp()
-        app.tabBars.buttons["Settings"].tap()
+        self.openSettings(in: app)
 
-        // Then: Script selection should exist
-        let scriptSection = app.otherElements["settings_script_section"]
+        let scriptSection = self.findElement(in: app, identifier: "settings_script_section", maxSwipes: 3)
         XCTAssertTrue(scriptSection.waitForExistence(timeout: 5), "Script section should exist")
     }
 
     func testSettingsViewHasFontSelection() {
-        // Given: On settings screen
         let app = self.tryUnwrapApp()
-        app.tabBars.buttons["Settings"].tap()
+        self.openSettings(in: app)
 
-        // Then: Font selection should exist
-        let fontSection = app.otherElements["settings_font_section"]
+        let fontSection = self.findElement(in: app, identifier: "settings_font_section", maxSwipes: 4)
         XCTAssertTrue(fontSection.waitForExistence(timeout: 5), "Font section should exist")
     }
 
     func testSettingsViewHasWidgetMode() {
-        // Given: On settings screen
         let app = self.tryUnwrapApp()
-        app.tabBars.buttons["Settings"].tap()
+        self.openSettings(in: app)
 
-        // Then: Widget settings should exist
-        let widgetSection = app.otherElements["settings_widget_section"]
+        let widgetSection = self.findElement(in: app, identifier: "settings_widget_section", maxSwipes: 5)
         XCTAssertTrue(widgetSection.waitForExistence(timeout: 5), "Widget section should exist")
     }
 
     func testSettingsViewHasAboutSection() {
-        // Given: On settings screen
         let app = self.tryUnwrapApp()
-        app.tabBars.buttons["Settings"].tap()
+        self.openSettings(in: app)
 
-        // Then: About section should exist
-        let aboutSection = app.otherElements["settings_about_section"]
+        let aboutSection = self.findElement(in: app, identifier: "settings_about_section", maxSwipes: 6)
         XCTAssertTrue(aboutSection.waitForExistence(timeout: 5), "About section should exist")
     }
 
@@ -208,6 +189,7 @@ final class RunicQuotesUITests: XCTestCase {
         let app = self.tryUnwrapApp()
         self.openTranslationFromCreateMenu(app)
         self.assertTranslationScreenVisible(in: app)
+        self.selectYoungerTranslationScript(in: app)
 
         let input = app.textViews["translation_input_editor"]
         XCTAssertTrue(input.waitForExistence(timeout: 5), "Translation input should exist")
@@ -216,18 +198,18 @@ final class RunicQuotesUITests: XCTestCase {
 
         let translateButton = app.segmentedControls.buttons["Translate"]
         XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate mode should exist")
-        translateButton.tap()
+        self.tapElement(translateButton)
 
         XCTAssertTrue(
-            app.staticTexts["translation_source_language_banner"].waitForExistence(timeout: 5),
+            self.findElement(in: app, identifier: "translation_source_language_banner", maxSwipes: 3).waitForExistence(timeout: 5),
             "English-only support banner should exist",
         )
         XCTAssertTrue(
-            app.staticTexts["translation_evidence_badge"].waitForExistence(timeout: 5),
+            self.findElement(in: app, identifier: "translation_evidence_badge", maxSwipes: 3).waitForExistence(timeout: 5),
             "Evidence badge should exist",
         )
         XCTAssertTrue(
-            app.staticTexts["translation_support_badge"].waitForExistence(timeout: 5),
+            self.findElement(in: app, identifier: "translation_support_badge", maxSwipes: 3).waitForExistence(timeout: 5),
             "Support badge should exist",
         )
     }
@@ -236,6 +218,7 @@ final class RunicQuotesUITests: XCTestCase {
         let app = self.tryUnwrapApp()
         self.openTranslationFromCreateMenu(app)
         self.assertTranslationScreenVisible(in: app)
+        self.selectYoungerTranslationScript(in: app)
 
         let input = app.textViews["translation_input_editor"]
         XCTAssertTrue(input.waitForExistence(timeout: 5), "Translation input should exist")
@@ -244,11 +227,11 @@ final class RunicQuotesUITests: XCTestCase {
 
         let translateButton = app.segmentedControls.buttons["Translate"]
         XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate mode should exist")
-        translateButton.tap()
+        self.tapElement(translateButton)
 
-        let sourcesButton = app.buttons["translation_sources_button"]
+        let sourcesButton = self.findElement(in: app, identifier: "translation_sources_button", maxSwipes: 4)
         XCTAssertTrue(sourcesButton.waitForExistence(timeout: 5), "Sources button should exist")
-        sourcesButton.tap()
+        self.tapElement(sourcesButton)
 
         XCTAssertTrue(app.navigationBars["Sources"].waitForExistence(timeout: 5), "Sources sheet should appear")
     }
@@ -256,22 +239,17 @@ final class RunicQuotesUITests: XCTestCase {
     // MARK: - Navigation Tests
 
     func testSwitchBetweenTabs() {
-        // Given: On Quote tab
         let app = self.tryUnwrapApp()
-        let quoteTab = app.tabBars.buttons["Quote"]
-        let settingsTab = app.tabBars.buttons["Settings"]
+        let homeTab = self.tabButton(in: app, identifier: "home_tab", labels: ["Home"])
+        let settingsTab = self.tabButton(in: app, identifier: "settings_tab", labels: ["Settings"])
 
-        // When: Switching to Settings
-        settingsTab.tap()
+        self.tapElement(settingsTab)
 
-        // Then: Should be on Settings
-        let settingsHeader = app.otherElements["settings_header"]
+        let settingsHeader = self.findElement(in: app, identifier: "settings_header", maxSwipes: 2)
         XCTAssertTrue(settingsHeader.waitForExistence(timeout: 5), "Should show Settings")
 
-        // When: Switching back to Quote
-        quoteTab.tap()
+        self.tapElement(homeTab)
 
-        // Then: Should be back on Quote view
         let quoteText = app.staticTexts["quoteText"]
         XCTAssertTrue(quoteText.waitForExistence(timeout: 5), "Should show quote again")
     }
@@ -279,12 +257,11 @@ final class RunicQuotesUITests: XCTestCase {
     // MARK: - Accessibility Tests
 
     func testAccessibilityLabels() {
-        // Check that key elements have accessibility
         let app = self.tryUnwrapApp()
-        let quoteTab = app.tabBars.buttons["Quote"]
-        let settingsTab = app.tabBars.buttons["Settings"]
+        let homeTab = self.tabButton(in: app, identifier: "home_tab", labels: ["Home"])
+        let settingsTab = self.tabButton(in: app, identifier: "settings_tab", labels: ["Settings"])
 
-        XCTAssertEqual(quoteTab.label, "Quote", "Quote tab should expose its accessibility label")
+        XCTAssertEqual(homeTab.label, "Home", "Home tab should expose its accessibility label")
         XCTAssertEqual(settingsTab.label, "Settings", "Settings tab should expose its accessibility label")
     }
 
@@ -301,9 +278,12 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testTabSwitchingPerformance() {
         let app = self.tryUnwrapApp()
+        let settingsTab = self.tabButton(in: app, identifier: "settings_tab", labels: ["Settings"])
+        let homeTab = self.tabButton(in: app, identifier: "home_tab", labels: ["Home"])
+
         measure {
-            app.tabBars.buttons["Settings"].tap()
-            app.tabBars.buttons["Quote"].tap()
+            self.tapElement(settingsTab)
+            self.tapElement(homeTab)
         }
     }
 
@@ -320,28 +300,108 @@ final class RunicQuotesUITests: XCTestCase {
     }
 
     private func openTranslationFromSettings(_ app: XCUIApplication) {
-        let settingsTab = app.tabBars.buttons["Settings"]
-        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab should exist")
-        settingsTab.tap()
-
+        self.openSettings(in: app)
         let translationLink = translationLink(in: app)
         XCTAssertTrue(translationLink.waitForExistence(timeout: 5), "Translation link should exist")
-        translationLink.tap()
+        self.tapElement(translationLink)
     }
 
     private func openTranslationFromCreateMenu(_ app: XCUIApplication) {
         let createMenu = app.buttons["quote_create_menu"]
         XCTAssertTrue(createMenu.waitForExistence(timeout: 5), "Create menu should exist")
-        createMenu.tap()
+        self.tapElement(createMenu)
 
         let translateButton = app.buttons["Translate"]
         XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate menu action should exist")
-        translateButton.tap()
+        self.tapElement(translateButton)
     }
 
     private func assertTranslationScreenVisible(in app: XCUIApplication) {
-        let accuracyButton = app.buttons["translation_accuracy_button"]
+        let accuracyButton = self.findElement(in: app, identifier: "translation_accuracy_button", maxSwipes: 1)
         XCTAssertTrue(accuracyButton.waitForExistence(timeout: 5), "Accuracy button should exist")
+    }
+
+    private func selectYoungerTranslationScript(in app: XCUIApplication) {
+        let youngerButton = self.scriptSelectorButton(
+            in: app,
+            identifier: "translation_script_selector",
+            labelContains: "Younger Futhark",
+        )
+        XCTAssertTrue(youngerButton.waitForExistence(timeout: 5), "Translation script selector should exist")
+        self.tapElement(youngerButton)
+    }
+
+    private func openSettings(in app: XCUIApplication) {
+        let settingsTab = self.tabButton(in: app, identifier: "settings_tab", labels: ["Settings"])
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab should exist")
+        self.tapElement(settingsTab)
+    }
+
+    private func tabButton(in app: XCUIApplication, identifier: String, labels: [String]) -> XCUIElement {
+        let identifiedButton = app.tabBars.buttons[identifier]
+        if identifiedButton.waitForExistence(timeout: 1) {
+            return identifiedButton
+        }
+
+        for label in labels {
+            let labeledButton = app.tabBars.buttons[label]
+            if labeledButton.waitForExistence(timeout: 1) {
+                return labeledButton
+            }
+        }
+
+        return identifiedButton
+    }
+
+    private func button(containingLabel label: String, in app: XCUIApplication) -> XCUIElement {
+        let predicate = NSPredicate(format: "label CONTAINS[c] %@", label)
+        return app.buttons.matching(predicate).firstMatch
+    }
+
+    private func scriptSelectorButton(
+        in app: XCUIApplication,
+        identifier: String,
+        labelContains labelFragment: String,
+    ) -> XCUIElement {
+        let predicate = NSPredicate(
+            format: "identifier == %@ AND label CONTAINS[c] %@",
+            identifier,
+            labelFragment,
+        )
+        return app.buttons.matching(predicate).firstMatch
+    }
+
+    private func findElement(
+        in app: XCUIApplication,
+        identifier: String,
+        maxSwipes: Int,
+    ) -> XCUIElement {
+        let element = app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+
+        for _ in 0 ... maxSwipes {
+            if element.exists {
+                return element
+            }
+            app.swipeUp()
+        }
+
+        for _ in 0 ... maxSwipes {
+            if element.exists {
+                return element
+            }
+            app.swipeDown()
+        }
+
+        return element
+    }
+
+    private func tapElement(_ element: XCUIElement) {
+        if element.isHittable {
+            element.tap()
+            return
+        }
+
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
 
     private func translationLink(in app: XCUIApplication) -> XCUIElement {

@@ -13,7 +13,13 @@ struct QuoteErrorView: View {
     let retry: () -> Void
 
     var body: some View {
-        GlassCard(intensity: .medium) {
+        ContentPlate(
+            palette: palette,
+            tone: .secondary,
+            cornerRadius: DesignTokens.CornerRadius.xl,
+            shadowRadius: 0,
+            contentPadding: DesignTokens.Spacing.md
+        ) {
             VStack(spacing: DesignTokens.Spacing.md) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.largeTitle)
@@ -25,16 +31,19 @@ struct QuoteErrorView: View {
                     .foregroundStyle(palette.textPrimary)
 
                 Text(message)
-                    .font(.body)
+                    .font(DesignTokens.Typography.supportingBody)
                     .foregroundStyle(palette.textSecondary)
                     .multilineTextAlignment(.center)
 
-                GlassButton.primary("Try Again", icon: "arrow.clockwise", action: retry)
-                    .accessibilityLabel("Retry loading quote")
-                    .accessibilityHint("Double tap to try loading the quote again")
-                    .accessibilityIdentifier("quote_retry_button")
+                Button(action: retry) {
+                    Label("Try Again", systemImage: "arrow.clockwise")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
+                .accessibilityLabel("Retry loading quote")
+                .accessibilityHint("Double tap to try loading the quote again")
+                .accessibilityIdentifier("quote_retry_button")
             }
-            .padding(DesignTokens.Spacing.md)
         }
         .padding(DesignTokens.Spacing.md)
         .accessibilityElement(children: .contain)

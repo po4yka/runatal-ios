@@ -170,7 +170,7 @@ struct RunicQuotesApp: App {
                 object: nil,
                 userInfo: [
                     "script": script,
-                    "mode": mode,
+                    "mode": mode
                 ],
             )
         case "settings":

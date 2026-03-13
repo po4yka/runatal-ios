@@ -84,42 +84,25 @@ struct QuotePacksView: View {
         Button {
             selectedPack = pack
         } label: {
-            EditorialCard(
+            CollectionShelfRow(
                 palette: palette,
-                tone: .primary,
-                cornerRadius: DesignTokens.CornerRadius.xl,
-                shadowRadius: DesignTokens.Elevation.low,
-                contentPadding: DesignTokens.Spacing.md
-            ) {
-                HStack(spacing: DesignTokens.Spacing.md) {
+                eyebrow: "Pack",
+                title: pack.title,
+                subtitle: pack.subtitle,
+                supporting: "\(pack.quoteCount) quotes",
+                meta: [],
+                leading: {
                     Text(pack.runicGlyph)
                         .font(.system(size: 32, weight: .medium, design: .serif))
                         .foregroundStyle(palette.runeText)
                         .frame(width: 44, alignment: .center)
-
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        SectionLabel(title: "Pack", palette: palette)
-                        Text(pack.title)
-                            .font(DesignTokens.Typography.cardTitle)
-                            .foregroundStyle(palette.textPrimary)
-
-                        Text(pack.subtitle)
-                            .font(DesignTokens.Typography.callout)
-                            .foregroundStyle(palette.textSecondary)
-                            .lineLimit(2)
-
-                        Text("\(pack.quoteCount) quotes")
-                            .font(DesignTokens.Typography.metadata)
-                            .foregroundStyle(palette.textTertiary)
-                    }
-
-                    Spacer()
-
+                },
+                trailing: {
                     Image(systemName: "chevron.right")
                         .font(.caption)
                         .foregroundStyle(palette.textTertiary)
                 }
-            }
+            )
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("pack_\(pack.id)")

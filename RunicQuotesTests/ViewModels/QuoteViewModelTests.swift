@@ -5,327 +5,246 @@
 //  Created by Claude on 30.10.25.
 //
 
-@testable import RunicQuotes
 import SwiftData
-import XCTest
+import Testing
+@testable import RunicQuotes
 
-// swiftlint:disable type_body_length
-final class QuoteViewModelTests: XCTestCase {
-    // MARK: - Initialization Tests
-
-    @MainActor
-    func testInitialState() throws {
+@MainActor
+@Suite(.serialized, .tags(.viewModel))
+struct QuoteViewModelTests {
+    @Test
+    func initialState() throws {
         let viewModel = try makeViewModel()
 
-        XCTAssertTrue(viewModel.state.isLoading, "Should start in loading state")
-        XCTAssertEqual(viewModel.state.runicText, "", "Runic text should be empty initially")
-        XCTAssertEqual(viewModel.state.latinText, "", "Latin text should be empty initially")
-        XCTAssertEqual(viewModel.state.author, "", "Author should be empty initially")
+        #expect(viewModel.state.isLoading)
+        #expect(viewModel.state.runicText.isEmpty)
+        #expect(viewModel.state.latinText.isEmpty)
+        #expect(viewModel.state.author.isEmpty)
     }
 
-    @MainActor
-    func testDefaultScript() throws {
-        let viewModel = try makeViewModel()
-        XCTAssertEqual(viewModel.state.currentScript, .elder, "Default script should be Elder Futhark")
+    @Test
+    func defaultScript() throws {
+        #expect(try makeViewModel().state.currentScript == .elder)
     }
 
-    @MainActor
-    func testDefaultFont() throws {
-        let viewModel = try makeViewModel()
-        XCTAssertEqual(viewModel.state.currentFont, .noto, "Default font should be Noto")
+    @Test
+    func defaultFont() throws {
+        #expect(try makeViewModel().state.currentFont == .noto)
     }
 
-    @MainActor
-    func testDefaultCollection() throws {
-        let viewModel = try makeViewModel()
-        XCTAssertEqual(viewModel.state.currentCollection, .all, "Default collection should include all quotes")
+    @Test
+    func defaultCollection() throws {
+        #expect(try makeViewModel().state.currentCollection == .all)
     }
 
-    // MARK: - Loading Tests
-
-    @MainActor
-    func testOnAppearLoadsQuote() async throws {
+    @Test
+    func onAppearLoadsQuote() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await self.waitUntil("view model finishes loading") {
-            !viewModel.state.isLoading
-        }
-
-        XCTAssertFalse(viewModel.state.isLoading, "Should finish loading")
-        XCTAssertFalse(viewModel.state.latinText.isEmpty, "Should load Latin text")
-        XCTAssertFalse(viewModel.state.author.isEmpty, "Should load author")
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(!viewModel.state.latinText.isEmpty)
+        #expect(!viewModel.state.author.isEmpty)
     }
 
-    @MainActor
-    func testLoadedQuoteHasRunicText() async throws {
+    @Test
+    func loadedQuoteHasRunicText() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await self.waitUntil("quote loads") {
-            !viewModel.state.isLoading
-        }
-
-        XCTAssertFalse(viewModel.state.runicText.isEmpty, "Should have runic text")
-        XCTAssertNotEqual(
-            viewModel.state.runicText,
-            viewModel.state.latinText,
-            "Runic text should differ from Latin text",
-        )
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(!viewModel.state.runicText.isEmpty)
+        #expect(viewModel.state.runicText != viewModel.state.latinText)
     }
 
-    // MARK: - Script Switching Tests
-
-    @MainActor
-    func testScriptChangeUpdatesState() async throws {
+    @Test
+    func scriptChangeUpdatesState() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
-
-        await self.waitUntil("initial quote loads") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         viewModel.onScriptChanged(.younger)
 
-        await self.waitUntil("script switches to younger") {
+        #expect(await TestSupport.eventually {
             viewModel.state.currentScript == .younger && !viewModel.state.isLoading
-        }
-
-        XCTAssertEqual(viewModel.state.currentScript, .younger, "Script should change to Younger")
+        })
+        #expect(viewModel.state.currentScript == .younger)
     }
 
-    @MainActor
-    func testScriptChangeReloadsQuote() async throws {
+    @Test
+    func scriptChangeReloadsQuote() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
-
-        await self.waitUntil("initial quote loads") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         let originalText = viewModel.state.latinText
         viewModel.onScriptChanged(.cirth)
 
-        await self.waitUntil("script switches to cirth and reload completes") {
+        #expect(await TestSupport.eventually {
             viewModel.state.currentScript == .cirth && !viewModel.state.isLoading
-        }
-
-        XCTAssertFalse(viewModel.state.latinText.isEmpty, "Should have Latin text after script change")
-        XCTAssertNotEqual(originalText, "", "Original quote should not be empty")
+        })
+        #expect(!viewModel.state.latinText.isEmpty)
+        #expect(!originalText.isEmpty)
     }
 
-    // MARK: - Font Change Tests
-
-    @MainActor
-    func testFontChangeUpdatesState() async throws {
+    @Test
+    func fontChangeUpdatesState() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
-
-        await self.waitUntil("initial quote loads") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         viewModel.onFontChanged(.babelstone)
 
-        await self.waitUntil("font switches to BabelStone") {
-            viewModel.state.currentFont == .babelstone
-        }
-
-        XCTAssertEqual(viewModel.state.currentFont, .babelstone, "Font should change to BabelStone")
+        #expect(await TestSupport.eventually { viewModel.state.currentFont == .babelstone })
+        #expect(viewModel.state.currentFont == .babelstone)
     }
 
-    @MainActor
-    func testFontCompatibilityCheck() async throws {
+    @Test
+    func fontCompatibilityCheck() async throws {
         let viewModel = try makeViewModel()
         viewModel.onScriptChanged(.cirth)
 
-        await self.waitUntil("script switches to cirth") {
+        #expect(await TestSupport.eventually {
             viewModel.state.currentScript == .cirth && !viewModel.state.isLoading
-        }
+        })
 
         viewModel.onFontChanged(.noto)
 
-        await self.waitUntil("font compatibility check completes") {
+        #expect(await TestSupport.eventually {
             viewModel.state.errorMessage != nil || viewModel.state.currentFont != .noto
-        }
+        })
 
-        if viewModel.state.errorMessage != nil {
-            let errorMessage = try XCTUnwrap(viewModel.state.errorMessage)
-            XCTAssertTrue(
-                errorMessage.contains("compatible"),
-                "Error should mention compatibility",
-            )
+        if let errorMessage = viewModel.state.errorMessage {
+            #expect(errorMessage.contains("compatible"))
         }
     }
 
-    // MARK: - Next Quote Tests
-
-    @MainActor
-    func testNextQuoteTappedLoadsQuote() async throws {
+    @Test
+    func nextQuoteTappedLoadsQuote() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
-
-        await self.waitUntil("initial quote loads") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         viewModel.onNextQuoteTapped()
 
-        await self.waitUntil("next quote load completes with content") {
+        #expect(await TestSupport.eventually {
             !viewModel.state.isLoading && !viewModel.state.latinText.isEmpty && !viewModel.state.author.isEmpty
-        }
-
-        XCTAssertFalse(viewModel.state.latinText.isEmpty, "Should have Latin text after tapping next quote")
-        XCTAssertFalse(viewModel.state.author.isEmpty, "Should have author after tapping next quote")
+        })
+        #expect(!viewModel.state.latinText.isEmpty)
+        #expect(!viewModel.state.author.isEmpty)
     }
 
-    @MainActor
-    func testCollectionChangeLoadsQuoteFromCollection() async throws {
+    @Test
+    func collectionChangeLoadsQuoteFromCollection() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
-
-        await self.waitUntil("initial quote loads") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         viewModel.onCollectionChanged(.tolkien)
 
-        await self.waitUntil("tolkien collection quote loads") {
+        #expect(await TestSupport.eventually {
             viewModel.state.currentCollection == .tolkien && !viewModel.state.isLoading
-        }
+        })
 
-        let currentQuote = try XCTUnwrap(viewModel.currentQuoteRecord())
-        XCTAssertEqual(
-            currentQuote.collection,
-            .tolkien,
-            "Loaded quote should come from the selected Tolkien collection",
-        )
+        let currentQuote = try #require(viewModel.currentQuoteRecord())
+        #expect(currentQuote.collection == .tolkien)
     }
 
-    @MainActor
-    func testToggleSaveUpdatesState() async throws {
+    @Test
+    func toggleSaveUpdatesState() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await self.waitUntil("initial quote loads with id") {
+        #expect(await TestSupport.eventually {
             !viewModel.state.isLoading && viewModel.state.currentQuoteID != nil
-        }
-
-        XCTAssertFalse(viewModel.state.isCurrentQuoteSaved, "Quote should start unsaved")
-
-        viewModel.onToggleSaveTapped()
-        await self.waitUntil("quote becomes saved") {
-            viewModel.state.isCurrentQuoteSaved
-        }
+        })
+        #expect(!viewModel.state.isCurrentQuoteSaved)
 
         viewModel.onToggleSaveTapped()
-        await self.waitUntil("quote becomes unsaved") {
-            !viewModel.state.isCurrentQuoteSaved
-        }
+        #expect(await TestSupport.eventually { viewModel.state.isCurrentQuoteSaved })
+
+        viewModel.onToggleSaveTapped()
+        #expect(await TestSupport.eventually { !viewModel.state.isCurrentQuoteSaved })
     }
 
-    @MainActor
-    func testDeepLinkAppliesScriptAndModeContext() async throws {
+    @Test
+    func deepLinkAppliesScriptAndModeContext() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
-
-        await self.waitUntil("initial quote loads") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         viewModel.onOpenQuoteDeepLink(
             scriptRaw: RunicScript.younger.rawValue,
-            modeRaw: WidgetMode.random.rawValue,
+            modeRaw: WidgetMode.random.rawValue
         )
 
-        await self.waitUntil("deep link context is applied") {
+        #expect(await TestSupport.eventually {
             viewModel.state.currentScript == .younger &&
                 viewModel.state.currentWidgetMode == .random &&
                 !viewModel.state.isLoading
-        }
-
-        XCTAssertEqual(viewModel.state.currentScript, .younger, "Script should switch to deep-link script")
-        XCTAssertEqual(viewModel.state.currentWidgetMode, .random, "Mode should switch to deep-link mode")
-        XCTAssertFalse(viewModel.state.latinText.isEmpty, "Quote should be loaded after deep-link handling")
+        })
+        #expect(viewModel.state.currentScript == .younger)
+        #expect(viewModel.state.currentWidgetMode == .random)
+        #expect(!viewModel.state.latinText.isEmpty)
     }
 
-    // MARK: - Refresh Tests
-
-    @MainActor
-    func testRefreshReloadsQuote() async throws {
+    @Test
+    func refreshReloadsQuote() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
-
-        await self.waitUntil("initial quote loads") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         viewModel.refresh()
 
-        await self.waitUntil("refresh completes") {
-            !viewModel.state.isLoading
-        }
-
-        XCTAssertFalse(viewModel.state.latinText.isEmpty, "Should have quote after refresh")
-        XCTAssertNil(viewModel.state.errorMessage, "Should not have error after successful refresh")
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(!viewModel.state.latinText.isEmpty)
+        #expect(viewModel.state.errorMessage == nil)
     }
 
-    // MARK: - Error Handling Tests
-
-    @MainActor
-    func testErrorStateWhenNoQuotes() async throws {
+    @Test
+    func errorStateWhenNoQuotes() async throws {
         let viewModel = try makeViewModel(seedData: false)
         viewModel.onAppear()
 
-        await self.waitUntil("error state is populated") {
+        #expect(await TestSupport.eventually {
             !viewModel.state.isLoading && viewModel.state.errorMessage != nil
-        }
-
-        XCTAssertNotNil(viewModel.state.errorMessage, "Should have error message")
-        XCTAssertFalse(viewModel.state.isLoading, "Should not be loading")
+        })
+        #expect(viewModel.state.errorMessage != nil)
+        #expect(!viewModel.state.isLoading)
     }
 
-    // MARK: - State Consistency Tests
-
-    @MainActor
-    func testStateConsistencyAfterMultipleOperations() async throws {
+    @Test
+    func stateConsistencyAfterMultipleOperations() async throws {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
-
-        await self.waitUntil("initial quote loads") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         viewModel.onScriptChanged(.younger)
-        await self.waitUntil("script switches to younger") {
+        #expect(await TestSupport.eventually {
             viewModel.state.currentScript == .younger && !viewModel.state.isLoading
-        }
+        })
 
         viewModel.onFontChanged(.babelstone)
-        await self.waitUntil("font switches to BabelStone") {
-            viewModel.state.currentFont == .babelstone
-        }
+        #expect(await TestSupport.eventually { viewModel.state.currentFont == .babelstone })
 
         viewModel.onNextQuoteTapped()
-        await self.waitUntil("next quote load completes") {
-            !viewModel.state.isLoading
-        }
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
-        XCTAssertEqual(viewModel.state.currentScript, .younger, "Script should be Younger")
-        XCTAssertEqual(viewModel.state.currentFont, .babelstone, "Font should be BabelStone")
-        XCTAssertFalse(viewModel.state.latinText.isEmpty, "Should have quote text")
+        #expect(viewModel.state.currentScript == .younger)
+        #expect(viewModel.state.currentFont == .babelstone)
+        #expect(!viewModel.state.latinText.isEmpty)
     }
 
-    @MainActor
-    func testStructuredTranslationIsPreferredWhenCacheUpdates() async throws {
+    @Test
+    func structuredTranslationIsPreferredWhenCacheUpdates() async throws {
         let (viewModel, modelContext) = try makeViewModelWithContext()
         viewModel.onAppear()
 
-        await self.waitUntil("initial quote loads") {
+        #expect(await TestSupport.eventually {
             !viewModel.state.isLoading && viewModel.state.currentQuoteID != nil
-        }
+        })
 
-        let quoteID = try XCTUnwrap(viewModel.state.currentQuoteID)
+        let quoteID = try #require(viewModel.state.currentQuoteID)
         let originalRunicText = viewModel.state.runicText
         let translationRepository = SwiftDataTranslationRepository(modelContext: modelContext)
         try translationRepository.cache(
@@ -345,76 +264,43 @@ final class QuoteViewModelTests: XCTestCase {
                 provenance: [],
                 tokenBreakdown: [],
                 engineVersion: "test-engine",
-                datasetVersion: "test-dataset",
+                datasetVersion: "test-dataset"
             ),
             for: quoteID,
-            sourceText: viewModel.state.latinText,
+            sourceText: viewModel.state.latinText
         )
 
         viewModel.onTranslationCacheUpdated(for: quoteID)
 
-        await self.waitUntil("cached translation is preferred") {
-            viewModel.state.runicText == "ᛏᛖᛋᛏ"
-        }
-
-        XCTAssertNotEqual(originalRunicText, viewModel.state.runicText)
-        XCTAssertEqual(viewModel.state.runicPresentationSource, .structuredTranslation)
+        #expect(await TestSupport.eventually { viewModel.state.runicText == "ᛏᛖᛋᛏ" })
+        #expect(originalRunicText != viewModel.state.runicText)
+        #expect(viewModel.state.runicPresentationSource == .structuredTranslation)
     }
 
-    // MARK: - Helpers
-
-    @MainActor
     private func makeViewModel(seedData: Bool = true) throws -> QuoteViewModel {
-        try self.makeViewModelWithContext(seedData: seedData).0
+        try makeViewModelWithContext(seedData: seedData).0
     }
 
-    @MainActor
     private func makeViewModelWithContext(seedData: Bool = true) throws -> (QuoteViewModel, ModelContext) {
-        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let modelContainer = try ModelContainer(for: schema, configurations: config)
-        let modelContext = ModelContext(modelContainer)
+        let context = try TestSupport.makeModelContext()
 
         if seedData {
-            let repository = SwiftDataQuoteRepository(modelContext: modelContext)
-            try repository.seedIfNeeded()
+            _ = try TestSupport.makeSeededRepository(in: context)
         }
 
-        let translationRepository = SwiftDataTranslationRepository(modelContext: modelContext)
+        let translationRepository = SwiftDataTranslationRepository(modelContext: context)
         return (
             QuoteViewModel(
                 quoteProvider: QuoteProvider(
                     repository: SwiftDataQuoteRepository(
-                        modelContext: modelContext,
-                        translationCacheRepository: translationRepository,
-                    ),
+                        modelContext: context,
+                        translationCacheRepository: translationRepository
+                    )
                 ),
                 translationProvider: TranslationProvider(repository: translationRepository),
-                preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext),
+                preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context)
             ),
-            modelContext,
+            context
         )
     }
-
-    @MainActor
-    private func waitUntil(
-        _ description: String,
-        timeoutNanoseconds: UInt64 = 2_000_000_000,
-        pollIntervalNanoseconds: UInt64 = 25_000_000,
-        condition: () -> Bool,
-    ) async {
-        let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
-
-        while DispatchTime.now().uptimeNanoseconds < deadline {
-            if condition() {
-                return
-            }
-
-            try? await Task.sleep(for: .nanoseconds(pollIntervalNanoseconds))
-        }
-
-        XCTFail("Timed out waiting for condition: \(description)")
-    }
 }
-
-// swiftlint:enable type_body_length

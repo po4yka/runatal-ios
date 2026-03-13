@@ -30,7 +30,7 @@ struct QuoteSearchResultsSectionView: View {
 
                 if results.isEmpty {
                     Text("No matching lines surfaced in \(currentCollection.displayName) yet.")
-                        .font(DesignTokens.Typography.callout)
+                        .font(DesignTokens.Typography.supportingBody)
                         .foregroundStyle(palette.textSecondary)
                 } else {
                     VStack(spacing: DesignTokens.Spacing.xs) {
@@ -38,38 +38,25 @@ struct QuoteSearchResultsSectionView: View {
                             Button {
                                 onSelect(result)
                             } label: {
-                                HStack(spacing: DesignTokens.Spacing.sm) {
-                                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                                        Text(result.latinText)
-                                            .font(DesignTokens.Typography.bodyEmphasis)
-                                            .foregroundStyle(palette.textPrimary)
-                                            .lineLimit(2)
+                                QuoteListRow(
+                                    palette: palette,
+                                    runicSnippet: "",
+                                    quoteText: result.latinText,
+                                    author: result.author,
+                                    metadata: [currentCollection.displayName],
+                                    badge: {
+                                        EmptyView()
+                                    },
+                                    footer: {
+                                        HStack {
+                                            Label("Open", systemImage: "arrow.up.left")
+                                                .font(DesignTokens.Typography.controlLabel)
+                                                .foregroundStyle(palette.accent)
 
-                                        Text("— \(result.author)")
-                                            .font(DesignTokens.Typography.label)
-                                            .foregroundStyle(palette.textTertiary)
-                                            .lineLimit(1)
+                                            Spacer(minLength: 0)
+                                        }
                                     }
-
-                                    Spacer()
-
-                                    Image(systemName: "arrow.up.left")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(palette.textSecondary)
-                                }
-                                .padding(.horizontal, DesignTokens.Spacing.sm)
-                                .padding(.vertical, DesignTokens.Spacing.sm)
-                                .background {
-                                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                                        .fill(palette.bannerBackground)
-                                }
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                                        .strokeBorder(
-                                            palette.cardStroke,
-                                            lineWidth: DesignTokens.Stroke.hairline
-                                        )
-                                }
+                                )
                             }
                             .buttonStyle(.plain)
                         }

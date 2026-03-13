@@ -27,7 +27,12 @@ struct QuotePackDetailView: View {
 
     var body: some View {
         ZStack {
-            ScreenScaffold(palette: palette) {
+            LiquidContentScaffold(
+                palette: palette,
+                topPadding: DesignTokens.Spacing.xl,
+                spacing: DesignTokens.Spacing.lg,
+                showBackgroundExtension: false
+            ) {
                 HeroHeader(
                     eyebrow: "Quote Pack",
                     title: pack.title,
@@ -50,13 +55,6 @@ struct QuotePackDetailView: View {
                 previewSection
             }
 
-            if !showSuccess {
-                VStack {
-                    Spacer()
-                    installButton
-                }
-            }
-
             if showSuccess {
                 successOverlay
             }
@@ -65,6 +63,11 @@ struct QuotePackDetailView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !showSuccess {
+                installButton
+            }
+        }
         .onAppear {
             loadInstalledState()
         }
@@ -81,7 +84,7 @@ struct QuotePackDetailView: View {
 
     @ViewBuilder
     private var packHeader: some View {
-        EditorialCard(
+        ContentPlate(
             palette: palette,
             tone: .hero,
             cornerRadius: DesignTokens.CornerRadius.xxl,
@@ -97,7 +100,7 @@ struct QuotePackDetailView: View {
                     .foregroundStyle(palette.textPrimary)
 
                 Text("\(pack.quoteCount) quotes \u{00B7} \(pack.subtitle)")
-                    .font(.subheadline)
+                    .font(DesignTokens.Typography.supportingBody)
                     .foregroundStyle(palette.textSecondary)
             }
             .frame(maxWidth: .infinity)
@@ -108,16 +111,16 @@ struct QuotePackDetailView: View {
 
     @ViewBuilder
     private var descriptionSection: some View {
-        EditorialCard(
+        ContentPlate(
             palette: palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: DesignTokens.Elevation.low
+            shadowRadius: 0
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 SectionLabel(title: "Description", palette: palette)
                 Text(pack.description)
-                    .font(.body)
+                    .font(DesignTokens.Typography.supportingBody)
                     .foregroundStyle(palette.textSecondary)
             }
         }
@@ -127,11 +130,11 @@ struct QuotePackDetailView: View {
 
     @ViewBuilder
     private var previewSection: some View {
-        EditorialCard(
+        ContentPlate(
             palette: palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: DesignTokens.Elevation.low
+            shadowRadius: 0
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 SectionLabel(title: "Preview", palette: palette)
@@ -139,12 +142,12 @@ struct QuotePackDetailView: View {
                 ForEach(Array(pack.previewQuotes.enumerated()), id: \.offset) { index, quote in
                     HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                         Text("\(index + 1)")
-                            .font(.caption.weight(.semibold))
+                            .font(DesignTokens.Typography.controlLabel)
                             .foregroundStyle(palette.accent)
                             .frame(width: 20, alignment: .trailing)
 
                         Text("\"\(quote)\"")
-                            .font(.body)
+                            .font(DesignTokens.Typography.supportingBody)
                             .foregroundStyle(palette.textPrimary)
                             .italic()
                     }
@@ -163,68 +166,70 @@ struct QuotePackDetailView: View {
 
     @ViewBuilder
     private var installButton: some View {
-        VStack(spacing: 0) {
-            // Gradient fade above button
-            LinearGradient(
-                colors: [palette.background.opacity(0), palette.background],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: DesignTokens.Spacing.xxl)
-
-            VStack {
-                if isInstalled {
-                    GlassButton.secondary("Installed", icon: "checkmark") {}
-                        .disabled(true)
-                        .opacity(0.6)
-                } else {
-                    GlassButton.primary("Install Pack", icon: "arrow.down.circle") {
-                        installPack()
-                    }
+        HStack {
+            if isInstalled {
+                Label("Installed", systemImage: "checkmark")
+                    .font(DesignTokens.Typography.controlLabel)
+                    .foregroundStyle(palette.textSecondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, DesignTokens.Spacing.sm)
+            } else {
+                Button {
+                    installPack()
+                } label: {
+                    Label("Install Pack", systemImage: "arrow.down.circle")
+                        .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
             }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, DesignTokens.Spacing.xxl)
-            .padding(.bottom, DesignTokens.Spacing.xl)
-            .background(palette.background)
         }
+        .padding(.horizontal, DesignTokens.Spacing.md)
+        .padding(.top, DesignTokens.Spacing.xs)
+        .padding(.bottom, DesignTokens.Spacing.lg)
+        .background(palette.background.opacity(0.96))
     }
 
     // MARK: - Success Overlay
 
     @ViewBuilder
     private var successOverlay: some View {
-        VStack(spacing: DesignTokens.Spacing.xl) {
-            Spacer()
+        Color.black.opacity(0.14)
+            .ignoresSafeArea()
+            .overlay {
+                ContentPlate(
+                    palette: palette,
+                    tone: .hero,
+                    cornerRadius: DesignTokens.CornerRadius.xxl,
+                    shadowRadius: DesignTokens.Elevation.hero,
+                    contentPadding: DesignTokens.Spacing.xl
+                ) {
+                    VStack(spacing: DesignTokens.Spacing.lg) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 54))
+                            .foregroundStyle(palette.accent)
 
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(palette.accent)
+                        Text("Pack Added")
+                            .font(DesignTokens.Typography.pageTitle)
+                            .foregroundStyle(palette.textPrimary)
 
-            Text("Pack Added")
-                .font(.title.weight(.bold))
-                .foregroundStyle(palette.textPrimary)
+                        Text("\(pack.quoteCount) quotes from \(pack.title) are now in your collection.")
+                            .font(DesignTokens.Typography.supportingBody)
+                            .foregroundStyle(palette.textSecondary)
+                            .multilineTextAlignment(.center)
 
-            Text("\(pack.quoteCount) quotes from \(pack.title) are now in your collection.")
-                .font(.body)
-                .foregroundStyle(palette.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, DesignTokens.Spacing.xxl)
-
-            Spacer()
-
-            GlassButton.primary("Explore Pack", icon: nil, hapticTier: nil) {
-                dismiss()
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Explore Pack")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
+                    }
+                    .frame(maxWidth: 360)
+                }
+                .padding(DesignTokens.Spacing.xl)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, DesignTokens.Spacing.xxl)
-
-            Spacer()
-                .frame(height: DesignTokens.Spacing.huge)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(palette.background)
-        .transition(.opacity)
+            .transition(.opacity)
     }
 
     // MARK: - Actions
@@ -243,6 +248,7 @@ struct QuotePackDetailView: View {
             var preferences = try preferencesRepository.snapshot()
             _ = preferences.installPack(pack.id)
             try preferencesRepository.save(preferences)
+            isInstalled = true
             withAnimation(.easeInOut(duration: 0.4)) {
                 showSuccess = true
             }

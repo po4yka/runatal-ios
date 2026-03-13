@@ -14,8 +14,7 @@ struct TranslationSupplementarySectionsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             if self.state.translationMode == .translate,
-               self.state.normalizedForm != nil || self.state.diplomaticForm != nil
-            {
+               self.state.normalizedForm != nil || self.state.diplomaticForm != nil {
                 self.layersCard
             }
 
@@ -26,8 +25,7 @@ struct TranslationSupplementarySectionsView: View {
                self.state.supportLevel != nil ||
                self.state.evidenceTier != nil ||
                !self.state.attestationRefs.isEmpty ||
-               !self.state.userFacingWarnings.isEmpty
-            {
+               !self.state.userFacingWarnings.isEmpty {
                 self.notesCard
             }
 

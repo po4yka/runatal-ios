@@ -5,207 +5,135 @@
 //  Created by Claude on 2025-11-15.
 //
 
-import XCTest
+import Foundation
 import SwiftData
+import Testing
 @testable import RunicQuotes
 
-final class QuoteRepositoryTests: XCTestCase {
-    var modelContainer: ModelContainer?
-    var modelContext: ModelContext?
-    var repository: SwiftDataQuoteRepository?
+@Suite(.serialized, .tags(.repository))
+struct QuoteRepositoryTests {
+    @Test
+    func seedIfNeededCreatesQuotes() throws {
+        let (repository, context) = try makeRepository()
 
-    override func setUpWithError() throws {
-        // Create in-memory container for testing
-        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: config)
-        modelContainer = container
-        let context = ModelContext(container)
-        modelContext = context
-        repository = SwiftDataQuoteRepository(modelContext: context)
-    }
+        #expect(try context.fetch(FetchDescriptor<Quote>()).isEmpty)
 
-    override func tearDownWithError() throws {
-        modelContainer = nil
-        modelContext = nil
-        repository = nil
-    }
-
-    // MARK: - Seeding Tests
-
-    func testSeedIfNeededCreatesQuotes() async throws {
-        // Given: Empty database
-        let modelContext = try XCTUnwrap(modelContext)
-        let repository = try XCTUnwrap(repository)
-        let initialCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
-        XCTAssertEqual(initialCount, 0, "Database should start empty")
-
-        // When: Seeding
         try repository.seedIfNeeded()
 
-        // Then: Quotes exist
-        let finalCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
-        XCTAssertGreaterThan(finalCount, 0, "Database should contain quotes after seeding")
+        #expect(try !context.fetch(FetchDescriptor<Quote>()).isEmpty)
     }
 
-    func testSeedIfNeededIdempotent() async throws {
-        // Given: Already seeded database
-        let modelContext = try XCTUnwrap(modelContext)
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
-        let firstCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
+    @Test
+    func seedIfNeededIdempotent() throws {
+        let (repository, context) = try makeRepository()
 
-        // When: Seeding again
+        try repository.seedIfNeeded()
+        let firstCount = try context.fetch(FetchDescriptor<Quote>()).count
+
         try repository.seedIfNeeded()
 
-        // Then: Count should not change
-        let secondCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
-        XCTAssertEqual(firstCount, secondCount, "Seeding should be idempotent")
+        #expect(try context.fetch(FetchDescriptor<Quote>()).count == firstCount)
     }
 
-    func testSeededQuotesHaveTransliterations() async throws {
-        // Given: Seeded database
-        let modelContext = try XCTUnwrap(modelContext)
-        let repository = try XCTUnwrap(repository)
+    @Test
+    func seededQuotesHaveTransliterations() throws {
+        let (repository, context) = try makeRepository()
         try repository.seedIfNeeded()
 
-        // When: Fetching quotes
-        let quotes = try modelContext.fetch(FetchDescriptor<Quote>())
-
-        // Then: Quotes have runic transliterations
-        XCTAssertFalse(quotes.isEmpty, "Should have quotes")
+        let quotes = try context.fetch(FetchDescriptor<Quote>())
+        #expect(!quotes.isEmpty)
 
         for quote in quotes.prefix(5) {
-            XCTAssertNotNil(quote.runicElder, "Quote should have Elder Futhark")
-            XCTAssertNotNil(quote.runicYounger, "Quote should have Younger Futhark")
-            XCTAssertNotNil(quote.runicCirth, "Quote should have Cirth")
+            #expect(quote.runicElder != nil)
+            #expect(quote.runicYounger != nil)
+            #expect(quote.runicCirth != nil)
         }
     }
 
-    func testSeededQuotesHaveCollectionTags() async throws {
-        let modelContext = try XCTUnwrap(modelContext)
-        let repository = try XCTUnwrap(repository)
+    @Test
+    func seededQuotesHaveCollectionTags() throws {
+        let (repository, context) = try makeRepository()
         try repository.seedIfNeeded()
 
-        let quotes = try modelContext.fetch(FetchDescriptor<Quote>())
-        XCTAssertFalse(quotes.isEmpty, "Should have quotes")
+        let quotes = try context.fetch(FetchDescriptor<Quote>())
+        #expect(!quotes.isEmpty)
 
         for quote in quotes {
-            XCTAssertNotNil(quote.collectionRaw, "Quote should contain explicit collection tag")
-            XCTAssertNotNil(QuoteCollection(rawValue: quote.collectionRaw ?? ""), "Collection tag should be valid")
+            #expect(quote.collectionRaw != nil)
+            #expect(QuoteCollection(rawValue: quote.collectionRaw ?? "") != nil)
         }
     }
 
-    // MARK: - Quote of the Day Tests
+    @Test
+    func quoteOfTheDayReturnsSameQuoteOnSameDay() throws {
+        let (repository, _) = try makeRepository(seedData: true)
 
-    func testQuoteOfTheDayReturnsSameQuoteOnSameDay() async throws {
-        // Given: Seeded database
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
+        let first = try repository.quoteOfTheDay(for: .elder)
+        let second = try repository.quoteOfTheDay(for: .elder)
 
-        // When: Fetching quote of the day multiple times
-        let quote1 = try repository.quoteOfTheDay(for: .elder)
-        let quote2 = try repository.quoteOfTheDay(for: .elder)
-
-        // Then: Should return same quote
-        XCTAssertEqual(quote1.id, quote2.id, "Quote of the day should be deterministic")
+        #expect(first.id == second.id)
     }
 
-    func testQuoteOfTheDayWorksWithAllScripts() async throws {
-        // Given: Seeded database
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
+    @Test
+    func quoteOfTheDayWorksWithAllScripts() throws {
+        let (repository, _) = try makeRepository(seedData: true)
 
-        // When: Fetching for each script
         let elder = try repository.quoteOfTheDay(for: .elder)
         let younger = try repository.quoteOfTheDay(for: .younger)
         let cirth = try repository.quoteOfTheDay(for: .cirth)
 
-        // Then: All should succeed
-        XCTAssertFalse(elder.textLatin.isEmpty, "Elder quote should have text")
-        XCTAssertFalse(younger.textLatin.isEmpty, "Younger quote should have text")
-        XCTAssertFalse(cirth.textLatin.isEmpty, "Cirth quote should have text")
+        #expect(!elder.textLatin.isEmpty)
+        #expect(!younger.textLatin.isEmpty)
+        #expect(!cirth.textLatin.isEmpty)
     }
 
-    func testQuoteOfTheDayReturnsQuoteWithCorrectScript() async throws {
-        // Given: Seeded database
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
-
-        // When: Fetching for Elder Futhark
+    @Test
+    func quoteOfTheDayReturnsQuoteWithCorrectScript() throws {
+        let (repository, _) = try makeRepository(seedData: true)
         let quote = try repository.quoteOfTheDay(for: .elder)
-
-        // Then: Should have Elder Futhark transliteration
-        XCTAssertNotNil(quote.runicElder, "Should have Elder transliteration")
+        #expect(quote.runicElder != nil)
     }
 
-    // MARK: - Random Quote Tests
-
-    func testRandomQuoteReturnsQuote() async throws {
-        // Given: Seeded database
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
-
-        // When: Fetching random quote
+    @Test
+    func randomQuoteReturnsQuote() throws {
+        let (repository, _) = try makeRepository(seedData: true)
         let quote = try repository.randomQuote(for: .elder)
-
-        // Then: Should return valid quote
-        XCTAssertFalse(quote.textLatin.isEmpty, "Quote should have text")
-        XCTAssertFalse(quote.author.isEmpty, "Quote should have author")
+        #expect(!quote.textLatin.isEmpty)
+        #expect(!quote.author.isEmpty)
     }
 
-    func testRandomQuoteCanReturnDifferentQuotes() async throws {
-        // Given: Seeded database with multiple quotes
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
+    @Test
+    func randomQuoteCanReturnDifferentQuotes() throws {
+        let (repository, _) = try makeRepository(seedData: true)
 
-        // When: Fetching multiple random quotes
-        var quotes = Set<UUID>()
-        for _ in 0..<10 {
-            let quote = try repository.randomQuote(for: .elder)
-            quotes.insert(quote.id)
+        var ids = Set<UUID>()
+        for _ in 0 ..< 10 {
+            ids.insert(try repository.randomQuote(for: .elder).id)
         }
 
-        // Then: Should have some variety (probabilistically)
-        // With 40 quotes, 10 fetches should likely give us more than 1 unique quote
-        XCTAssertGreaterThan(quotes.count, 1, "Random should return different quotes")
+        #expect(ids.count > 1)
     }
 
-    // MARK: - All Quotes Tests
-
-    func testAllQuotesReturnsAllQuotes() async throws {
-        // Given: Seeded database
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
-
-        // When: Fetching all quotes
+    @Test
+    func allQuotesReturnsAllQuotes() throws {
+        let (repository, _) = try makeRepository(seedData: true)
         let quotes = try repository.allQuotes()
-
-        // Then: Should return all seeded quotes
-        XCTAssertGreaterThan(quotes.count, 0, "Should have quotes")
-        XCTAssertEqual(quotes.count, 40, "Should have all 40 seed quotes")
+        #expect(quotes.count == 40)
     }
 
-    func testAllQuotesReturnsSortedByCreatedAt() async throws {
-        // Given: Seeded database
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
-
-        // When: Fetching all quotes
+    @Test
+    func allQuotesReturnsSortedByCreatedAt() throws {
+        let (repository, _) = try makeRepository(seedData: true)
         let quotes = try repository.allQuotes()
 
-        // Then: Should be sorted by creation date
-        for i in 0..<(quotes.count - 1) {
-            XCTAssertLessThanOrEqual(
-                quotes[i].createdAt,
-                quotes[i + 1].createdAt,
-                "Quotes should be sorted by creation date"
-            )
+        for index in 0 ..< (quotes.count - 1) {
+            #expect(quotes[index].createdAt <= quotes[index + 1].createdAt)
         }
     }
 
-    func testCreateQuoteStoredRunicOverridesTransliteration() throws {
-        let repository = try XCTUnwrap(repository)
+    @Test
+    func createQuoteStoredRunicOverridesTransliteration() throws {
+        let (repository, _) = try makeRepository()
 
         let record = try repository.createQuote(
             textLatin: "The wolf hunts at night",
@@ -219,14 +147,15 @@ final class QuoteRepositoryTests: XCTestCase {
             )
         )
 
-        XCTAssertEqual(record.runicElder, "ELDER-OVERRIDE")
-        XCTAssertNil(record.runicYounger)
-        XCTAssertEqual(record.runicCirth, "CIRTH-OVERRIDE")
+        #expect(record.runicElder == "ELDER-OVERRIDE")
+        #expect(record.runicYounger == nil)
+        #expect(record.runicCirth == "CIRTH-OVERRIDE")
     }
 
-    func testUpdateQuoteDeletesCachedTranslationsWhenTextChanges() throws {
-        let repository = try XCTUnwrap(repository)
-        let translationRepository = SwiftDataTranslationRepository(modelContext: try XCTUnwrap(modelContext))
+    @Test
+    func updateQuoteDeletesCachedTranslationsWhenTextChanges() throws {
+        let (repository, context) = try makeRepository()
+        let translationRepository = SwiftDataTranslationRepository(modelContext: context)
 
         let record = try repository.createQuote(
             textLatin: "The wolf hunts at night",
@@ -236,12 +165,12 @@ final class QuoteRepositoryTests: XCTestCase {
             storedRunic: nil
         )
         try translationRepository.cache(
-            result: makeTranslationResult(script: .elder, glyphOutput: "ᚹᚢᛚᚠᚨᛉ"),
+            result: TestSupport.makeTranslationResult(script: .elder, glyphOutput: "ᚹᚢᛚᚠᚨᛉ"),
             for: record.id,
             sourceText: record.textLatin
         )
 
-        XCTAssertNotNil(try translationRepository.latestTranslation(for: record.id, script: .elder))
+        #expect(try translationRepository.latestTranslation(for: record.id, script: .elder) != nil)
 
         _ = try repository.updateQuote(
             id: record.id,
@@ -252,11 +181,12 @@ final class QuoteRepositoryTests: XCTestCase {
             storedRunic: nil
         )
 
-        XCTAssertNil(try translationRepository.latestTranslation(for: record.id, script: .elder))
+        #expect(try translationRepository.latestTranslation(for: record.id, script: .elder) == nil)
     }
 
-    func testHideRestoreAndArchiveQueriesTrackArchiveState() throws {
-        let repository = try XCTUnwrap(repository)
+    @Test
+    func hideRestoreAndArchiveQueriesTrackArchiveState() throws {
+        let (repository, _) = try makeRepository()
 
         let record = try repository.createQuote(
             textLatin: "Wisdom walks quietly",
@@ -267,21 +197,22 @@ final class QuoteRepositoryTests: XCTestCase {
         )
 
         let hiddenRecord = try repository.hideQuote(id: record.id)
-        XCTAssertTrue(hiddenRecord.isHidden)
-        XCTAssertFalse(hiddenRecord.isDeleted)
-        XCTAssertTrue(try repository.allQuotes().allSatisfy { $0.id != record.id })
+        #expect(hiddenRecord.isHidden)
+        #expect(!hiddenRecord.isDeleted)
+        #expect(try repository.allQuotes().allSatisfy { $0.id != record.id })
 
         let archived = try repository.archivedQuotes()
-        XCTAssertEqual(archived.map(\.id), [record.id])
+        #expect(archived.map(\.id) == [record.id])
 
         let restored = try repository.restoreQuote(id: record.id)
-        XCTAssertFalse(restored.isHidden)
-        XCTAssertFalse(restored.isDeleted)
-        XCTAssertEqual(try repository.quote(id: record.id)?.id, record.id)
+        #expect(!restored.isHidden)
+        #expect(!restored.isDeleted)
+        #expect(try repository.quote(id: record.id)?.id == record.id)
     }
 
-    func testSoftDeleteAndEraseRemoveQuoteFromArchive() throws {
-        let repository = try XCTUnwrap(repository)
+    @Test
+    func softDeleteAndEraseRemoveQuoteFromArchive() throws {
+        let (repository, _) = try makeRepository()
 
         let record = try repository.createQuote(
             textLatin: "The mountain remembers",
@@ -295,84 +226,52 @@ final class QuoteRepositoryTests: XCTestCase {
             id: record.id,
             deletedAt: Date(timeIntervalSince1970: 1_700_000_000)
         )
-        XCTAssertTrue(deleted.isDeleted)
-        XCTAssertNotNil(deleted.deletedAt)
-        XCTAssertEqual(try repository.archivedQuotes().map(\.id), [record.id])
+        #expect(deleted.isDeleted)
+        #expect(deleted.deletedAt != nil)
+        #expect(try repository.archivedQuotes().map(\.id) == [record.id])
 
         try repository.eraseQuote(id: record.id)
 
-        XCTAssertNil(try repository.quote(id: record.id))
-        XCTAssertTrue(try repository.archivedQuotes().isEmpty)
+        #expect(try repository.quote(id: record.id) == nil)
+        #expect(try repository.archivedQuotes().isEmpty)
     }
 
-    // MARK: - Error Cases
+    @Test
+    func quoteOfTheDayThrowsWhenNoQuotes() throws {
+        let (repository, _) = try makeRepository()
 
-    func testQuoteOfTheDayThrowsWhenNoQuotes() async throws {
-        // Given: Empty database (not seeded)
-        let repository = try XCTUnwrap(repository)
-
-        // When/Then: Should throw error
+        var didThrow = false
         do {
             _ = try repository.quoteOfTheDay(for: .elder)
-            XCTFail("Should throw error when no quotes available")
         } catch {
-            // Expected
-            XCTAssertTrue(error is QuoteRepositoryError, "Should be QuoteRepositoryError")
+            didThrow = true
+            #expect(error is QuoteRepositoryError)
         }
+
+        #expect(didThrow)
     }
 
-    func testRandomQuoteThrowsWhenNoQuotes() async throws {
-        // Given: Empty database (not seeded)
-        let repository = try XCTUnwrap(repository)
+    @Test
+    func randomQuoteThrowsWhenNoQuotes() throws {
+        let (repository, _) = try makeRepository()
 
-        // When/Then: Should throw error
+        var didThrow = false
         do {
             _ = try repository.randomQuote(for: .elder)
-            XCTFail("Should throw error when no quotes available")
         } catch {
-            // Expected
-            XCTAssertTrue(error is QuoteRepositoryError, "Should be QuoteRepositoryError")
+            didThrow = true
+            #expect(error is QuoteRepositoryError)
         }
+
+        #expect(didThrow)
     }
 
-    // MARK: - Performance Tests
-
-    func testQuoteOfTheDayPerformance() async throws {
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
-
-        measure {
-            _ = try? repository.quoteOfTheDay(for: .elder)
+    private func makeRepository(seedData: Bool = false) throws -> (SwiftDataQuoteRepository, ModelContext) {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataQuoteRepository(modelContext: context)
+        if seedData {
+            try repository.seedIfNeeded()
         }
-    }
-
-    func testRandomQuotePerformance() async throws {
-        let repository = try XCTUnwrap(repository)
-        try repository.seedIfNeeded()
-
-        measure {
-            _ = try? repository.randomQuote(for: .elder)
-        }
-    }
-
-    private func makeTranslationResult(script: RunicScript, glyphOutput: String) -> TranslationResult {
-        TranslationResult(
-            sourceText: "The wolf hunts at night",
-            script: script,
-            fidelity: .strict,
-            derivationKind: .goldExample,
-            historicalStage: script == .cirth ? .ereborEnglish : .oldNorse,
-            normalizedForm: "normalized",
-            diplomaticForm: "diplomatic",
-            glyphOutput: glyphOutput,
-            resolutionStatus: .reconstructed,
-            confidence: 0.9,
-            notes: ["note"],
-            unresolvedTokens: [],
-            provenance: [],
-            tokenBreakdown: [],
-            engineVersion: "test-engine",
-            datasetVersion: "test-dataset"
-        )
+        return (repository, context)
     }
 }

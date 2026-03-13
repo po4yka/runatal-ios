@@ -88,6 +88,8 @@ final class ArchiveViewModel: ObservableObject {
 
     /// Load archived quotes when the view appears.
     func onAppear() {
+        state.isLoading = true
+        state.errorMessage = nil
         Task {
             await loadArchivedQuotes()
         }
@@ -130,9 +132,6 @@ final class ArchiveViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func loadArchivedQuotes() async {
-        state.isLoading = true
-        state.errorMessage = nil
-
         do {
             state.archivedQuotes = try await quoteProvider.archivedQuotes()
             state.isLoading = false

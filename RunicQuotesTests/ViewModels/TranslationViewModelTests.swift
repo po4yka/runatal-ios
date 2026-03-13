@@ -5,13 +5,15 @@
 //  Created by Claude on 13.03.26.
 //
 
-@testable import RunicQuotes
 import SwiftData
-import XCTest
+import Testing
+@testable import RunicQuotes
 
-final class TranslationViewModelTests: XCTestCase {
-    @MainActor
-    func testTranslateModeProducesStructuredResult() throws {
+@MainActor
+@Suite(.serialized, .tags(.viewModel))
+struct TranslationViewModelTests {
+    @Test
+    func translateModeProducesStructuredResult() throws {
         let (viewModel, _) = try makeViewModel()
 
         viewModel.onAppear()
@@ -19,17 +21,17 @@ final class TranslationViewModelTests: XCTestCase {
         viewModel.selectScript(.younger)
         viewModel.updateInputText("The wolf hunts at night")
 
-        XCTAssertEqual(viewModel.state.translationMode, .translate)
-        XCTAssertEqual(viewModel.state.derivationKind, .goldExample)
-        XCTAssertEqual(viewModel.state.resolutionStatus, .reconstructed)
-        XCTAssertEqual(viewModel.state.supportLevel, .supported)
-        XCTAssertEqual(viewModel.state.evidenceTier, .reconstructed)
-        XCTAssertFalse(viewModel.state.outputText.isEmpty)
-        XCTAssertFalse(viewModel.state.provenance.isEmpty)
+        #expect(viewModel.state.translationMode == .translate)
+        #expect(viewModel.state.derivationKind == .goldExample)
+        #expect(viewModel.state.resolutionStatus == .reconstructed)
+        #expect(viewModel.state.supportLevel == .supported)
+        #expect(viewModel.state.evidenceTier == .reconstructed)
+        #expect(!viewModel.state.outputText.isEmpty)
+        #expect(!viewModel.state.provenance.isEmpty)
     }
 
-    @MainActor
-    func testSaveToLibraryInTranslateModeCachesResults() throws {
+    @Test
+    func saveToLibraryInTranslateModeCachesResults() throws {
         let (viewModel, context) = try makeViewModel()
 
         viewModel.onAppear()
@@ -39,47 +41,41 @@ final class TranslationViewModelTests: XCTestCase {
         viewModel.saveToLibrary()
 
         let quotes = try context.fetch(FetchDescriptor<Quote>())
-        let quote = try XCTUnwrap(quotes.first)
+        let quote = try #require(quotes.first)
         let translationRepository = SwiftDataTranslationRepository(modelContext: context)
 
-        XCTAssertEqual(quote.author, "Runatal")
-        XCTAssertTrue(viewModel.state.didSave)
-        XCTAssertNotNil(try translationRepository.latestTranslation(for: quote.id, script: .younger))
+        #expect(quote.author == "Runatal")
+        #expect(viewModel.state.didSave)
+        #expect(try translationRepository.latestTranslation(for: quote.id, script: .younger) != nil)
     }
 
-    @MainActor
-    func testSetWordByWordEnabledUpdatesState() throws {
+    @Test
+    func setWordByWordEnabledUpdatesState() throws {
         let (viewModel, _) = try makeViewModel()
 
         viewModel.onAppear()
         viewModel.setWordByWordEnabled(true)
-
-        XCTAssertTrue(viewModel.state.isWordByWordEnabled)
+        #expect(viewModel.state.isWordByWordEnabled)
 
         viewModel.setWordByWordEnabled(false)
-
-        XCTAssertFalse(viewModel.state.isWordByWordEnabled)
+        #expect(!viewModel.state.isWordByWordEnabled)
     }
 
-    @MainActor
-    func testUnsupportedLanguageShowsGuidance() throws {
+    @Test
+    func unsupportedLanguageShowsGuidance() throws {
         let (viewModel, _) = try makeViewModel()
 
         viewModel.onAppear()
         viewModel.selectMode(.translate)
         viewModel.updateInputText("волк ночью")
 
-        XCTAssertEqual(viewModel.state.supportLevel, .unsupported)
-        XCTAssertEqual(viewModel.state.evidenceTier, .unsupported)
-        XCTAssertTrue(viewModel.state.userFacingWarnings.contains(where: { $0.contains("English input only") }))
+        #expect(viewModel.state.supportLevel == .unsupported)
+        #expect(viewModel.state.evidenceTier == .unsupported)
+        #expect(viewModel.state.userFacingWarnings.contains { $0.contains("English input only") })
     }
 
-    @MainActor
     private func makeViewModel() throws -> (TranslationViewModel, ModelContext) {
-        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: config)
-        let context = ModelContext(container)
+        let context = try TestSupport.makeModelContext()
         return (TranslationViewModel(modelContext: context), context)
     }
 }

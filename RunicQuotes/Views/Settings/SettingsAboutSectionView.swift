@@ -12,7 +12,7 @@ struct SettingsAboutSectionView: View {
     let showTipsAgain: () -> Void
 
     var body: some View {
-        GlassCard(intensity: .medium) {
+        SettingsPanel(palette: self.palette) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 SettingsSectionHeaderView(title: "About", icon: "info.circle", palette: self.palette)
 
@@ -37,7 +37,7 @@ struct SettingsAboutSectionView: View {
 
                     HStack {
                         Text("Rate on App Store")
-                            .font(.subheadline.weight(.medium))
+                            .font(DesignTokens.Typography.supportingBody.weight(.medium))
                             .foregroundStyle(self.palette.textPrimary)
 
                         Spacer()
@@ -55,7 +55,7 @@ struct SettingsAboutSectionView: View {
                     Button(action: self.showTipsAgain) {
                         HStack {
                             Text("Show Tips Again")
-                                .font(.subheadline.weight(.medium))
+                                .font(DesignTokens.Typography.supportingBody.weight(.medium))
                                 .foregroundStyle(self.palette.textPrimary)
 
                             Spacer()
@@ -71,7 +71,7 @@ struct SettingsAboutSectionView: View {
                 }
 
                 Text("Bringing ancient wisdom to modern devices")
-                    .font(.caption)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(self.palette.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
@@ -83,13 +83,13 @@ struct SettingsAboutSectionView: View {
     private func aboutRow(_ label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.subheadline.weight(.medium))
+                .font(DesignTokens.Typography.supportingBody.weight(.medium))
                 .foregroundStyle(self.palette.textPrimary)
 
             Spacer()
 
             Text(value)
-                .font(.subheadline)
+                .font(DesignTokens.Typography.supportingBody)
                 .foregroundStyle(self.palette.textSecondary)
         }
         .padding(.vertical, DesignTokens.Spacing.xxs)

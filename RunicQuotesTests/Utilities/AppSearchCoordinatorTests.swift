@@ -5,18 +5,20 @@
 //  Created by Codex on 2026-03-13.
 //
 
-import XCTest
+import Testing
 @testable import RunicQuotes
 
-final class AppSearchCoordinatorTests: XCTestCase {
-    func testClearResetsQueryAndPresentationState() {
+@Suite(.tags(.utility))
+struct AppSearchCoordinatorTests {
+    @Test
+    func clearResetsQueryAndPresentationState() {
         let coordinator = AppSearchCoordinator()
         coordinator.query = "stoic"
         coordinator.isPresented = true
 
         coordinator.clear()
 
-        XCTAssertEqual(coordinator.query, "")
-        XCTAssertFalse(coordinator.isPresented)
+        #expect(coordinator.query.isEmpty)
+        #expect(!coordinator.isPresented)
     }
 }

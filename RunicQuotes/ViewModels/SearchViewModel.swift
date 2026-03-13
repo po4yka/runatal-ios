@@ -44,6 +44,8 @@ final class SearchViewModel: ObservableObject {
 
     /// Load all visible quotes into cache when the view appears.
     func onAppear() {
+        state.isLoading = true
+        state.errorMessage = nil
         Task {
             await loadQuotes()
         }
@@ -77,9 +79,6 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func loadQuotes() async {
-        state.isLoading = true
-        state.errorMessage = nil
-
         do {
             cachedQuotes = try await quoteProvider.allQuotes()
             applyFilters()

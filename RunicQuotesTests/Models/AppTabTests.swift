@@ -5,19 +5,22 @@
 //  Created by Codex on 2026-03-13.
 //
 
-import XCTest
 import SwiftUI
+import Testing
 @testable import RunicQuotes
 
-final class AppTabTests: XCTestCase {
-    func testSearchTabUsesSearchRole() {
-        XCTAssertEqual(AppTab.search.role, .search)
-        XCTAssertNil(AppTab.home.role)
+@Suite(.tags(.model))
+struct AppTabTests {
+    @Test
+    func searchTabUsesSearchRole() {
+        #expect(AppTab.search.role == .search)
+        #expect(AppTab.home.role == nil)
     }
 
-    func testOnlyHomeSupportsBottomAccessory() {
-        XCTAssertTrue(AppTab.home.supportsBottomAccessory)
-        XCTAssertFalse(AppTab.search.supportsBottomAccessory)
-        XCTAssertFalse(AppTab.settings.supportsBottomAccessory)
+    @Test
+    func onlyHomeSupportsBottomAccessory() {
+        #expect(AppTab.home.supportsBottomAccessory)
+        #expect(!AppTab.search.supportsBottomAccessory)
+        #expect(!AppTab.settings.supportsBottomAccessory)
     }
 }

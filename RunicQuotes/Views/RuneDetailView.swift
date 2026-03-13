@@ -48,7 +48,11 @@ struct RuneDetailView: View {
     // MARK: - Body
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
+        LiquidContentScaffold(
+            palette: palette,
+            spacing: DesignTokens.Spacing.lg,
+            showBackgroundExtension: false
+        ) {
             HeroHeader(
                 eyebrow: rune.script.displayName,
                 title: rune.name,
@@ -70,7 +74,7 @@ struct RuneDetailView: View {
 
     @ViewBuilder
     private var heroSection: some View {
-        EditorialCard(
+        ContentPlate(
             palette: palette,
             tone: .hero,
             cornerRadius: DesignTokens.CornerRadius.xxl,
@@ -113,11 +117,11 @@ struct RuneDetailView: View {
     private func infoColumn(label: String, value: String) -> some View {
         VStack(spacing: DesignTokens.Spacing.xxs) {
             Text(label)
-                .font(.caption)
+                .font(DesignTokens.Typography.listMeta)
                 .foregroundStyle(palette.textTertiary)
 
             Text(value)
-                .font(.subheadline.bold())
+                .font(DesignTokens.Typography.controlLabel.weight(.bold))
                 .foregroundStyle(palette.textPrimary)
         }
         .frame(maxWidth: .infinity)
@@ -127,16 +131,16 @@ struct RuneDetailView: View {
 
     @ViewBuilder
     private var aboutSection: some View {
-        EditorialCard(
+        ContentPlate(
             palette: palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xl,
-            shadowRadius: DesignTokens.Elevation.low
+            shadowRadius: 0
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 SectionLabel(title: "About", palette: palette)
                 Text(runeDescription)
-                    .font(.subheadline)
+                    .font(DesignTokens.Typography.supportingBody)
                     .foregroundStyle(palette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }

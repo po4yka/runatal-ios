@@ -50,10 +50,7 @@ final class FeatureDiscoveryController: ObservableObject {
         }
 
         do {
-            try Tips.configure([
-                .displayFrequency(.hourly),
-                .datastoreLocation(.applicationDefault),
-            ])
+            try Self.configureTipsDatastore()
             self.applyTestingMode()
         } catch {
             Self.logger.error("Failed to configure TipKit: \(error.localizedDescription)")
@@ -63,11 +60,8 @@ final class FeatureDiscoveryController: ObservableObject {
     func replayTips() throws {
         self.hasAdvancedHomeQuote = false
         self.hasSavedHomeQuote = false
-        try Tips.resetDatastore()
-        try Tips.configure([
-            .displayFrequency(.hourly),
-            .datastoreLocation(.applicationDefault),
-        ])
+        try Self.resetTipsDatastore()
+        try Self.configureTipsDatastore()
         self.applyTestingMode()
         FeatureDiscoveryState.hasCompletedOnboarding = self.hasCompletedOnboarding
         FeatureDiscoveryState.homeQuoteReady = self.isHomeQuoteReady
@@ -128,6 +122,33 @@ final class FeatureDiscoveryController: ObservableObject {
         return controller
     }
 
+    private static func configureTipsDatastore() throws {
+        do {
+            try Tips.configure([
+                .displayFrequency(.hourly),
+                .datastoreLocation(.applicationDefault)
+            ])
+        } catch {
+            guard !Self.isAlreadyConfiguredError(error) else {
+                return
+            }
+
+            throw error
+        }
+    }
+
+    private static func resetTipsDatastore() throws {
+        do {
+            try Tips.resetDatastore()
+        } catch {
+            guard !Self.isAlreadyConfiguredError(error) else {
+                return
+            }
+
+            throw error
+        }
+    }
+
     private func applyTestingMode() {
         switch self.testingMode {
         case .live:
@@ -152,5 +173,9 @@ final class FeatureDiscoveryController: ObservableObject {
         } else {
             self.homeTestingSequence = .nextQuote
         }
+    }
+
+    private static func isAlreadyConfiguredError(_ error: Error) -> Bool {
+        String(describing: error).contains("tipsDatastoreAlreadyConfigured")
     }
 }

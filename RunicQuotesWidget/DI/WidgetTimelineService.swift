@@ -8,7 +8,7 @@
 import Foundation
 import SwiftData
 
-final class WidgetTimelineService: @unchecked Sendable {
+final class WidgetTimelineService: WidgetTimelineServicing, @unchecked Sendable {
     private let modelContainer: ModelContainer
 
     init(modelContainer: ModelContainer) {

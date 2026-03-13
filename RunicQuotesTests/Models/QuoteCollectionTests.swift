@@ -5,43 +5,50 @@
 //  Created by Codex on 2026-02-13.
 //
 
-import XCTest
+import Testing
 @testable import RunicQuotes
 
-final class QuoteCollectionTests: XCTestCase {
-    func testContainsUsesExplicitQuoteCollectionTag() {
+@Suite(.tags(.model))
+struct QuoteCollectionTests {
+    @Test
+    func containsUsesExplicitQuoteCollectionTag() {
         let quote = makeRecord(
             text: "Wisdom is welcome wherever it comes from.",
             author: "Old English Proverb",
             collection: .stoic
         )
 
-        XCTAssertTrue(QuoteCollection.stoic.contains(quote))
-        XCTAssertFalse(QuoteCollection.motivation.contains(quote))
-        XCTAssertFalse(QuoteCollection.tolkien.contains(quote))
+        #expect(QuoteCollection.stoic.contains(quote))
+        #expect(!QuoteCollection.motivation.contains(quote))
+        #expect(!QuoteCollection.tolkien.contains(quote))
     }
 
-    func testAllCollectionContainsAnyQuote() {
+    @Test
+    func allCollectionContainsAnyQuote() {
         let quote = makeRecord(
             text: "Fortune favors the bold.",
             author: "Virgil",
             collection: .stoic
         )
 
-        XCTAssertTrue(QuoteCollection.all.contains(quote))
+        #expect(QuoteCollection.all.contains(quote))
     }
 
-    func testQuoteDefaultsToMotivationCollectionWhenMissing() {
+    @Test
+    func quoteDefaultsToMotivationCollectionWhenMissing() {
         let quote = Quote(textLatin: "The only way out is through.", author: "Robert Frost")
         quote.collectionRaw = nil
-        let record = QuoteRecord(from: quote)
-        XCTAssertEqual(record.collection, .motivation)
+
+        #expect(QuoteRecord(from: quote).collection == .motivation)
     }
 
-    func testQuoteCollectionRawValuesDecodeFromSeedTags() {
-        XCTAssertEqual(QuoteCollection(rawValue: "Motivation"), .motivation)
-        XCTAssertEqual(QuoteCollection(rawValue: "Stoic"), .stoic)
-        XCTAssertEqual(QuoteCollection(rawValue: "Tolkien"), .tolkien)
+    @Test(arguments: [
+        ("Motivation", QuoteCollection.motivation),
+        ("Stoic", QuoteCollection.stoic),
+        ("Tolkien", QuoteCollection.tolkien)
+    ])
+    func quoteCollectionRawValuesDecodeFromSeedTags(rawValue: String, expected: QuoteCollection) {
+        #expect(QuoteCollection(rawValue: rawValue) == expected)
     }
 
     private func makeRecord(text: String, author: String, collection: QuoteCollection) -> QuoteRecord {

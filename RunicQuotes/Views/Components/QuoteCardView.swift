@@ -125,7 +125,7 @@ extension QuoteCardView where Badge == Text {
                 author: "Norse Proverb",
                 badge: {
                     Text("Motivation")
-                        .font(.caption2)
+                        .font(DesignTokens.Typography.listMeta)
                         .foregroundStyle(.blue)
                 },
                 actions: {

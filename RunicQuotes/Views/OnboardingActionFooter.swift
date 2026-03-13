@@ -16,17 +16,17 @@ struct OnboardingActionFooter: View {
     let savePreferencesAndFinish: () -> Void
 
     var body: some View {
-        switch currentPage {
-        case .splash:
-            EmptyView()
-        case .intro, .atmosphere:
-            GlassButton.primary("Continue", icon: "arrow.right") {
-                Haptics.trigger(.newQuote)
-                moveForward()
-            }
-        case .notifications:
-            VStack(spacing: DesignTokens.Spacing.sm) {
-                GlassButton.primary("Enable Notifications", icon: "bell") {
+        LiquidActionCluster(palette: palette) {
+            switch currentPage {
+            case .splash:
+                EmptyView()
+            case .intro, .atmosphere:
+                primaryButton("Continue", systemImage: "arrow.right") {
+                    Haptics.trigger(.newQuote)
+                    moveForward()
+                }
+            case .notifications:
+                primaryButton("Enable Notifications", systemImage: "bell") {
                     Haptics.trigger(.newQuote)
                     requestNotifications()
                 }
@@ -35,15 +35,26 @@ struct OnboardingActionFooter: View {
                     Haptics.trigger(.newQuote)
                     moveForward()
                 }
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(palette.textSecondary)
-                .buttonStyle(.plain)
-            }
-        case .ready:
-            GlassButton.primary("Enter the Runes", icon: "sparkles") {
-                Haptics.trigger(.newQuote)
-                savePreferencesAndFinish()
+                .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: false))
+            case .ready:
+                primaryButton("Enter the Runes", systemImage: "sparkles") {
+                    Haptics.trigger(.newQuote)
+                    savePreferencesAndFinish()
+                }
             }
         }
+        .frame(maxWidth: 420)
+    }
+
+    private func primaryButton(
+        _ title: String,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
     }
 }

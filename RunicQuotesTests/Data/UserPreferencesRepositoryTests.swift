@@ -5,16 +5,16 @@
 //  Created by Codex on 2026-03-13.
 //
 
+import Foundation
 import SwiftData
-import XCTest
+import Testing
 @testable import RunicQuotes
 
-final class UserPreferencesRepositoryTests: XCTestCase {
-    func testSnapshotRoundTripsSavedState() throws {
-        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: config)
-        let context = ModelContext(container)
+@Suite(.serialized, .tags(.repository))
+struct UserPreferencesRepositoryTests {
+    @Test
+    func snapshotRoundTripsSavedState() throws {
+        let context = try TestSupport.makeModelContext()
         let repository = SwiftDataUserPreferencesRepository(modelContext: context)
 
         var snapshot = UserPreferencesSnapshot()
@@ -30,17 +30,17 @@ final class UserPreferencesRepositoryTests: XCTestCase {
         snapshot.installedPackIDs = ["stoic-pack", "tolkien-pack"]
 
         try repository.save(snapshot)
-
         let restored = try repository.snapshot()
-        XCTAssertEqual(restored.selectedScript, .cirth)
-        XCTAssertEqual(restored.selectedFont, .cirth)
-        XCTAssertEqual(restored.widgetMode, .random)
-        XCTAssertEqual(restored.selectedCollection, .stoic)
-        XCTAssertEqual(restored.widgetStyle, .translationFirst)
-        XCTAssertFalse(restored.widgetDecorativeGlyphsEnabled)
-        XCTAssertEqual(restored.selectedTheme, .nordicDawn)
-        XCTAssertEqual(restored.lastUsedPreset, .cirthLore)
-        XCTAssertEqual(restored.savedQuoteIDs, snapshot.savedQuoteIDs)
-        XCTAssertEqual(restored.installedPackIDs, snapshot.installedPackIDs)
+
+        #expect(restored.selectedScript == .cirth)
+        #expect(restored.selectedFont == .cirth)
+        #expect(restored.widgetMode == .random)
+        #expect(restored.selectedCollection == .stoic)
+        #expect(restored.widgetStyle == .translationFirst)
+        #expect(!restored.widgetDecorativeGlyphsEnabled)
+        #expect(restored.selectedTheme == .nordicDawn)
+        #expect(restored.lastUsedPreset == .cirthLore)
+        #expect(restored.savedQuoteIDs == snapshot.savedQuoteIDs)
+        #expect(restored.installedPackIDs == snapshot.installedPackIDs)
     }
 }

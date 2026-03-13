@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 import TipKit
 
-/// Browse quotes organized by collection in a 2-column grid.
+/// Browse quotes organized by curated shelves.
 struct CollectionsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
@@ -83,61 +83,45 @@ struct CollectionsView: View {
         Button {
             self.switchToCollection(collection)
         } label: {
-            EditorialCard(
+            CollectionShelfRow(
                 palette: self.palette,
-                tone: collection == .all ? .hero : .primary,
-                cornerRadius: DesignTokens.CornerRadius.xl,
-                shadowRadius: DesignTokens.Elevation.medium,
-                contentPadding: DesignTokens.Spacing.md,
-            ) {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                            SectionLabel(title: "Collection", palette: self.palette)
-                            Label(collection.displayName, systemImage: collection.systemImage)
-                                .font(DesignTokens.Typography.cardTitle)
-                                .foregroundStyle(self.palette.textPrimary)
-                        }
+                eyebrow: "Collection",
+                title: collection.displayName,
+                subtitle: collection.subtitle,
+                supporting: collection.heroLatinText,
+                meta: [count == 1 ? "1 quote" : "\(count) quotes"],
+                leading: {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        Label("", systemImage: collection.systemImage)
+                            .labelStyle(.iconOnly)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(self.palette.accent)
 
-                        Spacer()
-
-                        Text("\(count) quotes")
-                            .font(DesignTokens.Typography.metadata)
-                            .foregroundStyle(self.palette.textPrimary)
+                        Text(collection.heroRunicText)
+                            .font(.system(size: 28, weight: .medium, design: .serif))
+                            .foregroundStyle(self.palette.runeText)
+                            .lineLimit(2)
+                    }
+                    .frame(width: 64, alignment: .leading)
+                },
+                trailing: {
+                    VStack(alignment: .trailing, spacing: DesignTokens.Spacing.xxs) {
+                        Text("\(count)")
+                            .font(DesignTokens.Typography.listMeta)
+                            .foregroundStyle(self.palette.textTertiary)
                             .padding(.horizontal, DesignTokens.Spacing.sm)
                             .padding(.vertical, DesignTokens.Spacing.xs)
                             .background {
                                 Capsule()
                                     .fill(self.palette.bannerBackground)
                             }
-                    }
-
-                    Text(collection.heroRunicText)
-                        .font(.system(size: 34, weight: .medium, design: .serif))
-                        .foregroundStyle(self.palette.runeText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Text(collection.heroLatinText)
-                        .font(DesignTokens.Typography.sectionTitle)
-                        .foregroundStyle(self.palette.textPrimary)
-
-                    Text(collection.subtitle)
-                        .font(DesignTokens.Typography.callout)
-                        .foregroundStyle(self.palette.textSecondary)
-                        .lineLimit(2)
-
-                    HStack(spacing: DesignTokens.Spacing.sm) {
-                        MetaRow(items: [collection.displayName, "\(count) quotes"], palette: self.palette)
-
-                        Spacer()
 
                         Image(systemName: "arrow.right")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(self.palette.accent)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            )
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("collection_\(collection.rawValue)")
@@ -148,40 +132,29 @@ struct CollectionsView: View {
 
     private var quotePacksLink: some View {
         NavigationLink(value: "quotePacks") {
-            EditorialCard(
+            CollectionShelfRow(
                 palette: self.palette,
-                tone: .hero,
-                cornerRadius: DesignTokens.CornerRadius.xxl,
-                shadowRadius: DesignTokens.Elevation.medium,
-                contentPadding: DesignTokens.Spacing.md,
-            ) {
-                HStack(spacing: DesignTokens.Spacing.md) {
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        SectionLabel(title: "Quote Packs", palette: self.palette)
-
-                        Text("Expand your wisdom library")
-                            .font(DesignTokens.Typography.sectionTitle)
-                            .foregroundStyle(self.palette.textPrimary)
-
-                        Text("Curated additions that feel like collectible volumes, not utilities.")
-                            .font(DesignTokens.Typography.callout)
-                            .foregroundStyle(self.palette.textSecondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-
-                    Spacer()
-
-                    VStack(alignment: .trailing, spacing: DesignTokens.Spacing.xxs) {
-                        Text("\(QuotePack.catalog.count) packs")
-                            .font(DesignTokens.Typography.metadata)
-                            .foregroundStyle(self.palette.textTertiary)
-
-                        Image(systemName: "arrow.right.circle.fill")
-                            .font(.title3)
-                            .foregroundStyle(self.palette.accent)
-                    }
+                eyebrow: "Quote Packs",
+                title: "Collectible Volumes",
+                subtitle: "Curated additions that extend the library without changing the reading rhythm.",
+                supporting: "Quote Packs now sit beside the main shelves instead of apart from them.",
+                meta: ["\(QuotePack.catalog.count) packs"],
+                leading: {
+                    Text("ᚠ")
+                        .font(.system(size: 30, weight: .medium, design: .serif))
+                        .foregroundStyle(self.palette.runeText)
+                        .frame(width: 48, height: 48)
+                        .background {
+                            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                                .fill(self.palette.bannerBackground)
+                        }
+                },
+                trailing: {
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(self.palette.accent)
                 }
-            }
+            )
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("quote_packs_link")

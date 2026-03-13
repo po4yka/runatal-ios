@@ -75,15 +75,15 @@ struct QuoteCardSectionView: View {
                             colors: [
                                 .clear,
                                 self.palette.separator.opacity(0.35),
-                                self.palette.accent.opacity(0.55),
+                                self.palette.accent.opacity(0.32),
                                 self.palette.separator.opacity(0.35),
-                                .clear,
+                                .clear
                             ],
                             startPoint: .leading,
-                            endPoint: .trailing,
-                        ),
+                            endPoint: .trailing
+                        )
                     )
-                    .frame(height: 1.5)
+                    .frame(height: 1)
                     .padding(.horizontal, DesignTokens.Spacing.xs)
                     .accessibilityHidden(true)
 
@@ -129,7 +129,7 @@ struct QuoteCardSectionView: View {
                 Text(self.decorativeGlyph)
                     .font(.system(size: 60))
                     .foregroundStyle(self.palette.ornament)
-                    .opacity(0.32)
+                    .opacity(0.18)
                     .rotationEffect(.degrees(-12))
                     .padding(.top, DesignTokens.Spacing.sm)
                     .padding(.trailing, DesignTokens.Spacing.md)
@@ -160,24 +160,24 @@ struct QuoteCardSectionView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             SectionLabel(title: "Current Reading", palette: self.palette)
             Text("Rendered in \(self.script.displayName)")
-                .font(DesignTokens.Typography.metadata)
+                .font(DesignTokens.Typography.listMeta)
                 .foregroundStyle(self.palette.textTertiary)
 
             HStack(spacing: DesignTokens.Spacing.xs) {
                 Text(self.presentationSource.disclosureTitle)
-                    .font(DesignTokens.Typography.metadata)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(self.palette.textSecondary)
 
                 if let evidenceTier {
                     Text("· \(evidenceTier.displayName)")
-                        .font(DesignTokens.Typography.metadata)
+                        .font(DesignTokens.Typography.listMeta)
                         .foregroundStyle(self.palette.textSecondary)
                 }
             }
 
             if let primarySourceLabel {
                 Text(primarySourceLabel)
-                    .font(DesignTokens.Typography.metadata)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(self.palette.textTertiary)
             }
         }
@@ -236,7 +236,7 @@ struct QuoteCardSectionView: View {
                     .foregroundStyle(self.palette.textPrimary)
 
                 Text(message)
-                    .font(DesignTokens.Typography.metadata)
+                    .font(DesignTokens.Typography.listMeta)
                     .foregroundStyle(self.palette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
