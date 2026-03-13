@@ -20,7 +20,7 @@ The translation stack is offline and asset-backed. It currently exposes three en
 - `ElderFutharkTranslationEngine`
   English -> constrained Proto-Norse reconstruction -> Elder Futhark glyphs
 - `EreborCirthTranslationEngine`
-  English/Westron-style transcription -> Erebor diplomatic sequence layer -> Cirth glyphs
+  English transcription -> Erebor diplomatic sequence layer -> Cirth glyphs
 
 Each engine returns `TranslationResult` with:
 
@@ -32,12 +32,17 @@ Each engine returns `TranslationResult` with:
 - normalized form
 - diplomatic form
 - glyph output
+- support level
+- evidence tier
 - resolution status
 - confidence
 - notes
 - unresolved tokens
 - provenance
 - token breakdown
+- attestation refs
+- input language
+- user-facing warnings
 - engine version
 - dataset version
 
@@ -52,8 +57,13 @@ The runtime dataset is split into three internal stores:
 - `EreborOrthographyStore`
   Erebor sequence tables, phrase mappings, long-vowel and long-consonant tables
 
-The shipped provider is `AssetTranslationDatasetProvider`, which reads generated JSON assets from `app/src/main/translationSeed/translation/`.
-The shipped provider is `AssetTranslationDatasetProvider`, which reads generated JSON assets from `RunicQuotes/Resources/Translation/`.
+The repo-level source of truth lives in:
+
+- `TranslationCuration/source/translation/`
+
+The shipped provider is `AssetTranslationDatasetProvider`, which reads mirrored runtime JSON assets from:
+
+- `RunicQuotes/Resources/Translation/`
 
 ## Selection precedence
 
@@ -65,6 +75,8 @@ The engines do not use one generic fallback path. They use precedence rules:
   gold example -> curated attested short form/template -> readable/decorative token composition -> strict unavailable
 - Erebor
   gold example -> curated phrase mapping -> sequence-table transcription -> readable character fallback -> strict unavailable
+
+All three engines now run an explicit English-input analysis stage before token resolution. Unsupported source language is rejected early with guidance instead of silently fabricating output.
 
 ## Persistence
 
@@ -95,11 +107,19 @@ The translation screen can display:
 - token breakdown
 - unavailable explanation
 
+Home and Share also disclose whether the currently visible runic text is:
+
+- a structured historical translation
+- a stored transliteration fallback
+- a live transliteration generated on demand
+
 Quote and share surfaces can prefer cached structured translations when available and otherwise fall back to stored transliteration output.
 
 ## Accuracy policy
 
 `STRICT` is conservative. If the engine cannot produce a defensible result, it returns `UNAVAILABLE` with notes and unresolved tokens instead of fabricating output.
+
+Strict results must also carry provenance. If the engine cannot resolve a defensible source-backed path, it does not emit a visible strict result.
 
 `READABLE` and `DECORATIVE` may use curated paraphrase or phonological-preservation fallbacks, but those results must be marked as approximations.
 

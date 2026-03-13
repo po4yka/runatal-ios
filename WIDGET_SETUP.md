@@ -1,64 +1,121 @@
 # Widget Setup
 
-Architecture and configuration for the RunicQuotesWidget extension.
+This document covers the `RunicQuotesWidget` extension and how it shares data with the main app.
 
-## Architecture
+## Scope
 
-```
+- WidgetKit extension configured with `AppIntentConfiguration`
+- Home Screen and Lock Screen families
+- Shared SwiftData container via App Groups
+- Transliteration-first presentation
+
+The widget target includes the shared translation models and storage schema for compatibility, but it does not currently expose the full historical translation UI or provenance surfaces that exist in the app.
+
+## Widget Layout
+
+```text
 RunicQuotesWidget/
-  RunicQuoteWidget.swift       Widget entry point, supported families
-  Provider/
-    QuoteTimelineProvider.swift Timeline generation (daily/hourly)
+  DI/
+    WidgetRootComponent.swift
+    WidgetTimelineService.swift
+    WidgetNeedleGenerated.swift
+  Intents/
+    WidgetConfigurationIntent.swift
   Models/
-    RunicQuoteEntry.swift       TimelineEntry with quote data
+    DeepLink.swift
+    RunicQuoteEntry.swift
+  Provider/
+    QuoteTimelineProvider.swift
   Views/
-    *.swift                     Widget views per family size
+    WidgetViews.swift
+  RunicQuoteWidget.swift
 ```
 
-The widget shares code from the main app via `project.yml` source includes:
-- `RunicQuotes/Models/` -- data models and enums
-- `RunicQuotes/Data/` -- repositories and transliteration
-- `RunicQuotes/Utilities/` -- font config, theme palette, extensions
+## Shared Code
+
+Per `project.yml`, the widget target compiles shared code from:
+
+- `RunicQuotes/Models`
+- `RunicQuotes/Data`
+- `RunicQuotes/Utilities`
+- `RunicQuotes/DI/Shared`
+
+This gives the widget access to:
+
+- quote and preference models
+- transliteration logic
+- shared SwiftData helpers
+- translation cache models needed for shared schema compatibility
+- theme and font utilities
 
 ## Data Sharing
 
-App and widget share data via **App Groups** (`group.com.po4yka.runicquotes`):
-- Shared `ModelContainer` for SwiftData access
-- User preferences (script, font, theme, widget mode)
+App and widget share data through the App Group `group.com.po4yka.runicquotes`.
 
-## Supported Widget Families
+Shared state includes:
+
+- SwiftData quote store
+- user preferences such as script, font, and theme
+- widget mode and style preferences
+
+`QuoteTimelineProvider` builds its entries from `WidgetTimelineService`, which loads preferences from the shared container and chooses either a quote of the day or a random quote.
+
+## Configuration Surface
+
+The widget uses `RunicQuoteConfigurationIntent` for per-widget settings:
+
+- script
+- widget mode
+- widget style
+- whether decorative rune text is shown
+
+Theme and font still come from the shared app preferences.
+
+## Supported Families
 
 ### Home Screen
-- **Small:** Runic text with script name
-- **Medium:** Runic text + Latin translation + author
-- **Large:** Full quote with header and dividers
 
-### Lock Screen
-- **Circular:** Single runic character
-- **Rectangular:** Runic text + author
-- **Inline:** Runic text only
+- `systemSmall`
+- `systemMedium`
+- `systemLarge`
 
-## Widget Modes
+### Lock Screen / accessory
 
-- **Daily:** Updates at midnight, deterministic quote-of-the-day
-- **Random:** Updates every hour with a random quote
+- `accessoryCircular`
+- `accessoryRectangular`
+- `accessoryInline`
+
+## Update Policy
+
+- `Daily`
+  Uses deterministic quote-of-the-day selection and refreshes at midnight.
+- `Random`
+  Refreshes hourly with a new quote.
+
+The timeline provider emits a current entry plus the next scheduled update entry.
 
 ## Deep Linking
 
-Tapping a widget opens the app via `runicquotes://` URL scheme:
-- `runicquotes://quote?script=elder` -- opens Quote tab with specified script
-- Handled in `RunicQuotesApp.swift` via `onOpenURL`
+Widgets open the app through the `runicquotes://` URL scheme.
+
+Current deep-link behavior can carry quote-tab context such as the selected script so the main app lands in the expected viewing state.
 
 ## Troubleshooting
 
-### Fonts not rendering in widget
-- Verify `UIAppFonts` is set in `RunicQuotesWidget/Info.plist` (handled by `project.yml`)
-- Clean build: Cmd+Shift+K
+### Widget shows placeholder content
 
-### Widget shows "Unable to Load"
-- Both targets must use the same App Group identifier
-- Shared source files must compile for the widget target
+1. Confirm the app has seeded quotes in the shared container.
+2. Check that the widget and app use the same App Group entitlements.
+3. Reinstall the app if the simulator has stale shared-container data.
 
-### Widget not updating
-- Remove and re-add the widget on the Home Screen
-- Force-quit the app to reset the widget process
+### Fonts do not render correctly
+
+1. Verify the runic `.ttf` files are bundled in both targets through `project.yml`.
+2. Regenerate the project after changing resource declarations.
+3. Clean the build folder and rebuild.
+
+### Widget target fails after shared model changes
+
+1. Run `xcodegen generate`.
+2. Run `./scripts/generate-needle.sh`.
+3. Make sure shared app files referenced by the widget still exist and still compile for extension-safe contexts.

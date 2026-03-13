@@ -52,7 +52,7 @@ Stable ids are required because the app persists provenance and uses `referenceI
 
 ## Validation rules
 
-The Gradle task `validateTranslationCuration` runs before asset generation and fails the build if:
+Validation in this repo is enforced by the export workflow plus Swift test coverage. The curation policy fails when:
 
 - a required file is missing
 - ids are duplicated
@@ -65,7 +65,12 @@ The Gradle task `validateTranslationCuration` runs before asset generation and f
 - an Erebor phrase mapping points at a missing reference id
 - a gold corpus expectation points at an unknown attestation ref
 
-Unit tests in `CuratedTranslationAssetsTest` cover the same policy at the test layer.
+The primary validation coverage lives in:
+
+- `TranslationDatasetValidationTests`
+- `TranslationQualityRegressionTests`
+
+The Android mirror can enforce equivalent checks in its own build pipeline after export, but this repository does not rely on a Gradle task for source-of-truth validation.
 
 ## Strict mode requirements
 
