@@ -25,6 +25,7 @@ final class AssetTranslationDatasetProvider: HistoricalLexiconStore, RunicCorpus
     private lazy var elderAttestedFormsCache: [HistoricalPhraseTemplateEntry] = read("elder_attested_forms.json")
     private lazy var runicCorpusReferencesCache: [RunicCorpusReferenceEntry] = read("runic_corpus_refs.json")
     private lazy var goldExamplesCache: [TranslationGoldExampleEntry] = read("gold_examples.json")
+    private lazy var goldCorpusCache: TranslationGoldCorpus = read("gold_corpus.json")
 
     init(bundle: Bundle = .main) {
         self.bundle = bundle
@@ -43,6 +44,7 @@ final class AssetTranslationDatasetProvider: HistoricalLexiconStore, RunicCorpus
     func elderAttestedForms() -> [HistoricalPhraseTemplateEntry] { elderAttestedFormsCache }
     func runicCorpusReferences() -> [RunicCorpusReferenceEntry] { runicCorpusReferencesCache }
     func goldExamples() -> [TranslationGoldExampleEntry] { goldExamplesCache }
+    func goldCorpus() -> TranslationGoldCorpus { goldCorpusCache }
     func ereborTables() -> EreborTablesData { ereborTablesCache }
 
     /// Forces eager loading to reduce first-use latency.
@@ -60,6 +62,7 @@ final class AssetTranslationDatasetProvider: HistoricalLexiconStore, RunicCorpus
         _ = elderAttestedFormsCache
         _ = runicCorpusReferencesCache
         _ = goldExamplesCache
+        _ = goldCorpusCache
     }
 
     private func read<T: Decodable>(_ fileName: String) -> T {

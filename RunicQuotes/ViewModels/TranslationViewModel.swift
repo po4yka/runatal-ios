@@ -23,11 +23,16 @@ struct TranslationUiState: Sendable {
     var normalizedForm: String?
     var diplomaticForm: String?
     var resolutionStatus: TranslationResolutionStatus?
+    var supportLevel: TranslationSupportLevel?
+    var evidenceTier: TranslationEvidenceTier?
     var derivationKind: TranslationDerivationKind?
     var notes: [String] = []
     var provenance: [TranslationProvenanceEntry] = []
     var tokenBreakdown: [TranslationTokenBreakdown] = []
     var unresolvedTokens: [String] = []
+    var attestationRefs: [String] = []
+    var inputLanguage: TranslationSourceLanguage = .english
+    var userFacingWarnings: [String] = []
     var isWordByWordEnabled = false
     var isSaving = false
     var errorMessage: String?
@@ -49,6 +54,19 @@ struct TranslationUiState: Sendable {
             return "Try Readable or Decorative to allow approximated output."
         }
         return "This phrase has gaps in the curated dataset for the selected script."
+    }
+
+    var sourceLanguageBanner: String? {
+        guard translationMode == .translate else { return nil }
+        return "Historical translation currently supports English input only."
+    }
+
+    var primarySourceLabel: String? {
+        provenance.first?.label
+    }
+
+    var primarySourceDetail: String? {
+        provenance.first?.detail ?? provenance.first?.sourceWork
     }
 }
 
@@ -143,7 +161,12 @@ final class TranslationViewModel: ObservableObject {
         state.provenance = []
         state.tokenBreakdown = []
         state.unresolvedTokens = []
+        state.attestationRefs = []
+        state.inputLanguage = .english
+        state.userFacingWarnings = []
         state.resolutionStatus = nil
+        state.supportLevel = nil
+        state.evidenceTier = nil
         state.derivationKind = nil
         state.errorMessage = nil
         state.successMessage = nil
@@ -240,11 +263,16 @@ final class TranslationViewModel: ObservableObject {
             state.normalizedForm = nil
             state.diplomaticForm = nil
             state.resolutionStatus = nil
+            state.supportLevel = nil
+            state.evidenceTier = nil
             state.derivationKind = nil
             state.notes = []
             state.provenance = []
             state.tokenBreakdown = []
             state.unresolvedTokens = []
+            state.attestationRefs = []
+            state.inputLanguage = .english
+            state.userFacingWarnings = []
             return
         }
 
@@ -254,10 +282,15 @@ final class TranslationViewModel: ObservableObject {
             state.normalizedForm = nil
             state.diplomaticForm = nil
             state.resolutionStatus = nil
+            state.supportLevel = nil
+            state.evidenceTier = nil
             state.derivationKind = nil
             state.notes = []
             state.provenance = []
             state.unresolvedTokens = []
+            state.attestationRefs = []
+            state.inputLanguage = .english
+            state.userFacingWarnings = []
             state.tokenBreakdown = buildTransliterationBreakdown(for: input, script: state.selectedScript)
 
         case .translate:
@@ -265,17 +298,23 @@ final class TranslationViewModel: ObservableObject {
                 text: input,
                 script: state.selectedScript,
                 fidelity: state.selectedFidelity,
-                youngerVariant: state.selectedYoungerVariant
+                youngerVariant: state.selectedYoungerVariant,
+                sourceLanguage: .english
             )
             state.outputText = result.glyphOutput
             state.normalizedForm = result.normalizedForm.nilIfEmpty
             state.diplomaticForm = result.diplomaticForm.nilIfEmpty
             state.resolutionStatus = result.resolutionStatus
+            state.supportLevel = result.supportLevel
+            state.evidenceTier = result.evidenceTier
             state.derivationKind = result.derivationKind
             state.notes = result.notes
             state.provenance = result.provenance
             state.tokenBreakdown = result.tokenBreakdown
             state.unresolvedTokens = result.unresolvedTokens
+            state.attestationRefs = result.attestationRefs
+            state.inputLanguage = result.inputLanguage
+            state.userFacingWarnings = result.userFacingWarnings
         }
     }
 
@@ -325,8 +364,12 @@ final class TranslationViewModel: ObservableObject {
         let results = translationService.translateAllAvailable(
             text: input,
             fidelity: state.selectedFidelity,
-            youngerVariant: state.selectedYoungerVariant
+            youngerVariant: state.selectedYoungerVariant,
+            sourceLanguage: .english
         )
+        guard results.contains(where: \.isAvailable) else {
+            throw TranslationSaveError.noStructuredTranslationsAvailable
+        }
         let bundle = RunicTextBundle(
             elder: results.first(where: { $0.script == .elder && $0.isAvailable })?.glyphOutput,
             younger: results.first(where: { $0.script == .younger && $0.isAvailable })?.glyphOutput,
@@ -341,6 +384,17 @@ final class TranslationViewModel: ObservableObject {
         )
         try translationRepository.cache(results: results, for: savedQuote.id, sourceText: input)
         return (savedQuote, String(localized: "translation.save.success.structured"))
+    }
+}
+
+private enum TranslationSaveError: LocalizedError {
+    case noStructuredTranslationsAvailable
+
+    var errorDescription: String? {
+        switch self {
+        case .noStructuredTranslationsAvailable:
+            return "No structured historical translation is available for this input yet."
+        }
     }
 }
 

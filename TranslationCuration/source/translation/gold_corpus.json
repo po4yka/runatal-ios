@@ -1,0 +1,108 @@
+{
+  "benchmarks": [
+    {
+      "id": "benchmark_common_wolf_night",
+      "category": "common_phrase",
+      "sourceText": "The wolf hunts at night",
+      "notes": [
+        "Primary regression phrase used across all three script engines."
+      ],
+      "expectations": [
+        {
+          "script": "YOUNGER_FUTHARK",
+          "fidelity": "STRICT",
+          "requestedVariant": "LONG_BRANCH",
+          "normalizedForm": "úlfr veiðir um nótt",
+          "diplomaticForm": "ulfr uiþir um nutt",
+          "glyphOutput": "ᚢᛚᚠᚱ ᚢᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ",
+          "resolutionStatus": "RECONSTRUCTED",
+          "evidenceTier": "RECONSTRUCTED",
+          "supportLevel": "SUPPORTED",
+          "attestationRefs": ["yf_ref_wolf_night"],
+          "warningFragments": []
+        },
+        {
+          "script": "ELDER_FUTHARK",
+          "fidelity": "STRICT",
+          "normalizedForm": "wulfaz waiþiþi nahts",
+          "diplomaticForm": "wulfaz waiþiþi nahts",
+          "glyphOutput": "ᚹᚢᛚᚠᚨᛉ ᚹᚨᛁᚦᛁᚦᛁ ᚾᚨᚻᛏᛊ",
+          "resolutionStatus": "RECONSTRUCTED",
+          "evidenceTier": "RECONSTRUCTED",
+          "supportLevel": "SUPPORTED",
+          "attestationRefs": ["ef_ref_wolf_night"],
+          "warningFragments": []
+        }
+      ]
+    },
+    {
+      "id": "benchmark_inscription_king_mountain",
+      "category": "inscription_formula",
+      "sourceText": "The king walks under the mountain",
+      "notes": [
+        "Checks phrase-template precedence before token composition."
+      ],
+      "expectations": [
+        {
+          "script": "YOUNGER_FUTHARK",
+          "fidelity": "STRICT",
+          "requestedVariant": "LONG_BRANCH",
+          "normalizedForm": "konungr gengr undir fjall",
+          "diplomaticForm": "kununkr kinkr untir fial",
+          "glyphOutput": "ᚴᚢᚾᚢᚾᚴᚱ ᚴᛁᚾᚴᚱ ᚢᚾᛏᛁᚱ ᚠᛁᛅᛚ",
+          "resolutionStatus": "RECONSTRUCTED",
+          "evidenceTier": "RECONSTRUCTED",
+          "supportLevel": "SUPPORTED",
+          "attestationRefs": ["yf_ref_king_mountain"],
+          "warningFragments": []
+        }
+      ]
+    },
+    {
+      "id": "benchmark_short_attested_wolf",
+      "category": "short_attested_form",
+      "sourceText": "Wolf",
+      "notes": [
+        "Verifies attested Elder short-form lookup."
+      ],
+      "expectations": [
+        {
+          "script": "ELDER_FUTHARK",
+          "fidelity": "STRICT",
+          "normalizedForm": "wulfaz",
+          "diplomaticForm": "wulfaz",
+          "glyphOutput": "ᚹᚢᛚᚠᚨᛉ",
+          "resolutionStatus": "ATTESTED",
+          "evidenceTier": "ATTESTED",
+          "supportLevel": "SUPPORTED",
+          "attestationRefs": ["ef_ref_wulfaz"],
+          "warningFragments": []
+        }
+      ]
+    },
+    {
+      "id": "benchmark_unsupported_language",
+      "category": "unsupported_input",
+      "sourceText": "волк ночью",
+      "notes": [
+        "Rejects clearly unsupported non-English input instead of fabricating output."
+      ],
+      "expectations": [
+        {
+          "script": "YOUNGER_FUTHARK",
+          "fidelity": "STRICT",
+          "normalizedForm": "",
+          "diplomaticForm": "",
+          "glyphOutput": "",
+          "resolutionStatus": "UNAVAILABLE",
+          "evidenceTier": "UNSUPPORTED",
+          "supportLevel": "UNSUPPORTED",
+          "attestationRefs": [],
+          "warningFragments": [
+            "English input only"
+          ]
+        }
+      ]
+    }
+  ]
+}

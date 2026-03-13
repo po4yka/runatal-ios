@@ -1,6 +1,6 @@
 # Translation Data Curation Policy
 
-This document describes how translation data is stored and validated in the repository.
+This document describes how translation data is stored, exported, and validated in the repository.
 
 ## Source model
 
@@ -8,9 +8,13 @@ The app does not scrape or download linguistic data at runtime.
 
 Curated source extracts are checked into:
 
-- `app/src/main/translationSeed/translation/`
+- `TranslationCuration/source/translation/`
 
 These checked-in files are the source of truth for runtime translation assets.
+Generated runtime mirrors are exported into:
+
+- `RunicQuotes/Resources/Translation/`
+- optional Android mirror output via `./scripts/export-translation-assets.sh`
 
 ## Required asset families
 
@@ -29,6 +33,7 @@ The curated dataset is split into these files:
 - `runic_corpus_refs.json`
 - `erebor_tables.json`
 - `gold_examples.json`
+- `gold_corpus.json`
 
 ## Stable identifiers
 
@@ -40,6 +45,7 @@ This includes:
 - runic corpus references
 - phrase templates
 - gold examples
+- gold corpus benchmarks
 - Erebor phrase mappings
 
 Stable ids are required because the app persists provenance and uses `referenceId` in `TranslationProvenanceEntry`.
@@ -52,9 +58,12 @@ The Gradle task `validateTranslationCuration` runs before asset generation and f
 - ids are duplicated
 - a `sourceId` is unknown
 - a strict lexical entry has no citation
+- a strict lexical entry is not in a strict inventory
+- an ONP-backed entry is missing a lemma authority id
 - a template or gold result is missing script, fidelity, or derivation metadata
 - a strict provenance row points at a missing source or reference id
 - an Erebor phrase mapping points at a missing reference id
+- a gold corpus expectation points at an unknown attestation ref
 
 Unit tests in `CuratedTranslationAssetsTest` cover the same policy at the test layer.
 
@@ -76,16 +85,24 @@ Strict results should preserve:
 - `sourceId`
 - `referenceId` when a stable corpus record exists
 - source label and role
+- source work
 - license metadata
+- license note
+- attestation status
+- lemma authority id when applicable
+- regression id
 - optional detail or citation text
 
 ## Editing guidance
 
 When adding new curated data:
 
-1. add or update source metadata in `source_manifest.json`
-2. add stable ids for every new row
-3. wire strict rows to citations and reference ids
-4. run `./gradlew :app:testDebugUnitTest` and `./gradlew :app:assembleDebug`
+1. edit `TranslationCuration/source/translation/*.json`
+2. add or update source metadata in `source_manifest.json`
+3. add stable ids, regression ids, and license notes for every new row
+4. wire strict rows to citations, inventories, and reference ids
+5. export runtime mirrors with `./scripts/export-translation-assets.sh`
+6. run `swift test --filter TranslationDatasetValidationTests`
+7. run `swift test --filter TranslationQualityRegressionTests`
 
 Do not document speculative modules or future corpora here as if they are already implemented.

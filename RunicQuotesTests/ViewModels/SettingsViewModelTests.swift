@@ -81,7 +81,9 @@ final class SettingsViewModelTests: XCTestCase {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: config)
         let context = ModelContext(container)
-        let viewModel = SettingsViewModel(modelContext: context)
+        let viewModel = SettingsViewModel(
+            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context)
+        )
         return (viewModel, context)
     }
 

@@ -18,6 +18,18 @@ protocol TranslationEngine {
     func translate(_ request: TranslationRequest) -> TranslationResult
 }
 
+private enum TranslationSourceLanguageDetector {
+    static func detect(text: String, requested: TranslationSourceLanguage) -> TranslationSourceLanguage {
+        guard requested == .english else { return requested }
+
+        let letterScalars = text.unicodeScalars.filter(\.properties.isAlphabetic)
+        guard !letterScalars.isEmpty else { return .english }
+
+        let isPlainLatin = letterScalars.allSatisfy { $0.isASCII && CharacterSet.letters.contains($0) }
+        return isPlainLatin ? .english : .unsupported
+    }
+}
+
 /// Structured offline historical translation and Erebor transcription service.
 final class HistoricalTranslationService: @unchecked Sendable {
     private let assetProvider: AssetTranslationDatasetProvider?
@@ -80,28 +92,95 @@ final class HistoricalTranslationService: @unchecked Sendable {
     }
 
     func translate(
+        _ request: TranslationRequest
+    ) -> TranslationResult {
+        let resolvedLanguage = TranslationSourceLanguageDetector.detect(
+            text: request.sourceText,
+            requested: request.sourceLanguage
+        )
+        let normalizedRequest = TranslationRequest(
+            sourceText: request.sourceText,
+            script: request.script,
+            fidelity: request.fidelity,
+            youngerVariant: request.youngerVariant,
+            sourceLanguage: resolvedLanguage,
+            evidenceCap: request.evidenceCap
+        )
+
+        guard resolvedLanguage.isSupported else {
+            return unsupportedLanguageResult(for: normalizedRequest)
+        }
+
+        return engineFactory.create(request.script).translate(normalizedRequest)
+    }
+
+    func translate(
         text: String,
         script: RunicScript,
         fidelity: TranslationFidelity = .default,
-        youngerVariant: YoungerFutharkVariant = .default
+        youngerVariant: YoungerFutharkVariant = .default,
+        sourceLanguage: TranslationSourceLanguage = .english,
+        evidenceCap: TranslationEvidenceCap = .fullDataset
     ) -> TranslationResult {
-        let request = TranslationRequest(
+        translate(
+            TranslationRequest(
             sourceText: text,
             script: script,
             fidelity: fidelity,
-            youngerVariant: youngerVariant
+            youngerVariant: youngerVariant,
+            sourceLanguage: sourceLanguage,
+            evidenceCap: evidenceCap
+            )
         )
-        return engineFactory.create(script).translate(request)
     }
 
     func translateAllAvailable(
         text: String,
         fidelity: TranslationFidelity = .default,
-        youngerVariant: YoungerFutharkVariant = .default
+        youngerVariant: YoungerFutharkVariant = .default,
+        sourceLanguage: TranslationSourceLanguage = .english,
+        evidenceCap: TranslationEvidenceCap = .fullDataset
     ) -> [TranslationResult] {
         RunicScript.allCases.map {
-            translate(text: text, script: $0, fidelity: fidelity, youngerVariant: youngerVariant)
+            translate(
+                text: text,
+                script: $0,
+                fidelity: fidelity,
+                youngerVariant: youngerVariant,
+                sourceLanguage: sourceLanguage,
+                evidenceCap: evidenceCap
+            )
         }
+    }
+
+    private func unsupportedLanguageResult(for request: TranslationRequest) -> TranslationResult {
+        TranslationResult(
+            sourceText: request.sourceText,
+            script: request.script,
+            fidelity: request.fidelity,
+            derivationKind: .tokenComposed,
+            historicalStage: .modernEnglish,
+            normalizedForm: "",
+            diplomaticForm: "",
+            glyphOutput: "",
+            requestedVariant: request.script == .younger ? request.youngerVariant.rawValue : nil,
+            resolutionStatus: .unavailable,
+            supportLevel: .unsupported,
+            evidenceTier: .unsupported,
+            confidence: 0,
+            notes: ["Historical translation currently supports English source text only."],
+            unresolvedTokens: [],
+            provenance: [],
+            tokenBreakdown: [],
+            attestationRefs: [],
+            inputLanguage: .unsupported,
+            userFacingWarnings: [
+                "Translation currently supports English input only.",
+                "Use transliteration mode for non-English text."
+            ],
+            engineVersion: versionSignature,
+            datasetVersion: datasetVersion
+        )
     }
 }
 
@@ -126,7 +205,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v3"
+    let engineVersion = "yf-translation-v4"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -171,8 +250,13 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
             return template.withEngineVersion(engineVersion)
         }
 
-        let parsed = parser.parse(request.sourceText)
         let grammarRules = lexiconLookup.grammarRules()
+        let parsed = parser.parse(
+            request.sourceText,
+            grammarRules: grammarRules,
+            recognizedTerms: lexiconLookup.recognizedEnglishTerms(),
+            multiwordExpressions: lexiconLookup.multiwordExpressions()
+        )
         let resolutions = parsed.tokens.compactMap { token -> TranslationTokenResolution? in
             if token.type == .punctuation {
                 return token.asPunctuationResolution()
@@ -194,7 +278,9 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
                 requestedVariant: request.youngerVariant.rawValue,
                 baseConfidence: youngerBaseConfidence(for: request.fidelity),
                 fallbackStatus: .reconstructed,
-                defaultNote: "Generated using the offline Old Norse translation pipeline."
+                defaultNote: "Generated using the offline Old Norse translation pipeline.",
+                analysisWarnings: parsed.warnings,
+                inputLanguage: request.sourceLanguage
             )
         )
     }
@@ -232,7 +318,22 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
                 )
             )
             normalized = name
-        } else if let entry = lexiconLookup.oldNorseFor(token.normalized, fidelity: request.fidelity) {
+        } else if token.isProperNameCandidate, request.fidelity != .strict {
+            resolutionStatus = .approximated
+            notes.append("Preserved an uncatalogued proper name phonetically.")
+            provenance.append(
+                lexiconLookup.provenanceFor(
+                    sourceID: "internal_heuristics",
+                    detail: "Proper-name preservation fallback"
+                )
+            )
+            normalized = token.normalized
+        } else if let entry = lexiconLookup.oldNorseFor(
+            token.normalized,
+            fidelity: request.fidelity,
+            evidenceCap: request.evidenceCap
+        ) {
+            resolutionStatus = entry.attestationStatus == .attested ? .attested : .reconstructed
             provenance.append(lexiconLookup.provenanceFor(entry: entry))
             let morphology = morphologyStage.inflect(entry: entry, token: token)
             notes.append(contentsOf: morphology.notes)
@@ -292,7 +393,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v3"
+    let engineVersion = "ef-translation-v4"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -334,17 +435,22 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
             return template.withEngineVersion(engineVersion)
         }
 
+        let parsed = parser.parse(
+            request.sourceText,
+            grammarRules: lexiconLookup.grammarRules(),
+            recognizedTerms: lexiconLookup.recognizedEnglishTerms(),
+            multiwordExpressions: lexiconLookup.multiwordExpressions()
+        )
         if request.fidelity == .strict {
-            return strictUnavailableResult(request)
+            return strictUnavailableResult(request, warnings: parsed.warnings)
         }
 
-        let parsed = parser.parse(request.sourceText)
         let resolutions = parsed.tokens.map { token in
             if token.type == .punctuation {
                 return token.asPunctuationResolution()
             }
 
-            let output = lexicalStage.reconstruct(token: token, fidelity: request.fidelity)
+            let output = lexicalStage.reconstruct(token: token, fidelity: request.fidelity, evidenceCap: request.evidenceCap)
             if let unresolved = output.unresolvedToken {
                 return TranslationTokenResolution(
                     sourceToken: token.raw,
@@ -379,12 +485,14 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
                 engineVersion: engineVersion,
                 baseConfidence: elderBaseConfidence(for: request.fidelity),
                 fallbackStatus: .reconstructed,
-                defaultNote: "Generated using the offline Proto-Norse translation pipeline."
+                defaultNote: "Generated using the offline Proto-Norse translation pipeline.",
+                analysisWarnings: parsed.warnings,
+                inputLanguage: request.sourceLanguage
             )
         )
     }
 
-    private func strictUnavailableResult(_ request: TranslationRequest) -> TranslationResult {
+    private func strictUnavailableResult(_ request: TranslationRequest, warnings: [String]) -> TranslationResult {
         TranslationResult(
             sourceText: request.sourceText,
             script: request.script,
@@ -395,6 +503,8 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
             diplomaticForm: "",
             glyphOutput: "",
             resolutionStatus: .unavailable,
+            supportLevel: .unsupported,
+            evidenceTier: .unsupported,
             confidence: 0,
             notes: ["Missing attested or reconstructed Elder Futhark pattern for this phrase."],
             unresolvedTokens: request.sourceText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -402,6 +512,9 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
                 : [request.sourceText.trimmingCharacters(in: .whitespacesAndNewlines)],
             provenance: [],
             tokenBreakdown: [],
+            attestationRefs: [],
+            inputLanguage: request.sourceLanguage,
+            userFacingWarnings: warnings,
             engineVersion: engineVersion,
             datasetVersion: datasetVersion
         )
@@ -410,7 +523,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
 
 private struct EreborCirthTranslationEngine: TranslationEngine {
     let script: RunicScript = .cirth
-    let engineVersion = "cirth-translation-v3"
+    let engineVersion = "cirth-translation-v4"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -489,7 +602,9 @@ private struct EreborCirthTranslationEngine: TranslationEngine {
                 engineVersion: engineVersion,
                 baseConfidence: cirthBaseConfidence(for: request.fidelity),
                 fallbackStatus: .reconstructed,
-                defaultNote: "Generated using the offline Erebor transcription pipeline."
+                defaultNote: "Generated using the offline Erebor transcription pipeline.",
+                analysisWarnings: parsed.warnings,
+                inputLanguage: request.sourceLanguage
             )
         )
     }
@@ -499,41 +614,249 @@ private struct EreborCirthTranslationEngine: TranslationEngine {
 
 private struct EnglishSyntaxParser {
     func parse(_ text: String) -> ParsedEnglishText {
-        let normalized = text
+        parse(
+            text,
+            grammarRules: .empty,
+            recognizedTerms: [],
+            multiwordExpressions: []
+        )
+    }
+
+    func parse(_ text: String, lexiconLookup: HistoricalLexiconLookup) -> ParsedEnglishText {
+        parse(
+            text,
+            grammarRules: lexiconLookup.grammarRules(),
+            recognizedTerms: lexiconLookup.recognizedEnglishTerms(),
+            multiwordExpressions: lexiconLookup.multiwordExpressions()
+        )
+    }
+
+    func parse(
+        _ text: String,
+        grammarRules: GrammarRulesData,
+        recognizedTerms: Set<String>,
+        multiwordExpressions: [String]
+    ) -> ParsedEnglishText {
+        let normalizedText = text
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
 
-        let tokens = tokenRegex
-            .matches(in: normalized, range: NSRange(normalized.startIndex..., in: normalized))
-            .compactMap { Range($0.range, in: normalized).map { normalized[$0] } }
+        var warnings = [String]()
+
+        let rawTokens = tokenRegex
+            .matches(in: normalizedText, range: NSRange(normalizedText.startIndex..., in: normalizedText))
+            .compactMap { Range($0.range, in: normalizedText).map { normalizedText[$0] } }
             .map(String.init)
+            .flatMap { expandContractions(in: $0, warnings: &warnings, pronouns: Set(grammarRules.pronounMap.keys)) }
             .map { value in
                 ParsedEnglishToken(
                     raw: value,
                     normalized: value.lowercased(),
-                    type: value.allSatisfy { $0.isLetter || $0 == "'" } ? .word : .punctuation
+                    type: value.allSatisfy { $0.isLetter || $0 == "'" } ? .word : .punctuation,
+                    isProperNameCandidate: value.first?.isUppercase == true
                 )
             }
 
+        let mergedTokens = mergeMultiwordExpressions(
+            in: rawTokens,
+            phrases: multiwordExpressions
+        )
+
+        var tokens = [ParsedEnglishToken]()
+        tokens.reserveCapacity(mergedTokens.count)
+
+        for (index, token) in mergedTokens.enumerated() {
+            guard token.type == .word else {
+                tokens.append(token)
+                continue
+            }
+
+            var normalized = token.normalized
+            if let strippedPossessive = stripPossessive(normalized), strippedPossessive != normalized {
+                normalized = strippedPossessive
+                warnings.append("Possessive constructions are currently simplified to bare nouns.")
+            }
+
+            if let auxiliaryLemma = grammarRules.auxiliaryMap[normalized] {
+                if collapsibleAuxiliaries.contains(normalized),
+                   hasFollowingContentWord(after: index, in: mergedTokens) {
+                    warnings.append("Auxiliary chains are simplified to the main lexical verb.")
+                    continue
+                }
+                normalized = auxiliaryLemma
+            }
+
+            if let negationLemma = grammarRules.negationMap[normalized] {
+                normalized = negationLemma
+            }
+
+            tokens.append(
+                ParsedEnglishToken(
+                    raw: token.raw,
+                    normalized: normalized,
+                    type: token.type,
+                    isProperNameCandidate: token.isProperNameCandidate
+                )
+            )
+        }
+
         let firstVerbIndex = tokens.firstIndex {
-            $0.type == .word && ($0.normalized.hasSuffix("s") || $0.normalized.hasSuffix("ed"))
+            $0.type == .word && isVerbLike($0, grammarRules: grammarRules)
         } ?? tokens.count
         let firstPrepositionIndex = tokens.firstIndex {
-            commonPrepositions.contains($0.normalized)
+            commonPrepositions.contains($0.normalized) || grammarRules.prepositionMap[$0.normalized] != nil
+        }
+
+        if firstVerbIndex == 0,
+           let firstWord = tokens.first,
+           firstWord.type == .word,
+           !grammarRules.pronounMap.keys.contains(firstWord.normalized),
+           !grammarRules.removableWords.contains(firstWord.normalized) {
+            warnings.append("Imperative readings are handled conservatively and may stay approximate.")
+        }
+
+        if tokens.contains(where: { $0.isProperNameCandidate && !recognizedTerms.contains($0.normalized) }) {
+            warnings.append("Uncurated proper names may be preserved phonetically.")
         }
 
         return ParsedEnglishText(
             originalText: text,
-            normalizedText: normalized,
+            normalizedText: normalizedText,
             tokens: tokens,
             subjectTokens: tokens.safeSlice(from: 0, to: firstVerbIndex),
             verbTokens: firstVerbIndex < tokens.count ? [tokens[firstVerbIndex]] : [],
-            modifierTokens: firstPrepositionIndex.map { Array(tokens.dropFirst($0)) } ?? []
+            modifierTokens: firstPrepositionIndex.map { Array(tokens.dropFirst($0)) } ?? [],
+            warnings: Array(Set(warnings))
         )
+    }
+
+    private func expandContractions(
+        in token: String,
+        warnings: inout [String],
+        pronouns: Set<String>
+    ) -> [String] {
+        let normalized = token.lowercased()
+        if punctuationCharacters.contains(normalized) {
+            return [token]
+        }
+
+        if normalized == "won't" {
+            warnings.append("Expanded an English contraction for analysis.")
+            return ["will", "not"]
+        }
+        if normalized == "can't" {
+            warnings.append("Expanded an English contraction for analysis.")
+            return ["can", "not"]
+        }
+        if normalized.hasSuffix("n't"), normalized.count > 3 {
+            warnings.append("Expanded an English contraction for analysis.")
+            return [String(normalized.dropLast(3)), "not"]
+        }
+
+        guard let apostropheIndex = normalized.firstIndex(of: "'") else {
+            return [token]
+        }
+
+        let prefix = String(normalized[..<apostropheIndex])
+        let suffix = String(normalized[normalized.index(after: apostropheIndex)...])
+
+        switch suffix {
+        case "re":
+            warnings.append("Expanded an English contraction for analysis.")
+            return [prefix, "are"]
+        case "m":
+            warnings.append("Expanded an English contraction for analysis.")
+            return [prefix, "am"]
+        case "ve":
+            warnings.append("Expanded an English contraction for analysis.")
+            return [prefix, "have"]
+        case "ll":
+            warnings.append("Expanded an English contraction for analysis.")
+            return [prefix, "will"]
+        case "d":
+            warnings.append("Expanded an English contraction for analysis.")
+            return [prefix, "would"]
+        case "s" where pronouns.contains(prefix):
+            warnings.append("Expanded an English contraction for analysis.")
+            return [prefix, "is"]
+        default:
+            return [token]
+        }
+    }
+
+    private func mergeMultiwordExpressions(
+        in tokens: [ParsedEnglishToken],
+        phrases: [String]
+    ) -> [ParsedEnglishToken] {
+        let phraseParts = phrases.map { $0.split(separator: " ").map(String.init) }
+        var merged = [ParsedEnglishToken]()
+        var index = 0
+
+        while index < tokens.count {
+            let token = tokens[index]
+            guard token.type == .word else {
+                merged.append(token)
+                index += 1
+                continue
+            }
+
+            var matchedPhrase: [String]?
+            for parts in phraseParts where index + parts.count <= tokens.count {
+                let slice = Array(tokens[index..<(index + parts.count)])
+                guard slice.allSatisfy({ $0.type == .word }) else { continue }
+                if zip(slice.map(\.normalized), parts).allSatisfy(==) {
+                    matchedPhrase = parts
+                    break
+                }
+            }
+
+            if let matchedPhrase {
+                let rawPhrase = tokens[index..<(index + matchedPhrase.count)].map(\.raw).joined(separator: " ")
+                merged.append(
+                    ParsedEnglishToken(
+                        raw: rawPhrase,
+                        normalized: matchedPhrase.joined(separator: " "),
+                        type: .word,
+                        isProperNameCandidate: false
+                    )
+                )
+                index += matchedPhrase.count
+            } else {
+                merged.append(token)
+                index += 1
+            }
+        }
+
+        return merged
+    }
+
+    private func stripPossessive(_ token: String) -> String? {
+        if token.hasSuffix("'s") {
+            return String(token.dropLast(2))
+        }
+        if token.hasSuffix("s'") {
+            return String(token.dropLast())
+        }
+        return nil
+    }
+
+    private func hasFollowingContentWord(after index: Int, in tokens: [ParsedEnglishToken]) -> Bool {
+        tokens.dropFirst(index + 1).contains { $0.type == .word }
+    }
+
+    private func isVerbLike(_ token: ParsedEnglishToken, grammarRules: GrammarRulesData) -> Bool {
+        let raw = token.rawLowercased
+        return raw.hasSuffix("s") ||
+            raw.hasSuffix("ed") ||
+            raw.hasSuffix("ing") ||
+            grammarRules.auxiliaryMap[token.normalized] != nil ||
+            grammarRules.imperativeHints.contains(token.normalized)
     }
 
     private let tokenRegex = (try? NSRegularExpression(pattern: #"[A-Za-z']+|[.,!?;:-]"#))
         ?? NSRegularExpression()
+    private let punctuationCharacters = Set([".", ",", "!", "?", ";", ":", "-"])
+    private let collapsibleAuxiliaries = Set(["do", "does", "did", "have", "has", "had", "will", "would", "shall", "should", "can", "could", "may", "might", "must"])
     private let commonPrepositions = Set(["at", "in", "on", "under", "with", "for", "from", "to", "of"])
 }
 
@@ -544,17 +867,37 @@ private struct ParsedEnglishText: Sendable {
     let subjectTokens: [ParsedEnglishToken]
     let verbTokens: [ParsedEnglishToken]
     let modifierTokens: [ParsedEnglishToken]
+    let warnings: [String]
 }
 
 private struct ParsedEnglishToken: Sendable {
     let raw: String
     let normalized: String
     let type: ParsedEnglishTokenType
+    let isProperNameCandidate: Bool
+
+    var rawLowercased: String {
+        raw.lowercased()
+    }
 }
 
 private enum ParsedEnglishTokenType: Sendable {
     case word
     case punctuation
+}
+
+private extension GrammarRulesData {
+    static let empty = GrammarRulesData(
+        removableWords: [],
+        prepositionMap: [:],
+        interrogatives: [],
+        pronounMap: [:],
+        auxiliaryMap: [:],
+        negationMap: [:],
+        multiwordExpressions: [],
+        imperativeHints: [],
+        englishFunctionWords: []
+    )
 }
 
 // MARK: - Shared Helpers
@@ -580,6 +923,14 @@ private struct TranslationGoldExampleResolver {
                 $0.fidelity == request.fidelity.rawValue &&
                 (request.script != .younger || $0.requestedVariant == nil || $0.requestedVariant == request.youngerVariant.rawValue)
         }) else {
+            return nil
+        }
+
+        let resolvedEvidenceTier = TranslationEvidenceTier(rawValue: result.evidenceTierRaw ?? "")
+            ?? TranslationResult.defaultEvidenceTier(
+                for: TranslationResolutionStatus(rawValue: result.resolutionStatus) ?? .unavailable
+            )
+        if request.evidenceCap == .attestedOnly, resolvedEvidenceTier != .attested {
             return nil
         }
 
@@ -623,11 +974,21 @@ private struct TranslationGoldExampleResolver {
             glyphOutput: glyphOutput,
             requestedVariant: request.script == .younger ? request.youngerVariant.rawValue : result.requestedVariant,
             resolutionStatus: TranslationResolutionStatus(rawValue: result.resolutionStatus) ?? .unavailable,
+            supportLevel: TranslationSupportLevel(rawValue: result.supportLevelRaw ?? "")
+                ?? TranslationResult.defaultSupportLevel(
+                    for: TranslationResolutionStatus(rawValue: result.resolutionStatus) ?? .unavailable
+                ),
+            evidenceTier: resolvedEvidenceTier,
             confidence: result.confidence,
             notes: result.notes,
             unresolvedTokens: result.unresolvedTokens,
             provenance: result.provenance,
             tokenBreakdown: tokenBreakdown,
+            attestationRefs: result.attestationRefs.isEmpty
+                ? result.provenance.compactMap(\.referenceID).uniqued()
+                : result.attestationRefs,
+            inputLanguage: TranslationSourceLanguage(rawValue: result.inputLanguageRaw ?? "") ?? request.sourceLanguage,
+            userFacingWarnings: result.userFacingWarnings,
             engineVersion: engineVersion,
             datasetVersion: runicCorpusStore.datasetManifest().version
         )
@@ -646,7 +1007,14 @@ private struct HistoricalSourceCatalog {
     func provenanceFor(
         sourceID: String,
         referenceID: String? = nil,
-        detail: String? = nil
+        detail: String? = nil,
+        sourceWork: String? = nil,
+        attestationStatus: TranslationAttestationStatus? = nil,
+        lemmaAuthorityID: String? = nil,
+        grammaticalClass: String? = nil,
+        historicalStage: String? = nil,
+        licenseNote: String? = nil,
+        regressionID: String? = nil
     ) -> TranslationProvenanceEntry {
         let source = sourceEntries[sourceID]
             ?? sourceEntries["internal_heuristics"]
@@ -654,7 +1022,9 @@ private struct HistoricalSourceCatalog {
                 id: "internal_heuristics",
                 name: "Runatal heuristics",
                 role: "Offline fallback logic and generated educational notes",
+                work: nil,
                 license: "Project-owned",
+                licenseNote: nil,
                 url: "https://github.com/po4yka/runatal-ios"
             )
         let reference = referenceID.flatMap { corpusReferences[$0] }
@@ -664,6 +1034,13 @@ private struct HistoricalSourceCatalog {
             label: reference?.label ?? source.name,
             role: source.role,
             license: source.license,
+            sourceWork: sourceWork ?? reference?.sourceWork ?? source.work,
+            licenseNote: licenseNote ?? reference?.licenseNote ?? source.licenseNote,
+            attestationStatus: attestationStatus ?? reference?.attestationStatus,
+            lemmaAuthorityID: lemmaAuthorityID,
+            grammaticalClass: grammaticalClass,
+            historicalStage: historicalStage ?? reference?.historicalStage,
+            regressionID: regressionID ?? reference?.regressionID,
             detail: detail ?? reference?.detail,
             url: reference?.url ?? source.url
         )
@@ -689,16 +1066,36 @@ private struct HistoricalLexiconLookup {
 
     func datasetVersion() -> String { lexiconStore.datasetManifest().version }
 
-    func oldNorseFor(_ token: String, fidelity: TranslationFidelity) -> OldNorseLexiconEntry? {
+    func oldNorseFor(
+        _ token: String,
+        fidelity: TranslationFidelity,
+        evidenceCap: TranslationEvidenceCap
+    ) -> OldNorseLexiconEntry? {
         let normalized = resolveSynonym(token)
         guard let entry = oldNorseEntries[normalized] else { return nil }
-        return fidelity == .strict && !entry.strictEligible ? nil : entry
+        if fidelity == .strict && (!entry.strictEligible || !entry.inventory.isStrictEligible) {
+            return nil
+        }
+        if evidenceCap == .attestedOnly && entry.attestationStatus != .attested {
+            return nil
+        }
+        return entry
     }
 
-    func protoNorseFor(_ token: String, fidelity: TranslationFidelity) -> ProtoNorseLexiconEntry? {
+    func protoNorseFor(
+        _ token: String,
+        fidelity: TranslationFidelity,
+        evidenceCap: TranslationEvidenceCap
+    ) -> ProtoNorseLexiconEntry? {
         let normalized = resolveSynonym(token)
         guard let entry = protoNorseEntries[normalized] else { return nil }
-        return fidelity == .strict && !entry.strictEligible ? nil : entry
+        if fidelity == .strict && (!entry.strictEligible || !entry.inventory.isStrictEligible) {
+            return nil
+        }
+        if evidenceCap == .attestedOnly && entry.attestationStatus != .attested {
+            return nil
+        }
+        return entry
     }
 
     func resolveName(_ token: String) -> String? {
@@ -707,6 +1104,10 @@ private struct HistoricalLexiconLookup {
 
     func fallbackParaphrase(_ token: String) -> String? {
         lexiconStore.fallbackTemplates().paraphrases[token]
+    }
+
+    func fallbackSynonym(_ token: String) -> String? {
+        lexiconStore.fallbackTemplates().synonyms[token]
     }
 
     func grammarRules() -> GrammarRulesData {
@@ -721,7 +1122,14 @@ private struct HistoricalLexiconLookup {
         sourceCatalog.provenanceFor(
             sourceID: entry.sourceID,
             referenceID: entry.id,
-            detail: entry.citations.joined(separator: ", ").nilIfEmpty
+            detail: entry.citations.joined(separator: ", ").nilIfEmpty,
+            sourceWork: entry.sourceWork,
+            attestationStatus: entry.attestationStatus,
+            lemmaAuthorityID: entry.lemmaAuthorityID,
+            grammaticalClass: entry.grammaticalClass ?? entry.partOfSpeech,
+            historicalStage: entry.historicalStage,
+            licenseNote: entry.licenseNote,
+            regressionID: entry.regressionID
         )
     }
 
@@ -729,12 +1137,45 @@ private struct HistoricalLexiconLookup {
         sourceCatalog.provenanceFor(
             sourceID: entry.sourceID,
             referenceID: entry.id,
-            detail: entry.citations.joined(separator: ", ").nilIfEmpty
+            detail: entry.citations.joined(separator: ", ").nilIfEmpty,
+            sourceWork: entry.sourceWork,
+            attestationStatus: entry.attestationStatus,
+            lemmaAuthorityID: entry.lemmaAuthorityID,
+            grammaticalClass: entry.grammaticalClass ?? entry.partOfSpeech,
+            historicalStage: entry.historicalStage,
+            licenseNote: entry.licenseNote,
+            regressionID: entry.regressionID
         )
     }
 
     func provenanceFor(sourceID: String, referenceID: String? = nil, detail: String? = nil) -> TranslationProvenanceEntry {
         sourceCatalog.provenanceFor(sourceID: sourceID, referenceID: referenceID, detail: detail)
+    }
+
+    func multiwordExpressions() -> [String] {
+        let derived = oldNorseEntries.keys.filter { $0.contains(" ") } + protoNorseEntries.keys.filter { $0.contains(" ") }
+        let configured = lexiconStore.grammarRules().multiwordExpressions
+        return Array(Set(derived + configured)).sorted {
+            $0.split(separator: " ").count > $1.split(separator: " ").count
+        }
+    }
+
+    func recognizedEnglishTerms() -> Set<String> {
+        let grammarRules = lexiconStore.grammarRules()
+        var terms = Array(oldNorseEntries.keys)
+        terms.append(contentsOf: protoNorseEntries.keys)
+        terms.append(contentsOf: lexiconStore.fallbackTemplates().synonyms.keys)
+        terms.append(contentsOf: lexiconStore.fallbackTemplates().paraphrases.keys)
+        terms.append(contentsOf: lexiconStore.nameAdaptations().names.keys)
+        terms.append(contentsOf: grammarRules.pronounMap.keys)
+        terms.append(contentsOf: grammarRules.prepositionMap.keys)
+        terms.append(contentsOf: grammarRules.negationMap.keys)
+        terms.append(contentsOf: grammarRules.auxiliaryMap.keys)
+        terms.append(contentsOf: grammarRules.removableWords)
+        terms.append(contentsOf: grammarRules.interrogatives)
+        terms.append(contentsOf: grammarRules.multiwordExpressions)
+        terms.append(contentsOf: grammarRules.englishFunctionWords)
+        return Set(terms)
     }
 
     private func resolveSynonym(_ token: String) -> String {
@@ -758,7 +1199,7 @@ private struct RunicPhraseTemplateResolver {
             request: request,
             script: .younger,
             datasetVersion: runicCorpusStore.datasetManifest().version,
-            engineVersion: "yf-template-v3"
+            engineVersion: "yf-template-v4"
         ) { renderer.render($0, variant: request.youngerVariant) }
     }
 
@@ -774,7 +1215,7 @@ private struct RunicPhraseTemplateResolver {
             request: request,
             script: .elder,
             datasetVersion: runicCorpusStore.datasetManifest().version,
-            engineVersion: "ef-template-v3"
+            engineVersion: "ef-template-v4"
         ) { renderer.render($0) }
     }
 
@@ -786,8 +1227,11 @@ private struct RunicPhraseTemplateResolver {
             $0.script == request.script.translationScriptName &&
                 $0.sourceText.normalizePhraseKey() == request.sourceText.normalizePhraseKey()
         }
-        return candidates.first(where: { $0.fidelity == request.fidelity.rawValue }) ??
-            candidates.first(where: { $0.fidelity == TranslationFidelity.strict.rawValue })
+        let eligibleCandidates = candidates.filter {
+            request.evidenceCap != .attestedOnly || $0.attestationStatus == .attested
+        }
+        return eligibleCandidates.first(where: { $0.fidelity == request.fidelity.rawValue }) ??
+            eligibleCandidates.first(where: { $0.fidelity == TranslationFidelity.strict.rawValue })
     }
 
     private func toTranslationResult(
@@ -803,7 +1247,15 @@ private struct RunicPhraseTemplateResolver {
         )
         let provenance = template.referenceIDs.map { referenceID in
             let sourceID = referencesByID[referenceID]?.sourceID ?? "internal_heuristics"
-            return sourceCatalog.provenanceFor(sourceID: sourceID, referenceID: referenceID)
+            return sourceCatalog.provenanceFor(
+                sourceID: sourceID,
+                referenceID: referenceID,
+                sourceWork: template.sourceWork,
+                attestationStatus: template.attestationStatus,
+                historicalStage: template.historicalStage,
+                licenseNote: template.licenseNote,
+                regressionID: template.regressionID
+            )
         }
         let breakdown = template.tokenBreakdown.map { token in
             let tokenProvenance = token.referenceIDs.map { referenceID in
@@ -831,6 +1283,12 @@ private struct RunicPhraseTemplateResolver {
             glyphOutput: stitchTokens(diplomaticTokens.map(glyphRenderer)),
             requestedVariant: script == .younger ? request.youngerVariant.rawValue : nil,
             resolutionStatus: TranslationResolutionStatus(rawValue: template.resolutionStatus) ?? .unavailable,
+            supportLevel: (TranslationResolutionStatus(rawValue: template.resolutionStatus) ?? .unavailable) == .approximated
+                ? .partial
+                : .supported,
+            evidenceTier: TranslationEvidenceTier(
+                rawValue: template.attestationStatus == .attested ? TranslationEvidenceTier.attested.rawValue : TranslationEvidenceTier.reconstructed.rawValue
+            ) ?? .reconstructed,
             confidence: confidenceFor(
                 status: TranslationResolutionStatus(rawValue: template.resolutionStatus) ?? .unavailable
             ),
@@ -838,6 +1296,8 @@ private struct RunicPhraseTemplateResolver {
             unresolvedTokens: [],
             provenance: provenance,
             tokenBreakdown: breakdown,
+            attestationRefs: template.referenceIDs,
+            inputLanguage: request.sourceLanguage,
             engineVersion: engineVersion,
             datasetVersion: datasetVersion
         )
@@ -1085,15 +1545,25 @@ private struct ProtoNorseStageOutput: Sendable {
 private struct ProtoNorseLexicalStage {
     let lexiconLookup: HistoricalLexiconLookup
 
-    func reconstruct(token: ParsedEnglishToken, fidelity: TranslationFidelity) -> ProtoNorseStageOutput {
-        let entry = lexiconLookup.protoNorseFor(token.normalized, fidelity: fidelity)
+    func reconstruct(
+        token: ParsedEnglishToken,
+        fidelity: TranslationFidelity,
+        evidenceCap: TranslationEvidenceCap
+    ) -> ProtoNorseStageOutput {
+        let entry = lexiconLookup.protoNorseFor(
+            token.normalized,
+            fidelity: fidelity,
+            evidenceCap: evidenceCap
+        )
         let paraphrase = lexiconLookup.fallbackParaphrase(token.normalized)
 
         if let entry {
             return ProtoNorseStageOutput(
                 form: entry.form,
                 notes: [],
-                resolutionStatus: entry.strictEligible ? .reconstructed : .approximated,
+                resolutionStatus: entry.attestationStatus == .attested
+                    ? .attested
+                    : (entry.strictEligible ? .reconstructed : .approximated),
                 unresolvedToken: nil,
                 provenance: [lexiconLookup.provenanceFor(entry: entry)]
             )
@@ -1119,6 +1589,21 @@ private struct ProtoNorseLexicalStage {
                     lexiconLookup.provenanceFor(
                         sourceID: "internal_heuristics",
                         detail: "Readable-mode paraphrase"
+                    )
+                ]
+            )
+        }
+
+        if token.isProperNameCandidate {
+            return ProtoNorseStageOutput(
+                form: token.normalized,
+                notes: ["Preserved an uncatalogued proper name phonetically."],
+                resolutionStatus: .approximated,
+                unresolvedToken: nil,
+                provenance: [
+                    lexiconLookup.provenanceFor(
+                        sourceID: "internal_heuristics",
+                        detail: "Proper-name preservation fallback"
                     )
                 ]
             )
@@ -1166,6 +1651,11 @@ private struct CirthOrthographyStage {
             return nil
         }
 
+        let status = TranslationResolutionStatus(rawValue: mapping.resolutionStatus) ?? .unavailable
+        if request.evidenceCap == .attestedOnly, status != .attested {
+            return nil
+        }
+
         return TranslationResult(
             sourceText: request.sourceText,
             script: .cirth,
@@ -1175,8 +1665,10 @@ private struct CirthOrthographyStage {
             normalizedForm: request.sourceText.lowercased(),
             diplomaticForm: mapping.diplomaticForm,
             glyphOutput: renderer.render(diplomatic: mapping.diplomaticForm),
-            resolutionStatus: TranslationResolutionStatus(rawValue: mapping.resolutionStatus) ?? .unavailable,
-            confidence: confidenceFor(status: TranslationResolutionStatus(rawValue: mapping.resolutionStatus) ?? .unavailable),
+            resolutionStatus: status,
+            supportLevel: status == .approximated ? .partial : .supported,
+            evidenceTier: TranslationResult.defaultEvidenceTier(for: status),
+            confidence: confidenceFor(status: status),
             notes: mapping.notes,
             unresolvedTokens: [],
             provenance: mapping.referenceIDs.map {
@@ -1186,7 +1678,9 @@ private struct CirthOrthographyStage {
                 )
             },
             tokenBreakdown: [],
-            engineVersion: "cirth-phrase-v3",
+            attestationRefs: mapping.referenceIDs,
+            inputLanguage: request.sourceLanguage,
+            engineVersion: "cirth-phrase-v4",
             datasetVersion: ereborStore.datasetManifest().version
         )
     }
@@ -1281,6 +1775,8 @@ private struct TranslationEvidenceRequest: Sendable {
     let baseConfidence: Double
     let fallbackStatus: TranslationResolutionStatus
     let defaultNote: String
+    let analysisWarnings: [String]
+    let inputLanguage: TranslationSourceLanguage
 
     init(
         script: RunicScript,
@@ -1290,7 +1786,9 @@ private struct TranslationEvidenceRequest: Sendable {
         requestedVariant: String? = nil,
         baseConfidence: Double,
         fallbackStatus: TranslationResolutionStatus,
-        defaultNote: String
+        defaultNote: String,
+        analysisWarnings: [String] = [],
+        inputLanguage: TranslationSourceLanguage = .english
     ) {
         self.script = script
         self.derivationKind = derivationKind
@@ -1300,6 +1798,8 @@ private struct TranslationEvidenceRequest: Sendable {
         self.baseConfidence = baseConfidence
         self.fallbackStatus = fallbackStatus
         self.defaultNote = defaultNote
+        self.analysisWarnings = analysisWarnings
+        self.inputLanguage = inputLanguage
     }
 }
 
@@ -1314,6 +1814,7 @@ private struct TranslationEvidenceSynthesizer {
         let unresolvedTokens = Array(Set(resolutions.compactMap(\.unresolvedToken)))
         let provenance = resolutions.flatMap(\.provenance).uniquedBy(\.stableID)
         let notes = Array(Set(resolutions.flatMap(\.notes)))
+        let attestationRefs = provenance.compactMap(\.referenceID).uniqued()
 
         let resolutionStatus: TranslationResolutionStatus
         if !unresolvedTokens.isEmpty {
@@ -1328,6 +1829,45 @@ private struct TranslationEvidenceSynthesizer {
         let normalizedForm = resolutionStatus == .unavailable ? "" : stitchTokens(available.map(\.normalizedToken))
         let diplomaticForm = resolutionStatus == .unavailable ? "" : stitchTokens(available.map(\.diplomaticToken))
         let glyphOutput = resolutionStatus == .unavailable ? "" : stitchTokens(available.map(\.glyphToken))
+        let userFacingWarnings = Array(Set(evidenceRequest.analysisWarnings))
+
+        if request.fidelity == .strict,
+           resolutionStatus != .unavailable,
+           provenance.isEmpty {
+            return TranslationResult(
+                sourceText: request.sourceText,
+                script: evidenceRequest.script,
+                fidelity: request.fidelity,
+                derivationKind: evidenceRequest.derivationKind,
+                historicalStage: evidenceRequest.historicalStage,
+                normalizedForm: "",
+                diplomaticForm: "",
+                glyphOutput: "",
+                requestedVariant: evidenceRequest.requestedVariant,
+                resolutionStatus: .unavailable,
+                supportLevel: .unsupported,
+                evidenceTier: .unsupported,
+                confidence: 0,
+                notes: ["Strict mode refused output because no provenance was available."],
+                unresolvedTokens: unresolvedTokens.isEmpty ? [request.sourceText] : unresolvedTokens,
+                provenance: [],
+                tokenBreakdown: [],
+                attestationRefs: [],
+                inputLanguage: evidenceRequest.inputLanguage,
+                userFacingWarnings: userFacingWarnings + ["Strict mode requires cited evidence for visible output."],
+                engineVersion: evidenceRequest.engineVersion,
+                datasetVersion: datasetVersion
+            )
+        }
+
+        let evidenceTier = TranslationResult.defaultEvidenceTier(for: resolutionStatus)
+        let supportLevel: TranslationSupportLevel = if resolutionStatus == .unavailable {
+            .unsupported
+        } else if evidenceTier == .approximate || !userFacingWarnings.isEmpty {
+            .partial
+        } else {
+            .supported
+        }
 
         return TranslationResult(
             sourceText: request.sourceText,
@@ -1340,6 +1880,8 @@ private struct TranslationEvidenceSynthesizer {
             glyphOutput: glyphOutput,
             requestedVariant: evidenceRequest.requestedVariant,
             resolutionStatus: resolutionStatus,
+            supportLevel: supportLevel,
+            evidenceTier: evidenceTier,
             confidence: confidenceFor(status: resolutionStatus, baseConfidence: evidenceRequest.baseConfidence),
             notes: notes.isEmpty ? [evidenceRequest.defaultNote] : notes,
             unresolvedTokens: unresolvedTokens,
@@ -1354,6 +1896,9 @@ private struct TranslationEvidenceSynthesizer {
                     provenance: $0.provenance
                 )
             },
+            attestationRefs: attestationRefs,
+            inputLanguage: evidenceRequest.inputLanguage,
+            userFacingWarnings: userFacingWarnings,
             engineVersion: evidenceRequest.engineVersion,
             datasetVersion: datasetVersion
         )
@@ -1374,10 +1919,11 @@ private extension ParsedEnglishToken {
     }
 
     func toMorphologyHints() -> MorphologyHints {
-        MorphologyHints(
-            isPlural: normalized.hasSuffix("s") && !normalized.hasSuffix("'s"),
-            isPast: normalized.hasSuffix("ed"),
-            isThirdPersonSingular: normalized.hasSuffix("s") && !normalized.hasSuffix("ss")
+        let raw = rawLowercased
+        return MorphologyHints(
+            isPlural: raw.hasSuffix("s") && !raw.hasSuffix("'s"),
+            isPast: raw.hasSuffix("ed"),
+            isThirdPersonSingular: raw.hasSuffix("s") && !raw.hasSuffix("ss")
         )
     }
 }
@@ -1420,11 +1966,16 @@ private extension TranslationResult {
             glyphOutput: glyphOutput,
             requestedVariant: requestedVariant,
             resolutionStatus: resolutionStatus,
+            supportLevel: supportLevel,
+            evidenceTier: evidenceTier,
             confidence: confidence,
             notes: notes,
             unresolvedTokens: unresolvedTokens,
             provenance: provenance,
             tokenBreakdown: tokenBreakdown,
+            attestationRefs: attestationRefs,
+            inputLanguage: inputLanguage,
+            userFacingWarnings: userFacingWarnings,
             engineVersion: engineVersion,
             datasetVersion: datasetVersion,
             createdAt: createdAt,
@@ -1444,11 +1995,16 @@ private extension TranslationResult {
             glyphOutput: glyphOutput,
             requestedVariant: requestedVariant,
             resolutionStatus: resolutionStatus,
+            supportLevel: supportLevel,
+            evidenceTier: evidenceTier,
             confidence: confidence,
             notes: notes,
             unresolvedTokens: unresolvedTokens,
             provenance: provenance,
             tokenBreakdown: tokenBreakdown,
+            attestationRefs: attestationRefs,
+            inputLanguage: inputLanguage,
+            userFacingWarnings: userFacingWarnings,
             engineVersion: engineVersion,
             datasetVersion: datasetVersion,
             createdAt: createdAt,
@@ -1461,6 +2017,13 @@ private extension Array where Element == TranslationProvenanceEntry {
     func uniquedBy<T: Hashable>(_ keyPath: KeyPath<Element, T>) -> [Element] {
         var seen = Set<T>()
         return filter { seen.insert($0[keyPath: keyPath]).inserted }
+    }
+}
+
+private extension Array where Element: Hashable {
+    func uniqued() -> [Element] {
+        var seen = Set<Element>()
+        return filter { seen.insert($0).inserted }
     }
 }
 

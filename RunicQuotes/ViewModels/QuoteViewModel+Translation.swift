@@ -7,6 +7,13 @@
 
 import Foundation
 
+struct ResolvedRunicPresentation: Sendable {
+    let text: String
+    let source: RunicPresentationSource
+    let evidenceTier: TranslationEvidenceTier?
+    let primarySourceLabel: String?
+}
+
 extension QuoteViewModel {
     func onTranslationCacheUpdated(for quoteID: UUID?) {
         guard let currentQuoteID = state.currentQuoteID else { return }
@@ -19,24 +26,43 @@ extension QuoteViewModel {
         }
 
         Task {
-            let resolvedRunicText = await preferredRunicText(for: quote)
-            updateDisplayedRunicText(resolvedRunicText)
+            let presentation = await preferredRunicPresentation(for: quote)
+            updateDisplayedRunicPresentation(presentation)
             updateCollectionCovers(using: cachedQuotes)
         }
     }
 
-    func preferredRunicText(for quote: QuoteRecord) async -> String {
+    func preferredRunicPresentation(for quote: QuoteRecord) async -> ResolvedRunicPresentation {
         if let cachedTranslation = try? await translationProvider.latestTranslation(
             for: quote.id,
             script: state.currentScript
         ), cachedTranslation.isAvailable {
-            return cachedTranslation.glyphOutput
+            return ResolvedRunicPresentation(
+                text: cachedTranslation.glyphOutput,
+                source: .structuredTranslation,
+                evidenceTier: cachedTranslation.evidenceTier,
+                primarySourceLabel: cachedTranslation.primaryEvidenceLabel
+            )
         }
 
         if let storedRunic = quote.runicText(for: state.currentScript) {
-            return storedRunic
+            return ResolvedRunicPresentation(
+                text: storedRunic,
+                source: .storedTransliteration,
+                evidenceTier: nil,
+                primarySourceLabel: nil
+            )
         }
 
-        return RunicTransliterator.transliterate(quote.textLatin, to: state.currentScript)
+        return ResolvedRunicPresentation(
+            text: RunicTransliterator.transliterate(quote.textLatin, to: state.currentScript),
+            source: .liveTransliteration,
+            evidenceTier: nil,
+            primarySourceLabel: nil
+        )
+    }
+
+    func preferredRunicText(for quote: QuoteRecord) async -> String {
+        await preferredRunicPresentation(for: quote).text
     }
 }

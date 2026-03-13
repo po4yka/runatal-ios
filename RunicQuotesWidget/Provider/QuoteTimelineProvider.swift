@@ -7,7 +7,6 @@
 
 @preconcurrency import WidgetKit
 import SwiftUI
-import SwiftData
 import os
 
 /// Timeline provider for the runic quotes widget with AppIntent configuration
@@ -43,6 +42,7 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
     /// Generate timeline entries using intent configuration
     private func generateEntries(for configuration: RunicQuoteConfigurationIntent) async throws -> [RunicQuoteEntry] {
         let currentDate = Date()
+        let timelineService = try makeTimelineService()
 
         // Use intent values for per-widget configuration
         let script = configuration.script.toRunicScript
@@ -51,14 +51,14 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
         let showRuneText = configuration.showRuneText
 
         // Load remaining preferences from shared container (font, theme)
-        let preferences = try await loadPreferences()
+        let preferences = try timelineService.loadPreferences()
 
         // Get quote based on widget mode
         let quote: QuoteData
         if widgetMode == .daily {
-            quote = try await getQuoteOfTheDay(for: script)
+            quote = try await timelineService.quoteOfTheDay(for: script)
         } else {
-            quote = try await getRandomQuote(for: script)
+            quote = try await timelineService.randomQuote(for: script)
         }
 
         // Create entry for now
@@ -85,9 +85,9 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
         // Create entry for next update
         let nextQuote: QuoteData
         if widgetMode == .daily {
-            nextQuote = try await getQuoteOfTheDay(for: script, date: nextUpdate)
+            nextQuote = try await timelineService.quoteOfTheDay(for: script, date: nextUpdate)
         } else {
-            nextQuote = try await getRandomQuote(for: script)
+            nextQuote = try await timelineService.randomQuote(for: script)
         }
 
         let nextEntry = RunicQuoteEntry(
@@ -104,71 +104,16 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
         return [entry, nextEntry]
     }
 
-    /// Load user preferences from shared container
-    private func loadPreferences() async throws -> UserPreferencesData {
-        // Access SwiftData through shared container
-        let container = try createSharedModelContainer()
-        let context = ModelContext(container)
-
-        let preferences = try UserPreferences.getOrCreate(in: context)
-
-        return UserPreferencesData(
-            selectedScript: preferences.selectedScript,
-            selectedFont: preferences.selectedFont,
-            selectedTheme: preferences.selectedTheme,
-            widgetMode: preferences.widgetMode,
-            widgetStyle: preferences.widgetStyle,
-            widgetDecorativeGlyphsEnabled: preferences.widgetDecorativeGlyphsEnabled
-        )
-    }
-
-    /// Get quote of the day
-    private func getQuoteOfTheDay(for script: RunicScript, date: Date = Date()) async throws -> QuoteData {
-        let container = try createSharedModelContainer()
-        let context = ModelContext(container)
-        let repository = SwiftDataQuoteRepository(modelContext: context)
-        let provider = QuoteProvider(repository: repository)
-        try await provider.seedIfNeeded()
-
-        let allQuotes = try await provider.allQuotes()
-        guard !allQuotes.isEmpty else {
-            throw WidgetError.noQuotesAvailable
+    private func makeTimelineService() throws -> WidgetTimelineService {
+        do {
+            registerProviderFactories()
+            let rootComponent = try WidgetRootComponent(modelContainer: ModelContainerHelper.createSharedContainer())
+            return rootComponent.timelineService
+        } catch {
+            Self.logger.error("Failed to bootstrap widget root component: \(error.localizedDescription)")
+            throw WidgetError.containerNotFound
         }
-
-        let index = AppConstants.dailyQuoteIndex(for: date, totalQuotes: allQuotes.count)
-        let quote = allQuotes[index]
-
-        return QuoteData(from: quote)
     }
-
-    /// Get random quote
-    private func getRandomQuote(for script: RunicScript) async throws -> QuoteData {
-        let container = try createSharedModelContainer()
-        let context = ModelContext(container)
-        let repository = SwiftDataQuoteRepository(modelContext: context)
-        let provider = QuoteProvider(repository: repository)
-        try await provider.seedIfNeeded()
-
-        let quote = try await provider.randomQuote(for: script)
-        return QuoteData(from: quote)
-    }
-
-    /// Create shared model container for App Group access
-    private func createSharedModelContainer() throws -> ModelContainer {
-        try ModelContainerHelper.createSharedContainer()
-    }
-}
-
-// MARK: - Supporting Types
-
-/// User preferences data (non-SwiftData)
-struct UserPreferencesData: Sendable {
-    let selectedScript: RunicScript
-    let selectedFont: RunicFont
-    let selectedTheme: AppTheme
-    let widgetMode: WidgetMode
-    let widgetStyle: WidgetStyle
-    let widgetDecorativeGlyphsEnabled: Bool
 }
 
 /// Widget-specific errors

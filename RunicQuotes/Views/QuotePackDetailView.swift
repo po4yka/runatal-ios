@@ -13,7 +13,7 @@ struct QuotePackDetailView: View {
     let pack: QuotePack
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.userPreferencesRepository) private var preferencesRepository
     @Environment(\.dismiss) private var dismiss
     @State private var showSuccess = false
     @State private var isInstalled = false
@@ -231,7 +231,7 @@ struct QuotePackDetailView: View {
 
     private func loadInstalledState() {
         do {
-            let preferences = try UserPreferences.getOrCreate(in: modelContext)
+            let preferences = try preferencesRepository.snapshot()
             isInstalled = preferences.isPackInstalled(pack.id)
         } catch {
             isInstalled = false
@@ -240,9 +240,9 @@ struct QuotePackDetailView: View {
 
     private func installPack() {
         do {
-            let preferences = try UserPreferences.getOrCreate(in: modelContext)
-            preferences.installPack(pack.id)
-            try modelContext.save()
+            var preferences = try preferencesRepository.snapshot()
+            _ = preferences.installPack(pack.id)
+            try preferencesRepository.save(preferences)
             withAnimation(.easeInOut(duration: 0.4)) {
                 showSuccess = true
             }
@@ -269,5 +269,6 @@ struct QuotePackDetailView: View {
     NavigationStack {
         QuotePackDetailView(pack: .sample)
             .modelContainer(ModelContainerHelper.createPlaceholderContainer())
+            .environment(\.userPreferencesRepository, PreviewUserPreferencesRepository.shared)
     }
 }

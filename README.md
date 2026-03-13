@@ -14,8 +14,14 @@ iOS app that displays inspirational quotes rendered in ancient runic scripts: El
 ## Getting Started
 
 ```bash
+# Install Needle's generator once for local development
+brew install needle
+
 # Generate Xcode project
 xcodegen generate
+
+# Refresh committed DI wiring
+./scripts/generate-needle.sh
 
 # Open in Xcode
 open RunicQuotes.xcodeproj
@@ -44,6 +50,7 @@ RunicQuotesWidget/  WidgetKit extension (timeline provider, views)
 ## Key Features
 
 - **3 runic scripts** with real-time Latin-to-rune transliteration
+- **Offline historical translation** with English-only input support, evidence badges, provenance, and benchmarked regression coverage
 - **3 themes:** Obsidian (dark), Parchment (warm), Nordic Dawn (cool)
 - **Widgets:** Small/Medium/Large Home Screen + Circular/Inline Lock Screen
 - **Collections:** All, Motivation, Stoic, Tolkien quote categories
@@ -55,3 +62,11 @@ RunicQuotesWidget/  WidgetKit extension (timeline provider, views)
 - [XCODE_SETUP.md](XCODE_SETUP.md) -- Build setup and troubleshooting
 - [WIDGET_SETUP.md](WIDGET_SETUP.md) -- Widget architecture and configuration
 - [PERFORMANCE.md](PERFORMANCE.md) -- Performance targets and optimizations
+- [docs/translation/IOS_IMPLEMENTATION.md](docs/translation/IOS_IMPLEMENTATION.md) -- iOS historical translation runtime and UI
+- [docs/translation/CURATION_POLICY.md](docs/translation/CURATION_POLICY.md) -- dataset schema, export flow, and validation
+
+## Dependency Injection
+
+- Runtime DI uses [Needle](https://github.com/uber/needle) `0.25.1`.
+- Generated files are committed at `RunicQuotes/DI/App/AppNeedleGenerated.swift` and `RunicQuotesWidget/DI/WidgetNeedleGenerated.swift`.
+- Regenerate them with `./scripts/generate-needle.sh` after changing any `Component` or `Dependency` declarations.

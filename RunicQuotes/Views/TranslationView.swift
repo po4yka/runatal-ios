@@ -16,6 +16,7 @@ struct TranslationView: View {
     @State private var didInitialize = false
     @State private var transientFeedback: TranslationFeedbackState?
     @State private var feedbackTask: Task<Void, Never>?
+    @State private var showProvenanceSheet = false
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
@@ -63,7 +64,8 @@ struct TranslationView: View {
                 palette: palette,
                 copyAction: copyOutput,
                 clearAction: viewModel.clearInput,
-                saveAction: viewModel.saveToLibrary
+                saveAction: viewModel.saveToLibrary,
+                openSourcesAction: viewModel.state.provenance.isEmpty ? nil : { showProvenanceSheet = true }
             )
 
             TranslationSupplementarySectionsView(
@@ -79,6 +81,9 @@ struct TranslationView: View {
         }
         .onDisappear {
             feedbackTask?.cancel()
+        }
+        .sheet(isPresented: $showProvenanceSheet) {
+            TranslationProvenanceDetailSheet(provenance: viewModel.state.provenance)
         }
         .navigationTitle(String(localized: "translation.nav.title"))
 #if os(iOS)

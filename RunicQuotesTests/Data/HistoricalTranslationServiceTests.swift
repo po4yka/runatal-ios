@@ -20,7 +20,7 @@ final class HistoricalTranslationServiceTests: XCTestCase {
 
         XCTAssertEqual(result.derivationKind, .goldExample)
         XCTAssertEqual(result.historicalStage, .oldNorse)
-        XCTAssertEqual(result.datasetVersion, "2026.03-curated-v2")
+        XCTAssertEqual(result.datasetVersion, "2026.03-curated-v3")
         XCTAssertTrue(result.glyphOutput.contains("ᚢᛚᚠᚱ"))
         XCTAssertTrue(result.provenance.contains(where: { $0.referenceID == "yf_ref_wolf_night" }))
     }
@@ -67,5 +67,42 @@ final class HistoricalTranslationServiceTests: XCTestCase {
         XCTAssertEqual(longBranch.normalizedForm, shortTwig.normalizedForm)
         XCTAssertEqual(longBranch.diplomaticForm, shortTwig.diplomaticForm)
         XCTAssertNotEqual(longBranch.glyphOutput, shortTwig.glyphOutput)
+    }
+
+    func testUnsupportedLanguageRejectsWithGuidance() {
+        let result = service.translate(
+            text: "волк ночью",
+            script: .younger,
+            fidelity: .strict
+        )
+
+        XCTAssertEqual(result.supportLevel, .unsupported)
+        XCTAssertEqual(result.evidenceTier, .unsupported)
+        XCTAssertEqual(result.inputLanguage, .unsupported)
+        XCTAssertTrue(result.userFacingWarnings.contains(where: { $0.contains("English input only") }))
+    }
+
+    func testReadableYoungerHandlesNegationAndCopula() {
+        let result = service.translate(
+            text: "He is not lost",
+            script: .younger,
+            fidelity: .readable
+        )
+
+        XCTAssertTrue(result.isAvailable)
+        XCTAssertEqual(result.inputLanguage, .english)
+        XCTAssertTrue(result.tokenBreakdown.contains(where: { $0.sourceToken.lowercased() == "not" }))
+    }
+
+    func testReadableYoungerMergesConfiguredMultiwordExpression() {
+        let result = service.translate(
+            text: "Honor the old ways",
+            script: .younger,
+            fidelity: .readable
+        )
+
+        XCTAssertTrue(result.isAvailable)
+        XCTAssertTrue(result.userFacingWarnings.contains(where: { $0.contains("Imperative") }))
+        XCTAssertTrue(result.tokenBreakdown.contains(where: { $0.sourceToken.lowercased() == "old ways" }))
     }
 }

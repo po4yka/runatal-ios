@@ -10,6 +10,9 @@ import SwiftUI
 /// Main quote presentation card used on the home screen.
 struct QuoteCardSectionView: View {
     let runicText: String
+    let presentationSource: RunicPresentationSource
+    let evidenceTier: TranslationEvidenceTier?
+    let primarySourceLabel: String?
     let latinText: String
     let author: String
     let script: RunicScript
@@ -148,6 +151,24 @@ struct QuoteCardSectionView: View {
             Text("Rendered in \(script.displayName)")
                 .font(DesignTokens.Typography.metadata)
                 .foregroundStyle(palette.textTertiary)
+
+            HStack(spacing: DesignTokens.Spacing.xs) {
+                Text(presentationSource.disclosureTitle)
+                    .font(DesignTokens.Typography.metadata)
+                    .foregroundStyle(palette.textSecondary)
+
+                if let evidenceTier {
+                    Text("· \(evidenceTier.displayName)")
+                        .font(DesignTokens.Typography.metadata)
+                        .foregroundStyle(palette.textSecondary)
+                }
+            }
+
+            if let primarySourceLabel {
+                Text(primarySourceLabel)
+                    .font(DesignTokens.Typography.metadata)
+                    .foregroundStyle(palette.textTertiary)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

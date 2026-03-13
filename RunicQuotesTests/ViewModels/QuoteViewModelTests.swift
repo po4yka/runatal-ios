@@ -9,6 +9,7 @@ import XCTest
 import SwiftData
 @testable import RunicQuotes
 
+// swiftlint:disable type_body_length
 final class QuoteViewModelTests: XCTestCase {
     // MARK: - Initialization Tests
 
@@ -357,6 +358,7 @@ final class QuoteViewModelTests: XCTestCase {
         }
 
         XCTAssertNotEqual(originalRunicText, viewModel.state.runicText)
+        XCTAssertEqual(viewModel.state.runicPresentationSource, .structuredTranslation)
     }
 
     // MARK: - Helpers
@@ -378,7 +380,20 @@ final class QuoteViewModelTests: XCTestCase {
             try repository.seedIfNeeded()
         }
 
-        return (QuoteViewModel(modelContext: modelContext), modelContext)
+        let translationRepository = SwiftDataTranslationRepository(modelContext: modelContext)
+        return (
+            QuoteViewModel(
+                quoteProvider: QuoteProvider(
+                    repository: SwiftDataQuoteRepository(
+                        modelContext: modelContext,
+                        translationCacheRepository: translationRepository
+                    )
+                ),
+                translationProvider: TranslationProvider(repository: translationRepository),
+                preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext)
+            ),
+            modelContext
+        )
     }
 
     @MainActor
@@ -401,3 +416,4 @@ final class QuoteViewModelTests: XCTestCase {
         XCTFail("Timed out waiting for condition: \(description)")
     }
 }
+// swiftlint:enable type_body_length

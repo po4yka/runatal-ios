@@ -22,11 +22,16 @@ final class TranslationRecord {
     var diplomaticForm: String
     var glyphOutput: String
     var resolutionStatusRaw: String
+    var supportLevelRaw: String = TranslationSupportLevel.supported.rawValue
+    var evidenceTierRaw: String = TranslationEvidenceTier.reconstructed.rawValue
     var confidence: Double
     var notesData: Data
     var unresolvedTokensData: Data
     var provenanceData: Data
     var tokenBreakdownData: Data
+    var attestationRefsData: Data = Data("[]".utf8)
+    var inputLanguageRaw: String = TranslationSourceLanguage.english.rawValue
+    var userFacingWarningsData: Data = Data("[]".utf8)
     var engineVersion: String
     var datasetVersion: String
     var createdAt: Date
@@ -44,11 +49,16 @@ final class TranslationRecord {
         diplomaticForm: String,
         glyphOutput: String,
         resolutionStatusRaw: String,
+        supportLevelRaw: String,
+        evidenceTierRaw: String,
         confidence: Double,
         notesData: Data,
         unresolvedTokensData: Data,
         provenanceData: Data,
         tokenBreakdownData: Data,
+        attestationRefsData: Data,
+        inputLanguageRaw: String,
+        userFacingWarningsData: Data,
         engineVersion: String,
         datasetVersion: String,
         createdAt: Date,
@@ -65,11 +75,16 @@ final class TranslationRecord {
         self.diplomaticForm = diplomaticForm
         self.glyphOutput = glyphOutput
         self.resolutionStatusRaw = resolutionStatusRaw
+        self.supportLevelRaw = supportLevelRaw
+        self.evidenceTierRaw = evidenceTierRaw
         self.confidence = confidence
         self.notesData = notesData
         self.unresolvedTokensData = unresolvedTokensData
         self.provenanceData = provenanceData
         self.tokenBreakdownData = tokenBreakdownData
+        self.attestationRefsData = attestationRefsData
+        self.inputLanguageRaw = inputLanguageRaw
+        self.userFacingWarningsData = userFacingWarningsData
         self.engineVersion = engineVersion
         self.datasetVersion = datasetVersion
         self.createdAt = createdAt
@@ -98,11 +113,16 @@ extension TranslationRecord {
             diplomaticForm: result.diplomaticForm,
             glyphOutput: result.glyphOutput,
             resolutionStatusRaw: result.resolutionStatus.rawValue,
+            supportLevelRaw: result.supportLevel.rawValue,
+            evidenceTierRaw: result.evidenceTier.rawValue,
             confidence: result.confidence,
             notesData: Self.encode(result.notes),
             unresolvedTokensData: Self.encode(result.unresolvedTokens),
             provenanceData: Self.encode(result.provenance),
             tokenBreakdownData: Self.encode(result.tokenBreakdown),
+            attestationRefsData: Self.encode(result.attestationRefs),
+            inputLanguageRaw: result.inputLanguage.rawValue,
+            userFacingWarningsData: Self.encode(result.userFacingWarnings),
             engineVersion: result.engineVersion,
             datasetVersion: result.datasetVersion,
             createdAt: result.createdAt,
@@ -134,11 +154,16 @@ extension TranslationRecord {
             glyphOutput: glyphOutput,
             requestedVariant: requestedVariantRaw,
             resolutionStatus: TranslationResolutionStatus(rawValue: resolutionStatusRaw) ?? .unavailable,
+            supportLevel: TranslationSupportLevel(rawValue: supportLevelRaw) ?? .unsupported,
+            evidenceTier: TranslationEvidenceTier(rawValue: evidenceTierRaw) ?? .unsupported,
             confidence: confidence,
             notes: Self.decode([String].self, from: notesData),
             unresolvedTokens: Self.decode([String].self, from: unresolvedTokensData),
             provenance: Self.decode([TranslationProvenanceEntry].self, from: provenanceData),
             tokenBreakdown: Self.decode([TranslationTokenBreakdown].self, from: tokenBreakdownData),
+            attestationRefs: Self.decode([String].self, from: attestationRefsData),
+            inputLanguage: TranslationSourceLanguage(rawValue: inputLanguageRaw) ?? .english,
+            userFacingWarnings: Self.decode([String].self, from: userFacingWarningsData),
             engineVersion: engineVersion,
             datasetVersion: datasetVersion,
             createdAt: createdAt,

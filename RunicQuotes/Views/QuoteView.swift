@@ -52,6 +52,139 @@ struct QuoteView: View {
     // MARK: - Body
 
     var body: some View {
+        presentedContent
+    }
+
+    private var lifecycleAwareContent: some View {
+        rootContent
+            .task {
+                guard !didInitialize else { return }
+                didInitialize = true
+                viewModel.onAppear()
+            }
+            .onChange(of: viewModel.state.isLoading) { _, isLoading in
+                if !isLoading && !hasCompletedFeatureTour && didInitialize {
+                    showCoachMarks = true
+                }
+            }
+            .onChange(of: viewModel.state.currentScript) { _, _ in
+                startScriptMorphTransition()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .preferencesDidChange)) { _ in
+                viewModel.onPreferencesChanged()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { notification in
+                let scriptRaw = notification.userInfo?["script"] as? String
+                let modeRaw = notification.userInfo?["mode"] as? String
+                viewModel.onOpenQuoteDeepLink(scriptRaw: scriptRaw, modeRaw: modeRaw)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .loadNextQuote)) { _ in
+                Haptics.trigger(.newQuote)
+                viewModel.onNextQuoteTapped()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .translationCacheUpdated)) { notification in
+                let quoteID = notification.userInfo?["quoteID"] as? UUID
+                viewModel.onTranslationCacheUpdated(for: quoteID)
+            }
+            .onChange(of: viewModel.state.currentCollection) { _, _ in
+                syncHomeAccessory()
+            }
+            .onChange(of: viewModel.state.currentScript) { _, _ in
+                syncHomeAccessory()
+            }
+            .onChange(of: viewModel.state.latinText) { _, _ in
+                syncHomeAccessory()
+            }
+    }
+
+    private var chromeContent: some View {
+        lifecycleAwareContent
+            .onDisappear {
+                scriptMorphTask?.cancel()
+                scriptMorphTask = nil
+                homeAccessoryController.hide()
+            }
+            .navigationTitle("Home")
+#if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+#endif
+            .toolbar {
+                QuoteToolbar(
+                    currentCollection: viewModel.state.currentCollection,
+                    palette: palette,
+                    createQuote: {
+                        showCreateQuote = true
+                    },
+                    openTranslation: {
+                        showTranslationView = true
+                    }
+                )
+            }
+    }
+
+    private var presentedContent: some View {
+        chromeContent
+            .sheet(isPresented: $showShareView) {
+                NavigationStack {
+                    ShareQuoteView(
+                        runicText: viewModel.state.runicText,
+                        latinText: viewModel.state.latinText,
+                        author: viewModel.state.author,
+                        script: viewModel.state.currentScript,
+                        font: viewModel.state.currentFont,
+                        presentationSource: viewModel.state.runicPresentationSource,
+                        evidenceTier: viewModel.state.runicEvidenceTier,
+                        primarySourceLabel: viewModel.state.runicPrimarySourceLabel
+                    )
+                }
+            }
+            .sheet(isPresented: $showCreateQuote) {
+                NavigationStack {
+                    createEditQuoteViewBuilder.makeView(mode: .create, onSaved: { _ in
+                        viewModel.onAppear()
+                    })
+                }
+            }
+            .sheet(isPresented: $showTranslationView) {
+                NavigationStack {
+                    translationViewBuilder.makeView()
+                }
+            }
+            .confirmationDialog(
+                "Current passage",
+                isPresented: $showActionsSheet,
+                titleVisibility: .visible
+            ) {
+                ForEach(availableQuoteActions) { action in
+                    Button(action.title, role: action.isDestructive ? .destructive : nil) {
+                        handleQuoteAction(action)
+                    }
+                }
+            } message: {
+                Text("Choose how this quote should be handled.")
+            }
+            .sheet(item: $editingQuoteRecord) { record in
+                NavigationStack {
+                    createEditQuoteViewBuilder.makeView(mode: .edit(record), onSaved: { _ in
+                        viewModel.onAppear()
+                    })
+                }
+            }
+            .alert("Delete Quote?", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    viewModel.deleteCurrentQuote()
+                }
+            } message: {
+                Text("This will move the quote to your archive. You can restore it later from Settings > Archive.")
+            }
+            .task(id: viewModel.state.currentQuoteID) {
+                syncHomeAccessory()
+            }
+    }
+
+    @ViewBuilder
+    private var rootContent: some View {
         ZStack {
             ScreenScaffold(
                 palette: palette,
@@ -82,119 +215,6 @@ struct QuoteView: View {
                     showCoachMarks = false
                 }
             }
-        }
-        .task {
-            guard !didInitialize else { return }
-            didInitialize = true
-            viewModel.onAppear()
-        }
-        .onChange(of: viewModel.state.isLoading) { _, isLoading in
-            if !isLoading && !hasCompletedFeatureTour && didInitialize {
-                showCoachMarks = true
-            }
-        }
-        .onChange(of: viewModel.state.currentScript) { _, _ in
-            startScriptMorphTransition()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .preferencesDidChange)) { _ in
-            viewModel.onPreferencesChanged()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { notification in
-            let scriptRaw = notification.userInfo?["script"] as? String
-            let modeRaw = notification.userInfo?["mode"] as? String
-            viewModel.onOpenQuoteDeepLink(scriptRaw: scriptRaw, modeRaw: modeRaw)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .loadNextQuote)) { _ in
-            Haptics.trigger(.newQuote)
-            viewModel.onNextQuoteTapped()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .translationCacheUpdated)) { notification in
-            let quoteID = notification.userInfo?["quoteID"] as? UUID
-            viewModel.onTranslationCacheUpdated(for: quoteID)
-        }
-        .onChange(of: viewModel.state.currentCollection) { _, _ in
-            syncHomeAccessory()
-        }
-        .onChange(of: viewModel.state.currentScript) { _, _ in
-            syncHomeAccessory()
-        }
-        .onChange(of: viewModel.state.latinText) { _, _ in
-            syncHomeAccessory()
-        }
-        .onDisappear {
-            scriptMorphTask?.cancel()
-            scriptMorphTask = nil
-            homeAccessoryController.hide()
-        }
-        .navigationTitle("Home")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-        .toolbar {
-            QuoteToolbar(
-                currentCollection: viewModel.state.currentCollection,
-                palette: palette,
-                createQuote: {
-                    showCreateQuote = true
-                },
-                openTranslation: {
-                    showTranslationView = true
-                }
-            )
-        }
-        .sheet(isPresented: $showShareView) {
-            NavigationStack {
-                ShareQuoteView(
-                    runicText: viewModel.state.runicText,
-                    latinText: viewModel.state.latinText,
-                    author: viewModel.state.author,
-                    script: viewModel.state.currentScript,
-                    font: viewModel.state.currentFont
-                )
-            }
-        }
-        .sheet(isPresented: $showCreateQuote) {
-            NavigationStack {
-                createEditQuoteViewBuilder.makeView(mode: .create, onSaved: { _ in
-                    viewModel.onAppear()
-                })
-            }
-        }
-        .sheet(isPresented: $showTranslationView) {
-            NavigationStack {
-                translationViewBuilder.makeView()
-            }
-        }
-        .confirmationDialog(
-            "Current passage",
-            isPresented: $showActionsSheet,
-            titleVisibility: .visible
-        ) {
-            ForEach(availableQuoteActions) { action in
-                Button(action.title, role: action.isDestructive ? .destructive : nil) {
-                    handleQuoteAction(action)
-                }
-            }
-        } message: {
-            Text("Choose how this quote should be handled.")
-        }
-        .sheet(item: $editingQuoteRecord) { record in
-            NavigationStack {
-                createEditQuoteViewBuilder.makeView(mode: .edit(record), onSaved: { _ in
-                    viewModel.onAppear()
-                })
-            }
-        }
-        .alert("Delete Quote?", isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
-                viewModel.deleteCurrentQuote()
-            }
-        } message: {
-            Text("This will move the quote to your archive. You can restore it later from Settings > Archive.")
-        }
-        .task(id: viewModel.state.currentQuoteID) {
-            syncHomeAccessory()
         }
     }
 
@@ -242,6 +262,9 @@ struct QuoteView: View {
 
             QuoteCardSectionView(
                 runicText: viewModel.state.runicText,
+                presentationSource: viewModel.state.runicPresentationSource,
+                evidenceTier: viewModel.state.runicEvidenceTier,
+                primarySourceLabel: viewModel.state.runicPrimarySourceLabel,
                 latinText: viewModel.state.latinText,
                 author: viewModel.state.author,
                 script: viewModel.state.currentScript,

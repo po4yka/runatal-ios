@@ -6,10 +6,10 @@ This directory documents the translation system that is implemented in the app t
 
 The app ships two separate stacks:
 
-- `domain/transliteration/` for legacy direct letter-to-rune transliteration
-- `domain/translation/` for structured historical translation and Erebor transcription
+- `RunicTransliterator` for legacy direct letter-to-rune transliteration
+- `HistoricalTranslationService` for structured historical translation and Erebor transcription
 
-`Transliterate` remains the default user-facing mode. `Translate` is a separate feature-flagged mode with structured output layers and provenance.
+`Transliterate` remains the default user-facing mode. `Translate` is fully user-facing on iOS with structured output layers, evidence badges, and provenance.
 
 ## Translation engines
 
@@ -53,6 +53,7 @@ The runtime dataset is split into three internal stores:
   Erebor sequence tables, phrase mappings, long-vowel and long-consonant tables
 
 The shipped provider is `AssetTranslationDatasetProvider`, which reads generated JSON assets from `app/src/main/translationSeed/translation/`.
+The shipped provider is `AssetTranslationDatasetProvider`, which reads generated JSON assets from `RunicQuotes/Resources/Translation/`.
 
 ## Selection precedence
 
@@ -67,7 +68,7 @@ The engines do not use one generic fallback path. They use precedence rules:
 
 ## Persistence
 
-Structured translation output is stored in Room:
+Structured translation output is stored in SwiftData:
 
 - `translation_records`
   cached translation results keyed by quote, script, fidelity, variant, engine version, and dataset version
@@ -84,10 +85,13 @@ The translation screen can display:
 - script selector
 - fidelity selector
 - Younger variant selector
+- English-only source-language disclosure
+- support and evidence badges
 - normalized and diplomatic layers
 - resolution badge
 - derivation label
 - provenance
+- primary source summary
 - token breakdown
 - unavailable explanation
 
@@ -98,3 +102,5 @@ Quote and share surfaces can prefer cached structured translations when availabl
 `STRICT` is conservative. If the engine cannot produce a defensible result, it returns `UNAVAILABLE` with notes and unresolved tokens instead of fabricating output.
 
 `READABLE` and `DECORATIVE` may use curated paraphrase or phonological-preservation fallbacks, but those results must be marked as approximations.
+
+The app also ships `gold_corpus.json` and regression tests so normalized, diplomatic, and glyph output can be checked release-to-release.

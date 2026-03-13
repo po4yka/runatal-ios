@@ -22,6 +22,8 @@ final class TranslationViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.translationMode, .translate)
         XCTAssertEqual(viewModel.state.derivationKind, .goldExample)
         XCTAssertEqual(viewModel.state.resolutionStatus, .reconstructed)
+        XCTAssertEqual(viewModel.state.supportLevel, .supported)
+        XCTAssertEqual(viewModel.state.evidenceTier, .reconstructed)
         XCTAssertFalse(viewModel.state.outputText.isEmpty)
         XCTAssertFalse(viewModel.state.provenance.isEmpty)
     }
@@ -57,6 +59,19 @@ final class TranslationViewModelTests: XCTestCase {
         viewModel.setWordByWordEnabled(false)
 
         XCTAssertFalse(viewModel.state.isWordByWordEnabled)
+    }
+
+    @MainActor
+    func testUnsupportedLanguageShowsGuidance() throws {
+        let (viewModel, _) = try makeViewModel()
+
+        viewModel.onAppear()
+        viewModel.selectMode(.translate)
+        viewModel.updateInputText("волк ночью")
+
+        XCTAssertEqual(viewModel.state.supportLevel, .unsupported)
+        XCTAssertEqual(viewModel.state.evidenceTier, .unsupported)
+        XCTAssertTrue(viewModel.state.userFacingWarnings.contains(where: { $0.contains("English input only") }))
     }
 
     @MainActor

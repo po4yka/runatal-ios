@@ -255,6 +255,56 @@ final class QuoteRepositoryTests: XCTestCase {
         XCTAssertNil(try translationRepository.latestTranslation(for: record.id, script: .elder))
     }
 
+    func testHideRestoreAndArchiveQueriesTrackArchiveState() throws {
+        let repository = try XCTUnwrap(repository)
+
+        let record = try repository.createQuote(
+            textLatin: "Wisdom walks quietly",
+            author: "Runatal",
+            source: nil,
+            collection: .stoic,
+            storedRunic: nil
+        )
+
+        let hiddenRecord = try repository.hideQuote(id: record.id)
+        XCTAssertTrue(hiddenRecord.isHidden)
+        XCTAssertFalse(hiddenRecord.isDeleted)
+        XCTAssertTrue(try repository.allQuotes().allSatisfy { $0.id != record.id })
+
+        let archived = try repository.archivedQuotes()
+        XCTAssertEqual(archived.map(\.id), [record.id])
+
+        let restored = try repository.restoreQuote(id: record.id)
+        XCTAssertFalse(restored.isHidden)
+        XCTAssertFalse(restored.isDeleted)
+        XCTAssertEqual(try repository.quote(id: record.id)?.id, record.id)
+    }
+
+    func testSoftDeleteAndEraseRemoveQuoteFromArchive() throws {
+        let repository = try XCTUnwrap(repository)
+
+        let record = try repository.createQuote(
+            textLatin: "The mountain remembers",
+            author: "Runatal",
+            source: nil,
+            collection: .tolkien,
+            storedRunic: nil
+        )
+
+        let deleted = try repository.softDeleteQuote(
+            id: record.id,
+            deletedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+        XCTAssertTrue(deleted.isDeleted)
+        XCTAssertNotNil(deleted.deletedAt)
+        XCTAssertEqual(try repository.archivedQuotes().map(\.id), [record.id])
+
+        try repository.eraseQuote(id: record.id)
+
+        XCTAssertNil(try repository.quote(id: record.id))
+        XCTAssertTrue(try repository.archivedQuotes().isEmpty)
+    }
+
     // MARK: - Error Cases
 
     func testQuoteOfTheDayThrowsWhenNoQuotes() async throws {

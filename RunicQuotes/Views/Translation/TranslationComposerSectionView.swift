@@ -89,6 +89,12 @@ struct TranslationComposerSectionView: View {
                         .font(DesignTokens.Typography.sectionTitle)
                         .foregroundStyle(palette.textPrimary)
 
+                    if let sourceLanguageBanner = state.sourceLanguageBanner {
+                        Label(sourceLanguageBanner, systemImage: "textformat.abc")
+                            .font(DesignTokens.Typography.metadata)
+                            .foregroundStyle(palette.textSecondary)
+                    }
+
                     ZStack(alignment: .topLeading) {
                         if state.inputText.isEmpty {
                             Text("Enter up to 280 characters to explore a direct transliteration or a historically constrained rendering.")

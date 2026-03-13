@@ -54,6 +54,8 @@ final class TranslationRepositoryTests: XCTestCase {
         XCTAssertEqual(cached.glyphOutput, result.glyphOutput)
         XCTAssertEqual(cached.engineVersion, result.engineVersion)
         XCTAssertEqual(cached.datasetVersion, result.datasetVersion)
+        XCTAssertEqual(cached.evidenceTier, result.evidenceTier)
+        XCTAssertEqual(cached.supportLevel, result.supportLevel)
     }
 
     func testDeleteTranslationsRemovesCachedEntries() throws {

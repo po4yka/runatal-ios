@@ -11,8 +11,9 @@ This document describes the iOS translation feature added in March 2026.
 
 ## Bundled assets
 
-- Curated JSON is vendored from the Android source-of-truth dataset into `RunicQuotes/Resources/Translation/`.
-- The iOS runtime loads the same manifest, lexicon, phrase-template, corpus-reference, and Erebor-table files as Android.
+- Curated JSON is maintained in `TranslationCuration/source/translation/`.
+- Runtime mirrors are exported into `RunicQuotes/Resources/Translation/`.
+- The iOS runtime loads the same manifest, lexicon, phrase-template, corpus-reference, gold-corpus, and Erebor-table files as Android when the mirrored dataset is exported there.
 - SwiftPM also processes the translation resource directory so `swift build` and `swift test` exercise the same offline dataset.
 
 ## Runtime architecture
@@ -21,6 +22,8 @@ This document describes the iOS translation feature added in March 2026.
   - Younger Futhark historical translation
   - Elder Futhark constrained reconstruction
   - Erebor/Cirth transcription
+- The service now performs an explicit English-input analysis stage before token resolution.
+- Unsupported non-English input is rejected with guidance instead of silently fabricating approximate output.
 - `AssetTranslationDatasetProvider` backs the service with bundled JSON and caches decoded payloads in memory.
 - `SwiftDataTranslationRepository` stores structured results in:
   - `TranslationRecord`
@@ -40,6 +43,23 @@ This document describes the iOS translation feature added in March 2026.
 - If no structured translation exists, Home falls back to the stored quote field.
 - If the stored quote field is empty, Home falls back to on-demand transliteration.
 - Share inherits this automatically because it uses the current Home presentation state.
+- Both Home and Share now disclose whether the runic text is a structured historical translation or a transliteration fallback.
+
+## Quality and support surfaces
+
+- Translation now displays:
+  - English-only source-language disclosure
+  - support and evidence badges
+  - primary source summary
+  - provenance detail sheet
+  - user-facing warnings for unsupported constructions
+- The accuracy screen now explains evidence badges and English-only support.
+
+## Release gating
+
+- `gold_corpus.json` stores stable benchmark cases for exact-match regression checks.
+- `TranslationDatasetValidationTests` validates source metadata, stable ids, inventories, and attestation refs.
+- `TranslationQualityRegressionTests` compares normalized, diplomatic, glyph, support, and evidence output against the benchmark corpus.
 
 ## Startup backfill
 

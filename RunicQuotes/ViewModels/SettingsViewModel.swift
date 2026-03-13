@@ -83,12 +83,6 @@ final class SettingsViewModel: ObservableObject {
         self.preferencesRepository = preferencesRepository
     }
 
-    convenience init(modelContext: ModelContext) {
-        self.init(
-            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext)
-        )
-    }
-
     // MARK: - Public API
 
     /// Load preferences when view appears

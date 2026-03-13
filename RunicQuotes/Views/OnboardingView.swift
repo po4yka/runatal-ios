@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 import UserNotifications
 import os
 
@@ -30,9 +29,9 @@ struct OnboardingView: View {
 
     // MARK: - Environment & State
 
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
+    @Environment(\.userPreferencesRepository) private var preferencesRepository
 
     @State private var currentPage: Page = .splash
     @State private var selectedScript: RunicScript?
@@ -374,13 +373,13 @@ struct OnboardingView: View {
 
     private func savePreferencesAndFinish() {
         do {
-            let preferences = try UserPreferences.getOrCreate(in: modelContext)
             let script = selectedScript ?? .elder
+            var preferences = try preferencesRepository.snapshot()
             preferences.selectedScript = script
             if !preferences.selectedFont.isCompatible(with: script) {
                 preferences.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
             }
-            try modelContext.save()
+            try preferencesRepository.save(preferences)
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
             Self.logger.error("Failed to save onboarding preferences: \(error.localizedDescription)")
@@ -395,5 +394,6 @@ struct OnboardingView: View {
 #Preview {
     OnboardingView(onComplete: {})
         .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
+        .environment(\.userPreferencesRepository, PreviewUserPreferencesRepository.shared)
 }
 // swiftlint:enable type_body_length

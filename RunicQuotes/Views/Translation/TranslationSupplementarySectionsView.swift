@@ -19,7 +19,13 @@ struct TranslationSupplementarySectionsView: View {
             }
 
             if state.translationMode == .translate,
-               !state.notes.isEmpty || !state.unresolvedTokens.isEmpty || state.derivationKind != nil {
+               !state.notes.isEmpty ||
+                !state.unresolvedTokens.isEmpty ||
+                state.derivationKind != nil ||
+                state.supportLevel != nil ||
+                state.evidenceTier != nil ||
+                !state.attestationRefs.isEmpty ||
+                !state.userFacingWarnings.isEmpty {
                 notesCard
             }
 
@@ -72,6 +78,14 @@ struct TranslationSupplementarySectionsView: View {
                     labelValueRow(title: "Derivation", value: derivationKind.displayName)
                 }
 
+                if let supportLevel = state.supportLevel {
+                    labelValueRow(title: "Support", value: supportLevel.displayName)
+                }
+
+                if let evidenceTier = state.evidenceTier {
+                    labelValueRow(title: "Evidence", value: evidenceTier.displayName)
+                }
+
                 if !state.notes.isEmpty {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                         Text("Reading notes")
@@ -92,6 +106,28 @@ struct TranslationSupplementarySectionsView: View {
                         title: "Unresolved tokens",
                         value: state.unresolvedTokens.joined(separator: ", ")
                     )
+                }
+
+                if !state.attestationRefs.isEmpty {
+                    labelValueRow(
+                        title: "Attestation refs",
+                        value: state.attestationRefs.joined(separator: ", ")
+                    )
+                }
+
+                if !state.userFacingWarnings.isEmpty {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                        Text("Support notes")
+                            .font(DesignTokens.Typography.bodyEmphasis)
+                            .foregroundStyle(palette.textPrimary)
+
+                        ForEach(state.userFacingWarnings, id: \.self) { warning in
+                            Text(warning)
+                                .font(DesignTokens.Typography.callout)
+                                .foregroundStyle(palette.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
                 }
             }
         }

@@ -13,6 +13,23 @@ struct TranslationResultSectionView: View {
     let copyAction: () -> Void
     let clearAction: () -> Void
     let saveAction: () -> Void
+    let openSourcesAction: (() -> Void)?
+
+    init(
+        state: TranslationUiState,
+        palette: AppThemePalette,
+        copyAction: @escaping () -> Void,
+        clearAction: @escaping () -> Void,
+        saveAction: @escaping () -> Void,
+        openSourcesAction: (() -> Void)? = nil
+    ) {
+        self.state = state
+        self.palette = palette
+        self.copyAction = copyAction
+        self.clearAction = clearAction
+        self.saveAction = saveAction
+        self.openSourcesAction = openSourcesAction
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
@@ -56,6 +73,16 @@ struct TranslationResultSectionView: View {
                             .font(DesignTokens.Typography.metadata)
                             .foregroundStyle(palette.textSecondary)
                     }
+
+                    if !state.userFacingWarnings.isEmpty {
+                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                            ForEach(state.userFacingWarnings, id: \.self) { warning in
+                                Label(warning, systemImage: "info.circle")
+                                    .font(DesignTokens.Typography.metadata)
+                                    .foregroundStyle(palette.textSecondary)
+                            }
+                        }
+                    }
                 }
             }
             .accessibilityIdentifier("translation_output_card")
@@ -92,19 +119,51 @@ struct TranslationResultSectionView: View {
                 Spacer()
 
                 if let resolutionStatus = state.resolutionStatus {
-                    Text(resolutionStatus.displayName)
-                        .font(DesignTokens.Typography.metadata)
-                        .foregroundStyle(palette.subtleAccentText)
-                        .padding(.horizontal, DesignTokens.Spacing.sm)
-                        .padding(.vertical, DesignTokens.Spacing.xs)
-                        .background(
-                            Capsule(style: .continuous)
-                                .fill(palette.rowInsetFill)
-                        )
+                    HStack(spacing: DesignTokens.Spacing.xs) {
+                        statusBadge(resolutionStatus.displayName)
+                        if let evidenceTier = state.evidenceTier {
+                            statusBadge(evidenceTier.displayName)
+                        }
+                        if let supportLevel = state.supportLevel {
+                            statusBadge(supportLevel.displayName)
+                        }
+                    }
                 }
             }
 
             MetaRow(items: outputMeta, palette: palette)
+
+            if let banner = state.sourceLanguageBanner {
+                Label(banner, systemImage: "textformat.abc")
+                    .font(DesignTokens.Typography.metadata)
+                    .foregroundStyle(palette.textSecondary)
+            }
+
+            if let primarySourceLabel = state.primarySourceLabel {
+                HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                        Text("Primary source")
+                            .font(DesignTokens.Typography.metadata)
+                            .foregroundStyle(palette.textTertiary)
+                        Text(primarySourceLabel)
+                            .font(DesignTokens.Typography.bodyEmphasis)
+                            .foregroundStyle(palette.textPrimary)
+                        if let detail = state.primarySourceDetail {
+                            Text(detail)
+                                .font(DesignTokens.Typography.metadata)
+                                .foregroundStyle(palette.textSecondary)
+                        }
+                    }
+
+                    Spacer()
+
+                    if let openSourcesAction {
+                        Button("Sources", action: openSourcesAction)
+                            .font(DesignTokens.Typography.metadata)
+                            .foregroundStyle(palette.accent)
+                    }
+                }
+            }
         }
     }
 
@@ -148,5 +207,17 @@ struct TranslationResultSectionView: View {
 
     private var saveTitle: String {
         state.translationMode == .translate ? "Save Translation" : "Save"
+    }
+
+    private func statusBadge(_ title: String) -> some View {
+        Text(title)
+            .font(DesignTokens.Typography.metadata)
+            .foregroundStyle(palette.subtleAccentText)
+            .padding(.horizontal, DesignTokens.Spacing.sm)
+            .padding(.vertical, DesignTokens.Spacing.xs)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(palette.rowInsetFill)
+            )
     }
 }

@@ -40,6 +40,9 @@ struct ShareQuoteView: View {
     let author: String
     let script: RunicScript
     let font: RunicFont
+    let presentationSource: RunicPresentationSource
+    let evidenceTier: TranslationEvidenceTier?
+    let primarySourceLabel: String?
 
     @State private var cardStyle: ShareCardStyle = .dark
     @State private var isShareSheetPresented = false
@@ -49,6 +52,26 @@ struct ShareQuoteView: View {
     @Environment(\.runicTheme) private var runicTheme
     @Environment(\.dismiss) private var dismiss
     @Environment(\.displayScale) private var displayScale
+
+    init(
+        runicText: String,
+        latinText: String,
+        author: String,
+        script: RunicScript,
+        font: RunicFont,
+        presentationSource: RunicPresentationSource = .storedTransliteration,
+        evidenceTier: TranslationEvidenceTier? = nil,
+        primarySourceLabel: String? = nil
+    ) {
+        self.runicText = runicText
+        self.latinText = latinText
+        self.author = author
+        self.script = script
+        self.font = font
+        self.presentationSource = presentationSource
+        self.evidenceTier = evidenceTier
+        self.primarySourceLabel = primarySourceLabel
+    }
 
     // MARK: - Body
 
@@ -126,7 +149,10 @@ struct ShareQuoteView: View {
             author: author,
             script: script,
             font: font,
-            style: cardStyle
+            style: cardStyle,
+            presentationSource: presentationSource,
+            evidenceTier: evidenceTier,
+            primarySourceLabel: primarySourceLabel
         )
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl))
         .shadow(
@@ -253,7 +279,10 @@ struct ShareQuoteView: View {
             author: author,
             script: script,
             font: font,
-            style: cardStyle
+            style: cardStyle,
+            presentationSource: presentationSource,
+            evidenceTier: evidenceTier,
+            primarySourceLabel: primarySourceLabel
         )
         .frame(width: AppConstants.shareSnapshotWidth)
 
@@ -294,6 +323,9 @@ struct ShareCardContent: View {
     let script: RunicScript
     let font: RunicFont
     let style: ShareCardStyle
+    let presentationSource: RunicPresentationSource
+    let evidenceTier: TranslationEvidenceTier?
+    let primarySourceLabel: String?
 
     private var cardBG: Color {
         style == .dark ? Color(hex: 0x0C1118) : .white
@@ -365,6 +397,9 @@ struct ShareCardContent: View {
             brandingLabel
                 .padding(.top, DesignTokens.Spacing.lg)
 
+            disclosureLabel
+                .padding(.top, DesignTokens.Spacing.sm)
+
             Spacer()
                 .frame(height: DesignTokens.Spacing.xxl)
         }
@@ -407,6 +442,25 @@ struct ShareCardContent: View {
             Text("Runic Quotes")
                 .font(.system(size: 10))
                 .foregroundStyle(cardPalette.textTertiary)
+        }
+    }
+
+    private var disclosureLabel: some View {
+        VStack(spacing: 2) {
+            Text(presentationSource.shareDisclosureTitle)
+                .font(.system(size: 9))
+                .foregroundStyle(cardPalette.textTertiary)
+
+            if let evidenceTier {
+                Text(evidenceTier.displayName)
+                    .font(.system(size: 9))
+                    .foregroundStyle(cardPalette.textTertiary.opacity(0.9))
+            } else if let primarySourceLabel {
+                Text(primarySourceLabel)
+                    .font(.system(size: 9))
+                    .foregroundStyle(cardPalette.textTertiary.opacity(0.9))
+                    .lineLimit(1)
+            }
         }
     }
 }

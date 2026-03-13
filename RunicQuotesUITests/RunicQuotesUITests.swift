@@ -204,6 +204,46 @@ final class RunicQuotesUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["How to read the results"].exists, "Accuracy guidance should exist")
     }
 
+    func testTranslationScreenShowsEnglishOnlyBannerAndEvidenceBadges() {
+        let app = tryUnwrapApp()
+        openTranslationFromCreateMenu(app)
+        assertTranslationScreenVisible(in: app)
+
+        let input = app.textViews["translation_input_editor"]
+        XCTAssertTrue(input.waitForExistence(timeout: 5), "Translation input should exist")
+        input.tap()
+        input.typeText("The wolf hunts at night")
+
+        let translateButton = app.segmentedControls.buttons["Translate"]
+        XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate mode should exist")
+        translateButton.tap()
+
+        XCTAssertTrue(app.staticTexts["Historical translation currently supports English input only."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Reconstructed"].exists)
+        XCTAssertTrue(app.staticTexts["Supported"].exists)
+    }
+
+    func testTranslationScreenCanOpenSourcesSheet() {
+        let app = tryUnwrapApp()
+        openTranslationFromCreateMenu(app)
+        assertTranslationScreenVisible(in: app)
+
+        let input = app.textViews["translation_input_editor"]
+        XCTAssertTrue(input.waitForExistence(timeout: 5), "Translation input should exist")
+        input.tap()
+        input.typeText("The wolf hunts at night")
+
+        let translateButton = app.segmentedControls.buttons["Translate"]
+        XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate mode should exist")
+        translateButton.tap()
+
+        let sourcesButton = app.buttons["Sources"]
+        XCTAssertTrue(sourcesButton.waitForExistence(timeout: 5), "Sources button should exist")
+        sourcesButton.tap()
+
+        XCTAssertTrue(app.navigationBars["Sources"].waitForExistence(timeout: 5), "Sources sheet should appear")
+    }
+
     // MARK: - Navigation Tests
 
     func testSwitchBetweenTabs() {

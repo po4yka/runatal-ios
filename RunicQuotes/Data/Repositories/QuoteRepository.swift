@@ -9,6 +9,7 @@ import Foundation
 import SwiftData
 import os
 
+// swiftlint:disable file_length
 // swiftlint:disable function_parameter_count
 
 /// Sendable snapshot of a Quote model used across actor boundaries.
@@ -38,7 +39,7 @@ struct QuoteRecord: Identifiable, Sendable {
         runicCirth = quote.runicCirth
         createdAt = quote.createdAt
         isHidden = quote.isHidden
-        isDeleted = quote.isDeleted
+        isDeleted = quote.isSoftDeleted
         deletedAt = quote.deletedAt
         isUserGenerated = quote.isUserGenerated
     }
@@ -110,6 +111,7 @@ protocol QuoteRepository: Sendable {
     func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int
 }
 
+// swiftlint:disable type_body_length
 /// SwiftData implementation of the QuoteRepository
 ///
 /// Safety: `@unchecked Sendable` because `ModelContext` is not `Sendable`.
@@ -218,7 +220,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     func archivedQuotes() throws -> [QuoteRecord] {
         let descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { $0.isHidden || $0.isDeleted },
+            predicate: #Predicate { $0.isHidden || $0.isSoftDeleted },
             sortBy: [SortDescriptor(\.createdAt)]
         )
         return try modelContext.fetch(descriptor).map(QuoteRecord.init(from:))
@@ -282,7 +284,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     func hideQuote(id: UUID) throws -> QuoteRecord {
         let quote = try requireQuote(id: id)
         quote.isHidden = true
-        quote.isDeleted = false
+        quote.isSoftDeleted = false
         quote.deletedAt = nil
         try modelContext.save()
         return QuoteRecord(from: quote)
@@ -290,7 +292,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     func softDeleteQuote(id: UUID, deletedAt: Date = Date()) throws -> QuoteRecord {
         let quote = try requireQuote(id: id)
-        quote.isDeleted = true
+        quote.isSoftDeleted = true
         quote.isHidden = false
         quote.deletedAt = deletedAt
         try modelContext.save()
@@ -300,7 +302,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     func restoreQuote(id: UUID) throws -> QuoteRecord {
         let quote = try requireQuote(id: id)
         quote.isHidden = false
-        quote.isDeleted = false
+        quote.isSoftDeleted = false
         quote.deletedAt = nil
         try modelContext.save()
         return QuoteRecord(from: quote)
@@ -315,7 +317,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int {
         let descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { $0.isDeleted && $0.deletedAt != nil }
+            predicate: #Predicate { $0.isSoftDeleted && $0.deletedAt != nil }
         )
         let deletedQuotes = try modelContext.fetch(descriptor)
         var purgedCount = 0
@@ -337,7 +339,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     private func fetchVisibleQuotes() throws -> [Quote] {
         let descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { !$0.isHidden && !$0.isDeleted },
+            predicate: #Predicate { !$0.isHidden && !$0.isSoftDeleted },
             sortBy: [SortDescriptor(\.createdAt)]
         )
         return try modelContext.fetch(descriptor)
@@ -515,6 +517,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         return nil
     }
 }
+// swiftlint:enable type_body_length
 
 // MARK: - Errors
 
@@ -538,3 +541,4 @@ enum QuoteRepositoryError: LocalizedError {
     }
 }
 // swiftlint:enable function_parameter_count
+// swiftlint:enable file_length

@@ -9,9 +9,14 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// swiftlint:disable file_length
+
 /// UI state for the quote view
 struct QuoteUiState: Sendable {
     var runicText: String = ""
+    var runicPresentationSource: RunicPresentationSource = .storedTransliteration
+    var runicEvidenceTier: TranslationEvidenceTier?
+    var runicPrimarySourceLabel: String?
     var latinText: String = ""
     var author: String = ""
     var currentQuoteID: UUID?
@@ -26,6 +31,34 @@ struct QuoteUiState: Sendable {
     }
     var isLoading: Bool = true
     var errorMessage: String?
+}
+
+enum RunicPresentationSource: String, Sendable {
+    case structuredTranslation
+    case storedTransliteration
+    case liveTransliteration
+
+    var disclosureTitle: String {
+        switch self {
+        case .structuredTranslation:
+            return "Structured historical translation"
+        case .storedTransliteration:
+            return "Stored transliteration"
+        case .liveTransliteration:
+            return "On-demand transliteration"
+        }
+    }
+
+    var shareDisclosureTitle: String {
+        switch self {
+        case .structuredTranslation:
+            return "Historical translation"
+        case .storedTransliteration:
+            return "Stored transliteration"
+        case .liveTransliteration:
+            return "Transliteration fallback"
+        }
+    }
 }
 
 /// Display data for collection cover cards.
@@ -83,20 +116,6 @@ final class QuoteViewModel: ObservableObject {
         self.quoteProvider = quoteProvider
         self.translationProvider = translationProvider
         self.preferencesRepository = preferencesRepository
-    }
-
-    convenience init(modelContext: ModelContext) {
-        let translationRepository = SwiftDataTranslationRepository(modelContext: modelContext)
-        self.init(
-            quoteProvider: QuoteProvider(
-                repository: SwiftDataQuoteRepository(
-                    modelContext: modelContext,
-                    translationCacheRepository: translationRepository
-                )
-            ),
-            translationProvider: TranslationProvider(repository: translationRepository),
-            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext)
-        )
     }
 
     // MARK: - Public API
@@ -211,6 +230,13 @@ final class QuoteViewModel: ObservableObject {
         state.runicText = runicText
     }
 
+    func updateDisplayedRunicPresentation(_ presentation: ResolvedRunicPresentation) {
+        state.runicText = presentation.text
+        state.runicPresentationSource = presentation.source
+        state.runicEvidenceTier = presentation.evidenceTier
+        state.runicPrimarySourceLabel = presentation.primarySourceLabel
+    }
+
     /// Apply deep-link context from widget and open quote screen in matching state.
     func onOpenQuoteDeepLink(scriptRaw: String?, modeRaw: String?) {
         let script = parseScript(from: scriptRaw)
@@ -313,7 +339,8 @@ final class QuoteViewModel: ObservableObject {
         currentQuoteRecordCache = quote
         state.latinText = quote.textLatin
         state.author = quote.author
-        state.runicText = await preferredRunicText(for: quote)
+        let presentation = await preferredRunicPresentation(for: quote)
+        updateDisplayedRunicPresentation(presentation)
 
         state.currentQuoteID = quote.id
         syncSavedStateForCurrentQuote()

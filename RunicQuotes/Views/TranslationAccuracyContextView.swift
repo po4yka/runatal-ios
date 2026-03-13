@@ -49,6 +49,10 @@ struct TranslationAccuracyContextView: View {
                         Text("Strict uses only curated attestations, phrase templates, and lexicon coverage. Readable and Decorative may preserve or paraphrase unsupported words, but those results are marked as approximations.")
                             .font(DesignTokens.Typography.callout)
                             .foregroundStyle(palette.textSecondary)
+
+                        Text("Source support is English-only in this release. Unsupported input is rejected instead of silently guessing.")
+                            .font(DesignTokens.Typography.callout)
+                            .foregroundStyle(palette.textSecondary)
                     }
                 }
                 .listRowSeparator(.hidden)
@@ -69,6 +73,7 @@ struct TranslationAccuracyContextView: View {
                         labelRow(title: "Normalized", body: "Editorial reading form used for dictionary and morphology alignment.")
                         labelRow(title: "Diplomatic", body: "Runic-era spelling layer used before glyph rendering.")
                         labelRow(title: "Provenance", body: "Curated sources or corpus references that support the result.")
+                        labelRow(title: "Evidence badges", body: "Attested, Reconstructed, Approximate, and Unsupported summarize how strong the bundled evidence is.")
                     }
                 }
                 .listRowSeparator(.hidden)

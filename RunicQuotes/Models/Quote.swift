@@ -45,7 +45,7 @@ final class Quote {
     var isHidden: Bool
 
     /// Whether the quote is soft-deleted (moved to archive trash).
-    var isDeleted: Bool
+    var isSoftDeleted: Bool
 
     /// Timestamp when the quote was soft-deleted (for 30-day auto-purge).
     var deletedAt: Date?
@@ -68,7 +68,7 @@ final class Quote {
         self.collectionRaw = collection.rawValue
         self.isUserGenerated = isUserGenerated
         self.isHidden = false
-        self.isDeleted = false
+        self.isSoftDeleted = false
         self.deletedAt = nil
         self.createdAt = Date()
 

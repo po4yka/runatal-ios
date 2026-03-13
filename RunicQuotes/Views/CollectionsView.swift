@@ -12,7 +12,7 @@ import SwiftData
 struct CollectionsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
-    @Query(filter: #Predicate<Quote> { !$0.isDeleted && !$0.isHidden })
+    @Query(filter: #Predicate<Quote> { !$0.isSoftDeleted && !$0.isHidden })
     private var quotes: [Quote]
 
     private var palette: AppThemePalette {

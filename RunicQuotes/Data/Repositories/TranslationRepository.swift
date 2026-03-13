@@ -64,11 +64,16 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             existing.diplomaticForm = result.diplomaticForm
             existing.glyphOutput = result.glyphOutput
             existing.resolutionStatusRaw = result.resolutionStatus.rawValue
+            existing.supportLevelRaw = result.supportLevel.rawValue
+            existing.evidenceTierRaw = result.evidenceTier.rawValue
             existing.confidence = result.confidence
             existing.notesData = try JSONEncoder().encode(result.notes)
             existing.unresolvedTokensData = try JSONEncoder().encode(result.unresolvedTokens)
             existing.provenanceData = try JSONEncoder().encode(result.provenance)
             existing.tokenBreakdownData = try JSONEncoder().encode(result.tokenBreakdown)
+            existing.attestationRefsData = try JSONEncoder().encode(result.attestationRefs)
+            existing.inputLanguageRaw = result.inputLanguage.rawValue
+            existing.userFacingWarningsData = try JSONEncoder().encode(result.userFacingWarnings)
             existing.updatedAt = Date()
         } else {
             modelContext.insert(TranslationRecord(result: result.withSourceText(sourceText), quoteID: quoteID))
@@ -117,7 +122,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         let descriptor = FetchDescriptor<Quote>(sortBy: [SortDescriptor(\.createdAt)])
         let quotes = try modelContext.fetch(descriptor)
 
-        for quote in quotes where !quote.isDeleted {
+        for quote in quotes where !quote.isSoftDeleted {
             let elder = translationService.translate(
                 text: quote.textLatin,
                 script: .elder,
@@ -169,11 +174,16 @@ private extension TranslationResult {
             glyphOutput: glyphOutput,
             requestedVariant: requestedVariant,
             resolutionStatus: resolutionStatus,
+            supportLevel: supportLevel,
+            evidenceTier: evidenceTier,
             confidence: confidence,
             notes: notes,
             unresolvedTokens: unresolvedTokens,
             provenance: provenance,
             tokenBreakdown: tokenBreakdown,
+            attestationRefs: attestationRefs,
+            inputLanguage: inputLanguage,
+            userFacingWarnings: userFacingWarnings,
             engineVersion: engineVersion,
             datasetVersion: datasetVersion,
             createdAt: createdAt,
