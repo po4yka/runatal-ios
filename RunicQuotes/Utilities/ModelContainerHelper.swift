@@ -26,7 +26,9 @@ enum ModelContainerHelper {
         do {
             let schema = Schema([
                 Quote.self,
-                UserPreferences.self
+                UserPreferences.self,
+                TranslationRecord.self,
+                TranslationBackfillState.self
             ])
 
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -51,7 +53,9 @@ enum ModelContainerHelper {
     static func createMainContainer() throws -> ModelContainer {
         let schema = Schema([
             Quote.self,
-            UserPreferences.self
+            UserPreferences.self,
+            TranslationRecord.self,
+            TranslationBackfillState.self
         ])
 
         let modelConfiguration = ModelConfiguration(

@@ -7,27 +7,35 @@
 
 import SwiftUI
 
+enum SettingsDestination: Hashable {
+    case translation
+    case runeReference
+    case archive
+}
+
 struct SettingsNavigationLinksSectionView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        VStack(spacing: DesignTokens.Spacing.xl) {
-            NavigationLink {
-                RuneReferenceView()
-            } label: {
+        Group {
+            NavigationLink(value: SettingsDestination.translation) {
+                linkCard(
+                    title: String(localized: "translation.link.title"),
+                    icon: "character.cursor.ibeam"
+                )
+            }
+            .accessibilityIdentifier("settings_translation_link")
+
+            NavigationLink(value: SettingsDestination.runeReference) {
                 linkCard(
                     title: "Rune Reference",
                     icon: "character.book.closed"
                 )
             }
-            .buttonStyle(.plain)
 
-            NavigationLink {
-                ArchiveView()
-            } label: {
+            NavigationLink(value: SettingsDestination.archive) {
                 linkCard(title: "Archive", icon: "archivebox")
             }
-            .buttonStyle(.plain)
         }
     }
 

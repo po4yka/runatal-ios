@@ -5,7 +5,7 @@
 //  Created by Claude on 2025-11-15.
 //
 
-import XCTest
+@preconcurrency import XCTest
 
 final class RunicQuotesUITests: XCTestCase {
     private var app: XCUIApplication?
@@ -13,6 +13,8 @@ final class RunicQuotesUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
+        app.launchEnvironment["UI_TESTING"] = "1"
+        app.launchEnvironment["SKIP_ONBOARDING"] = "1"
         self.app = app
         app.launch()
     }
@@ -166,6 +168,42 @@ final class RunicQuotesUITests: XCTestCase {
         XCTAssertTrue(aboutSection.waitForExistence(timeout: 5), "About section should exist")
     }
 
+    func testSettingsCanOpenTranslationScreen() {
+        let app = tryUnwrapApp()
+        openTranslationFromSettings(app)
+        assertTranslationScreenVisible(in: app)
+    }
+
+    func testHomeCreateMenuCanOpenTranslationScreen() {
+        let app = tryUnwrapApp()
+        openTranslationFromCreateMenu(app)
+        assertTranslationScreenVisible(in: app)
+    }
+
+    func testTranslationScreenSupportsModeSwitchAndAccuracyContext() {
+        let app = tryUnwrapApp()
+        openTranslationFromCreateMenu(app)
+        assertTranslationScreenVisible(in: app)
+
+        let input = app.textViews["translation_input_editor"]
+        XCTAssertTrue(input.waitForExistence(timeout: 5), "Translation input should exist")
+
+        input.tap()
+        input.typeText("Honor the old ways")
+
+        let translateButton = app.segmentedControls.buttons["Translate"]
+        XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate mode should exist")
+        translateButton.tap()
+
+        let accuracyButton = app.buttons["translation_accuracy_button"]
+        XCTAssertTrue(accuracyButton.waitForExistence(timeout: 5), "Accuracy button should exist")
+        accuracyButton.tap()
+
+        let accuracyTitle = app.navigationBars["Accuracy & Context"]
+        XCTAssertTrue(accuracyTitle.waitForExistence(timeout: 5), "Accuracy screen should appear")
+        XCTAssertTrue(app.staticTexts["How to read the results"].exists, "Accuracy guidance should exist")
+    }
+
     // MARK: - Navigation Tests
 
     func testSwitchBetweenTabs() {
@@ -197,15 +235,18 @@ final class RunicQuotesUITests: XCTestCase {
         let quoteTab = app.tabBars.buttons["Quote"]
         let settingsTab = app.tabBars.buttons["Settings"]
 
-        XCTAssertTrue(quoteTab.isAccessibilityElement, "Quote tab should be accessible")
-        XCTAssertTrue(settingsTab.isAccessibilityElement, "Settings tab should be accessible")
+        XCTAssertEqual(quoteTab.label, "Quote", "Quote tab should expose its accessibility label")
+        XCTAssertEqual(settingsTab.label, "Settings", "Settings tab should expose its accessibility label")
     }
 
     // MARK: - Performance Tests
 
     func testLaunchPerformance() {
         measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+            let app = XCUIApplication()
+            app.launchEnvironment["UI_TESTING"] = "1"
+            app.launchEnvironment["SKIP_ONBOARDING"] = "1"
+            app.launch()
         }
     }
 
@@ -227,5 +268,45 @@ final class RunicQuotesUITests: XCTestCase {
         }
 
         return app
+    }
+
+    private func openTranslationFromSettings(_ app: XCUIApplication) {
+        let settingsTab = app.tabBars.buttons["Settings"]
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab should exist")
+        settingsTab.tap()
+
+        let translationLink = translationLink(in: app)
+        XCTAssertTrue(translationLink.waitForExistence(timeout: 5), "Translation link should exist")
+        translationLink.tap()
+    }
+
+    private func openTranslationFromCreateMenu(_ app: XCUIApplication) {
+        let createMenu = app.buttons["quote_create_menu"]
+        XCTAssertTrue(createMenu.waitForExistence(timeout: 5), "Create menu should exist")
+        createMenu.tap()
+
+        let translateButton = app.buttons["Translate"]
+        XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate menu action should exist")
+        translateButton.tap()
+    }
+
+    private func assertTranslationScreenVisible(in app: XCUIApplication) {
+        let accuracyButton = app.buttons["translation_accuracy_button"]
+        XCTAssertTrue(accuracyButton.waitForExistence(timeout: 5), "Accuracy button should exist")
+    }
+
+    private func translationLink(in app: XCUIApplication) -> XCUIElement {
+        let identifier = app.descendants(matching: .any)["settings_translation_link"]
+        let button = app.buttons["Translation"]
+        let text = app.staticTexts["Translation"]
+
+        for _ in 0..<5 {
+            if identifier.exists { return identifier }
+            if button.exists { return button }
+            if text.exists { return text }
+            app.swipeUp()
+        }
+
+        return identifier
     }
 }

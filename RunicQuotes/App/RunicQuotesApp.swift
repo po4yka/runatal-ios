@@ -22,6 +22,14 @@ struct RunicQuotesApp: App {
     @State private var databaseErrorMessage = ""
     @State private var showOnboarding = false
 
+    private var isUITesting: Bool {
+        ProcessInfo.processInfo.environment["UI_TESTING"] == "1"
+    }
+
+    private var shouldSkipOnboardingForUITests: Bool {
+        ProcessInfo.processInfo.environment["SKIP_ONBOARDING"] == "1"
+    }
+
     // MARK: - Initialization
 
     init() {
@@ -90,6 +98,11 @@ struct RunicQuotesApp: App {
             .environment(\.runicTheme, selectedTheme)
             .animation(DesignTokens.Motion.themeTransition, value: selectedThemeRaw)
             .task {
+                if isUITesting && shouldSkipOnboardingForUITests {
+                    hasCompletedOnboarding = true
+                    showOnboarding = false
+                }
+
                 await syncThemeFromPreferences()
                 guard !hasCompletedOnboarding else { return }
                 showOnboarding = true

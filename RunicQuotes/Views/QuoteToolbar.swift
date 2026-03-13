@@ -34,11 +34,11 @@ struct QuoteToolbar: ToolbarContent {
 
             Menu {
                 Button(action: createQuote) {
-                    Label("New Quote", systemImage: "plus")
+                    Label(String(localized: "translation.menu.newQuote"), systemImage: "plus")
                 }
 
                 Button(action: openTranslation) {
-                    Label("Translate", systemImage: "character.cursor.ibeam")
+                    Label(String(localized: "translation.menu.translate"), systemImage: "character.cursor.ibeam")
                 }
             } label: {
                 Label("Create quote", systemImage: "plus")

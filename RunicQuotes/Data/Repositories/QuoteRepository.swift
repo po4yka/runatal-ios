@@ -9,6 +9,8 @@ import Foundation
 import SwiftData
 import os
 
+// swiftlint:disable function_parameter_count
+
 /// Sendable snapshot of a Quote model used across actor boundaries.
 struct QuoteRecord: Identifiable, Sendable {
     let id: UUID
@@ -20,6 +22,10 @@ struct QuoteRecord: Identifiable, Sendable {
     let runicYounger: String?
     let runicCirth: String?
     let createdAt: Date
+    let isHidden: Bool
+    let isDeleted: Bool
+    let deletedAt: Date?
+    let isUserGenerated: Bool
 
     init(from quote: Quote) {
         id = quote.id
@@ -31,6 +37,10 @@ struct QuoteRecord: Identifiable, Sendable {
         runicYounger = quote.runicYounger
         runicCirth = quote.runicCirth
         createdAt = quote.createdAt
+        isHidden = quote.isHidden
+        isDeleted = quote.isDeleted
+        deletedAt = quote.deletedAt
+        isUserGenerated = quote.isUserGenerated
     }
 
     func runicText(for script: RunicScript) -> String? {
@@ -59,12 +69,19 @@ protocol QuoteRepository: Sendable {
     /// Get all quotes
     func allQuotes() throws -> [QuoteRecord]
 
+    /// Get a quote by identifier regardless of archive state.
+    func quote(id: UUID) throws -> QuoteRecord?
+
+    /// Get hidden and soft-deleted quotes.
+    func archivedQuotes() throws -> [QuoteRecord]
+
     /// Create a new user-generated quote and return its record.
     func createQuote(
         textLatin: String,
         author: String,
         source: String?,
-        collection: QuoteCollection
+        collection: QuoteCollection,
+        storedRunic: RunicTextBundle?
     ) throws -> QuoteRecord
 
     /// Update an existing quote by ID.
@@ -73,8 +90,24 @@ protocol QuoteRepository: Sendable {
         textLatin: String,
         author: String,
         source: String?,
-        collection: QuoteCollection
+        collection: QuoteCollection,
+        storedRunic: RunicTextBundle?
     ) throws -> QuoteRecord
+
+    /// Hide a quote without deleting it.
+    func hideQuote(id: UUID) throws -> QuoteRecord
+
+    /// Soft delete a quote.
+    func softDeleteQuote(id: UUID, deletedAt: Date) throws -> QuoteRecord
+
+    /// Restore a hidden or soft-deleted quote.
+    func restoreQuote(id: UUID) throws -> QuoteRecord
+
+    /// Permanently erase a quote and any cached translations.
+    func eraseQuote(id: UUID) throws
+
+    /// Purge soft-deleted quotes older than the supplied date.
+    func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int
 }
 
 /// SwiftData implementation of the QuoteRepository
@@ -84,11 +117,17 @@ protocol QuoteRepository: Sendable {
 /// `QuoteProvider` (an actor) or `@MainActor`-isolated callers.
 final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     private let modelContext: ModelContext
+    private let translationCacheRepository: TranslationRepository
     private let transliterator = RunicTransliterator.self
     private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Repository")
 
-    init(modelContext: ModelContext) {
+    init(
+        modelContext: ModelContext,
+        translationCacheRepository: TranslationRepository? = nil
+    ) {
         self.modelContext = modelContext
+        self.translationCacheRepository = translationCacheRepository
+            ?? SwiftDataTranslationRepository(modelContext: modelContext)
     }
 
     // MARK: - Seeding
@@ -138,7 +177,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     // MARK: - Quote Retrieval
 
     func quoteOfTheDay(for script: RunicScript) throws -> QuoteRecord {
-        let allQuotes = try fetchAllQuotes()
+        let allQuotes = try fetchVisibleQuotes()
 
         guard !allQuotes.isEmpty else {
             throw QuoteRepositoryError.noQuotesAvailable
@@ -154,7 +193,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     }
 
     func randomQuote(for script: RunicScript) throws -> QuoteRecord {
-        let allQuotes = try fetchAllQuotes()
+        let allQuotes = try fetchVisibleQuotes()
 
         guard !allQuotes.isEmpty else {
             throw QuoteRepositoryError.noQuotesAvailable
@@ -170,7 +209,19 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     }
 
     func allQuotes() throws -> [QuoteRecord] {
-        try fetchAllQuotes().map(QuoteRecord.init(from:))
+        try fetchVisibleQuotes().map(QuoteRecord.init(from:))
+    }
+
+    func quote(id: UUID) throws -> QuoteRecord? {
+        try fetchQuote(id: id).map(QuoteRecord.init(from:))
+    }
+
+    func archivedQuotes() throws -> [QuoteRecord] {
+        let descriptor = FetchDescriptor<Quote>(
+            predicate: #Predicate { $0.isHidden || $0.isDeleted },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        return try modelContext.fetch(descriptor).map(QuoteRecord.init(from:))
     }
 
     // MARK: - Create / Update
@@ -179,7 +230,8 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         textLatin: String,
         author: String,
         source: String?,
-        collection: QuoteCollection
+        collection: QuoteCollection,
+        storedRunic: RunicTextBundle? = nil
     ) throws -> QuoteRecord {
         let quote = Quote(
             textLatin: textLatin,
@@ -188,9 +240,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             isUserGenerated: true
         )
         quote.source = source
-        quote.runicElder = transliterator.transliterate(textLatin, to: .elder)
-        quote.runicYounger = transliterator.transliterate(textLatin, to: .younger)
-        quote.runicCirth = transliterator.transliterate(textLatin, to: .cirth)
+        applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
 
         modelContext.insert(quote)
         try modelContext.save()
@@ -203,7 +253,8 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         textLatin: String,
         author: String,
         source: String?,
-        collection: QuoteCollection
+        collection: QuoteCollection,
+        storedRunic: RunicTextBundle? = nil
     ) throws -> QuoteRecord {
         var descriptor = FetchDescriptor<Quote>(
             predicate: #Predicate { $0.id == id }
@@ -213,24 +264,111 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             throw QuoteRepositoryError.quoteNotFound
         }
 
+        let textDidChange = quote.textLatin != textLatin
         quote.textLatin = textLatin
         quote.author = author
         quote.source = source
         quote.collection = collection
-        quote.runicElder = transliterator.transliterate(textLatin, to: .elder)
-        quote.runicYounger = transliterator.transliterate(textLatin, to: .younger)
-        quote.runicCirth = transliterator.transliterate(textLatin, to: .cirth)
+        applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
 
         try modelContext.save()
+        if textDidChange {
+            try translationCacheRepository.deleteTranslations(for: id)
+        }
         logger.info("Updated quote: \(quote.id)")
         return QuoteRecord(from: quote)
     }
 
-    private func fetchAllQuotes() throws -> [Quote] {
+    func hideQuote(id: UUID) throws -> QuoteRecord {
+        let quote = try requireQuote(id: id)
+        quote.isHidden = true
+        quote.isDeleted = false
+        quote.deletedAt = nil
+        try modelContext.save()
+        return QuoteRecord(from: quote)
+    }
+
+    func softDeleteQuote(id: UUID, deletedAt: Date = Date()) throws -> QuoteRecord {
+        let quote = try requireQuote(id: id)
+        quote.isDeleted = true
+        quote.isHidden = false
+        quote.deletedAt = deletedAt
+        try modelContext.save()
+        return QuoteRecord(from: quote)
+    }
+
+    func restoreQuote(id: UUID) throws -> QuoteRecord {
+        let quote = try requireQuote(id: id)
+        quote.isHidden = false
+        quote.isDeleted = false
+        quote.deletedAt = nil
+        try modelContext.save()
+        return QuoteRecord(from: quote)
+    }
+
+    func eraseQuote(id: UUID) throws {
+        let quote = try requireQuote(id: id)
+        modelContext.delete(quote)
+        try modelContext.save()
+        try translationCacheRepository.deleteTranslations(for: id)
+    }
+
+    func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int {
         let descriptor = FetchDescriptor<Quote>(
+            predicate: #Predicate { $0.isDeleted && $0.deletedAt != nil }
+        )
+        let deletedQuotes = try modelContext.fetch(descriptor)
+        var purgedCount = 0
+
+        for quote in deletedQuotes {
+            guard let deletedAt = quote.deletedAt, deletedAt < cutoffDate else { continue }
+            let quoteID = quote.id
+            modelContext.delete(quote)
+            purgedCount += 1
+            try translationCacheRepository.deleteTranslations(for: quoteID)
+        }
+
+        if purgedCount > 0 {
+            try modelContext.save()
+        }
+
+        return purgedCount
+    }
+
+    private func fetchVisibleQuotes() throws -> [Quote] {
+        let descriptor = FetchDescriptor<Quote>(
+            predicate: #Predicate { !$0.isHidden && !$0.isDeleted },
             sortBy: [SortDescriptor(\.createdAt)]
         )
         return try modelContext.fetch(descriptor)
+    }
+
+    private func fetchQuote(id: UUID) throws -> Quote? {
+        var descriptor = FetchDescriptor<Quote>(
+            predicate: #Predicate { $0.id == id }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func requireQuote(id: UUID) throws -> Quote {
+        guard let quote = try fetchQuote(id: id) else {
+            throw QuoteRepositoryError.quoteNotFound
+        }
+        return quote
+    }
+
+    private func applyStoredRunic(to quote: Quote, textLatin: String, storedRunic: RunicTextBundle?) {
+        if let storedRunic {
+            quote.runicElder = storedRunic.elder
+            quote.runicYounger = storedRunic.younger
+            quote.runicCirth = storedRunic.cirth
+            return
+        }
+
+        quote.runicElder = transliterator.transliterate(textLatin, to: .elder)
+        quote.runicYounger = transliterator.transliterate(textLatin, to: .younger)
+        quote.runicCirth = transliterator.transliterate(textLatin, to: .cirth)
     }
 
     // MARK: - Private Helpers
@@ -399,3 +537,4 @@ enum QuoteRepositoryError: LocalizedError {
         }
     }
 }
+// swiftlint:enable function_parameter_count

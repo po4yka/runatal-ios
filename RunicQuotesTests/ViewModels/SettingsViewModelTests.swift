@@ -77,7 +77,7 @@ final class SettingsViewModelTests: XCTestCase {
 
     @MainActor
     private func makeViewModel() throws -> (SettingsViewModel, ModelContext) {
-        let schema = Schema([Quote.self, UserPreferences.self])
+        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: config)
         let context = ModelContext(container)

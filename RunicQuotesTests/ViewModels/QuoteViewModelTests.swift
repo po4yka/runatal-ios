@@ -315,11 +315,55 @@ final class QuoteViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.state.latinText.isEmpty, "Should have quote text")
     }
 
+    @MainActor
+    func testStructuredTranslationIsPreferredWhenCacheUpdates() async throws {
+        let viewModel = try makeViewModel()
+        viewModel.onAppear()
+
+        await waitUntil("initial quote loads") {
+            !viewModel.state.isLoading && viewModel.state.currentQuoteID != nil
+        }
+
+        let quoteID = try XCTUnwrap(viewModel.state.currentQuoteID)
+        let originalRunicText = viewModel.state.runicText
+        let translationRepository = SwiftDataTranslationRepository(modelContext: currentModelContext(from: viewModel))
+        try translationRepository.cache(
+            result: TranslationResult(
+                sourceText: viewModel.state.latinText,
+                script: .elder,
+                fidelity: .strict,
+                derivationKind: .goldExample,
+                historicalStage: .oldNorse,
+                normalizedForm: "normalized",
+                diplomaticForm: "diplomatic",
+                glyphOutput: "ᛏᛖᛋᛏ",
+                resolutionStatus: .reconstructed,
+                confidence: 0.9,
+                notes: [],
+                unresolvedTokens: [],
+                provenance: [],
+                tokenBreakdown: [],
+                engineVersion: "test-engine",
+                datasetVersion: "test-dataset"
+            ),
+            for: quoteID,
+            sourceText: viewModel.state.latinText
+        )
+
+        viewModel.onTranslationCacheUpdated(for: quoteID)
+
+        await waitUntil("cached translation is preferred") {
+            viewModel.state.runicText == "ᛏᛖᛋᛏ"
+        }
+
+        XCTAssertNotEqual(originalRunicText, viewModel.state.runicText)
+    }
+
     // MARK: - Helpers
 
     @MainActor
     private func makeViewModel(seedData: Bool = true) throws -> QuoteViewModel {
-        let schema = Schema([Quote.self, UserPreferences.self])
+        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let modelContainer = try ModelContainer(for: schema, configurations: config)
         let modelContext = ModelContext(modelContainer)
@@ -330,6 +374,15 @@ final class QuoteViewModelTests: XCTestCase {
         }
 
         return QuoteViewModel(modelContext: modelContext)
+    }
+
+    @MainActor
+    private func currentModelContext(from viewModel: QuoteViewModel) -> ModelContext {
+        let mirror = Mirror(reflecting: viewModel)
+        guard let modelContext = mirror.children.first(where: { $0.label == "modelContext" })?.value as? ModelContext else {
+            fatalError("Unable to read modelContext from QuoteViewModel")
+        }
+        return modelContext
     }
 
     @MainActor

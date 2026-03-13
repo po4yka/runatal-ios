@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import SwiftData
 
 /// UI state for the quote view
 struct QuoteUiState: Sendable {
@@ -66,18 +65,23 @@ final class QuoteViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private var modelContext: ModelContext
-    private var quoteProvider: QuoteProvider
-    private var preferences: UserPreferences?
-    private var isConfiguredWithEnvironmentContext = false
-    private var cachedQuotes: [QuoteRecord] = []
+    private let quoteProvider: QuoteProvider
+    let translationProvider: TranslationProvider
+    private let preferencesRepository: any UserPreferencesRepository
+    private var preferences = UserPreferencesSnapshot()
+    private var currentQuoteRecordCache: QuoteRecord?
+    var cachedQuotes: [QuoteRecord] = []
 
     // MARK: - Initialization
 
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
-        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
-        quoteProvider = QuoteProvider(repository: repository)
+    init(
+        quoteProvider: QuoteProvider,
+        translationProvider: TranslationProvider,
+        preferencesRepository: any UserPreferencesRepository
+    ) {
+        self.quoteProvider = quoteProvider
+        self.translationProvider = translationProvider
+        self.preferencesRepository = preferencesRepository
     }
 
     // MARK: - Public API
@@ -88,16 +92,6 @@ final class QuoteViewModel: ObservableObject {
             await loadPreferences()
             await loadQuoteOfTheDay()
         }
-    }
-
-    /// Rebind dependencies to the environment-provided context once the view is mounted.
-    func configureIfNeeded(modelContext: ModelContext) {
-        guard !isConfiguredWithEnvironmentContext else { return }
-
-        self.modelContext = modelContext
-        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
-        quoteProvider = QuoteProvider(repository: repository)
-        isConfiguredWithEnvironmentContext = true
     }
 
     /// Load the next random quote
@@ -133,7 +127,7 @@ final class QuoteViewModel: ObservableObject {
     func onCollectionChanged(_ collection: QuoteCollection) {
         guard state.currentCollection != collection else { return }
 
-        preferences?.selectedCollection = collection
+        preferences.selectedCollection = collection
         state.currentCollection = collection
         persistPreferences()
         state.isLoading = true
@@ -176,7 +170,9 @@ final class QuoteViewModel: ObservableObject {
     /// Display a specific quote selected from search suggestions.
     func showQuote(withID quoteID: UUID) {
         guard let match = cachedQuotes.first(where: { $0.id == quoteID }) else { return }
-        updateState(with: match)
+        Task {
+            await updateState(with: match)
+        }
     }
 
     /// Apply updated persisted preferences (e.g. after changes in Settings tab).
@@ -196,6 +192,10 @@ final class QuoteViewModel: ObservableObject {
         }
     }
 
+    func updateDisplayedRunicText(_ runicText: String) {
+        state.runicText = runicText
+    }
+
     /// Apply deep-link context from widget and open quote screen in matching state.
     func onOpenQuoteDeepLink(scriptRaw: String?, modeRaw: String?) {
         let script = parseScript(from: scriptRaw)
@@ -211,7 +211,7 @@ final class QuoteViewModel: ObservableObject {
 
             if let mode {
                 state.currentWidgetMode = mode
-                preferences?.widgetMode = mode
+                preferences.widgetMode = mode
             }
 
             persistPreferences()
@@ -223,14 +223,14 @@ final class QuoteViewModel: ObservableObject {
 
     private func loadPreferences() async {
         do {
-            preferences = try UserPreferences.getOrCreate(in: modelContext)
+            preferences = try preferencesRepository.snapshot()
 
             // Update state with preferences
-            state.currentScript = preferences?.selectedScript ?? .elder
-            state.currentFont = preferences?.selectedFont ?? .noto
-            state.currentWidgetMode = preferences?.widgetMode ?? .daily
-            state.currentCollection = preferences?.selectedCollection ?? .all
-            state.currentTheme = preferences?.selectedTheme ?? .obsidian
+            state.currentScript = preferences.selectedScript
+            state.currentFont = preferences.selectedFont
+            state.currentWidgetMode = preferences.widgetMode
+            state.currentCollection = preferences.selectedCollection
+            state.currentTheme = preferences.selectedTheme
             syncSavedStateForCurrentQuote()
         } catch {
             state.errorMessage = "Failed to load preferences: \(error.localizedDescription)"
@@ -263,7 +263,7 @@ final class QuoteViewModel: ObservableObject {
             }
 
             let quote = selectQuote(from: filteredQuotes, mode: mode)
-            updateState(with: quote)
+            await updateState(with: quote)
             state.isLoading = false
         } catch {
             state.errorMessage = error.localizedDescription
@@ -287,43 +287,35 @@ final class QuoteViewModel: ObservableObject {
         }
 
         // Update preferences
-        preferences?.selectedFont = font
+        preferences.selectedFont = font
         persistPreferences()
 
         // Update state
         state.currentFont = font
     }
 
-    private func updateState(with quote: QuoteRecord) {
+    private func updateState(with quote: QuoteRecord) async {
+        currentQuoteRecordCache = quote
         state.latinText = quote.textLatin
         state.author = quote.author
-
-        // Get runic text for current script
-        if let runicText = quote.runicText(for: state.currentScript) {
-            state.runicText = runicText
-        } else {
-            // Fallback: compute on-demand if missing
-            state.runicText = RunicTransliterator.transliterate(quote.textLatin, to: state.currentScript)
-        }
+        state.runicText = await preferredRunicText(for: quote)
 
         state.currentQuoteID = quote.id
         syncSavedStateForCurrentQuote()
     }
 
     private func applyScriptPreference(_ script: RunicScript) {
-        preferences?.selectedScript = script
+        preferences.selectedScript = script
         state.currentScript = script
 
         if !state.currentFont.isCompatible(with: script) {
             let recommendedFont = RunicFontConfiguration.recommendedFont(for: script)
             state.currentFont = recommendedFont
-            preferences?.selectedFont = recommendedFont
+            preferences.selectedFont = recommendedFont
         }
     }
 
     private func toggleSavedState(for quoteID: UUID) {
-        guard let preferences else { return }
-
         state.isCurrentQuoteSaved = preferences.toggleSavedQuote(quoteID)
         persistPreferences()
     }
@@ -334,41 +326,45 @@ final class QuoteViewModel: ObservableObject {
             return
         }
 
-        state.isCurrentQuoteSaved = preferences?.isQuoteSaved(quoteID) ?? false
+        state.isCurrentQuoteSaved = preferences.isQuoteSaved(quoteID)
     }
 
     /// Return the current quote as a `QuoteRecord`, or `nil` if unavailable.
     func currentQuoteRecord() -> QuoteRecord? {
-        guard let quoteID = state.currentQuoteID else { return nil }
-        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
-        guard let quote = try? modelContext.fetch(descriptor).first else { return nil }
-        return QuoteRecord(from: quote)
+        currentQuoteRecordCache
     }
 
     /// Hide the current quote and advance to the next one.
     func hideCurrentQuote() {
         guard let quoteID = state.currentQuoteID else { return }
-        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
-        guard let quote = try? modelContext.fetch(descriptor).first else { return }
-        quote.isHidden = true
-        try? modelContext.save()
-        onNextQuoteTapped()
+
+        Task {
+            do {
+                currentQuoteRecordCache = try await quoteProvider.hideQuote(id: quoteID)
+                onNextQuoteTapped()
+            } catch {
+                state.errorMessage = error.localizedDescription
+            }
+        }
     }
 
     /// Soft-delete the current quote and advance to the next one.
     func deleteCurrentQuote() {
         guard let quoteID = state.currentQuoteID else { return }
-        let descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
-        guard let quote = try? modelContext.fetch(descriptor).first else { return }
-        quote.isDeleted = true
-        quote.deletedAt = Date()
-        try? modelContext.save()
-        onNextQuoteTapped()
+
+        Task {
+            do {
+                currentQuoteRecordCache = try await quoteProvider.softDeleteQuote(id: quoteID)
+                onNextQuoteTapped()
+            } catch {
+                state.errorMessage = error.localizedDescription
+            }
+        }
     }
 
     private func persistPreferences() {
         do {
-            try modelContext.save()
+            try preferencesRepository.save(preferences)
         } catch {
             state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
         }
@@ -419,7 +415,7 @@ final class QuoteViewModel: ObservableObject {
         }
     }
 
-    private func updateCollectionCovers(using allQuotes: [QuoteRecord]) {
+    func updateCollectionCovers(using allQuotes: [QuoteRecord]) {
         state.collectionCovers = QuoteCollection.allCases.map { collection in
             let collectionQuotes = quotes(for: collection, within: allQuotes)
 
@@ -439,8 +435,8 @@ final class QuoteViewModel: ObservableObject {
             )
         }
     }
-}
 
+}
 enum QuoteViewModelError: LocalizedError {
     case emptyCollection(QuoteCollection)
 
@@ -458,6 +454,16 @@ extension QuoteViewModel {
     /// Create a view model for SwiftUI previews
     static func preview() -> QuoteViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
-        return QuoteViewModel(modelContext: container.mainContext)
+        let preferencesRepository = SwiftDataUserPreferencesRepository(modelContext: container.mainContext)
+        let translationRepository = SwiftDataTranslationRepository(modelContext: container.mainContext)
+        let quoteRepository = SwiftDataQuoteRepository(
+            modelContext: container.mainContext,
+            translationCacheRepository: translationRepository
+        )
+        return QuoteViewModel(
+            quoteProvider: QuoteProvider(repository: quoteRepository),
+            translationProvider: TranslationProvider(repository: translationRepository),
+            preferencesRepository: preferencesRepository
+        )
     }
 }

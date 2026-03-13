@@ -16,7 +16,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Create in-memory container for testing
-        let schema = Schema([Quote.self, UserPreferences.self])
+        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: config)
         modelContainer = container
@@ -204,6 +204,57 @@ final class QuoteRepositoryTests: XCTestCase {
         }
     }
 
+    func testCreateQuoteStoredRunicOverridesTransliteration() throws {
+        let repository = try XCTUnwrap(repository)
+
+        let record = try repository.createQuote(
+            textLatin: "The wolf hunts at night",
+            author: "Runatal",
+            source: nil,
+            collection: .motivation,
+            storedRunic: RunicTextBundle(
+                elder: "ELDER-OVERRIDE",
+                younger: nil,
+                cirth: "CIRTH-OVERRIDE"
+            )
+        )
+
+        XCTAssertEqual(record.runicElder, "ELDER-OVERRIDE")
+        XCTAssertNil(record.runicYounger)
+        XCTAssertEqual(record.runicCirth, "CIRTH-OVERRIDE")
+    }
+
+    func testUpdateQuoteDeletesCachedTranslationsWhenTextChanges() throws {
+        let repository = try XCTUnwrap(repository)
+        let translationRepository = SwiftDataTranslationRepository(modelContext: try XCTUnwrap(modelContext))
+
+        let record = try repository.createQuote(
+            textLatin: "The wolf hunts at night",
+            author: "Runatal",
+            source: nil,
+            collection: .motivation,
+            storedRunic: nil
+        )
+        try translationRepository.cache(
+            result: makeTranslationResult(script: .elder, glyphOutput: "ᚹᚢᛚᚠᚨᛉ"),
+            for: record.id,
+            sourceText: record.textLatin
+        )
+
+        XCTAssertNotNil(try translationRepository.latestTranslation(for: record.id, script: .elder))
+
+        _ = try repository.updateQuote(
+            id: record.id,
+            textLatin: "The king",
+            author: "Runatal",
+            source: nil,
+            collection: .motivation,
+            storedRunic: nil
+        )
+
+        XCTAssertNil(try translationRepository.latestTranslation(for: record.id, script: .elder))
+    }
+
     // MARK: - Error Cases
 
     func testQuoteOfTheDayThrowsWhenNoQuotes() async throws {
@@ -252,5 +303,26 @@ final class QuoteRepositoryTests: XCTestCase {
         measure {
             _ = try? repository.randomQuote(for: .elder)
         }
+    }
+
+    private func makeTranslationResult(script: RunicScript, glyphOutput: String) -> TranslationResult {
+        TranslationResult(
+            sourceText: "The wolf hunts at night",
+            script: script,
+            fidelity: .strict,
+            derivationKind: .goldExample,
+            historicalStage: script == .cirth ? .ereborEnglish : .oldNorse,
+            normalizedForm: "normalized",
+            diplomaticForm: "diplomatic",
+            glyphOutput: glyphOutput,
+            resolutionStatus: .reconstructed,
+            confidence: 0.9,
+            notes: ["note"],
+            unresolvedTokens: [],
+            provenance: [],
+            tokenBreakdown: [],
+            engineVersion: "test-engine",
+            datasetVersion: "test-dataset"
+        )
     }
 }

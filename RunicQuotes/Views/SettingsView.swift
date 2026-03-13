@@ -73,6 +73,16 @@ struct SettingsView: View {
             viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
         }
+        .navigationDestination(for: SettingsDestination.self) { destination in
+            switch destination {
+            case .translation:
+                TranslationView()
+            case .runeReference:
+                RuneReferenceView()
+            case .archive:
+                ArchiveView()
+            }
+        }
     }
 }
 

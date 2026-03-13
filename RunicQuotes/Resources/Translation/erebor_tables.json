@@ -1,0 +1,89 @@
+{
+  "phraseMappings": [
+    {
+      "id": "cirth_tpl_under_mountain",
+      "sourceText": "Under the mountain",
+      "diplomaticForm": "u·n·d·e·r th·e m·ou·n·t·ai·n",
+      "glyphOutput": "  ",
+      "resolutionStatus": "RECONSTRUCTED",
+      "notes": [
+        "Matched a curated Erebor phrase mapping preserved for Tolkien-mode coverage."
+      ],
+      "referenceIds": [
+        "cirth_ref_under_mountain"
+      ]
+    }
+  ],
+  "sequences": {
+    "th": "",
+    "sh": "",
+    "ch": "",
+    "ng": "",
+    "gh": "",
+    "ph": "",
+    "qu": "",
+    "ai": "",
+    "ay": "",
+    "au": "",
+    "aw": "",
+    "ea": "",
+    "ei": "",
+    "ie": "",
+    "oa": "",
+    "ou": "",
+    "ow": ""
+  },
+  "singleCharacters": {
+    "p": "",
+    "b": "",
+    "f": "",
+    "v": "",
+    "t": "",
+    "d": "",
+    "k": "",
+    "g": "",
+    "h": "",
+    "s": "",
+    "z": "",
+    "r": "",
+    "l": "",
+    "m": "",
+    "n": "",
+    "w": "",
+    "j": "",
+    "y": "",
+    "i": "",
+    "e": "",
+    "a": "",
+    "o": "",
+    "u": "",
+    "c": "",
+    "q": "",
+    "x": "",
+    " ": " ",
+    ".": ".",
+    ",": ",",
+    "!": "!",
+    "?": "?",
+    "'": "'",
+    "\"": "\"",
+    "-": "-",
+    ":": ":",
+    ";": ";"
+  },
+  "longVowels": {
+    "aa": "",
+    "ee": "",
+    "ii": "",
+    "oo": "",
+    "uu": ""
+  },
+  "longConsonants": {
+    "ll": "",
+    "mm": "",
+    "nn": "",
+    "rr": "",
+    "tt": ""
+  },
+  "wordSeparator": "·"
+}
