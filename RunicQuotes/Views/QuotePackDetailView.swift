@@ -16,6 +16,7 @@ struct QuotePackDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showSuccess = false
     @State private var isInstalled = false
+    @State private var errorMessage: String?
 
     private var palette: AppThemePalette {
         .adaptive(for: colorScheme)
@@ -51,9 +52,18 @@ struct QuotePackDetailView: View {
             }
         }
         .navigationTitle(pack.title)
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
         .onAppear {
             loadInstalledState()
+        }
+        .alert("Couldn’t Install Pack", isPresented: isShowingErrorAlert) {
+            Button("OK", role: .cancel) {
+                errorMessage = nil
+            }
+        } message: {
+            Text(errorMessage ?? "Please try again.")
         }
     }
 
@@ -210,8 +220,19 @@ struct QuotePackDetailView: View {
                 showSuccess = true
             }
         } catch {
-            // Fail silently; the button remains tappable for retry
+            errorMessage = error.localizedDescription
         }
+    }
+
+    private var isShowingErrorAlert: Binding<Bool> {
+        Binding(
+            get: { errorMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    errorMessage = nil
+                }
+            }
+        )
     }
 }
 
@@ -220,11 +241,6 @@ struct QuotePackDetailView: View {
 #Preview {
     NavigationStack {
         QuotePackDetailView(pack: .sample)
-            .modelContainer(
-                try! ModelContainer(
-                    for: Schema([Quote.self, UserPreferences.self]),
-                    configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-                )
-            )
+            .modelContainer(ModelContainerHelper.createPlaceholderContainer())
     }
 }

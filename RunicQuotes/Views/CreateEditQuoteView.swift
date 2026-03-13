@@ -48,7 +48,9 @@ struct CreateEditQuoteView: View {
             }
         }
         .navigationTitle(viewModel.mode.navigationTitle)
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") { dismiss() }

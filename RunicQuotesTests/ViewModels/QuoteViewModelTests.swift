@@ -149,8 +149,9 @@ final class QuoteViewModelTests: XCTestCase {
         }
 
         if viewModel.state.errorMessage != nil {
+            let errorMessage = try XCTUnwrap(viewModel.state.errorMessage)
             XCTAssertTrue(
-                viewModel.state.errorMessage!.contains("compatible"),
+                errorMessage.contains("compatible"),
                 "Error should mention compatibility"
             )
         }
@@ -192,19 +193,11 @@ final class QuoteViewModelTests: XCTestCase {
             viewModel.state.currentCollection == .tolkien && !viewModel.state.isLoading
         }
 
-        let tolkienAuthors: Set<String> = [
-            "J.R.R. Tolkien",
-            "Galadriel",
-            "Gandalf",
-            "Bilbo Baggins",
-            "Aragorn",
-            "Samwise Gamgee",
-            "Arwen"
-        ]
-
-        XCTAssertTrue(
-            tolkienAuthors.contains(viewModel.state.author),
-            "Loaded quote should come from explicitly tagged Tolkien entries"
+        let currentQuote = try XCTUnwrap(viewModel.currentQuoteRecord())
+        XCTAssertEqual(
+            currentQuote.collection,
+            .tolkien,
+            "Loaded quote should come from the selected Tolkien collection"
         )
     }
 
@@ -353,7 +346,7 @@ final class QuoteViewModelTests: XCTestCase {
                 return
             }
 
-            try? await Task.sleep(nanoseconds: pollIntervalNanoseconds)
+            try? await Task.sleep(for: .nanoseconds(pollIntervalNanoseconds))
         }
 
         XCTFail("Timed out waiting for condition: \(description)")

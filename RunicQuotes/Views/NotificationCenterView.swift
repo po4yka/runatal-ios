@@ -17,7 +17,7 @@ struct NotificationItem: Identifiable, Sendable {
     let timestamp: String
     var isRead: Bool
 
-    static var samples: [NotificationItem] {
+    static var previewSamples: [NotificationItem] {
         [
             NotificationItem(
                 id: UUID(),
@@ -46,7 +46,7 @@ struct NotificationItem: Identifiable, Sendable {
                 body: "You read 14 quotes this week. Nice pace.",
                 timestamp: "3 days ago",
                 isRead: true
-            ),
+            )
         ]
     }
 }
@@ -56,8 +56,7 @@ struct NotificationItem: Identifiable, Sendable {
 /// In-app notification inbox matching the Figma Notification Center design.
 struct NotificationCenterView: View {
     @Environment(\.colorScheme) private var colorScheme
-    // TODO(po4yka): Replace static sample data with real notification backend
-    @State private var notifications: [NotificationItem] = NotificationItem.samples
+    @State private var notifications: [NotificationItem] = []
 
     private var palette: AppThemePalette {
         .adaptive(for: colorScheme)
@@ -157,19 +156,12 @@ struct NotificationCenterView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: DesignTokens.Spacing.md) {
-            Image(systemName: "bell.slash")
-                .font(.system(size: 48))
-                .foregroundStyle(palette.textTertiary)
-
-            Text("No Notifications")
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(palette.textPrimary)
-
-            Text("You're all caught up.")
-                .font(.subheadline)
-                .foregroundStyle(palette.textSecondary)
-        }
+        ContentUnavailableView(
+            "Notifications Unavailable",
+            systemImage: "bell.slash",
+            description: Text("This build does not sync notification history yet.")
+        )
+        .foregroundStyle(palette.textPrimary, palette.textSecondary)
     }
 
     // MARK: - Actions

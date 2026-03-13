@@ -40,12 +40,12 @@ let elderFutharkMap: [Character: Character] = [
     "w": "\u{16B9}",  // ᚹ RUNIC LETTER WUNJO WYNN W
     "x": "\u{16B4}",  // ᚴ RUNIC LETTER KAUNA (x → k)
     "y": "\u{16C1}",  // ᛁ RUNIC LETTER ISAZ IS ISS I (y → i)
-    "z": "\u{16C9}",  // ᛉ RUNIC LETTER ALGIZ EOLHX
+    "z": "\u{16C9}"  // ᛉ RUNIC LETTER ALGIZ EOLHX
 ]
 
 /// Digraph mappings for Elder Futhark (two-character combinations)
 let elderFutharkDigraphs: [String: Character] = [
     "th": "\u{16A6}",  // ᚦ RUNIC LETTER THURISAZ THURS THORN
     "ng": "\u{16DC}",  // ᛜ RUNIC LETTER INGWAZ
-    "ei": "\u{16C7}",  // ᛇ RUNIC LETTER IWAZ EOH (ei diphthong)
+    "ei": "\u{16C7}"  // ᛇ RUNIC LETTER IWAZ EOH (ei diphthong)
 ]

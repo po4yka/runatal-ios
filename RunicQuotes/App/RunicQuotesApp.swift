@@ -73,7 +73,7 @@ struct RunicQuotesApp: App {
                         }
                         .padding()
                         .background(Color.black.opacity(0.8))
-                        .cornerRadius(8)
+                        .clipShape(.rect(cornerRadius: 8))
                         .padding(.top, 50)
 
                         Spacer()

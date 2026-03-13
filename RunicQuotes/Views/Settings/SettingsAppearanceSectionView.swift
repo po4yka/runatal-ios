@@ -1,0 +1,133 @@
+//
+//  SettingsAppearanceSectionView.swift
+//  RunicQuotes
+//
+//  Created by Codex on 2026-03-13.
+//
+
+import SwiftUI
+
+struct SettingsAppearanceSectionView: View {
+    let viewModel: SettingsViewModel
+    let palette: AppThemePalette
+
+    var body: some View {
+        GlassCard(intensity: .medium) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+                SettingsSectionHeaderView(title: "Appearance", icon: "paintbrush", palette: palette)
+
+                VStack(spacing: DesignTokens.Spacing.sm) {
+                    ForEach(AppTheme.allCases) { theme in
+                        themeButton(theme)
+
+                        if theme != AppTheme.allCases.last {
+                            Rectangle()
+                                .fill(palette.separator)
+                                .frame(height: 1)
+                        }
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                    actionRow(
+                        icon: "arrow.counterclockwise",
+                        title: "Reset to Defaults",
+                        isEnabled: !viewModel.isAtDefaults
+                    ) {
+                        Haptics.trigger(.saveOrShare)
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.resetToDefaults()
+                        }
+                    }
+                    .accessibilityIdentifier("settings_reset_defaults_button")
+
+                    actionRow(
+                        icon: "wand.and.stars",
+                        title: "Restore Last Preset",
+                        isEnabled: viewModel.canRestoreLastPreset
+                    ) {
+                        Haptics.trigger(.saveOrShare)
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.restoreLastUsedPreset()
+                        }
+                    }
+                    .accessibilityIdentifier("settings_restore_preset_button")
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings_appearance_section")
+    }
+
+    private func themeButton(_ theme: AppTheme) -> some View {
+        let themePalette = theme.palette
+        let isSelected = viewModel.state.selectedTheme == theme
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                viewModel.updateTheme(theme)
+            }
+        } label: {
+            HStack(spacing: DesignTokens.Spacing.sm) {
+                HStack(spacing: DesignTokens.Spacing.xxs) {
+                    Circle().fill(themePalette.appBackgroundGradient.first ?? .black)
+                    Circle().fill(themePalette.appBackgroundGradient.dropFirst().first ?? .gray)
+                    Circle().fill(themePalette.appBackgroundGradient.last ?? .white)
+                }
+                .frame(width: 48, height: 12)
+
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                    Text(theme.displayName)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(palette.textPrimary)
+
+                    Text(theme.description)
+                        .font(.caption)
+                        .foregroundStyle(palette.textTertiary)
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(palette.accent)
+                        .font(.title3)
+                        .accessibilityLabel("Selected")
+                }
+            }
+            .padding(.vertical, DesignTokens.Spacing.xxs)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(theme.displayName) theme")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityHint("Double tap to select the \(theme.displayName) theme")
+        .accessibilityIdentifier("settings_theme_\(theme.rawValue.replacing(" ", with: "_"))")
+    }
+
+    private func actionRow(
+        icon: String,
+        title: String,
+        isEnabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
+                Image(systemName: icon)
+                    .font(.caption.weight(.semibold))
+                Text(title)
+            }
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(palette.textPrimary.opacity(isEnabled ? 0.92 : 0.3))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, DesignTokens.Spacing.sm)
+            .padding(.vertical, DesignTokens.Spacing.sm)
+            .background {
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
+                    .fill(.ultraThinMaterial)
+                    .opacity(isEnabled ? 0.35 : 0.15)
+            }
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+    }
+}

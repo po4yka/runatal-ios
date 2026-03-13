@@ -9,6 +9,14 @@ import SwiftUI
 struct RunicAtmosphere: View {
     let script: RunicScript
 
+    private struct GlyphLayout {
+        let size: CGFloat
+        let opacity: Double
+        let rotation: Double
+        let x: CGFloat
+        let y: CGFloat
+    }
+
     private struct PlacedGlyph: Identifiable {
         let id: Int
         let character: String
@@ -23,11 +31,11 @@ struct RunicAtmosphere: View {
         let chars = Self.glyphCharacters(for: script)
         // Deterministic layout per script -- fixed positions at edges/corners
         // Corners only -- clear of the card area in the centre.
-        let layouts: [(size: CGFloat, opacity: Double, rotation: Double, x: CGFloat, y: CGFloat)] = [
-            (80, 0.018, -12, 0.05, 0.06),
-            (55, 0.015, 8, 0.93, 0.04),
-            (70, 0.02, -5, 0.07, 0.92),
-            (45, 0.012, 14, 0.91, 0.94)
+        let layouts = [
+            GlyphLayout(size: 80, opacity: 0.018, rotation: -12, x: 0.05, y: 0.06),
+            GlyphLayout(size: 55, opacity: 0.015, rotation: 8, x: 0.93, y: 0.04),
+            GlyphLayout(size: 70, opacity: 0.02, rotation: -5, x: 0.07, y: 0.92),
+            GlyphLayout(size: 45, opacity: 0.012, rotation: 14, x: 0.91, y: 0.94)
         ]
 
         return layouts.enumerated().map { index, layout in

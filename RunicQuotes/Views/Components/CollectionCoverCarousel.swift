@@ -15,26 +15,22 @@ struct CollectionCoverCarousel: View {
     let font: RunicFont
     let palette: AppThemePalette
     let onCollectionSelected: (QuoteCollection) -> Void
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Collections")
-                    .font(.headline)
-                    .foregroundStyle(palette.primaryText)
-
-                Spacer()
-
-                Text(selectedCollection.displayName)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(palette.tertiaryText)
-            }
+            header
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(covers) { cover in
-                        coverCard(cover)
+                        CollectionCoverCardView(
+                            cover: cover,
+                            isSelected: cover.collection == selectedCollection,
+                            script: script,
+                            font: font,
+                            palette: palette,
+                            onSelect: onCollectionSelected
+                        )
                     }
                 }
                 .padding(.vertical, 6)
@@ -44,132 +40,17 @@ struct CollectionCoverCarousel: View {
         .padding(.horizontal)
     }
 
-    private func coverCard(_ cover: QuoteCollectionCover) -> some View {
-        let isSelected = cover.collection == selectedCollection
+    private var header: some View {
+        HStack {
+            Text("Collections")
+                .font(.headline)
+                .foregroundStyle(palette.primaryText)
 
-        return Button {
-            onCollectionSelected(cover.collection)
-        } label: {
-            VStack(alignment: .leading, spacing: 9) {
-                HStack(alignment: .top) {
-                    Image(systemName: cover.collection.systemImage)
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(palette.primaryText)
+            Spacer()
 
-                    Spacer(minLength: 8)
-
-                    Text("\(cover.quoteCount)")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(palette.primaryText)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(.white.opacity(isSelected ? 0.35 : 0.18))
-                        )
-                }
-
-                Text(cover.runicPreview)
-                    .runicTextStyle(
-                        script: script,
-                        font: font,
-                        style: .body,
-                        minSize: 18,
-                        maxSize: 30
-                    )
-                    .foregroundStyle(palette.primaryText)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, minHeight: 34, alignment: .topLeading)
-
-                Text(cover.latinPreview)
-                    .font(.caption)
-                    .foregroundStyle(palette.secondaryText)
-                    .lineLimit(1)
-
-                Text(cover.collection.displayName)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(palette.primaryText)
-
-                Text(cover.collection.subtitle)
-                    .font(.caption2)
-                    .foregroundStyle(palette.tertiaryText)
-                    .lineLimit(1)
-
-                Text("— \(cover.authorPreview)")
-                    .font(.caption2)
-                    .foregroundStyle(palette.tertiaryText)
-                    .lineLimit(1)
-            }
-            .padding(12)
-            .frame(width: 210, alignment: .leading)
-            .background {
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(
-                        reduceTransparency
-                            ? Color.black.opacity(0.45)
-                            : Color.black.opacity(isSelected ? 0.25 : 0.16)
-                    )
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(
-                        Color.white.opacity(isSelected ? 0.15 : 0.08),
-                        lineWidth: isSelected ? 1.3 : 0.8
-                    )
-            )
-            .overlay(alignment: .topLeading) {
-                Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: gradientColors(for: cover.collection, isSelected: isSelected),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(width: isSelected ? 74 : 52, height: 4)
-                    .padding(.top, 9)
-                    .padding(.leading, 10)
-            }
-            .opacity(isSelected ? 1.0 : 0.75)
-            .shadow(
-                color: .black.opacity(isSelected ? 0.28 : 0.16),
-                radius: isSelected ? 12 : 7,
-                x: 0,
-                y: 5
-            )
-            .animation(AnimationPresets.gentleSpring, value: isSelected)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .accessibilityIdentifier("collection_cover_\(cover.collection.rawValue)")
-        .accessibilityLabel("\(cover.collection.displayName) collection")
-        .accessibilityValue(isSelected ? "Selected" : "Not selected")
-        .accessibilityHint("Double tap to browse \(cover.collection.displayName) quotes")
-    }
-
-    private func gradientColors(for collection: QuoteCollection, isSelected: Bool) -> [Color] {
-        let alpha = isSelected ? 1.0 : 0.85
-
-        switch collection {
-        case .all:
-            return [
-                Color.white.opacity(0.10 * alpha),
-                Color.black.opacity(0.22 * alpha)
-            ]
-        case .motivation:
-            return [
-                Color(red: 0.80, green: 0.44, blue: 0.14).opacity(0.55 * alpha),
-                Color(red: 0.57, green: 0.23, blue: 0.08).opacity(0.65 * alpha)
-            ]
-        case .stoic:
-            return [
-                Color(red: 0.28, green: 0.38, blue: 0.50).opacity(0.56 * alpha),
-                Color(red: 0.17, green: 0.23, blue: 0.33).opacity(0.66 * alpha)
-            ]
-        case .tolkien:
-            return [
-                Color(red: 0.21, green: 0.42, blue: 0.27).opacity(0.56 * alpha),
-                Color(red: 0.12, green: 0.25, blue: 0.18).opacity(0.66 * alpha)
-            ]
+            Text(selectedCollection.displayName)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(palette.tertiaryText)
         }
     }
 }

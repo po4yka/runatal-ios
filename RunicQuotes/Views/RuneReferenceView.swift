@@ -23,12 +23,12 @@ struct RuneReferenceView: View {
 
     private var filteredRunes: [RuneInfo] {
         guard !searchText.isEmpty else { return runes }
-        let query = searchText.lowercased()
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return runes.filter {
-            $0.name.lowercased().contains(query)
-            || $0.meaning.lowercased().contains(query)
-            || $0.sound.lowercased().contains(query)
-            || $0.glyph.contains(query)
+            $0.name.localizedStandardContains(query)
+            || $0.meaning.localizedStandardContains(query)
+            || $0.sound.localizedStandardContains(query)
+            || $0.glyph.localizedStandardContains(query)
         }
     }
 
@@ -92,7 +92,8 @@ struct RuneReferenceView: View {
     @ViewBuilder
     private var runeGrid: some View {
         if filteredRunes.isEmpty {
-            emptyState
+            ContentUnavailableView.search
+                .foregroundStyle(palette.textPrimary, palette.textSecondary)
         } else {
             LazyVGrid(
                 columns: Array(
@@ -133,7 +134,7 @@ struct RuneReferenceView: View {
                     .minimumScaleFactor(0.8)
 
                 Text(rune.meaning)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(palette.textTertiary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -141,27 +142,6 @@ struct RuneReferenceView: View {
             .frame(maxWidth: .infinity)
         }
         .accessibilityLabel("\(rune.name), \(rune.meaning), sound \(rune.sound)")
-    }
-
-    // MARK: - Empty State
-
-    @ViewBuilder
-    private var emptyState: some View {
-        VStack(spacing: DesignTokens.Spacing.sm) {
-            Text("\u{16A0} \u{16B1} \u{16CA}")
-                .font(.title)
-                .foregroundStyle(palette.runeText.opacity(0.4))
-
-            Text("No runes found")
-                .font(.headline)
-                .foregroundStyle(palette.textPrimary)
-
-            Text("Try a different search term")
-                .font(.subheadline)
-                .foregroundStyle(palette.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, DesignTokens.Spacing.xxxl)
     }
 }
 

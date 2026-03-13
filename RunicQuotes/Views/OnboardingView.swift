@@ -15,7 +15,7 @@ struct OnboardingView: View {
 
     // MARK: - Types
 
-    private enum Page: Int, CaseIterable {
+    enum Page: Int, CaseIterable {
         case splash
         case intro
         case atmosphere
@@ -23,7 +23,7 @@ struct OnboardingView: View {
         case ready
     }
 
-    private enum NavigationDirection {
+    enum NavigationDirection {
         case forward, backward
     }
 
@@ -179,95 +179,49 @@ struct OnboardingView: View {
                 .foregroundStyle(palette.textPrimary)
 
             VStack(spacing: DesignTokens.Spacing.sm) {
-                atmosphereOption(
+                OnboardingAtmosphereOption(
                     script: .elder,
                     title: "Elder Futhark",
                     subtitle: "2nd-8th century inscriptions and talismans",
-                    sampleLatin: "Strength grows in silence."
-                )
+                    sampleLatin: "Strength grows in silence.",
+                    selectedScript: selectedScript,
+                    palette: palette
+                ) { newSelection in
+                    Haptics.trigger(.scriptSwitch)
+                    withAnimation(AnimationPresets.smoothEase) {
+                        selectedScript = newSelection
+                    }
+                }
 
-                atmosphereOption(
+                OnboardingAtmosphereOption(
                     script: .younger,
                     title: "Younger Futhark",
                     subtitle: "Viking Age carving style with compact forms",
-                    sampleLatin: "The sea keeps old vows."
-                )
+                    sampleLatin: "The sea keeps old vows.",
+                    selectedScript: selectedScript,
+                    palette: palette
+                ) { newSelection in
+                    Haptics.trigger(.scriptSwitch)
+                    withAnimation(AnimationPresets.smoothEase) {
+                        selectedScript = newSelection
+                    }
+                }
 
-                atmosphereOption(
+                OnboardingAtmosphereOption(
                     script: .cirth,
                     title: "Cirth",
                     subtitle: "Tolkien-inspired runes for lore and legend",
-                    sampleLatin: "Paths awaken beneath the stars."
-                )
-            }
-        }
-    }
-
-    private func atmosphereOption(
-        script: RunicScript,
-        title: String,
-        subtitle: String,
-        sampleLatin: String
-    ) -> some View {
-        let isSelected = selectedScript == script
-        let runic = RunicTransliterator.transliterate(sampleLatin, to: script)
-        let recommendedFont = RunicFontConfiguration.recommendedFont(for: script)
-
-        return GlassCard(
-            intensity: isSelected ? .medium : .light,
-            cornerRadius: DesignTokens.CornerRadius.lg,
-            shadowRadius: isSelected ? 14 : 8
-        ) {
-            HStack(spacing: DesignTokens.Spacing.sm) {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                    HStack {
-                        Text(title)
-                            .font(.headline)
-                            .foregroundStyle(palette.textPrimary)
-                        Spacer()
-                        if isSelected {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.body)
-                                .foregroundStyle(palette.accent)
-                                .transition(.scale.combined(with: .opacity))
-                        }
+                    sampleLatin: "Paths awaken beneath the stars.",
+                    selectedScript: selectedScript,
+                    palette: palette
+                ) { newSelection in
+                    Haptics.trigger(.scriptSwitch)
+                    withAnimation(AnimationPresets.smoothEase) {
+                        selectedScript = newSelection
                     }
-
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(palette.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text(runic)
-                        .runicTextStyle(
-                            script: script,
-                            font: recommendedFont,
-                            style: .subheadline,
-                            minSize: 14,
-                            maxSize: 20
-                        )
-                        .foregroundStyle(palette.runeText)
-                        .lineLimit(1)
-                        .padding(.top, DesignTokens.Spacing.xxs)
                 }
             }
         }
-        .overlay(
-            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                .stroke(isSelected ? palette.accent.opacity(0.4) : Color.clear, lineWidth: 1)
-        )
-        .contentShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
-        .onTapGesture {
-            Haptics.trigger(.scriptSwitch)
-            withAnimation(AnimationPresets.smoothEase) {
-                selectedScript = isSelected ? nil : script
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityLabel("\(title) script")
-        .accessibilityValue(isSelected ? "Selected" : "Not selected")
-        .accessibilityHint(isSelected ? "Double tap to deselect" : "Double tap to select")
     }
 
     // MARK: - Page: Notifications
@@ -339,46 +293,13 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private var pageAction: some View {
-        switch currentPage {
-        case .splash:
-            EmptyView()
-
-        case .intro:
-            GlassButton.primary("Continue", icon: "arrow.right") {
-                Haptics.trigger(.newQuote)
-                moveForward()
-            }
-
-        case .atmosphere:
-            GlassButton.primary("Continue", icon: "arrow.right") {
-                Haptics.trigger(.newQuote)
-                moveForward()
-            }
-
-        case .notifications:
-            VStack(spacing: DesignTokens.Spacing.sm) {
-                GlassButton.primary("Enable Notifications", icon: "bell") {
-                    Haptics.trigger(.newQuote)
-                    requestNotifications()
-                }
-
-                Button {
-                    Haptics.trigger(.newQuote)
-                    moveForward()
-                } label: {
-                    Text("Not Now")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(palette.textSecondary)
-                }
-                .buttonStyle(.plain)
-            }
-
-        case .ready:
-            GlassButton.primary("Enter the Runes", icon: "sparkles") {
-                Haptics.trigger(.newQuote)
-                savePreferencesAndFinish()
-            }
-        }
+        OnboardingActionFooter(
+            currentPage: currentPage,
+            palette: palette,
+            requestNotifications: requestNotifications,
+            moveForward: moveForward,
+            savePreferencesAndFinish: savePreferencesAndFinish
+        )
     }
 
     // MARK: - Navigation
@@ -403,11 +324,12 @@ struct OnboardingView: View {
     // MARK: - Notifications
 
     private func requestNotifications() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-            DispatchQueue.main.async {
-                notificationsEnabled = granted
-                moveForward()
-            }
+        Task {
+            let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(
+                options: [.alert, .badge, .sound]
+            )) ?? false
+            notificationsEnabled = granted
+            moveForward()
         }
     }
 

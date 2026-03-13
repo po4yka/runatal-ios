@@ -23,6 +23,7 @@ let package = Package(
             path: "RunicQuotes",
             exclude: [
                 "App",
+                "RunicQuotes.entitlements",
                 "Resources/Fonts",
                 "Resources/Assets.xcassets",
                 "Resources/LaunchScreen.storyboard",

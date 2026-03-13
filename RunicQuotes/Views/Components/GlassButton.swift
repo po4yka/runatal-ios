@@ -69,42 +69,45 @@ struct GlassButton: View {
     // MARK: - Body
 
     var body: some View {
-        Button(action: {
-            if let hapticTier {
-                Haptics.trigger(hapticTier)
-            }
-            action()
-        }) {
-            HStack(spacing: 8) {
-                if let icon = icon {
-                    Image(systemName: icon)
-                        .font(.body.weight(.medium))
-                        .accessibilityHidden(true)
+        Button(
+            action: {
+                if let hapticTier {
+                    Haptics.trigger(hapticTier)
                 }
+                action()
+            },
+            label: {
+                HStack(spacing: 8) {
+                    if let icon = icon {
+                        Image(systemName: icon)
+                            .font(.body.weight(.medium))
+                            .accessibilityHidden(true)
+                    }
 
-                if !title.isEmpty {
-                    Text(title)
-                        .font(.body.weight(.medium))
+                    if !title.isEmpty {
+                        Text(title)
+                            .font(.body.weight(.medium))
+                    }
                 }
-            }
-            .foregroundStyle(.white)
-            .padding(.horizontal, DesignTokens.Spacing.lg)
-            .padding(.vertical, DesignTokens.Spacing.sm)
-            .background {
-                if let intensity {
-                    adaptiveGlassBackground(intensity: intensity)
-                } else {
-                    legacyGlassBackground
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.lg)
+                .padding(.vertical, DesignTokens.Spacing.sm)
+                .background {
+                    if let intensity {
+                        adaptiveGlassBackground(intensity: intensity)
+                    } else {
+                        legacyGlassBackground
+                    }
                 }
+                .shadow(
+                    color: .black.opacity(0.22),
+                    radius: isPressed ? 4 : 8,
+                    x: 0,
+                    y: isPressed ? 2 : 4
+                )
+                .scaleEffect(isPressed ? 0.96 : 1.0)
             }
-            .shadow(
-                color: .black.opacity(0.22),
-                radius: isPressed ? 4 : 8,
-                x: 0,
-                y: isPressed ? 2 : 4
-            )
-            .scaleEffect(isPressed ? 0.96 : 1.0)
-        }
+        )
         .buttonStyle(PlainButtonStyle())
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)

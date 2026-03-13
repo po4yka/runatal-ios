@@ -222,7 +222,7 @@ struct ShareQuoteView: View {
             showSavedConfirmation = true
         }
         Task {
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            try? await Task.sleep(for: .milliseconds(1500))
             withAnimation(.easeInOut(duration: 0.3)) {
                 showSavedConfirmation = false
             }

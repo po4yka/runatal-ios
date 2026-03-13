@@ -10,17 +10,19 @@ import SwiftData
 @testable import RunicQuotes
 
 final class QuoteRepositoryTests: XCTestCase {
-    var modelContainer: ModelContainer!
-    var modelContext: ModelContext!
-    var repository: SwiftDataQuoteRepository!
+    var modelContainer: ModelContainer?
+    var modelContext: ModelContext?
+    var repository: SwiftDataQuoteRepository?
 
     override func setUpWithError() throws {
         // Create in-memory container for testing
         let schema = Schema([Quote.self, UserPreferences.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        modelContainer = try ModelContainer(for: schema, configurations: config)
-        modelContext = ModelContext(modelContainer)
-        repository = SwiftDataQuoteRepository(modelContext: modelContext)
+        let container = try ModelContainer(for: schema, configurations: config)
+        modelContainer = container
+        let context = ModelContext(container)
+        modelContext = context
+        repository = SwiftDataQuoteRepository(modelContext: context)
     }
 
     override func tearDownWithError() throws {
@@ -33,6 +35,8 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testSeedIfNeededCreatesQuotes() async throws {
         // Given: Empty database
+        let modelContext = try XCTUnwrap(modelContext)
+        let repository = try XCTUnwrap(repository)
         let initialCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
         XCTAssertEqual(initialCount, 0, "Database should start empty")
 
@@ -46,6 +50,8 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testSeedIfNeededIdempotent() async throws {
         // Given: Already seeded database
+        let modelContext = try XCTUnwrap(modelContext)
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
         let firstCount = try modelContext.fetch(FetchDescriptor<Quote>()).count
 
@@ -59,6 +65,8 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testSeededQuotesHaveTransliterations() async throws {
         // Given: Seeded database
+        let modelContext = try XCTUnwrap(modelContext)
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         // When: Fetching quotes
@@ -75,6 +83,8 @@ final class QuoteRepositoryTests: XCTestCase {
     }
 
     func testSeededQuotesHaveCollectionTags() async throws {
+        let modelContext = try XCTUnwrap(modelContext)
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         let quotes = try modelContext.fetch(FetchDescriptor<Quote>())
@@ -90,6 +100,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testQuoteOfTheDayReturnsSameQuoteOnSameDay() async throws {
         // Given: Seeded database
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         // When: Fetching quote of the day multiple times
@@ -102,6 +113,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testQuoteOfTheDayWorksWithAllScripts() async throws {
         // Given: Seeded database
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         // When: Fetching for each script
@@ -117,6 +129,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testQuoteOfTheDayReturnsQuoteWithCorrectScript() async throws {
         // Given: Seeded database
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         // When: Fetching for Elder Futhark
@@ -130,6 +143,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testRandomQuoteReturnsQuote() async throws {
         // Given: Seeded database
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         // When: Fetching random quote
@@ -142,6 +156,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testRandomQuoteCanReturnDifferentQuotes() async throws {
         // Given: Seeded database with multiple quotes
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         // When: Fetching multiple random quotes
@@ -160,6 +175,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testAllQuotesReturnsAllQuotes() async throws {
         // Given: Seeded database
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         // When: Fetching all quotes
@@ -172,6 +188,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testAllQuotesReturnsSortedByCreatedAt() async throws {
         // Given: Seeded database
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         // When: Fetching all quotes
@@ -191,6 +208,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testQuoteOfTheDayThrowsWhenNoQuotes() async throws {
         // Given: Empty database (not seeded)
+        let repository = try XCTUnwrap(repository)
 
         // When/Then: Should throw error
         do {
@@ -204,6 +222,7 @@ final class QuoteRepositoryTests: XCTestCase {
 
     func testRandomQuoteThrowsWhenNoQuotes() async throws {
         // Given: Empty database (not seeded)
+        let repository = try XCTUnwrap(repository)
 
         // When/Then: Should throw error
         do {
@@ -218,6 +237,7 @@ final class QuoteRepositoryTests: XCTestCase {
     // MARK: - Performance Tests
 
     func testQuoteOfTheDayPerformance() async throws {
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         measure {
@@ -226,6 +246,7 @@ final class QuoteRepositoryTests: XCTestCase {
     }
 
     func testRandomQuotePerformance() async throws {
+        let repository = try XCTUnwrap(repository)
         try repository.seedIfNeeded()
 
         measure {

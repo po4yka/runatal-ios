@@ -99,7 +99,7 @@ final class SettingsViewModelTests: XCTestCase {
                 return
             }
 
-            try? await Task.sleep(nanoseconds: pollIntervalNanoseconds)
+            try? await Task.sleep(for: .nanoseconds(pollIntervalNanoseconds))
         }
 
         XCTFail("Timed out waiting for condition: \(description)")

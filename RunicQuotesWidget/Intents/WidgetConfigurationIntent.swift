@@ -12,9 +12,9 @@ import WidgetKit
 
 /// Runic script selection for widget configuration
 enum ScriptOption: String, AppEnum, Sendable {
-    case elder = "elder"
-    case younger = "younger"
-    case cirth = "cirth"
+    case elder
+    case younger
+    case cirth
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation {
         "Script"
@@ -47,8 +47,8 @@ enum ScriptOption: String, AppEnum, Sendable {
 
 /// Widget mode selection for widget configuration
 enum ModeOption: String, AppEnum, Sendable {
-    case daily = "daily"
-    case random = "random"
+    case daily
+    case random
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation {
         "Mode"
@@ -78,8 +78,8 @@ enum ModeOption: String, AppEnum, Sendable {
 
 /// Widget style selection for widget configuration
 enum StyleOption: String, AppEnum, Sendable {
-    case runeFirst = "runeFirst"
-    case translationFirst = "translationFirst"
+    case runeFirst
+    case translationFirst
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation {
         "Style"

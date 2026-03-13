@@ -41,11 +41,11 @@ let youngerFutharkMap: [Character: Character] = [
     "v": "\u{16A0}",  // ᚠ uses same as 'f' (merged f/v)
     "w": "\u{16A2}",  // ᚢ uses same as 'u' (merged u/w/v)
     "x": "\u{16B4}",  // ᚴ uses same as 'k'
-    "z": "\u{16CA}",  // ᛊ uses same as 's' (merged s/z)
+    "z": "\u{16CA}"  // ᛊ uses same as 's' (merged s/z)
 ]
 
 /// Digraph mappings for Younger Futhark
 let youngerFutharkDigraphs: [String: Character] = [
     "th": "\u{16A6}",  // ᚦ RUNIC LETTER THURISAZ (þurs)
-    "ng": "\u{16BE}",  // ᚾ uses nauðr (no separate ng in Younger)
+    "ng": "\u{16BE}"  // ᚾ uses nauðr (no separate ng in Younger)
 ]

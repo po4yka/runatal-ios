@@ -10,7 +10,7 @@ import SwiftData
 import os
 
 /// Sendable snapshot of a Quote model used across actor boundaries.
-struct QuoteRecord: Sendable {
+struct QuoteRecord: Identifiable, Sendable {
     let id: UUID
     let textLatin: String
     let author: String

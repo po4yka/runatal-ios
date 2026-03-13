@@ -38,15 +38,8 @@ opt_in_rules:
 
 disabled_rules:
   - trailing_whitespace
-  - line_length # We'll handle this manually
+  - line_length
   - identifier_name # Allow short names like 'id', 'i', etc.
-
-# Rule Configuration
-line_length:
-  warning: 120
-  error: 200
-  ignores_comments: true
-  ignores_urls: true
 
 file_length:
   warning: 500
@@ -67,8 +60,6 @@ cyclomatic_complexity:
 nesting:
   type_level:
     warning: 2
-  statement_level:
-    warning: 5
 
 # Custom Rules
 custom_rules:

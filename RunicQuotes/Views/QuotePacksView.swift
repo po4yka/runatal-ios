@@ -19,10 +19,10 @@ struct QuotePacksView: View {
 
     private var filteredPacks: [QuotePack] {
         guard !searchText.isEmpty else { return QuotePack.catalog }
-        let query = searchText.lowercased()
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return QuotePack.catalog.filter {
-            $0.title.lowercased().contains(query) ||
-            $0.subtitle.lowercased().contains(query)
+            $0.title.localizedStandardContains(query) ||
+            $0.subtitle.localizedStandardContains(query)
         }
     }
 
@@ -34,7 +34,8 @@ struct QuotePacksView: View {
                 headerSection
 
                 if filteredPacks.isEmpty {
-                    emptyState
+                    ContentUnavailableView.search
+                        .foregroundStyle(palette.textPrimary, palette.textSecondary)
                 } else {
                     packList
                 }
@@ -119,31 +120,6 @@ struct QuotePacksView: View {
         .buttonStyle(.plain)
         .accessibilityIdentifier("pack_\(pack.id)")
         .accessibilityLabel("\(pack.title), \(pack.quoteCount) quotes")
-    }
-
-    // MARK: - Empty State
-
-    @ViewBuilder
-    private var emptyState: some View {
-        VStack(spacing: DesignTokens.Spacing.md) {
-            Spacer(minLength: DesignTokens.Spacing.huge)
-
-            Text("\u{16C8}\u{16A8}\u{16B2}")
-                .font(.system(size: 48))
-                .foregroundStyle(palette.runeText.opacity(0.3))
-
-            Text("No packs found")
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(palette.textPrimary)
-
-            Text("Try a different search term or browse the full catalog")
-                .font(.subheadline)
-                .foregroundStyle(palette.textSecondary)
-                .multilineTextAlignment(.center)
-
-            Spacer(minLength: DesignTokens.Spacing.huge)
-        }
-        .frame(maxWidth: .infinity)
     }
 }
 

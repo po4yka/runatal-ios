@@ -94,7 +94,7 @@ struct SearchView: View {
         }
 
         // Collection filter chips
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             HStack(spacing: DesignTokens.Spacing.xs) {
                 ForEach(QuoteCollection.allCases) { collection in
                     chipButton(
@@ -106,11 +106,17 @@ struct SearchView: View {
                 }
             }
         }
+        .scrollIndicators(.hidden)
 
         // Result cards
-        LazyVStack(spacing: DesignTokens.Spacing.sm) {
-            ForEach(viewModel.state.filteredQuotes, id: \.id) { quote in
-                quoteResultCard(quote)
+        if viewModel.state.filteredQuotes.isEmpty {
+            ContentUnavailableView.search
+                .foregroundStyle(palette.textPrimary, palette.textSecondary)
+        } else {
+            LazyVStack(spacing: DesignTokens.Spacing.sm) {
+                ForEach(viewModel.state.filteredQuotes, id: \.id) { quote in
+                    quoteResultCard(quote)
+                }
             }
         }
     }
@@ -125,19 +131,11 @@ struct SearchView: View {
             author: quote.author,
             badge: {
                 Text(quote.collection.displayName)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(palette.accent)
             },
             actions: {
-                HStack(spacing: DesignTokens.Spacing.sm) {
-                    Image(systemName: "bookmark")
-                        .font(.caption)
-                        .foregroundStyle(palette.textTertiary)
-
-                    Image(systemName: "doc.on.doc")
-                        .font(.caption)
-                        .foregroundStyle(palette.textTertiary)
-                }
+                EmptyView()
             }
         )
     }

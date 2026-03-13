@@ -119,10 +119,10 @@ final class SearchViewModel: ObservableObject {
             results = results.filter { $0.collection == collection }
         }
 
-        let query = state.searchText.lowercased()
+        let query = state.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         state.filteredQuotes = results.filter { quote in
-            quote.textLatin.lowercased().contains(query)
-                || quote.author.lowercased().contains(query)
+            quote.textLatin.localizedStandardContains(query)
+                || quote.author.localizedStandardContains(query)
         }
     }
 }

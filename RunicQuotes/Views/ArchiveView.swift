@@ -51,7 +51,9 @@ struct ArchiveView: View {
             }
         }
         .navigationTitle("Archive")
+#if os(iOS)
         .navigationBarTitleDisplayMode(.large)
+#endif
         .task {
             guard !didInitialize else { return }
             didInitialize = true

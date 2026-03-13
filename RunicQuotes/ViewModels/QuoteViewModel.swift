@@ -102,6 +102,7 @@ final class QuoteViewModel: ObservableObject {
 
     /// Load the next random quote
     func onNextQuoteTapped() {
+        state.isLoading = true
         Task {
             await loadRandomQuote()
         }
@@ -115,6 +116,7 @@ final class QuoteViewModel: ObservableObject {
 
     /// Change the current runic script
     func onScriptChanged(_ script: RunicScript) {
+        state.isLoading = true
         Task {
             await updateScript(script)
         }
@@ -134,6 +136,7 @@ final class QuoteViewModel: ObservableObject {
         preferences?.selectedCollection = collection
         state.currentCollection = collection
         persistPreferences()
+        state.isLoading = true
 
         Task {
             await loadQuote(using: state.currentWidgetMode, updateContext: false)
@@ -142,6 +145,7 @@ final class QuoteViewModel: ObservableObject {
 
     /// Refresh the quote of the day
     func refresh() {
+        state.isLoading = true
         Task {
             await loadQuoteOfTheDay()
         }
@@ -155,8 +159,8 @@ final class QuoteViewModel: ObservableObject {
         let searchScope = quotes(for: state.currentCollection, within: cachedQuotes)
         return searchScope
             .filter {
-                $0.textLatin.localizedCaseInsensitiveContains(normalizedQuery) ||
-                    $0.author.localizedCaseInsensitiveContains(normalizedQuery)
+                $0.textLatin.localizedStandardContains(normalizedQuery) ||
+                    $0.author.localizedStandardContains(normalizedQuery)
             }
             .prefix(8)
             .map {
@@ -177,6 +181,7 @@ final class QuoteViewModel: ObservableObject {
 
     /// Apply updated persisted preferences (e.g. after changes in Settings tab).
     func onPreferencesChanged() {
+        state.isLoading = true
         Task {
             let previousScript = state.currentScript
             let previousMode = state.currentWidgetMode
@@ -195,6 +200,7 @@ final class QuoteViewModel: ObservableObject {
     func onOpenQuoteDeepLink(scriptRaw: String?, modeRaw: String?) {
         let script = parseScript(from: scriptRaw)
         let mode = parseMode(from: modeRaw)
+        state.isLoading = true
 
         Task {
             await loadPreferences()

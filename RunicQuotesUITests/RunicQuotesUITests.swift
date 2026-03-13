@@ -8,11 +8,12 @@
 import XCTest
 
 final class RunicQuotesUITests: XCTestCase {
-    var app: XCUIApplication!
+    private var app: XCUIApplication?
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
+        let app = XCUIApplication()
+        self.app = app
         app.launch()
     }
 
@@ -24,11 +25,13 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testAppLaunches() {
         // Then: App should launch successfully
+        let app = tryUnwrapApp()
         XCTAssertTrue(app.state == .runningForeground, "App should be running")
     }
 
     func testTabBarExists() {
         // Then: Tab bar should exist with both tabs
+        let app = tryUnwrapApp()
         let tabBar = app.tabBars.firstMatch
         XCTAssertTrue(tabBar.exists, "Tab bar should exist")
 
@@ -42,6 +45,7 @@ final class RunicQuotesUITests: XCTestCase {
     // MARK: - Quote View Tests
 
     func testQuoteViewDisplaysQuote() {
+        let app = tryUnwrapApp()
         let quoteCard = app.otherElements["quote_card"]
         let quoteText = app.staticTexts["quoteText"]
         let authorText = app.staticTexts["authorText"]
@@ -53,6 +57,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testScriptSelectorExists() {
         // Then: Script selector should exist
+        let app = tryUnwrapApp()
         let selector = app.otherElements["quote_script_selector"]
         let elderButton = app.buttons["Elder Futhark"]
         let youngerButton = app.buttons["Younger Futhark"]
@@ -66,6 +71,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testSwitchingScripts() {
         // Given: App loaded
+        let app = tryUnwrapApp()
         let youngerButton = app.buttons["Younger Futhark"]
         XCTAssertTrue(youngerButton.waitForExistence(timeout: 5), "Younger Futhark button should exist")
 
@@ -80,6 +86,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testNextQuoteButton() {
         // Given: App loaded with quote
+        let app = tryUnwrapApp()
         let nextButton = app.buttons["quote_next_button"]
         XCTAssertTrue(nextButton.waitForExistence(timeout: 5), "Next button should exist")
 
@@ -92,6 +99,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testSaveButton() {
         // Given: App loaded
+        let app = tryUnwrapApp()
         let saveButton = app.buttons["quote_save_button"]
 
         if saveButton.waitForExistence(timeout: 5) {
@@ -107,6 +115,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testNavigateToSettings() {
         // When: Tapping settings tab
+        let app = tryUnwrapApp()
         let settingsTab = app.tabBars.buttons["Settings"]
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab should exist")
 
@@ -119,6 +128,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testSettingsViewHasScriptSelection() {
         // Given: On settings screen
+        let app = tryUnwrapApp()
         app.tabBars.buttons["Settings"].tap()
 
         // Then: Script selection should exist
@@ -128,6 +138,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testSettingsViewHasFontSelection() {
         // Given: On settings screen
+        let app = tryUnwrapApp()
         app.tabBars.buttons["Settings"].tap()
 
         // Then: Font selection should exist
@@ -137,6 +148,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testSettingsViewHasWidgetMode() {
         // Given: On settings screen
+        let app = tryUnwrapApp()
         app.tabBars.buttons["Settings"].tap()
 
         // Then: Widget settings should exist
@@ -146,6 +158,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testSettingsViewHasAboutSection() {
         // Given: On settings screen
+        let app = tryUnwrapApp()
         app.tabBars.buttons["Settings"].tap()
 
         // Then: About section should exist
@@ -157,6 +170,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testSwitchBetweenTabs() {
         // Given: On Quote tab
+        let app = tryUnwrapApp()
         let quoteTab = app.tabBars.buttons["Quote"]
         let settingsTab = app.tabBars.buttons["Settings"]
 
@@ -179,6 +193,7 @@ final class RunicQuotesUITests: XCTestCase {
 
     func testAccessibilityLabels() {
         // Check that key elements have accessibility
+        let app = tryUnwrapApp()
         let quoteTab = app.tabBars.buttons["Quote"]
         let settingsTab = app.tabBars.buttons["Settings"]
 
@@ -195,9 +210,22 @@ final class RunicQuotesUITests: XCTestCase {
     }
 
     func testTabSwitchingPerformance() {
+        let app = tryUnwrapApp()
         measure {
             app.tabBars.buttons["Settings"].tap()
             app.tabBars.buttons["Quote"].tap()
         }
+    }
+
+    private func tryUnwrapApp(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> XCUIApplication {
+        guard let app else {
+            XCTFail("XCUIApplication was not initialized", file: file, line: line)
+            return XCUIApplication()
+        }
+
+        return app
     }
 }

@@ -56,28 +56,12 @@ struct SavedView: View {
 
     @ViewBuilder
     private var emptyState: some View {
-        VStack(spacing: DesignTokens.Spacing.xl) {
-            Spacer()
-
-            Image(systemName: "bookmark")
-                .font(.system(size: 48, weight: .light))
-                .foregroundStyle(palette.textTertiary)
-
-            VStack(spacing: DesignTokens.Spacing.xs) {
-                Text("No Saved Quotes")
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(palette.textPrimary)
-
-                Text("Quotes you save will appear here.")
-                    .font(.subheadline)
-                    .foregroundStyle(palette.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
-
-            Spacer()
-        }
-        .padding(.horizontal, DesignTokens.Spacing.xl)
+        ContentUnavailableView(
+            "No Saved Quotes",
+            systemImage: "bookmark",
+            description: Text("Quotes you save will appear here.")
+        )
+        .foregroundStyle(palette.textPrimary, palette.textSecondary)
     }
 
     // MARK: - Saved List
@@ -123,7 +107,8 @@ struct SavedView: View {
                     Button {
                         viewModel.toggleSaved(quote.id)
                     } label: {
-                        Image(systemName: "bookmark.fill")
+                        Label("Remove from saved", systemImage: "bookmark.fill")
+                            .labelStyle(.iconOnly)
                             .font(.caption)
                             .foregroundStyle(palette.accent)
                     }
@@ -134,7 +119,8 @@ struct SavedView: View {
                         UIPasteboard.general.string = viewModel.copyQuoteText(quote)
                         #endif
                     } label: {
-                        Image(systemName: "doc.on.doc")
+                        Label("Copy quote", systemImage: "doc.on.doc")
+                            .labelStyle(.iconOnly)
                             .font(.caption)
                             .foregroundStyle(palette.textTertiary)
                     }

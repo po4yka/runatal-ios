@@ -26,7 +26,9 @@ struct RuneDetailView: View {
     /// Unicode code point string (e.g. "U+16A8").
     private var unicodeLabel: String {
         guard let scalar = rune.glyph.unicodeScalars.first else { return "--" }
-        return String(format: "U+%04X", scalar.value)
+        let codePoint = String(scalar.value, radix: 16, uppercase: true)
+        let padding = String(repeating: "0", count: max(0, 4 - codePoint.count))
+        return "U+\(padding)\(codePoint)"
     }
 
     /// Aett grouping for Elder Futhark runes (groups of 8).
@@ -63,7 +65,9 @@ struct RuneDetailView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(palette.background)
         .navigationTitle(rune.name)
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 
     // MARK: - Hero Section
@@ -179,7 +183,7 @@ struct RuneDetailView: View {
         "elder-laguz": "Laguz is the rune of water and the flow of life. It represents intuition, the subconscious, and the power of going with the current.",
         "elder-ingwaz": "Ingwaz is the rune of the god Ing and internal growth. It represents gestation, potential energy, and the seed of transformation held within.",
         "elder-dagaz": "Dagaz is the rune of day and breakthrough. It represents the dawn, radical transformation, and the moment of clarity when darkness gives way to light.",
-        "elder-othala": "Othala is the rune of heritage and ancestral property. It represents homeland, inheritance, and the spiritual legacy passed down through generations.",
+        "elder-othala": "Othala is the rune of heritage and ancestral property. It represents homeland, inheritance, and the spiritual legacy passed down through generations."
     ]
 }
 
