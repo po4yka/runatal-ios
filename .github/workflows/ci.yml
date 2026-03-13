@@ -32,7 +32,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -63,7 +63,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -150,7 +150,7 @@ jobs:
           PY
 
       - name: Upload package coverage summaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: package-coverage-summaries
           path: ${{ env.REPORTS_DIR }}/package-coverage*.txt
@@ -161,7 +161,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -283,7 +283,7 @@ jobs:
 
       - name: Upload Xcode artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: xcode-validation-artifacts
           path: |
@@ -306,7 +306,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -347,7 +347,7 @@ jobs:
 
       - name: Upload UI smoke artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ui-smoke-artifacts
           path: |
