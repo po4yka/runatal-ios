@@ -2,34 +2,36 @@
 //  SettingsTypographySectionView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
+import TipKit
 
 struct SettingsTypographySectionView: View {
     let viewModel: SettingsViewModel
     let palette: AppThemePalette
+    let tipRefreshID: UUID
 
     var body: some View {
         GlassCard(intensity: .medium) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SettingsSectionHeaderView(title: "Typography", icon: "textformat.size", palette: palette)
+                SettingsSectionHeaderView(title: "Typography", icon: "textformat.size", palette: self.palette)
 
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     Text("Font")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(self.palette.textSecondary)
 
                     GlassFontSelector(
                         selectedFont: Binding(
-                            get: { viewModel.state.selectedFont },
-                            set: { viewModel.updateFont($0) }
+                            get: { self.viewModel.state.selectedFont },
+                            set: { self.viewModel.updateFont($0) },
                         ),
-                        availableFonts: viewModel.availableFonts
+                        availableFonts: self.viewModel.availableFonts,
                     )
                     .accessibilityLabel("Select font style")
-                    .accessibilityValue(viewModel.state.selectedFont.rawValue)
+                    .accessibilityValue(self.viewModel.state.selectedFont.rawValue)
                     .accessibilityHint("Choose the font used to display runic text")
                 }
                 .accessibilityElement(children: .contain)
@@ -38,99 +40,112 @@ struct SettingsTypographySectionView: View {
                 if let error = viewModel.state.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundStyle(palette.error)
+                        .foregroundStyle(self.palette.error)
                         .accessibilityLabel("Error: \(error)")
                 }
 
                 Rectangle()
-                    .fill(palette.separator)
+                    .fill(self.palette.separator)
                     .frame(height: 1)
 
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                    Text("Recommended Combinations")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(palette.textSecondary)
-
-                    ScrollView(.horizontal) {
-                        HStack(spacing: DesignTokens.Spacing.sm) {
-                            ForEach(viewModel.recommendedPresets) { preset in
-                                presetCard(preset)
-                            }
-                        }
-                        .padding(.vertical, DesignTokens.Spacing.xxs)
-                    }
-                    .scrollIndicators(.hidden)
-                }
+                self.recommendedCombinationsSection
             }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings_typography_section")
     }
 
+    private var recommendedCombinationsSection: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+            RunicInlineTip(
+                tip: SettingsTypographyPresetTip(),
+                palette: self.palette,
+                refreshID: self.tipRefreshID,
+                accessibilityIdentifier: "tip_settings_typography_preset",
+            )
+
+            Text("Recommended Combinations")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(self.palette.textSecondary)
+
+            ScrollView(.horizontal) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
+                    ForEach(self.viewModel.recommendedPresets) { preset in
+                        self.presetCard(preset)
+                    }
+                }
+                .padding(.vertical, DesignTokens.Spacing.xxs)
+            }
+            .scrollIndicators(.hidden)
+        }
+    }
+
     private func presetCard(_ preset: ReadingPreset) -> some View {
-        let isActive = viewModel.state.selectedScript == preset.script && viewModel.state.selectedFont == preset.font
+        let isActive = self.viewModel.state.selectedScript == preset.script && self.viewModel.state.selectedFont == preset.font
 
         return Button {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                viewModel.applyPreset(preset)
+                self.viewModel.applyPreset(preset)
             }
+            FeatureDiscoveryEvents.settingsAppliedPreset.sendDonation()
+            SettingsTypographyPresetTip().invalidate(reason: .actionPerformed)
         } label: {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 HStack(alignment: .top) {
                     Text(preset.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(palette.textPrimary)
+                        .foregroundStyle(self.palette.textPrimary)
 
                     Spacer(minLength: DesignTokens.Spacing.xs)
 
                     if isActive {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(palette.accent)
+                            .foregroundStyle(self.palette.accent)
                             .font(.caption)
                     }
                 }
 
                 Text("\(preset.script.displayName) + \(preset.font.displayName)")
                     .font(.caption)
-                    .foregroundStyle(palette.textTertiary)
+                    .foregroundStyle(self.palette.textTertiary)
                     .lineLimit(1)
 
-                Text(viewModel.presetPreviewRunicText(for: preset))
+                Text(self.viewModel.presetPreviewRunicText(for: preset))
                     .runicTextStyle(
                         script: preset.script,
                         font: preset.font,
                         style: .body,
                         minSize: 16,
-                        maxSize: 24
+                        maxSize: 24,
                     )
-                    .foregroundStyle(palette.runeText)
+                    .foregroundStyle(self.palette.runeText)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text(preset.previewLatinText)
                     .font(.caption)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
                     .lineLimit(2)
 
                 Text(preset.description)
                     .font(.caption)
-                    .foregroundStyle(palette.textTertiary)
+                    .foregroundStyle(self.palette.textTertiary)
                     .lineLimit(2)
             }
             .padding(DesignTokens.Spacing.sm)
             .frame(width: 250, alignment: .leading)
             .background {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                    .fill(isActive ? palette.bannerBackground : palette.editorialInset)
+                    .fill(isActive ? self.palette.bannerBackground : self.palette.editorialInset)
             }
             .overlay {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
                     .strokeBorder(
-                        isActive ? palette.strongCardStroke : palette.cardStroke,
-                        lineWidth: DesignTokens.Stroke.hairline
+                        isActive ? self.palette.strongCardStroke : self.palette.cardStroke,
+                        lineWidth: DesignTokens.Stroke.hairline,
                     )
             }
-            .shadow(color: palette.shadowColor.opacity(isActive ? 0.9 : 0), radius: 4, x: 0, y: 2)
+            .shadow(color: self.palette.shadowColor.opacity(isActive ? 0.9 : 0), radius: 4, x: 0, y: 2)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("settings_preset_\(preset.rawValue.replacing(" ", with: "_"))")

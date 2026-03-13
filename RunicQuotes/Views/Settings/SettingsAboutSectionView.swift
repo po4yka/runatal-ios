@@ -2,55 +2,77 @@
 //  SettingsAboutSectionView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
 
 struct SettingsAboutSectionView: View {
     let palette: AppThemePalette
+    let showTipsAgain: () -> Void
 
     var body: some View {
         GlassCard(intensity: .medium) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SettingsSectionHeaderView(title: "About", icon: "info.circle", palette: palette)
+                SettingsSectionHeaderView(title: "About", icon: "info.circle", palette: self.palette)
 
                 VStack(spacing: DesignTokens.Spacing.sm) {
-                    aboutRow("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
+                    self.aboutRow("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
 
                     Rectangle()
-                        .fill(palette.separator)
+                        .fill(self.palette.separator)
                         .frame(height: 1)
 
-                    aboutRow("Scripts", value: "\(RunicScript.allCases.count)")
+                    self.aboutRow("Scripts", value: "\(RunicScript.allCases.count)")
 
                     Rectangle()
-                        .fill(palette.separator)
+                        .fill(self.palette.separator)
                         .frame(height: 1)
 
-                    aboutRow("Fonts", value: "\(RunicFont.allCases.count)")
+                    self.aboutRow("Fonts", value: "\(RunicFont.allCases.count)")
 
                     Rectangle()
-                        .fill(palette.separator)
+                        .fill(self.palette.separator)
                         .frame(height: 1)
 
                     HStack {
                         Text("Rate on App Store")
                             .font(.subheadline.weight(.medium))
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
 
                         Spacer()
 
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundStyle(palette.textTertiary)
+                            .foregroundStyle(self.palette.textTertiary)
                     }
                     .padding(.vertical, DesignTokens.Spacing.xxs)
+
+                    Rectangle()
+                        .fill(self.palette.separator)
+                        .frame(height: 1)
+
+                    Button(action: self.showTipsAgain) {
+                        HStack {
+                            Text("Show Tips Again")
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(self.palette.textPrimary)
+
+                            Spacer()
+
+                            Image(systemName: "arrow.counterclockwise")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(self.palette.accent)
+                        }
+                        .padding(.vertical, DesignTokens.Spacing.xxs)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("settings_show_tips_again_button")
                 }
 
                 Text("Bringing ancient wisdom to modern devices")
                     .font(.caption)
-                    .foregroundStyle(palette.textTertiary)
+                    .foregroundStyle(self.palette.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
         }
@@ -62,13 +84,13 @@ struct SettingsAboutSectionView: View {
         HStack {
             Text(label)
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(self.palette.textPrimary)
 
             Spacer()
 
             Text(value)
                 .font(.subheadline)
-                .foregroundStyle(palette.textSecondary)
+                .foregroundStyle(self.palette.textSecondary)
         }
         .padding(.vertical, DesignTokens.Spacing.xxs)
     }

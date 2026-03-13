@@ -2,7 +2,7 @@
 //  AppSearchCoordinator.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -12,8 +12,13 @@ final class AppSearchCoordinator: ObservableObject {
     @Published var query = ""
     @Published var isPresented = false
 
+    init(query: String = "", isPresented: Bool = false) {
+        self.query = query
+        self.isPresented = isPresented
+    }
+
     func clear() {
-        query = ""
-        isPresented = false
+        self.query = ""
+        self.isPresented = false
     }
 }

@@ -2,12 +2,12 @@
 //  RunicQuotesApp.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.09.25.
 //
 
-import SwiftUI
-import SwiftData
 import os
+import SwiftData
+import SwiftUI
 
 @main
 @MainActor
@@ -18,17 +18,14 @@ struct RunicQuotesApp: App {
 
     let modelContainer: ModelContainer
     let rootComponent: AppRootComponent
+    let featureDiscoveryController: FeatureDiscoveryController
     @AppStorage(AppConstants.onboardingCompletedKey) private var hasCompletedOnboarding = false
     @AppStorage(AppConstants.selectedThemeStorageKey) private var selectedThemeRaw = AppTheme.obsidian.rawValue
     @State private var showDatabaseError = false
     @State private var databaseErrorMessage = ""
     @State private var showOnboarding = false
 
-    private var isUITesting: Bool {
-        ProcessInfo.processInfo.environment["UI_TESTING"] == "1"
-    }
-
-    private var shouldSkipOnboardingForUITests: Bool {
+    private var shouldSkipOnboarding: Bool {
         ProcessInfo.processInfo.environment["SKIP_ONBOARDING"] == "1"
     }
 
@@ -36,14 +33,16 @@ struct RunicQuotesApp: App {
 
     init() {
         registerProviderFactories()
+        let featureDiscoveryController = FeatureDiscoveryController()
+        self.featureDiscoveryController = featureDiscoveryController
 
         do {
             let container = try ModelContainerHelper.createMainContainer()
-            modelContainer = container
-            rootComponent = AppRootComponent(modelContainer: container)
+            self.modelContainer = container
+            self.rootComponent = AppRootComponent(modelContainer: container)
 
             // Seed database on first launch, then purge expired soft-deleted quotes
-            let databaseCoordinator = rootComponent.databaseCoordinator
+            let databaseCoordinator = self.rootComponent.databaseCoordinator
             Task {
                 do {
                     try await databaseCoordinator.seedIfNeeded()
@@ -59,34 +58,46 @@ struct RunicQuotesApp: App {
             // Fallback to in-memory container
             Self.logger.info("Attempting to create fallback in-memory container")
             let placeholderContainer = ModelContainerHelper.createPlaceholderContainer()
-            modelContainer = placeholderContainer
-            rootComponent = AppRootComponent(modelContainer: placeholderContainer)
-            databaseErrorMessage = "Using temporary database. Data will not be saved."
-            showDatabaseError = true
+            self.modelContainer = placeholderContainer
+            self.rootComponent = AppRootComponent(modelContainer: placeholderContainer)
+            self.databaseErrorMessage = "Using temporary database. Data will not be saved."
+            self.showDatabaseError = true
+
+            let databaseCoordinator = self.rootComponent.databaseCoordinator
+            Task {
+                do {
+                    try await databaseCoordinator.seedIfNeeded()
+                } catch {
+                    Self.logger.error("Failed to seed fallback database: \(error.localizedDescription)")
+                }
+                await databaseCoordinator.backfillTranslations()
+            }
         }
+
+        self.featureDiscoveryController.configureForLaunch(processInfo: .processInfo)
     }
 
     // MARK: - Body
 
     private var selectedTheme: AppTheme {
-        AppTheme.fromStorage(selectedThemeRaw)
+        AppTheme.fromStorage(self.selectedThemeRaw)
     }
 
     var body: some Scene {
         WindowGroup {
             ZStack {
-                rootComponent.makeMainTabView()
+                self.rootComponent.makeMainTabView()
                     .onOpenURL { url in
-                        handleDeepLink(url)
+                        self.handleDeepLink(url)
                     }
 
                 // Show error banner if database initialization failed
-                if showDatabaseError {
+                if self.showDatabaseError {
                     VStack {
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundStyle(.yellow)
-                            Text(databaseErrorMessage)
+                            Text(self.databaseErrorMessage)
                                 .font(.caption)
                                 .foregroundStyle(.white)
                         }
@@ -99,24 +110,30 @@ struct RunicQuotesApp: App {
                     }
                 }
             }
-            .modelContainer(modelContainer)
-            .environment(\.userPreferencesRepository, rootComponent.preferencesRepository)
-            .environment(\.runicTheme, selectedTheme)
-            .animation(DesignTokens.Motion.themeTransition, value: selectedThemeRaw)
+            .modelContainer(self.modelContainer)
+            .environment(\.userPreferencesRepository, self.rootComponent.preferencesRepository)
+            .environment(\.runicTheme, self.selectedTheme)
+            .environmentObject(self.featureDiscoveryController)
+            .animation(DesignTokens.Motion.themeTransition, value: self.selectedThemeRaw)
             .task {
-                if isUITesting && shouldSkipOnboardingForUITests {
-                    hasCompletedOnboarding = true
-                    showOnboarding = false
+                if self.shouldSkipOnboarding {
+                    self.hasCompletedOnboarding = true
+                    self.showOnboarding = false
                 }
 
-                await syncThemeFromPreferences()
-                guard !hasCompletedOnboarding else { return }
-                showOnboarding = true
+                self.featureDiscoveryController.updateOnboardingCompleted(self.hasCompletedOnboarding)
+                await self.syncThemeFromPreferences()
+                guard !self.hasCompletedOnboarding else { return }
+                self.showOnboarding = true
             }
-            .fullScreenCover(isPresented: $showOnboarding) {
-                rootComponent.makeOnboardingView {
-                    hasCompletedOnboarding = true
-                    showOnboarding = false
+            .onChange(of: self.hasCompletedOnboarding) { _, hasCompletedOnboarding in
+                self.featureDiscoveryController.updateOnboardingCompleted(hasCompletedOnboarding)
+            }
+            .fullScreenCover(isPresented: self.$showOnboarding) {
+                self.rootComponent.makeOnboardingView {
+                    self.hasCompletedOnboarding = true
+                    self.featureDiscoveryController.updateOnboardingCompleted(true)
+                    self.showOnboarding = false
                 }
             }
         }
@@ -126,8 +143,8 @@ struct RunicQuotesApp: App {
     private func syncThemeFromPreferences() async {
         do {
             let storedTheme = try rootComponent.preferencesRepository.snapshot().selectedTheme.rawValue
-            if selectedThemeRaw != storedTheme {
-                selectedThemeRaw = storedTheme
+            if self.selectedThemeRaw != storedTheme {
+                self.selectedThemeRaw = storedTheme
             }
         } catch {
             Self.logger.error("Failed to sync selected theme: \(error.localizedDescription)")
@@ -153,8 +170,8 @@ struct RunicQuotesApp: App {
                 object: nil,
                 userInfo: [
                     "script": script,
-                    "mode": mode
-                ]
+                    "mode": mode,
+                ],
             )
         case "settings":
             // Open settings tab
@@ -184,7 +201,7 @@ struct MainTabView: View {
         quoteView: QuoteView,
         searchView: SearchView,
         savedView: SavedView,
-        settingsView: SettingsView
+        settingsView: SettingsView,
     ) {
         _searchCoordinator = StateObject(wrappedValue: searchCoordinator)
         _homeAccessoryController = StateObject(wrappedValue: homeAccessoryController)
@@ -195,73 +212,72 @@ struct MainTabView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: self.$selectedTab) {
             ForEach(AppTab.allCases) { tab in
                 Tab(tab.title, systemImage: tab.systemImage, value: tab, role: tab.role) {
-                    tabContent(for: tab)
-                        .environmentObject(searchCoordinator)
-                        .environmentObject(homeAccessoryController)
+                    self.tabContent(for: tab)
+                        .environmentObject(self.searchCoordinator)
+                        .environmentObject(self.homeAccessoryController)
                 }
                 .accessibilityIdentifier(tab.accessibilityID)
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
         .searchable(
-            text: $searchCoordinator.query,
-            isPresented: $searchCoordinator.isPresented,
-            prompt: "Quotes, authors, themes..."
+            text: self.$searchCoordinator.query,
+            isPresented: self.$searchCoordinator.isPresented,
+            prompt: "Quotes, authors, themes...",
         )
         .tabViewBottomAccessory {
-            if selectedTab.supportsBottomAccessory && homeAccessoryController.isVisible {
+            if self.selectedTab.supportsBottomAccessory && self.homeAccessoryController.isVisible {
                 HomeBottomAccessoryView {
                     NotificationCenter.default.post(name: .loadNextQuote, object: nil)
                 }
-                .environmentObject(homeAccessoryController)
+                .environmentObject(self.homeAccessoryController)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToTab)) { notification in
             if let tab = notification.userInfo?["tab"] as? AppTab {
-                selectedTab = tab
-                searchCoordinator.isPresented = tab == .search
+                self.selectedTab = tab
+                self.searchCoordinator.isPresented = tab == .search
             }
             // Forward collection selection if included (e.g. from CollectionsView)
             if let collection = notification.userInfo?["collection"] as? QuoteCollection {
                 NotificationCenter.default.post(
                     name: .preferencesDidChange,
                     object: nil,
-                    userInfo: ["collection": collection]
+                    userInfo: ["collection": collection],
                 )
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { _ in
-            selectedTab = .home
-            searchCoordinator.isPresented = false
+            self.selectedTab = .home
+            self.searchCoordinator.isPresented = false
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToSettingsTab)) { _ in
-            selectedTab = .settings
+            self.selectedTab = .settings
         }
-        .onChange(of: selectedTab) { _, newTab in
-            searchCoordinator.isPresented = newTab == .search
-            if newTab != .home { homeAccessoryController.hide() }
+        .onChange(of: self.selectedTab) { _, newTab in
+            self.searchCoordinator.isPresented = newTab == .search
+            if newTab != .home { self.homeAccessoryController.hide() }
         }
     }
 
     // MARK: - Tab Content
 
-    @ViewBuilder
     private func tabContent(for tab: AppTab) -> some View {
         NavigationStack {
             switch tab {
             case .home:
-                quoteView
+                self.quoteView
             case .collections:
                 CollectionsView()
             case .search:
-                searchView
+                self.searchView
             case .saved:
-                savedView
+                self.savedView
             case .settings:
-                settingsView
+                self.settingsView
             }
         }
     }
@@ -279,12 +295,12 @@ struct MainTabView: View {
                 CreateEditQuoteView(
                     viewModel: CreateEditQuoteViewModel.preview(mode: mode),
                     mode: mode,
-                    onSaved: onSaved
+                    onSaved: onSaved,
                 )
             },
             translationViewBuilder: TranslationViewBuilder {
                 TranslationView(viewModel: TranslationViewModel.preview())
-            }
+            },
         ),
         searchView: SearchView(viewModel: SearchViewModel.preview()),
         savedView: SavedView(viewModel: SavedQuotesViewModel.preview()),
@@ -295,8 +311,9 @@ struct MainTabView: View {
             },
             archiveViewBuilder: ArchiveViewBuilder {
                 ArchiveView(viewModel: ArchiveViewModel.preview())
-            }
-        )
+            },
+        ),
     )
-        .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
+    .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
+    .environmentObject(FeatureDiscoveryController.preview())
 }

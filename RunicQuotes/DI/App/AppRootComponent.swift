@@ -2,9 +2,10 @@
 //  AppRootComponent.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
+import Foundation
 import NeedleFoundation
 import SwiftData
 
@@ -18,102 +19,104 @@ final class AppRootComponent: BootstrapComponent {
     }
 
     var preferencesRepository: SwiftDataUserPreferencesRepository {
-        let modelContext = modelContainer.mainContext
+        let modelContext = self.modelContainer.mainContext
         return shared {
             SwiftDataUserPreferencesRepository(modelContext: modelContext)
         }
     }
 
     var translationService: HistoricalTranslationService {
-        return shared {
+        shared {
             HistoricalTranslationService()
         }
     }
 
     var translationRepository: SwiftDataTranslationRepository {
-        let modelContext = modelContainer.mainContext
+        let modelContext = self.modelContainer.mainContext
         let translationService = self.translationService
         return shared {
             SwiftDataTranslationRepository(
                 modelContext: modelContext,
-                translationService: translationService
+                translationService: translationService,
             )
         }
     }
 
     var quoteRepository: SwiftDataQuoteRepository {
-        let modelContext = modelContainer.mainContext
+        let modelContext = self.modelContainer.mainContext
         let translationRepository = self.translationRepository
         return shared {
             SwiftDataQuoteRepository(
                 modelContext: modelContext,
-                translationCacheRepository: translationRepository
+                translationCacheRepository: translationRepository,
             )
         }
     }
 
     var quoteProvider: QuoteProvider {
-        return shared {
-            QuoteProvider(repository: quoteRepository)
+        shared {
+            QuoteProvider(repository: self.quoteRepository)
         }
     }
 
     var translationProvider: TranslationProvider {
-        return shared {
-            TranslationProvider(repository: translationRepository)
+        shared {
+            TranslationProvider(repository: self.translationRepository)
         }
     }
 
     var searchCoordinator: AppSearchCoordinator {
-        return shared {
-            AppSearchCoordinator()
+        shared {
+            AppSearchCoordinator(
+                query: ProcessInfo.processInfo.environment["UI_TEST_SEARCH_QUERY"] ?? "",
+            )
         }
     }
 
     var homeAccessoryController: HomeAccessoryController {
-        return shared {
+        shared {
             HomeAccessoryController()
         }
     }
 
     var databaseCoordinator: DatabaseCoordinator {
-        return shared {
+        shared {
             DatabaseCoordinator(
-                modelContainer: modelContainer,
-                translationService: translationService
+                modelContainer: self.modelContainer,
+                translationService: self.translationService,
             )
         }
     }
 
     var createEditQuoteViewBuilder: CreateEditQuoteViewBuilder {
-        return shared {
+        shared {
             CreateEditQuoteViewBuilder { mode, onSaved in
                 CreateEditQuoteFeatureComponent(
                     parent: self,
                     quoteRepository: self.quoteRepository,
                     mode: mode,
-                    onSaved: onSaved
+                    onSaved: onSaved,
                 ).view()
             }
         }
     }
 
     var translationViewBuilder: TranslationViewBuilder {
-        return shared {
+        shared {
             TranslationViewBuilder {
                 TranslationFeatureComponent(
                     parent: self,
                     quoteRepository: self.quoteRepository,
                     translationRepository: self.translationRepository,
                     preferencesRepository: self.preferencesRepository,
-                    translationService: self.translationService
+                    translationService: self.translationService,
                 ).view()
             }
         }
     }
 
     var archiveViewBuilder: ArchiveViewBuilder {
-        return shared {
+        shared {
             ArchiveViewBuilder {
                 ArchiveFeatureComponent(parent: self, quoteProvider: self.quoteProvider).view()
             }
@@ -121,41 +124,41 @@ final class AppRootComponent: BootstrapComponent {
     }
 
     var quoteFeatureComponent: QuoteFeatureComponent {
-        return shared {
+        shared {
             QuoteFeatureComponent(
                 parent: self,
                 quoteProvider: self.quoteProvider,
                 translationProvider: self.translationProvider,
                 preferencesRepository: self.preferencesRepository,
                 createEditQuoteViewBuilder: self.createEditQuoteViewBuilder,
-                translationViewBuilder: self.translationViewBuilder
+                translationViewBuilder: self.translationViewBuilder,
             )
         }
     }
 
     var searchFeatureComponent: SearchFeatureComponent {
-        return shared {
+        shared {
             SearchFeatureComponent(parent: self, quoteProvider: self.quoteProvider)
         }
     }
 
     var savedFeatureComponent: SavedFeatureComponent {
-        return shared {
+        shared {
             SavedFeatureComponent(
                 parent: self,
                 quoteProvider: self.quoteProvider,
-                preferencesRepository: self.preferencesRepository
+                preferencesRepository: self.preferencesRepository,
             )
         }
     }
 
     var settingsFeatureComponent: SettingsFeatureComponent {
-        return shared {
+        shared {
             SettingsFeatureComponent(
                 parent: self,
                 preferencesRepository: self.preferencesRepository,
                 translationViewBuilder: self.translationViewBuilder,
-                archiveViewBuilder: self.archiveViewBuilder
+                archiveViewBuilder: self.archiveViewBuilder,
             )
         }
     }

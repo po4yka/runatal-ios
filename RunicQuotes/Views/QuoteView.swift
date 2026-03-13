@@ -19,6 +19,9 @@ import SwiftUI
 struct QuoteView: View {
     // MARK: - Properties
 
+    private static let shouldOpenTranslationOnLaunchForUITests =
+        ProcessInfo.processInfo.environment["UI_TEST_OPEN_TRANSLATION"] == "1"
+
     @StateObject private var viewModel: QuoteViewModel
     @State private var didInitialize = false
     @State private var isScriptMorphing = false
@@ -60,6 +63,9 @@ struct QuoteView: View {
                 guard !self.didInitialize else { return }
                 self.didInitialize = true
                 self.viewModel.onAppear()
+                if Self.shouldOpenTranslationOnLaunchForUITests {
+                    self.showTranslationView = true
+                }
             }
             .onChange(of: self.viewModel.state.currentScript) { _, _ in
                 self.startScriptMorphTransition()
@@ -334,6 +340,7 @@ struct QuoteView: View {
                 }
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("home_open_search_button")
         }
         .padding(.horizontal, DesignTokens.Spacing.md)
     }
@@ -383,6 +390,7 @@ struct QuoteView: View {
         self.viewModel.onNextQuoteTapped()
         FeatureDiscoveryEvents.homeAdvancedQuote.sendDonation()
         HomeNextQuoteTip().invalidate(reason: .actionPerformed)
+        self.featureDiscoveryController.recordHomeQuoteAdvanced()
     }
 
     private func handleSaveTriggered() {
@@ -393,6 +401,7 @@ struct QuoteView: View {
         guard !wasSaved else { return }
         FeatureDiscoveryEvents.homeSavedQuote.sendDonation()
         HomeSaveQuoteTip().invalidate(reason: .actionPerformed)
+        self.featureDiscoveryController.recordHomeQuoteSaved()
     }
 
     private func handleQuoteAction(_ action: QuoteAction) {

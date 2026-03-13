@@ -5,11 +5,14 @@
 //  Created by Claude on 13.03.26.
 //
 
-import TipKit
 import SwiftUI
+import TipKit
 
 /// Main quote presentation card used on the home screen.
 struct QuoteCardSectionView: View {
+    private static let shouldMirrorHomeTipsInlineForTesting =
+        ProcessInfo.processInfo.environment["TIPKIT_UI_INLINE_MIRRORS"] == "1"
+
     let runicText: String
     let presentationSource: RunicPresentationSource
     let evidenceTier: TranslationEvidenceTier?
@@ -28,6 +31,7 @@ struct QuoteCardSectionView: View {
     let onShowActions: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @EnvironmentObject private var featureDiscoveryController: FeatureDiscoveryController
     @State private var appearScale = 1.0
     @State private var appearOpacity = 1.0
 
@@ -114,6 +118,11 @@ struct QuoteCardSectionView: View {
 
                 self.actionBar
                     .padding(.top, DesignTokens.Spacing.md)
+
+                if Self.shouldMirrorHomeTipsInlineForTesting {
+                    self.homeTestingTipMirrors
+                        .padding(.top, DesignTokens.Spacing.md)
+                }
             }
             .frame(maxWidth: .infinity, minHeight: 380, alignment: .top)
             .overlay(alignment: .topTrailing) {
@@ -188,6 +197,64 @@ struct QuoteCardSectionView: View {
         }
     }
 
+    @ViewBuilder
+    private var homeTestingTipMirrors: some View {
+        switch self.featureDiscoveryController.homeTestingSequence {
+        case .hidden:
+            EmptyView()
+        case .nextQuote:
+            self.testingTipMirror(
+                title: "Cycle the reading",
+                message: "Tap New Quote to pull another passage into the current script.",
+                systemImage: "sparkles",
+                accessibilityIdentifier: "tip_home_next_quote_inline",
+            )
+        case .saveQuote:
+            self.testingTipMirror(
+                title: "Keep the lines that matter",
+                message: "Save a passage to revisit it later in your personal library.",
+                systemImage: "bookmark",
+                accessibilityIdentifier: "tip_home_save_quote_inline",
+            )
+        }
+    }
+
+    private func testingTipMirror(
+        title: String,
+        message: String,
+        systemImage: String,
+        accessibilityIdentifier: String,
+    ) -> some View {
+        HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
+            Image(systemName: systemImage)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(self.palette.accent)
+
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                Text(title)
+                    .font(DesignTokens.Typography.bodyEmphasis)
+                    .foregroundStyle(self.palette.textPrimary)
+
+                Text(message)
+                    .font(DesignTokens.Typography.metadata)
+                    .foregroundStyle(self.palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(DesignTokens.Spacing.sm)
+        .background {
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md, style: .continuous)
+                .fill(self.palette.editorialInset)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md, style: .continuous)
+                .strokeBorder(self.palette.cardStroke, lineWidth: DesignTokens.Stroke.hairline)
+        }
+        .accessibilityIdentifier(accessibilityIdentifier)
+    }
+
     private var nextQuoteButton: some View {
         self.actionButton(
             title: "New Quote",
@@ -221,6 +288,8 @@ struct QuoteCardSectionView: View {
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: emphasized))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
         .accessibilityIdentifier(self.accessibilityID(for: title))
     }
 

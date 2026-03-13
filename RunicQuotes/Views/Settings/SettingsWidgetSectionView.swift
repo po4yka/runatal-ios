@@ -2,70 +2,81 @@
 //  SettingsWidgetSectionView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
+import TipKit
 
 struct SettingsWidgetSectionView: View {
     let viewModel: SettingsViewModel
     let palette: AppThemePalette
+    let tipRefreshID: UUID
 
     var body: some View {
         GlassCard(intensity: .medium) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SettingsSectionHeaderView(title: "Widget", icon: "rectangle.on.rectangle", palette: palette)
+                SettingsSectionHeaderView(title: "Widget", icon: "rectangle.on.rectangle", palette: self.palette)
+
+                RunicInlineTip(
+                    tip: SettingsWidgetConfigurationTip(),
+                    palette: self.palette,
+                    refreshID: self.tipRefreshID,
+                    accessibilityIdentifier: "tip_settings_widget_configuration",
+                )
 
                 VStack(spacing: DesignTokens.Spacing.sm) {
                     ForEach(WidgetMode.allCases) { mode in
-                        selectionRow(
+                        self.selectionRow(
                             title: mode.displayName,
                             subtitle: mode.description,
-                            isSelected: viewModel.state.widgetMode == mode
+                            isSelected: self.viewModel.state.widgetMode == mode,
                         ) {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                viewModel.updateWidgetMode(mode)
+                                self.viewModel.updateWidgetMode(mode)
                             }
+                            self.recordWidgetAdjustment()
                         }
                         .accessibilityLabel("\(mode.displayName) mode")
-                        .accessibilityValue(viewModel.state.widgetMode == mode ? "Selected" : "Not selected")
+                        .accessibilityValue(self.viewModel.state.widgetMode == mode ? "Selected" : "Not selected")
                         .accessibilityIdentifier("settings_widget_mode_\(mode.rawValue)")
 
                         if mode != WidgetMode.allCases.last {
                             Rectangle()
-                                .fill(palette.separator)
+                                .fill(self.palette.separator)
                                 .frame(height: 1)
                         }
                     }
                 }
 
                 Rectangle()
-                    .fill(palette.separator)
+                    .fill(self.palette.separator)
                     .frame(height: 1)
 
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     Text("Widget Style")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(self.palette.textSecondary)
 
                     VStack(spacing: DesignTokens.Spacing.sm) {
                         ForEach(WidgetStyle.allCases) { style in
-                            selectionRow(
+                            self.selectionRow(
                                 title: style.displayName,
                                 subtitle: style.description,
-                                isSelected: viewModel.state.widgetStyle == style
+                                isSelected: self.viewModel.state.widgetStyle == style,
                             ) {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    viewModel.updateWidgetStyle(style)
+                                    self.viewModel.updateWidgetStyle(style)
                                 }
+                                self.recordWidgetAdjustment()
                             }
                             .accessibilityLabel("\(style.displayName) style")
-                            .accessibilityValue(viewModel.state.widgetStyle == style ? "Selected" : "Not selected")
+                            .accessibilityValue(self.viewModel.state.widgetStyle == style ? "Selected" : "Not selected")
                             .accessibilityIdentifier("settings_widget_style_\(style.rawValue.replacing(" ", with: "_"))")
 
                             if style != WidgetStyle.allCases.last {
                                 Rectangle()
-                                    .fill(palette.separator)
+                                    .fill(self.palette.separator)
                                     .frame(height: 1)
                             }
                         }
@@ -73,21 +84,21 @@ struct SettingsWidgetSectionView: View {
                 }
 
                 Rectangle()
-                    .fill(palette.separator)
+                    .fill(self.palette.separator)
                     .frame(height: 1)
 
-                Toggle(isOn: widgetDecorativeGlyphsEnabled) {
+                Toggle(isOn: self.widgetDecorativeGlyphsEnabled) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                         Text("Decorative Glyph Identity")
                             .font(.subheadline.weight(.medium))
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
 
                         Text("Enable glyph ring and background pattern in widgets")
                             .font(.caption)
-                            .foregroundStyle(palette.textTertiary)
+                            .foregroundStyle(self.palette.textTertiary)
                     }
                 }
-                .tint(palette.accent)
+                .tint(self.palette.accent)
             }
         }
         .accessibilityElement(children: .contain)
@@ -97,8 +108,11 @@ struct SettingsWidgetSectionView: View {
 
     private var widgetDecorativeGlyphsEnabled: Binding<Bool> {
         Binding(
-            get: { viewModel.state.widgetDecorativeGlyphsEnabled },
-            set: { viewModel.updateWidgetDecorativeGlyphsEnabled($0) }
+            get: { self.viewModel.state.widgetDecorativeGlyphsEnabled },
+            set: {
+                self.viewModel.updateWidgetDecorativeGlyphsEnabled($0)
+                self.recordWidgetAdjustment()
+            },
         )
     }
 
@@ -106,25 +120,25 @@ struct SettingsWidgetSectionView: View {
         title: String,
         subtitle: String,
         isSelected: Bool,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> some View {
         Button(action: action) {
             HStack {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                     Text(title)
                         .font(.subheadline.weight(.medium))
-                        .foregroundStyle(palette.textPrimary)
+                        .foregroundStyle(self.palette.textPrimary)
 
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                 }
 
                 Spacer()
 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(palette.accent)
+                        .foregroundStyle(self.palette.accent)
                         .font(.title3)
                         .accessibilityLabel("Selected")
                 }
@@ -132,5 +146,10 @@ struct SettingsWidgetSectionView: View {
             .padding(.vertical, DesignTokens.Spacing.xxs)
         }
         .buttonStyle(.plain)
+    }
+
+    private func recordWidgetAdjustment() {
+        FeatureDiscoveryEvents.settingsAdjustedWidget.sendDonation()
+        SettingsWidgetConfigurationTip().invalidate(reason: .actionPerformed)
     }
 }
