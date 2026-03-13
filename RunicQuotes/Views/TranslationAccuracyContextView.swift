@@ -12,8 +12,8 @@ struct TranslationAccuracyContextView: View {
     @Environment(\.runicTheme) private var runicTheme
 
     var body: some View {
-        ScreenScaffold(palette: palette) {
-            VStack(spacing: DesignTokens.Spacing.xl) {
+        LiquidListScaffold(palette: palette) {
+            Section {
                 HeroHeader(
                     eyebrow: "Reference",
                     title: "Accuracy & Context",
@@ -21,11 +21,29 @@ struct TranslationAccuracyContextView: View {
                     meta: ["Offline", "Curated", "Educational"],
                     palette: palette
                 )
+                .listRowSeparator(.hidden)
+                .listRowInsets(
+                    EdgeInsets(
+                        top: DesignTokens.Spacing.xl,
+                        leading: DesignTokens.Spacing.md,
+                        bottom: DesignTokens.Spacing.md,
+                        trailing: DesignTokens.Spacing.md
+                    )
+                )
+            }
 
-                EditorialCard(palette: palette, tone: .primary) {
+            Section {
+                ContentPlate(
+                    palette: palette,
+                    tone: .primary,
+                    cornerRadius: DesignTokens.CornerRadius.xxl,
+                    shadowRadius: DesignTokens.Elevation.low
+                ) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                        SectionLabel(title: "Reading", palette: palette)
+
                         Text("How to read the results")
-                            .font(DesignTokens.Typography.cardTitle)
+                            .font(DesignTokens.Typography.sectionTitle)
                             .foregroundStyle(palette.textPrimary)
 
                         Text("Strict uses only curated attestations, phrase templates, and lexicon coverage. Readable and Decorative may preserve or paraphrase unsupported words, but those results are marked as approximations.")
@@ -33,11 +51,19 @@ struct TranslationAccuracyContextView: View {
                             .foregroundStyle(palette.textSecondary)
                     }
                 }
+                .listRowSeparator(.hidden)
 
-                EditorialCard(palette: palette, tone: .secondary) {
+                ContentPlate(
+                    palette: palette,
+                    tone: .secondary,
+                    cornerRadius: DesignTokens.CornerRadius.xxl,
+                    shadowRadius: DesignTokens.Elevation.low
+                ) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                        SectionLabel(title: "Evidence", palette: palette)
+
                         Text("Layer meanings")
-                            .font(DesignTokens.Typography.cardTitle)
+                            .font(DesignTokens.Typography.sectionTitle)
                             .foregroundStyle(palette.textPrimary)
 
                         labelRow(title: "Normalized", body: "Editorial reading form used for dictionary and morphology alignment.")
@@ -45,30 +71,40 @@ struct TranslationAccuracyContextView: View {
                         labelRow(title: "Provenance", body: "Curated sources or corpus references that support the result.")
                     }
                 }
+                .listRowSeparator(.hidden)
+            }
 
+            Section {
                 NavigationLink {
                     RuneReferenceView()
                 } label: {
-                    GlassCard(intensity: .medium) {
+                    ContentPlate(
+                        palette: palette,
+                        tone: .secondary,
+                        cornerRadius: DesignTokens.CornerRadius.xxl,
+                        shadowRadius: DesignTokens.Elevation.low
+                    ) {
                         HStack {
                             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                                 Text("Open Rune Reference")
                                     .font(DesignTokens.Typography.cardTitle)
                                     .foregroundStyle(palette.textPrimary)
-                                Text("Cross-check the script shapes and historical notes.")
-                                    .font(DesignTokens.Typography.metadata)
+                                Text("Cross-check script forms, notes, and historical shape guidance.")
+                                    .font(DesignTokens.Typography.callout)
                                     .foregroundStyle(palette.textSecondary)
                             }
 
                             Spacer()
 
-                            Image(systemName: "character.book.closed")
-                                .foregroundStyle(palette.accent)
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(palette.textTertiary)
                         }
                     }
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("translation_rune_reference_link")
+                .listRowSeparator(.hidden)
             }
         }
         .accessibilityIdentifier("translation_accuracy_view")
@@ -85,10 +121,10 @@ struct TranslationAccuracyContextView: View {
     private func labelRow(title: String, body: String) -> some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
             Text(title)
-                .font(.subheadline.weight(.semibold))
+                .font(DesignTokens.Typography.bodyEmphasis)
                 .foregroundStyle(palette.textPrimary)
             Text(body)
-                .font(DesignTokens.Typography.metadata)
+                .font(DesignTokens.Typography.callout)
                 .foregroundStyle(palette.textSecondary)
         }
     }

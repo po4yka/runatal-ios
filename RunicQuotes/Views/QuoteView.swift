@@ -31,19 +31,22 @@ struct QuoteView: View {
     @State private var editingQuoteRecord: QuoteRecord?
     @State private var showCoachMarks = false
     @AppStorage(AppConstants.featureTourCompletedKey) private var hasCompletedFeatureTour = false
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @EnvironmentObject private var homeAccessoryController: HomeAccessoryController
+    private let createEditQuoteViewBuilder: CreateEditQuoteViewBuilder
+    private let translationViewBuilder: TranslationViewBuilder
 
     // MARK: - Initialization
 
-    init() {
-        // Initialize with a placeholder - will be replaced in .task with environment's context
-        let placeholderContainer = ModelContainerHelper.createPlaceholderContainer()
-        _viewModel = StateObject(wrappedValue: QuoteViewModel(
-            modelContext: ModelContext(placeholderContainer)
-        ))
+    init(
+        viewModel: QuoteViewModel,
+        createEditQuoteViewBuilder: CreateEditQuoteViewBuilder,
+        translationViewBuilder: TranslationViewBuilder
+    ) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.createEditQuoteViewBuilder = createEditQuoteViewBuilder
+        self.translationViewBuilder = translationViewBuilder
     }
 
     // MARK: - Body
@@ -83,7 +86,6 @@ struct QuoteView: View {
         .task {
             guard !didInitialize else { return }
             didInitialize = true
-            viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
         }
         .onChange(of: viewModel.state.isLoading) { _, isLoading in
@@ -153,14 +155,14 @@ struct QuoteView: View {
         }
         .sheet(isPresented: $showCreateQuote) {
             NavigationStack {
-                CreateEditQuoteView(mode: .create) { _ in
+                createEditQuoteViewBuilder.makeView(mode: .create, onSaved: { _ in
                     viewModel.onAppear()
-                }
+                })
             }
         }
         .sheet(isPresented: $showTranslationView) {
             NavigationStack {
-                TranslationView()
+                translationViewBuilder.makeView()
             }
         }
         .confirmationDialog(
@@ -178,9 +180,9 @@ struct QuoteView: View {
         }
         .sheet(item: $editingQuoteRecord) { record in
             NavigationStack {
-                CreateEditQuoteView(mode: .edit(record)) { _ in
+                createEditQuoteViewBuilder.makeView(mode: .edit(record), onSaved: { _ in
                     viewModel.onAppear()
-                }
+                })
             }
         }
         .alert("Delete Quote?", isPresented: $showDeleteConfirmation) {
@@ -393,23 +395,51 @@ struct QuoteView: View {
 
 // MARK: - Preview
 
+private enum QuoteViewPreviewFactory {
+    @MainActor
+    static func sampleContainer() -> ModelContainer {
+        let container = ModelContainerHelper.createPlaceholderContainer()
+        let quote = Quote(
+            textLatin: "Not all those who wander are lost.",
+            author: "J.R.R. Tolkien"
+        )
+        quote.runicElder = "ᚾᛟᛏ ᚨᛚᛚ ᚦᛟᛋᛖ ᚹᚺᛟ ᚹᚨᚾᛞᛖᚱ ᚨᚱᛖ ᛚᛟᛋᛏ"
+        container.mainContext.insert(quote)
+        return container
+    }
+}
+
 #Preview {
-    QuoteView()
+    QuoteView(
+        viewModel: QuoteViewModel.preview(),
+        createEditQuoteViewBuilder: CreateEditQuoteViewBuilder { mode, onSaved in
+            CreateEditQuoteView(
+                viewModel: CreateEditQuoteViewModel.preview(mode: mode),
+                mode: mode,
+                onSaved: onSaved
+            )
+        },
+        translationViewBuilder: TranslationViewBuilder {
+            TranslationView(viewModel: TranslationViewModel.preview())
+        }
+    )
         .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }
 
 #Preview("With Sample Data") {
-    let container = ModelContainerHelper.createPlaceholderContainer()
-
-    // Add sample quote
-    let quote = Quote(
-        textLatin: "Not all those who wander are lost.",
-        author: "J.R.R. Tolkien"
+    QuoteView(
+        viewModel: QuoteViewModel.preview(),
+        createEditQuoteViewBuilder: CreateEditQuoteViewBuilder { mode, onSaved in
+            CreateEditQuoteView(
+                viewModel: CreateEditQuoteViewModel.preview(mode: mode),
+                mode: mode,
+                onSaved: onSaved
+            )
+        },
+        translationViewBuilder: TranslationViewBuilder {
+            TranslationView(viewModel: TranslationViewModel.preview())
+        }
     )
-    quote.runicElder = "ᚾᛟᛏ ᚨᛚᛚ ᚦᛟᛋᛖ ᚹᚺᛟ ᚹᚨᚾᛞᛖᚱ ᚨᚱᛖ ᛚᛟᛋᛏ"
-    container.mainContext.insert(quote)
-
-    return QuoteView()
-        .modelContainer(container)
+    .modelContainer(QuoteViewPreviewFactory.sampleContainer())
 }
 // swiftlint:enable type_body_length

@@ -12,21 +12,26 @@ import SwiftUI
 struct SettingsView: View {
     @StateObject private var viewModel: SettingsViewModel
     @State private var didInitialize = false
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private let translationViewBuilder: TranslationViewBuilder
+    private let archiveViewBuilder: ArchiveViewBuilder
 
     private var palette: AppThemePalette {
         .themed(runicTheme, for: colorScheme)
     }
 
-    init() {
+    init(
+        viewModel: SettingsViewModel,
+        translationViewBuilder: TranslationViewBuilder,
+        archiveViewBuilder: ArchiveViewBuilder
+    ) {
+        self.translationViewBuilder = translationViewBuilder
+        self.archiveViewBuilder = archiveViewBuilder
         _viewModel = StateObject(
-            wrappedValue: SettingsViewModel(
-                modelContext: ModelContext(ModelContainerHelper.createPlaceholderContainer())
-            )
+            wrappedValue: viewModel
         )
     }
 
@@ -70,38 +75,59 @@ struct SettingsView: View {
         .task {
             guard !didInitialize else { return }
             didInitialize = true
-            viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
         }
         .navigationDestination(for: SettingsDestination.self) { destination in
             switch destination {
             case .translation:
-                TranslationView()
+                translationViewBuilder.makeView()
             case .runeReference:
                 RuneReferenceView()
             case .archive:
-                ArchiveView()
+                archiveViewBuilder.makeView()
             }
         }
     }
 }
 
+private enum SettingsViewPreviewFactory {
+    @MainActor
+    static func container() -> ModelContainer {
+        let container = ModelContainerHelper.createPlaceholderContainer()
+        let prefs = UserPreferences(
+            selectedScript: .cirth,
+            selectedFont: .cirth,
+            widgetMode: .random,
+            selectedTheme: .nordicDawn,
+            lastUsedPreset: .cirthLore
+        )
+        container.mainContext.insert(prefs)
+        return container
+    }
+}
+
 #Preview {
-    SettingsView()
+    SettingsView(
+        viewModel: SettingsViewModel.preview(),
+        translationViewBuilder: TranslationViewBuilder {
+            TranslationView(viewModel: TranslationViewModel.preview())
+        },
+        archiveViewBuilder: ArchiveViewBuilder {
+            ArchiveView(viewModel: ArchiveViewModel.preview())
+        }
+    )
         .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }
 
 #Preview("With Data") {
-    let container = ModelContainerHelper.createPlaceholderContainer()
-    let prefs = UserPreferences(
-        selectedScript: .cirth,
-        selectedFont: .cirth,
-        widgetMode: .random,
-        selectedTheme: .nordicDawn,
-        lastUsedPreset: .cirthLore
+    SettingsView(
+        viewModel: SettingsViewModel.preview(),
+        translationViewBuilder: TranslationViewBuilder {
+            TranslationView(viewModel: TranslationViewModel.preview())
+        },
+        archiveViewBuilder: ArchiveViewBuilder {
+            ArchiveView(viewModel: ArchiveViewModel.preview())
+        }
     )
-    container.mainContext.insert(prefs)
-
-    return SettingsView()
-        .modelContainer(container)
+    .modelContainer(SettingsViewPreviewFactory.container())
 }

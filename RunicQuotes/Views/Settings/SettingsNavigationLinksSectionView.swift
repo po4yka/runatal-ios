@@ -40,22 +40,42 @@ struct SettingsNavigationLinksSectionView: View {
     }
 
     private func linkCard(title: String, icon: String) -> some View {
-        GlassCard(intensity: .medium) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.body)
-                    .foregroundStyle(palette.accent)
+        HStack(spacing: DesignTokens.Spacing.md) {
+            Image(systemName: icon)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(palette.accent)
+                .frame(width: 24)
 
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                 Text(title)
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(palette.textPrimary)
 
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(palette.textTertiary)
+                if let description = description(for: title) {
+                    Text(description)
+                        .font(DesignTokens.Typography.metadata)
+                        .foregroundStyle(palette.textSecondary)
+                }
             }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(palette.textTertiary)
+        }
+    }
+
+    private func description(for title: String) -> String? {
+        switch title {
+        case String(localized: "translation.link.title"):
+            return "Direct transliteration or historical rendering"
+        case "Rune Reference":
+            return "Script forms, meanings, and historical notes"
+        case "Archive":
+            return "Hidden and deleted passages"
+        default:
+            return nil
         }
     }
 }

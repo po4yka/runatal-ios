@@ -56,24 +56,42 @@ struct TranslationUiState: Sendable {
 final class TranslationViewModel: ObservableObject {
     @Published private(set) var state = TranslationUiState()
 
-    private var modelContext: ModelContext
-    private var isConfiguredWithEnvironmentContext = false
-    private var preferences: UserPreferences?
+    private let quoteRepository: QuoteRepository
+    private let translationRepository: TranslationRepository
+    private let preferencesRepository: any UserPreferencesRepository
+    private var preferences = UserPreferencesSnapshot()
     private let translationService: HistoricalTranslationService
     private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Translation")
 
     init(
-        modelContext: ModelContext,
+        quoteRepository: QuoteRepository,
+        translationRepository: TranslationRepository,
+        preferencesRepository: any UserPreferencesRepository,
         translationService: HistoricalTranslationService = HistoricalTranslationService()
     ) {
-        self.modelContext = modelContext
+        self.quoteRepository = quoteRepository
+        self.translationRepository = translationRepository
+        self.preferencesRepository = preferencesRepository
         self.translationService = translationService
     }
 
-    func configureIfNeeded(modelContext: ModelContext) {
-        guard !isConfiguredWithEnvironmentContext else { return }
-        self.modelContext = modelContext
-        isConfiguredWithEnvironmentContext = true
+    convenience init(
+        modelContext: ModelContext,
+        translationService: HistoricalTranslationService = HistoricalTranslationService()
+    ) {
+        let translationRepository = SwiftDataTranslationRepository(
+            modelContext: modelContext,
+            translationService: translationService
+        )
+        self.init(
+            quoteRepository: SwiftDataQuoteRepository(
+                modelContext: modelContext,
+                translationCacheRepository: translationRepository
+            ),
+            translationRepository: translationRepository,
+            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext),
+            translationService: translationService
+        )
     }
 
     func onAppear() {
@@ -100,8 +118,8 @@ final class TranslationViewModel: ObservableObject {
         if !state.selectedFont.isCompatible(with: script) {
             state.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
         }
-        preferences?.selectedScript = script
-        preferences?.selectedFont = state.selectedFont
+        preferences.selectedScript = script
+        preferences.selectedFont = state.selectedFont
         persistPreferences()
         rebuildPresentation()
     }
@@ -136,6 +154,10 @@ final class TranslationViewModel: ObservableObject {
         state.isWordByWordEnabled.toggle()
     }
 
+    func setWordByWordEnabled(_ enabled: Bool) {
+        state.isWordByWordEnabled = enabled
+    }
+
     func saveToLibrary() {
         let input = state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !input.isEmpty else {
@@ -149,12 +171,6 @@ final class TranslationViewModel: ObservableObject {
         state.didSave = false
 
         do {
-            let quoteRepository = SwiftDataQuoteRepository(modelContext: modelContext)
-            let translationRepository = SwiftDataTranslationRepository(
-                modelContext: modelContext,
-                translationService: translationService
-            )
-
             let savedQuote: QuoteRecord
             let saveMessage: String
             switch state.translationMode {
@@ -185,13 +201,21 @@ final class TranslationViewModel: ObservableObject {
 
     static func preview() -> TranslationViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
-        return TranslationViewModel(modelContext: ModelContext(container))
+        let context = ModelContext(container)
+        let translationRepository = SwiftDataTranslationRepository(modelContext: context)
+        return TranslationViewModel(
+            quoteRepository: SwiftDataQuoteRepository(
+                modelContext: context,
+                translationCacheRepository: translationRepository
+            ),
+            translationRepository: translationRepository,
+            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context)
+        )
     }
 
     private func loadPreferences() {
         do {
-            let preferences = try UserPreferences.getOrCreate(in: modelContext)
-            self.preferences = preferences
+            preferences = try preferencesRepository.snapshot()
             state.selectedScript = preferences.selectedScript
             state.selectedFont = preferences.selectedFont.isCompatible(with: preferences.selectedScript)
                 ? preferences.selectedFont
@@ -203,7 +227,7 @@ final class TranslationViewModel: ObservableObject {
 
     private func persistPreferences() {
         do {
-            try modelContext.save()
+            try preferencesRepository.save(preferences)
         } catch {
             state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
         }
@@ -276,7 +300,7 @@ final class TranslationViewModel: ObservableObject {
 
     private func saveTransliterationQuote(
         input: String,
-        quoteRepository: SwiftDataQuoteRepository
+        quoteRepository: QuoteRepository
     ) throws -> (QuoteRecord, String) {
         let bundle = RunicTextBundle(
             elder: RunicTransliterator.transliterate(input, to: .elder),
@@ -295,8 +319,8 @@ final class TranslationViewModel: ObservableObject {
 
     private func saveStructuredQuote(
         input: String,
-        quoteRepository: SwiftDataQuoteRepository,
-        translationRepository: SwiftDataTranslationRepository
+        quoteRepository: QuoteRepository,
+        translationRepository: TranslationRepository
     ) throws -> (QuoteRecord, String) {
         let results = translationService.translateAllAvailable(
             text: input,

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 import SwiftUI
 
 /// UI state for the quote view
@@ -82,6 +83,20 @@ final class QuoteViewModel: ObservableObject {
         self.quoteProvider = quoteProvider
         self.translationProvider = translationProvider
         self.preferencesRepository = preferencesRepository
+    }
+
+    convenience init(modelContext: ModelContext) {
+        let translationRepository = SwiftDataTranslationRepository(modelContext: modelContext)
+        self.init(
+            quoteProvider: QuoteProvider(
+                repository: SwiftDataQuoteRepository(
+                    modelContext: modelContext,
+                    translationCacheRepository: translationRepository
+                )
+            ),
+            translationProvider: TranslationProvider(repository: translationRepository),
+            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext)
+        )
     }
 
     // MARK: - Public API

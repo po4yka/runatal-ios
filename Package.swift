@@ -15,11 +15,15 @@ let package = Package(
             targets: ["RunicQuotes"]
         )
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/uber/needle.git", exact: "0.25.1")
+    ],
     targets: [
         .target(
             name: "RunicQuotes",
-            dependencies: [],
+            dependencies: [
+                .product(name: "NeedleFoundation", package: "needle")
+            ],
             path: "RunicQuotes",
             exclude: [
                 "App",

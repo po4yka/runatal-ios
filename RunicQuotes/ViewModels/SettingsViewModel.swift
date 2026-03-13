@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 /// ViewModel for the settings screen
 @MainActor
@@ -30,9 +30,8 @@ final class SettingsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private var modelContext: ModelContext
-    private var preferences: UserPreferences?
-    private var isConfiguredWithEnvironmentContext = false
+    private let preferencesRepository: any UserPreferencesRepository
+    private var preferences = UserPreferencesSnapshot()
 
     // MARK: - Computed Properties
 
@@ -80,8 +79,14 @@ final class SettingsViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init(preferencesRepository: any UserPreferencesRepository) {
+        self.preferencesRepository = preferencesRepository
+    }
+
+    convenience init(modelContext: ModelContext) {
+        self.init(
+            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext)
+        )
     }
 
     // MARK: - Public API
@@ -92,13 +97,6 @@ final class SettingsViewModel: ObservableObject {
         Task {
             await loadPreferences()
         }
-    }
-
-    /// Rebind dependencies to the environment-provided context once the view is mounted.
-    func configureIfNeeded(modelContext: ModelContext) {
-        guard !isConfiguredWithEnvironmentContext else { return }
-        self.modelContext = modelContext
-        isConfiguredWithEnvironmentContext = true
     }
 
     /// Update the selected script
@@ -187,15 +185,15 @@ final class SettingsViewModel: ObservableObject {
         state.errorMessage = nil
 
         do {
-            preferences = try UserPreferences.getOrCreate(in: modelContext)
+            preferences = try preferencesRepository.snapshot()
 
-            state.selectedScript = preferences?.selectedScript ?? .elder
-            state.selectedFont = preferences?.selectedFont ?? .noto
-            state.widgetMode = preferences?.widgetMode ?? .daily
-            state.widgetStyle = preferences?.widgetStyle ?? .runeFirst
-            state.widgetDecorativeGlyphsEnabled = preferences?.widgetDecorativeGlyphsEnabled ?? true
-            state.selectedTheme = preferences?.selectedTheme ?? .obsidian
-            state.lastUsedPreset = preferences?.lastUsedPreset
+            state.selectedScript = preferences.selectedScript
+            state.selectedFont = preferences.selectedFont
+            state.widgetMode = preferences.widgetMode
+            state.widgetStyle = preferences.widgetStyle
+            state.widgetDecorativeGlyphsEnabled = preferences.widgetDecorativeGlyphsEnabled
+            state.selectedTheme = preferences.selectedTheme
+            state.lastUsedPreset = preferences.lastUsedPreset
             UserDefaults.standard.set(
                 state.selectedTheme.rawValue,
                 forKey: AppConstants.selectedThemeStorageKey
@@ -209,8 +207,6 @@ final class SettingsViewModel: ObservableObject {
     }
 
     private func savePreferences() {
-        guard let preferences = preferences else { return }
-
         preferences.selectedScript = state.selectedScript
         preferences.selectedFont = state.selectedFont
         preferences.widgetMode = state.widgetMode
@@ -220,7 +216,7 @@ final class SettingsViewModel: ObservableObject {
         preferences.lastUsedPreset = state.lastUsedPreset
 
         do {
-            try modelContext.save()
+            try preferencesRepository.save(preferences)
             UserDefaults.standard.set(
                 state.selectedTheme.rawValue,
                 forKey: AppConstants.selectedThemeStorageKey
@@ -238,6 +234,8 @@ extension SettingsViewModel {
     /// Create a view model for SwiftUI previews
     static func preview() -> SettingsViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
-        return SettingsViewModel(modelContext: container.mainContext)
+        return SettingsViewModel(
+            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: container.mainContext)
+        )
     }
 }

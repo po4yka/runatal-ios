@@ -35,4 +35,39 @@ actor QuoteProvider {
     func allQuotes() async throws -> [QuoteRecord] {
         try repository.allQuotes()
     }
+
+    /// Get a quote by id regardless of archive state.
+    func quote(id: UUID) async throws -> QuoteRecord? {
+        try repository.quote(id: id)
+    }
+
+    /// Get hidden and soft-deleted quotes.
+    func archivedQuotes() async throws -> [QuoteRecord] {
+        try repository.archivedQuotes()
+    }
+
+    /// Hide a quote without deleting it.
+    func hideQuote(id: UUID) async throws -> QuoteRecord {
+        try repository.hideQuote(id: id)
+    }
+
+    /// Soft delete a quote.
+    func softDeleteQuote(id: UUID, deletedAt: Date = Date()) async throws -> QuoteRecord {
+        try repository.softDeleteQuote(id: id, deletedAt: deletedAt)
+    }
+
+    /// Restore an archived quote.
+    func restoreQuote(id: UUID) async throws -> QuoteRecord {
+        try repository.restoreQuote(id: id)
+    }
+
+    /// Erase a quote permanently.
+    func eraseQuote(id: UUID) async throws {
+        try repository.eraseQuote(id: id)
+    }
+
+    /// Purge soft-deleted quotes older than a cutoff date.
+    func purgeDeletedQuotes(before cutoffDate: Date) async throws -> Int {
+        try repository.purgeDeletedQuotes(before: cutoffDate)
+    }
 }

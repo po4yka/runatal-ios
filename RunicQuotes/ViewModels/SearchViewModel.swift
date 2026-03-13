@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import SwiftData
 
 /// ViewModel for the search screen, decoupling search/filter logic from SwiftData.
 @MainActor
@@ -27,9 +26,7 @@ final class SearchViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private var modelContext: ModelContext
-    private var quoteProvider: QuoteProvider
-    private var isConfiguredWithEnvironmentContext = false
+    private let quoteProvider: QuoteProvider
     private var cachedQuotes: [QuoteRecord] = []
 
     // MARK: - Computed Properties
@@ -41,22 +38,8 @@ final class SearchViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
-        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
-        quoteProvider = QuoteProvider(repository: repository)
-    }
-
-    // MARK: - Public API
-
-    /// Rebind dependencies to the environment-provided context once the view is mounted.
-    func configureIfNeeded(modelContext: ModelContext) {
-        guard !isConfiguredWithEnvironmentContext else { return }
-
-        self.modelContext = modelContext
-        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
-        quoteProvider = QuoteProvider(repository: repository)
-        isConfiguredWithEnvironmentContext = true
+    init(quoteProvider: QuoteProvider) {
+        self.quoteProvider = quoteProvider
     }
 
     /// Load all visible quotes into cache when the view appears.
@@ -133,6 +116,7 @@ extension SearchViewModel {
     /// Create a view model for SwiftUI previews
     static func preview() -> SearchViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
-        return SearchViewModel(modelContext: container.mainContext)
+        let quoteRepository = SwiftDataQuoteRepository(modelContext: container.mainContext)
+        return SearchViewModel(quoteProvider: QuoteProvider(repository: quoteRepository))
     }
 }

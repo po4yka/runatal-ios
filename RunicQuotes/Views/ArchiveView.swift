@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 
 // MARK: - ArchiveView
 
@@ -16,7 +15,6 @@ struct ArchiveView: View {
     @State private var didInitialize = false
     @State private var restoredToastVisible = false
     @State private var toastDismissTask: Task<Void, Never>?
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
@@ -26,12 +24,8 @@ struct ArchiveView: View {
 
     // MARK: - Initialization
 
-    init() {
-        _viewModel = StateObject(wrappedValue: ArchiveViewModel(
-            modelContext: ModelContext(
-                ModelContainerHelper.createPlaceholderContainer()
-            )
-        ))
+    init(viewModel: ArchiveViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     // MARK: - Body
@@ -80,7 +74,6 @@ struct ArchiveView: View {
         .task {
             guard !didInitialize else { return }
             didInitialize = true
-            viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
         }
     }
@@ -145,7 +138,7 @@ struct ArchiveView: View {
     // MARK: - Quote Card
 
     @ViewBuilder
-    private func archiveQuoteCard(_ quote: ArchivedQuoteItem) -> some View {
+    private func archiveQuoteCard(_ quote: QuoteRecord) -> some View {
         QuoteCardView(
             runicSnippet: quote.runicElder ?? "",
             quoteText: quote.textLatin,
@@ -162,7 +155,7 @@ struct ArchiveView: View {
     // MARK: - Status Tag
 
     @ViewBuilder
-    private func statusTag(for quote: ArchivedQuoteItem) -> some View {
+    private func statusTag(for quote: QuoteRecord) -> some View {
         let label = quote.isDeleted ? "Deleted" : "Hidden"
         let color = quote.isDeleted ? palette.error : palette.warning
 
@@ -180,7 +173,7 @@ struct ArchiveView: View {
     // MARK: - Action Buttons
 
     @ViewBuilder
-    private func actionButtons(for quote: ArchivedQuoteItem) -> some View {
+    private func actionButtons(for quote: QuoteRecord) -> some View {
         if quote.isDeleted {
             Button {
                 viewModel.restoreQuote(quote.id)
@@ -272,7 +265,7 @@ struct ArchiveView: View {
 
 #Preview {
     NavigationStack {
-        ArchiveView()
+        ArchiveView(viewModel: ArchiveViewModel.preview())
     }
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }

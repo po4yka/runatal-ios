@@ -46,6 +46,20 @@ final class TranslationViewModelTests: XCTestCase {
     }
 
     @MainActor
+    func testSetWordByWordEnabledUpdatesState() throws {
+        let (viewModel, _) = try makeViewModel()
+
+        viewModel.onAppear()
+        viewModel.setWordByWordEnabled(true)
+
+        XCTAssertTrue(viewModel.state.isWordByWordEnabled)
+
+        viewModel.setWordByWordEnabled(false)
+
+        XCTAssertFalse(viewModel.state.isWordByWordEnabled)
+    }
+
+    @MainActor
     private func makeViewModel() throws -> (TranslationViewModel, ModelContext) {
         let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)

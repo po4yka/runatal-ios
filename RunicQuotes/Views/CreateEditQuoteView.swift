@@ -16,22 +16,20 @@ struct CreateEditQuoteView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
-    @Environment(\.modelContext) private var modelContext
-    @State private var didInitialize = false
 
     private let mode: CreateEditMode
     private let onSaved: ((UUID?) -> Void)?
 
     // MARK: - Initialization
 
-    init(mode: CreateEditMode = .create, onSaved: ((UUID?) -> Void)? = nil) {
+    init(
+        viewModel: CreateEditQuoteViewModel,
+        mode: CreateEditMode = .create,
+        onSaved: ((UUID?) -> Void)? = nil
+    ) {
         self.mode = mode
         self.onSaved = onSaved
-        let container = ModelContainerHelper.createPlaceholderContainer()
-        _viewModel = StateObject(wrappedValue: CreateEditQuoteViewModel(
-            modelContext: ModelContext(container),
-            mode: mode
-        ))
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     // MARK: - Body
@@ -65,11 +63,6 @@ struct CreateEditQuoteView: View {
                 .foregroundStyle(palette.accent)
                 .disabled(viewModel.state.isSaving)
             }
-        }
-        .task {
-            guard !didInitialize else { return }
-            didInitialize = true
-            viewModel.configureIfNeeded(modelContext: modelContext)
         }
         .onChange(of: viewModel.state.showSuccess) { _, showSuccess in
             if showSuccess, case .edit = viewModel.mode {
@@ -339,7 +332,10 @@ struct CreateEditQuoteView: View {
 
 #Preview("Create") {
     NavigationStack {
-        CreateEditQuoteView(mode: .create)
+        CreateEditQuoteView(
+            viewModel: CreateEditQuoteViewModel.preview(mode: .create),
+            mode: .create
+        )
     }
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }
@@ -353,7 +349,10 @@ struct CreateEditQuoteView: View {
         )
     )
     NavigationStack {
-        CreateEditQuoteView(mode: .edit(record))
+        CreateEditQuoteView(
+            viewModel: CreateEditQuoteViewModel.preview(mode: .edit(record)),
+            mode: .edit(record)
+        )
     }
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }

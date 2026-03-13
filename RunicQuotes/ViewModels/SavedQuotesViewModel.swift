@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import SwiftData
 import os
 
 /// ViewModel for the saved quotes screen
@@ -25,10 +24,9 @@ final class SavedQuotesViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private var modelContext: ModelContext
-    private var quoteProvider: QuoteProvider
-    private var preferences: UserPreferences?
-    private var isConfiguredWithEnvironmentContext = false
+    private let quoteProvider: QuoteProvider
+    private let preferencesRepository: any UserPreferencesRepository
+    private var preferences = UserPreferencesSnapshot()
 
     private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "SavedQuotesVM")
 
@@ -41,22 +39,12 @@ final class SavedQuotesViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
-        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
-        self.quoteProvider = QuoteProvider(repository: repository)
-    }
-
-    // MARK: - Public API
-
-    /// Rebind dependencies to the environment-provided context once the view is mounted.
-    func configureIfNeeded(modelContext: ModelContext) {
-        guard !isConfiguredWithEnvironmentContext else { return }
-
-        self.modelContext = modelContext
-        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
-        self.quoteProvider = QuoteProvider(repository: repository)
-        isConfiguredWithEnvironmentContext = true
+    init(
+        quoteProvider: QuoteProvider,
+        preferencesRepository: any UserPreferencesRepository
+    ) {
+        self.quoteProvider = quoteProvider
+        self.preferencesRepository = preferencesRepository
     }
 
     /// Load saved quotes when view appears.
@@ -68,8 +56,6 @@ final class SavedQuotesViewModel: ObservableObject {
 
     /// Toggle the saved state for a quote and reload the list.
     func toggleSaved(_ quoteID: UUID) {
-        guard let preferences else { return }
-
         preferences.toggleSavedQuote(quoteID)
         persistChanges()
 
@@ -89,8 +75,8 @@ final class SavedQuotesViewModel: ObservableObject {
         state.errorMessage = nil
 
         do {
-            preferences = try UserPreferences.getOrCreate(in: modelContext)
-            let savedIDs = preferences?.savedQuoteIDs ?? []
+            preferences = try preferencesRepository.snapshot()
+            let savedIDs = preferences.savedQuoteIDs
 
             let allQuotes = try await quoteProvider.allQuotes()
             state.savedQuotes = allQuotes.filter { savedIDs.contains($0.id) }
@@ -104,7 +90,7 @@ final class SavedQuotesViewModel: ObservableObject {
 
     private func persistChanges() {
         do {
-            try modelContext.save()
+            try preferencesRepository.save(preferences)
         } catch {
             state.errorMessage = "Failed to save changes: \(error.localizedDescription)"
         }
@@ -117,6 +103,11 @@ extension SavedQuotesViewModel {
     /// Create a view model for SwiftUI previews
     static func preview() -> SavedQuotesViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
-        return SavedQuotesViewModel(modelContext: container.mainContext)
+        let preferencesRepository = SwiftDataUserPreferencesRepository(modelContext: container.mainContext)
+        let quoteRepository = SwiftDataQuoteRepository(modelContext: container.mainContext)
+        return SavedQuotesViewModel(
+            quoteProvider: QuoteProvider(repository: quoteRepository),
+            preferencesRepository: preferencesRepository
+        )
     }
 }

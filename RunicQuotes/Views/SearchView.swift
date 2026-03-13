@@ -6,12 +6,10 @@
 //
 
 import SwiftUI
-import SwiftData
 
 /// Search quotes by text, author, or collection with chip filters and result cards.
 struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.runicTheme) private var runicTheme
     @EnvironmentObject private var searchCoordinator: AppSearchCoordinator
     @StateObject private var viewModel: SearchViewModel
@@ -21,11 +19,8 @@ struct SearchView: View {
         .themed(runicTheme, for: colorScheme)
     }
 
-    init() {
-        let container = ModelContainerHelper.createPlaceholderContainer()
-        _viewModel = StateObject(wrappedValue: SearchViewModel(
-            modelContext: container.mainContext
-        ))
+    init(viewModel: SearchViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     // MARK: - Body
@@ -72,7 +67,6 @@ struct SearchView: View {
         .task {
             guard !didInitialize else { return }
             didInitialize = true
-            viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
             viewModel.updateSearchText(searchCoordinator.query)
         }
@@ -265,7 +259,7 @@ private struct FlowLayout: Layout {
 
 #Preview {
     NavigationStack {
-        SearchView()
+        SearchView(viewModel: SearchViewModel.preview())
     }
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }

@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import SwiftUI
 import SwiftData
+import SwiftUI
 import os
 
 // MARK: - UI State
@@ -68,14 +68,13 @@ final class CreateEditQuoteViewModel: ObservableObject {
     // MARK: - Dependencies
 
     let mode: CreateEditMode
-    private var modelContext: ModelContext
-    private var isConfiguredWithEnvironmentContext = false
+    private let quoteRepository: QuoteRepository
     private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "CreateEditQuote")
 
     // MARK: - Initialization
 
-    init(modelContext: ModelContext, mode: CreateEditMode = .create) {
-        self.modelContext = modelContext
+    init(quoteRepository: QuoteRepository, mode: CreateEditMode = .create) {
+        self.quoteRepository = quoteRepository
         self.mode = mode
 
         if case .edit(let record) = mode {
@@ -85,13 +84,6 @@ final class CreateEditQuoteViewModel: ObservableObject {
             state.collection = record.collection
             updateRunicPreview()
         }
-    }
-
-    /// Rebind to the environment-provided ModelContext once mounted.
-    func configureIfNeeded(modelContext: ModelContext) {
-        guard !isConfiguredWithEnvironmentContext else { return }
-        self.modelContext = modelContext
-        isConfiguredWithEnvironmentContext = true
     }
 
     // MARK: - Form Updates
@@ -144,7 +136,6 @@ final class CreateEditQuoteViewModel: ObservableObject {
         state.isSaving = true
         state.errorMessage = nil
 
-        let repository = SwiftDataQuoteRepository(modelContext: modelContext)
         let trimmedText = state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedAuthor = state.author.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedSource = state.source.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -153,22 +144,24 @@ final class CreateEditQuoteViewModel: ObservableObject {
         do {
             switch mode {
             case .create:
-                let record = try repository.createQuote(
+                let record = try quoteRepository.createQuote(
                     textLatin: trimmedText,
                     author: trimmedAuthor,
                     source: source,
-                    collection: state.collection
+                    collection: state.collection,
+                    storedRunic: makeStoredRunicBundle(for: trimmedText)
                 )
                 state.createdQuoteID = record.id
                 logger.info("Quote created: \(record.id)")
 
             case .edit(let existing):
-                _ = try repository.updateQuote(
+                _ = try quoteRepository.updateQuote(
                     id: existing.id,
                     textLatin: trimmedText,
                     author: trimmedAuthor,
                     source: source,
-                    collection: state.collection
+                    collection: state.collection,
+                    storedRunic: makeStoredRunicBundle(for: trimmedText)
                 )
                 logger.info("Quote updated: \(existing.id)")
             }
@@ -194,7 +187,7 @@ final class CreateEditQuoteViewModel: ObservableObject {
     static func preview(mode: CreateEditMode = .create) -> CreateEditQuoteViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
         return CreateEditQuoteViewModel(
-            modelContext: ModelContext(container),
+            quoteRepository: SwiftDataQuoteRepository(modelContext: ModelContext(container)),
             mode: mode
         )
     }
@@ -208,5 +201,15 @@ final class CreateEditQuoteViewModel: ObservableObject {
             return
         }
         state.runicPreview = RunicTransliterator.transliterate(text, to: .elder)
+    }
+
+    private func makeStoredRunicBundle(for text: String) -> RunicTextBundle? {
+        guard !text.isEmpty else { return nil }
+
+        return RunicTextBundle(
+            elder: RunicTransliterator.transliterate(text, to: .elder),
+            younger: RunicTransliterator.transliterate(text, to: .younger),
+            cirth: RunicTransliterator.transliterate(text, to: .cirth)
+        )
     }
 }

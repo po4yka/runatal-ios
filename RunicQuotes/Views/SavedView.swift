@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 
 /// Displays bookmarked/favorited quotes.
 struct SavedView: View {
@@ -16,7 +15,6 @@ struct SavedView: View {
     @State private var feedbackTitle = ""
     @State private var feedbackMessage = ""
     @State private var feedbackTask: Task<Void, Never>?
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
@@ -26,12 +24,8 @@ struct SavedView: View {
 
     // MARK: - Initialization
 
-    init() {
-        _viewModel = StateObject(wrappedValue: SavedQuotesViewModel(
-            modelContext: ModelContext(
-                ModelContainerHelper.createPlaceholderContainer()
-            )
-        ))
+    init(viewModel: SavedQuotesViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     // MARK: - Body
@@ -102,7 +96,6 @@ struct SavedView: View {
         .task {
             guard !didInitialize else { return }
             didInitialize = true
-            viewModel.configureIfNeeded(modelContext: modelContext)
             viewModel.onAppear()
         }
     }
@@ -236,7 +229,7 @@ struct SavedView: View {
 
 #Preview {
     NavigationStack {
-        SavedView()
+        SavedView(viewModel: SavedQuotesViewModel.preview())
     }
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }

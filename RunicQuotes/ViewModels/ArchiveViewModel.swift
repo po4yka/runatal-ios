@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftData
 
 // MARK: - Archive Filter
 
@@ -29,25 +28,13 @@ enum ArchiveFilter: String, Codable, CaseIterable, Identifiable, Sendable {
 
 // MARK: - Archived Quote Item
 
-/// Lightweight, Sendable snapshot of an archived quote for the view layer.
-struct ArchivedQuoteItem: Identifiable, Sendable {
-    let id: UUID
-    let textLatin: String
-    let author: String
-    let runicElder: String?
-    let isHidden: Bool
-    let isDeleted: Bool
-}
-
-// MARK: - ArchiveViewModel
-
 /// ViewModel for the archive screen displaying hidden and soft-deleted quotes.
 @MainActor
 final class ArchiveViewModel: ObservableObject {
     // MARK: - State
 
     struct State: Sendable {
-        var archivedQuotes: [ArchivedQuoteItem] = []
+        var archivedQuotes: [QuoteRecord] = []
         var selectedFilter: ArchiveFilter = .all
         var isLoading: Bool = false
         var errorMessage: String?
@@ -57,13 +44,12 @@ final class ArchiveViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private var modelContext: ModelContext
-    private var isConfiguredWithEnvironmentContext = false
+    private let quoteProvider: QuoteProvider
 
     // MARK: - Computed Properties
 
     /// Quotes matching the currently selected filter tab.
-    var filteredQuotes: [ArchivedQuoteItem] {
+    var filteredQuotes: [QuoteRecord] {
         switch state.selectedFilter {
         case .all:
             return state.archivedQuotes
@@ -94,22 +80,17 @@ final class ArchiveViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init(quoteProvider: QuoteProvider) {
+        self.quoteProvider = quoteProvider
     }
 
     // MARK: - Public API
 
-    /// Rebind dependencies to the environment-provided context once the view is mounted.
-    func configureIfNeeded(modelContext: ModelContext) {
-        guard !isConfiguredWithEnvironmentContext else { return }
-        self.modelContext = modelContext
-        isConfiguredWithEnvironmentContext = true
-    }
-
     /// Load archived quotes when the view appears.
     func onAppear() {
-        loadArchivedQuotes()
+        Task {
+            await loadArchivedQuotes()
+        }
     }
 
     /// Switch the active filter tab.
@@ -119,70 +100,45 @@ final class ArchiveViewModel: ObservableObject {
 
     /// Restore a soft-deleted quote back to the main library.
     func restoreQuote(_ id: UUID) {
-        guard let quote = fetchQuote(by: id) else { return }
-        quote.isHidden = false
-        quote.isDeleted = false
-        quote.deletedAt = nil
-        save()
-        loadArchivedQuotes()
+        Task {
+            do {
+                _ = try await quoteProvider.restoreQuote(id: id)
+                await loadArchivedQuotes()
+            } catch {
+                state.errorMessage = "Failed to restore quote: \(error.localizedDescription)"
+            }
+        }
     }
 
     /// Unhide a hidden quote so it reappears in the main feed.
     func unhideQuote(_ id: UUID) {
-        guard let quote = fetchQuote(by: id) else { return }
-        quote.isHidden = false
-        save()
-        loadArchivedQuotes()
+        restoreQuote(id)
     }
 
     /// Permanently erase a quote from SwiftData.
     func eraseQuote(_ id: UUID) {
-        guard let quote = fetchQuote(by: id) else { return }
-        modelContext.delete(quote)
-        save()
-        loadArchivedQuotes()
+        Task {
+            do {
+                try await quoteProvider.eraseQuote(id: id)
+                await loadArchivedQuotes()
+            } catch {
+                state.errorMessage = "Failed to erase quote: \(error.localizedDescription)"
+            }
+        }
     }
 
     // MARK: - Private Methods
 
-    private func loadArchivedQuotes() {
+    private func loadArchivedQuotes() async {
         state.isLoading = true
         state.errorMessage = nil
 
         do {
-            let descriptor = FetchDescriptor<Quote>(
-                predicate: #Predicate<Quote> { $0.isHidden || $0.isDeleted }
-            )
-            let quotes = try modelContext.fetch(descriptor)
-            state.archivedQuotes = quotes.map { quote in
-                ArchivedQuoteItem(
-                    id: quote.id,
-                    textLatin: quote.textLatin,
-                    author: quote.author,
-                    runicElder: quote.runicElder,
-                    isHidden: quote.isHidden,
-                    isDeleted: quote.isDeleted
-                )
-            }
+            state.archivedQuotes = try await quoteProvider.archivedQuotes()
             state.isLoading = false
         } catch {
             state.errorMessage = "Failed to load archived quotes: \(error.localizedDescription)"
             state.isLoading = false
-        }
-    }
-
-    private func fetchQuote(by id: UUID) -> Quote? {
-        let descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate<Quote> { $0.id == id }
-        )
-        return try? modelContext.fetch(descriptor).first
-    }
-
-    private func save() {
-        do {
-            try modelContext.save()
-        } catch {
-            state.errorMessage = "Failed to save changes: \(error.localizedDescription)"
         }
     }
 }
@@ -193,6 +149,7 @@ extension ArchiveViewModel {
     /// Create a view model for SwiftUI previews.
     static func preview() -> ArchiveViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
-        return ArchiveViewModel(modelContext: container.mainContext)
+        let quoteRepository = SwiftDataQuoteRepository(modelContext: container.mainContext)
+        return ArchiveViewModel(quoteProvider: QuoteProvider(repository: quoteRepository))
     }
 }

@@ -10,12 +10,14 @@ import SwiftData
 import os
 
 @main
+@MainActor
 struct RunicQuotesApp: App {
     // MARK: - Properties
 
     private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "App")
 
     let modelContainer: ModelContainer
+    let rootComponent: AppRootComponent
     @AppStorage(AppConstants.onboardingCompletedKey) private var hasCompletedOnboarding = false
     @AppStorage(AppConstants.selectedThemeStorageKey) private var selectedThemeRaw = AppTheme.obsidian.rawValue
     @State private var showDatabaseError = false
@@ -33,31 +35,34 @@ struct RunicQuotesApp: App {
     // MARK: - Initialization
 
     init() {
+        registerProviderFactories()
+
         do {
             let container = try ModelContainerHelper.createMainContainer()
             modelContainer = container
+            rootComponent = AppRootComponent(modelContainer: container)
 
             // Seed database on first launch, then purge expired soft-deleted quotes
-            Task { [container] in
+            let databaseCoordinator = rootComponent.databaseCoordinator
+            Task {
                 do {
-                    try await DatabaseActor.shared.seedIfNeeded(using: container)
+                    try await databaseCoordinator.seedIfNeeded()
                 } catch {
                     Self.logger.error("Failed to seed database: \(error.localizedDescription)")
                 }
-                await DatabaseActor.shared.purgeExpiredQuotes(using: container)
-                await DatabaseActor.shared.backfillTranslations(using: container)
+                await databaseCoordinator.purgeExpiredQuotes()
+                await databaseCoordinator.backfillTranslations()
             }
         } catch {
             Self.logger.critical("Failed to create ModelContainer: \(error.localizedDescription)")
 
             // Fallback to in-memory container
-            do {
-                Self.logger.info("Attempting to create fallback in-memory container")
-                let placeholderContainer = ModelContainerHelper.createPlaceholderContainer()
-                modelContainer = placeholderContainer
-                databaseErrorMessage = "Using temporary database. Data will not be saved."
-                showDatabaseError = true
-            }
+            Self.logger.info("Attempting to create fallback in-memory container")
+            let placeholderContainer = ModelContainerHelper.createPlaceholderContainer()
+            modelContainer = placeholderContainer
+            rootComponent = AppRootComponent(modelContainer: placeholderContainer)
+            databaseErrorMessage = "Using temporary database. Data will not be saved."
+            showDatabaseError = true
         }
     }
 
@@ -70,7 +75,7 @@ struct RunicQuotesApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                MainTabView()
+                rootComponent.makeMainTabView()
                     .onOpenURL { url in
                         handleDeepLink(url)
                     }
@@ -95,6 +100,7 @@ struct RunicQuotesApp: App {
                 }
             }
             .modelContainer(modelContainer)
+            .environment(\.userPreferencesRepository, rootComponent.preferencesRepository)
             .environment(\.runicTheme, selectedTheme)
             .animation(DesignTokens.Motion.themeTransition, value: selectedThemeRaw)
             .task {
@@ -108,7 +114,7 @@ struct RunicQuotesApp: App {
                 showOnboarding = true
             }
             .fullScreenCover(isPresented: $showOnboarding) {
-                OnboardingView {
+                rootComponent.makeOnboardingView {
                     hasCompletedOnboarding = true
                     showOnboarding = false
                 }
@@ -119,8 +125,7 @@ struct RunicQuotesApp: App {
     @MainActor
     private func syncThemeFromPreferences() async {
         do {
-            let preferences = try UserPreferences.getOrCreate(in: modelContainer.mainContext)
-            let storedTheme = preferences.selectedTheme.rawValue
+            let storedTheme = try rootComponent.preferencesRepository.snapshot().selectedTheme.rawValue
             if selectedThemeRaw != storedTheme {
                 selectedThemeRaw = storedTheme
             }
@@ -166,8 +171,28 @@ struct RunicQuotesApp: App {
 /// Main tab view with Home, Collections, Search, Saved, and Settings screens.
 struct MainTabView: View {
     @State private var selectedTab: AppTab = .home
-    @StateObject private var searchCoordinator = AppSearchCoordinator()
-    @StateObject private var homeAccessoryController = HomeAccessoryController()
+    @StateObject private var searchCoordinator: AppSearchCoordinator
+    @StateObject private var homeAccessoryController: HomeAccessoryController
+    private let quoteView: QuoteView
+    private let searchView: SearchView
+    private let savedView: SavedView
+    private let settingsView: SettingsView
+
+    init(
+        searchCoordinator: AppSearchCoordinator,
+        homeAccessoryController: HomeAccessoryController,
+        quoteView: QuoteView,
+        searchView: SearchView,
+        savedView: SavedView,
+        settingsView: SettingsView
+    ) {
+        _searchCoordinator = StateObject(wrappedValue: searchCoordinator)
+        _homeAccessoryController = StateObject(wrappedValue: homeAccessoryController)
+        self.quoteView = quoteView
+        self.searchView = searchView
+        self.savedView = savedView
+        self.settingsView = settingsView
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -228,15 +253,15 @@ struct MainTabView: View {
         NavigationStack {
             switch tab {
             case .home:
-                QuoteView()
+                quoteView
             case .collections:
                 CollectionsView()
             case .search:
-                SearchView()
+                searchView
             case .saved:
-                SavedView()
+                savedView
             case .settings:
-                SettingsView()
+                settingsView
             }
         }
     }
@@ -245,6 +270,33 @@ struct MainTabView: View {
 // MARK: - Preview
 
 #Preview {
-    MainTabView()
+    MainTabView(
+        searchCoordinator: AppSearchCoordinator(),
+        homeAccessoryController: HomeAccessoryController(),
+        quoteView: QuoteView(
+            viewModel: QuoteViewModel.preview(),
+            createEditQuoteViewBuilder: CreateEditQuoteViewBuilder { mode, onSaved in
+                CreateEditQuoteView(
+                    viewModel: CreateEditQuoteViewModel.preview(mode: mode),
+                    mode: mode,
+                    onSaved: onSaved
+                )
+            },
+            translationViewBuilder: TranslationViewBuilder {
+                TranslationView(viewModel: TranslationViewModel.preview())
+            }
+        ),
+        searchView: SearchView(viewModel: SearchViewModel.preview()),
+        savedView: SavedView(viewModel: SavedQuotesViewModel.preview()),
+        settingsView: SettingsView(
+            viewModel: SettingsViewModel.preview(),
+            translationViewBuilder: TranslationViewBuilder {
+                TranslationView(viewModel: TranslationViewModel.preview())
+            },
+            archiveViewBuilder: ArchiveViewBuilder {
+                ArchiveView(viewModel: ArchiveViewModel.preview())
+            }
+        )
+    )
         .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
 }

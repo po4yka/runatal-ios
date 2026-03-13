@@ -317,7 +317,7 @@ final class QuoteViewModelTests: XCTestCase {
 
     @MainActor
     func testStructuredTranslationIsPreferredWhenCacheUpdates() async throws {
-        let viewModel = try makeViewModel()
+        let (viewModel, modelContext) = try makeViewModelWithContext()
         viewModel.onAppear()
 
         await waitUntil("initial quote loads") {
@@ -326,7 +326,7 @@ final class QuoteViewModelTests: XCTestCase {
 
         let quoteID = try XCTUnwrap(viewModel.state.currentQuoteID)
         let originalRunicText = viewModel.state.runicText
-        let translationRepository = SwiftDataTranslationRepository(modelContext: currentModelContext(from: viewModel))
+        let translationRepository = SwiftDataTranslationRepository(modelContext: modelContext)
         try translationRepository.cache(
             result: TranslationResult(
                 sourceText: viewModel.state.latinText,
@@ -363,6 +363,11 @@ final class QuoteViewModelTests: XCTestCase {
 
     @MainActor
     private func makeViewModel(seedData: Bool = true) throws -> QuoteViewModel {
+        try makeViewModelWithContext(seedData: seedData).0
+    }
+
+    @MainActor
+    private func makeViewModelWithContext(seedData: Bool = true) throws -> (QuoteViewModel, ModelContext) {
         let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let modelContainer = try ModelContainer(for: schema, configurations: config)
@@ -373,16 +378,7 @@ final class QuoteViewModelTests: XCTestCase {
             try repository.seedIfNeeded()
         }
 
-        return QuoteViewModel(modelContext: modelContext)
-    }
-
-    @MainActor
-    private func currentModelContext(from viewModel: QuoteViewModel) -> ModelContext {
-        let mirror = Mirror(reflecting: viewModel)
-        guard let modelContext = mirror.children.first(where: { $0.label == "modelContext" })?.value as? ModelContext else {
-            fatalError("Unable to read modelContext from QuoteViewModel")
-        }
-        return modelContext
+        return (QuoteViewModel(modelContext: modelContext), modelContext)
     }
 
     @MainActor
