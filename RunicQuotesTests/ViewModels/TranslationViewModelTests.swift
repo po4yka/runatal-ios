@@ -5,9 +5,9 @@
 //  Created by Claude on 13.03.26.
 //
 
+@testable import RunicQuotes
 import SwiftData
 import Testing
-@testable import RunicQuotes
 
 @MainActor
 @Suite(.serialized, .tags(.viewModel))

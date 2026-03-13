@@ -1,13 +1,13 @@
 //
 //  SettingsViewModelTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-02-13.
+//  Created by Claude on 13.02.26.
 //
 
+@testable import RunicQuotes
 import SwiftData
 import Testing
-@testable import RunicQuotes
 
 @MainActor
 @Suite(.serialized, .tags(.viewModel))
@@ -72,7 +72,7 @@ struct SettingsViewModelTests {
         let context = try TestSupport.makeModelContext()
         return (
             SettingsViewModel(preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context)),
-            context
+            context,
         )
     }
 }

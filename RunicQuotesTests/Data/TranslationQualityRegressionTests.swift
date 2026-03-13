@@ -5,8 +5,8 @@
 //  Created by Claude on 13.03.26.
 //
 
-import Testing
 @testable import RunicQuotes
+import Testing
 
 @Suite(.tags(.dataset))
 struct TranslationQualityRegressionTests {
@@ -15,7 +15,7 @@ struct TranslationQualityRegressionTests {
 
     @Test
     func goldCorpusBenchmarksRemainStable() throws {
-        let benchmarks = provider.goldCorpus().benchmarks
+        let benchmarks = self.provider.goldCorpus().benchmarks
         #expect(!benchmarks.isEmpty)
 
         for benchmark in benchmarks {
@@ -24,12 +24,12 @@ struct TranslationQualityRegressionTests {
                 let fidelity = try #require(TranslationFidelity(rawValue: expectation.fidelity))
                 let variant = expectation.requestedVariant.flatMap(YoungerFutharkVariant.init(rawValue:)) ?? .longBranch
 
-                let result = service.translate(
+                let result = self.service.translate(
                     text: benchmark.sourceText,
                     script: script,
                     fidelity: fidelity,
                     youngerVariant: variant,
-                    sourceLanguage: .english
+                    sourceLanguage: .english,
                 )
 
                 #expect(result.normalizedForm == expectation.normalizedForm)

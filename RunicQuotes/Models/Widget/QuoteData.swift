@@ -2,13 +2,13 @@
 //  QuoteData.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 09.10.25.
 //
 
 import Foundation
 
 /// Simplified quote data shared by the app, package tests, and widget extension.
-struct QuoteData: Codable, Equatable, Sendable {
+struct QuoteData: Codable, Equatable {
     let textLatin: String
     let author: String
     let runicElder: String?
@@ -18,11 +18,11 @@ struct QuoteData: Codable, Equatable, Sendable {
     func runicText(for script: RunicScript) -> String {
         switch script {
         case .elder:
-            return runicElder ?? textLatin
+            self.runicElder ?? self.textLatin
         case .younger:
-            return runicYounger ?? textLatin
+            self.runicYounger ?? self.textLatin
         case .cirth:
-            return runicCirth ?? textLatin
+            self.runicCirth ?? self.textLatin
         }
     }
 
@@ -47,7 +47,7 @@ struct QuoteData: Codable, Equatable, Sendable {
         author: String,
         runicElder: String?,
         runicYounger: String?,
-        runicCirth: String?
+        runicCirth: String?,
     ) {
         self.textLatin = textLatin
         self.author = author
@@ -62,7 +62,7 @@ struct QuoteData: Codable, Equatable, Sendable {
             author: "J.R.R. Tolkien",
             runicElder: "ᚾᛟᛏ ᚨᛚᛚ ᚦᛟᛋᛖ ᚹᚺᛟ ᚹᚨᚾᛞᛖᚱ ᚨᚱᛖ ᛚᛟᛋᛏ",
             runicYounger: "ᚾᚨᛏ ᚨᛚᛚ ᚦᚨᛋᚨ ᚹᚺᚨ ᚹᚨᚾᛞᚨᚱ ᚨᚱᚨ ᛚᚨᛋᛏ",
-            runicCirth: "⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸"
+            runicCirth: "⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸",
         )
     }
 
@@ -74,15 +74,15 @@ struct QuoteData: Codable, Equatable, Sendable {
                 author: "Virgil",
                 runicElder: "ᚠᛟᚱᛏᚢᚾᛖ ᚠᚨᚡᛟᚱᛋ ᚦᛖ ᛒᛟᛚᛞ",
                 runicYounger: "ᚠᚨᚱᛏᚢᚾᚨ ᚠᚨᚡᚨᚱᛋ ᚦᚨ ᛒᚨᛚᛞ",
-                runicCirth: "⸸⸸⸸⸸⸸⸸⸸ ⸸⸸⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸"
+                runicCirth: "⸸⸸⸸⸸⸸⸸⸸ ⸸⸸⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸",
             ),
             QuoteData(
                 textLatin: "The only way out is through.",
                 author: "Robert Frost",
                 runicElder: "ᚦᛖ ᛟᚾᛚᚤ ᚹᚨᚤ ᛟᚢᛏ ᛁᛋ ᚦᚱᛟᚢᚷᚺ",
                 runicYounger: "ᚦᚨ ᚨᚾᛚᛁ ᚹᚨᛁ ᚨᚢᛏ ᛁᛋ ᚦᚱᚨᚢᚷᚺ",
-                runicCirth: "⸸⸸⸸ ⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸ ⸸⸸ ⸸⸸⸸⸸⸸⸸⸸"
-            )
+                runicCirth: "⸸⸸⸸ ⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸ ⸸⸸ ⸸⸸⸸⸸⸸⸸⸸",
+            ),
         ]
     }
 }

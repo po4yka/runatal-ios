@@ -1,12 +1,12 @@
 //
 //  LiquidEffectPolicyTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
-import Testing
 @testable import RunicQuotes
+import Testing
 
 @Suite(.tags(.utility))
 struct LiquidEffectPolicyTests {

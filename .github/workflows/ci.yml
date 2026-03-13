@@ -2,162 +2,347 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop, "claude/**" ]
+    branches: [main, develop, "claude/**"]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
-  SCHEME: RunicQuotes
-  PLATFORM: iOS Simulator,name=iPhone 15 Pro,OS=18.0
+  APP_SCHEME: RunicQuotes
+  CORE_SCHEME: RunicQuotesCoreCI
+  WIDGET_SCHEME: RunicQuotesWidgetCI
+  UI_SCHEME: RunicQuotesUICI
+  PROJECT_PATH: RunicQuotes.xcodeproj
+  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.2
+  DERIVED_DATA_PATH: build/DerivedData
+  RESULTS_DIR: build/results
+  REPORTS_DIR: build/reports
+  LOGS_DIR: build/logs
 
 jobs:
-  package-build-test:
-    name: Swift Package Build & Test
+  repo-consistency:
+    name: Repo Consistency
     runs-on: macos-15
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Build and run package tests
-        run: swift test -Xswiftc -strict-concurrency=complete
+      - name: Prepare macOS toolchain
+        uses: ./.github/actions/setup-macos-ci
+        with:
+          install-homebrew-tools: "true"
 
-  lint:
-    name: SwiftLint
-    runs-on: macos-15
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - name: Lint SwiftFormat
+        run: swiftformat --lint .
 
-      - name: Install SwiftLint
-        run: brew install swiftlint
-
-      - name: Run SwiftLint
+      - name: Lint SwiftLint
         run: swiftlint lint --strict --reporter github-actions-logging
 
-  build:
-    name: Build & Test
+      - name: Regenerate derived project files
+        run: |
+          xcodegen generate
+          ./scripts/generate-needle.sh
+
+      - name: Fail on generated-file drift
+        run: |
+          if [ -n "$(git status --short --untracked-files=all)" ]; then
+            git status --short --untracked-files=all
+            exit 1
+          fi
+
+  package-validation:
+    name: Package Validation
     runs-on: macos-15
-    if: hashFiles('**/*.xcodeproj/project.pbxproj') != '' || hashFiles('**/*.xcworkspace/contents.xcworkspacedata') != ''
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Prepare macOS toolchain
+        uses: ./.github/actions/setup-macos-ci
+        with:
+          install-homebrew-tools: "false"
 
-      - name: Install xcpretty
-        run: gem install xcpretty
+      - name: Build Swift package
+        run: swift build
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Run package tests
+        run: swift test --enable-code-coverage -Xswiftc -strict-concurrency=complete
 
-      - name: Show available destinations
-        run: xcodebuild -scheme ${{ env.SCHEME }} -showdestinations
-
-      - name: Build
+      - name: Generate package coverage summaries
         run: |
+          mkdir -p "$REPORTS_DIR"
+          PROF=$(find .build -name '*.profdata' | head -1)
+          BIN=$(find .build -path '*RunicQuotesPackageTests.xctest/Contents/MacOS/RunicQuotesPackageTests' | head -1)
+          xcrun llvm-cov report "$BIN" -instr-profile="$PROF" > "$REPORTS_DIR/package-coverage-details.txt"
+          xcrun llvm-cov export -summary-only "$BIN" -instr-profile="$PROF" > "$REPORTS_DIR/package-coverage-summary.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary_path = Path("build/reports/package-coverage-summary.json")
+          data = json.loads(summary_path.read_text())["data"][0]
+          files = data["files"]
+
+          def normalize(path: str) -> str:
+              marker = "runatal-ios/"
+              if marker in path:
+                  return path.split(marker, 1)[1]
+              return path
+
+          def summarize(selected):
+              totals = {}
+              for key in ("lines", "functions", "regions", "branches"):
+                  count = sum(file["summary"][key]["count"] for file in selected)
+                  covered = sum(file["summary"][key]["covered"] for file in selected)
+                  percent = (covered / count * 100.0) if count else 100.0
+                  totals[key] = (covered, count, percent)
+              return totals
+
+          def render(title: str, selected, output_path: str, exclusions: str):
+              totals = summarize(selected)
+              metric_labels = {
+                  "lines": "Lines",
+                  "functions": "Functions",
+                  "regions": "Regions",
+                  "branches": "Branches",
+              }
+
+              output = [
+                  title,
+                  f"Files: {len(selected)}",
+                  f"Exclusions: {exclusions}",
+                  "",
+              ]
+
+              for key in ("lines", "functions", "regions", "branches"):
+                  covered, count, percent = totals[key]
+                  output.append(f"{metric_labels[key]}: {covered}/{count} ({percent:.1f}%)")
+
+              Path(output_path).write_text("\n".join(output) + "\n")
+
+          render(
+              "Package coverage summary",
+              files,
+              "build/reports/package-coverage.txt",
+              "none",
+          )
+
+          filtered_files = [
+              file for file in files
+              if not normalize(file["filename"]).startswith("RunicQuotes/Views/")
+              and not normalize(file["filename"]).startswith("RunicQuotes/DI/")
+          ]
+
+          render(
+              "Package coverage summary excluding RunicQuotes/Views/** and RunicQuotes/DI/**",
+              filtered_files,
+              "build/reports/package-coverage-filtered.txt",
+              "RunicQuotes/Views/**, RunicQuotes/DI/**",
+          )
+          PY
+
+      - name: Upload package coverage summaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-coverage-summaries
+          path: ${{ env.REPORTS_DIR }}/package-coverage*.txt
+
+  xcode-validation:
+    name: Xcode Validation
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Prepare macOS toolchain
+        uses: ./.github/actions/setup-macos-ci
+        with:
+          install-homebrew-tools: "false"
+
+      - name: Create report directories
+        run: mkdir -p "$DERIVED_DATA_PATH" "$RESULTS_DIR" "$REPORTS_DIR" "$LOGS_DIR"
+
+      - name: Build app
+        shell: bash
+        run: |
+          set -o pipefail
           xcodebuild build \
-            -scheme ${{ env.SCHEME }} \
-            -destination 'platform=${{ env.PLATFORM }}' \
+            -project "$PROJECT_PATH" \
+            -scheme "$APP_SCHEME" \
+            -destination "$DESTINATION" \
             -configuration Debug \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO
-
-      - name: Run Unit Tests
-        run: |
-          xcodebuild test \
-            -scheme ${{ env.SCHEME }} \
-            -destination 'platform=${{ env.PLATFORM }}' \
-            -configuration Debug \
-            -enableCodeCoverage YES \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$RESULTS_DIR/RunicQuotesBuild.xcresult" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            | xcpretty --report html --output build/reports/tests.html
+            2>&1 | tee "$LOGS_DIR/build.log"
 
-      - name: Upload test results
+      - name: Run core tests
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project "$PROJECT_PATH" \
+            -scheme "$CORE_SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            -enableCodeCoverage YES \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$RESULTS_DIR/${CORE_SCHEME}.xcresult" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            2>&1 | tee "$LOGS_DIR/core-tests.log"
+
+      - name: Run widget tests
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project "$PROJECT_PATH" \
+            -scheme "$WIDGET_SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$RESULTS_DIR/${WIDGET_SCHEME}.xcresult" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            2>&1 | tee "$LOGS_DIR/widget-tests.log"
+
+      - name: Run Xcode analyze
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild analyze \
+            -project "$PROJECT_PATH" \
+            -scheme "$APP_SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$RESULTS_DIR/RunicQuotesAnalyze.xcresult" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            2>&1 | tee "$LOGS_DIR/analyze.log"
+
+      - name: Generate Xcode coverage reports
+        run: |
+          APP_BINARY=$(find "$DERIVED_DATA_PATH" -path '*Build/Products/Debug-iphonesimulator/RunicQuotes.app/RunicQuotes' -type f | head -1)
+          PROFDATA_FILES=$(find "$DERIVED_DATA_PATH" -name '*.profdata' -type f)
+          xcrun llvm-profdata merge -sparse $PROFDATA_FILES -o "$REPORTS_DIR/xcode-coverage.profdata"
+          xcrun llvm-cov report "$APP_BINARY" -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" > "$REPORTS_DIR/xcode-coverage-details.txt"
+          xcrun llvm-cov export -summary-only "$APP_BINARY" -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" > "$REPORTS_DIR/xcode-coverage-summary.json"
+          xcrun llvm-cov export -format=lcov "$APP_BINARY" -instr-profile="$REPORTS_DIR/xcode-coverage.profdata" > coverage.lcov
+          python3 scripts/ci/coverage_summary.py \
+            "$REPORTS_DIR/xcode-coverage-summary.json" \
+            "Xcode coverage summary" \
+            > "$REPORTS_DIR/xcode-coverage-summary.md"
+
+      - name: Publish Xcode summaries
+        run: |
+          python3 scripts/ci/xcresult_summary.py \
+            "$RESULTS_DIR/${CORE_SCHEME}.xcresult" \
+            "Core tests" \
+            > "$REPORTS_DIR/core-tests-summary.md"
+          python3 scripts/ci/xcresult_summary.py \
+            "$RESULTS_DIR/${WIDGET_SCHEME}.xcresult" \
+            "Widget tests" \
+            > "$REPORTS_DIR/widget-tests-summary.md"
+          python3 scripts/ci/log_audit.py \
+            "$LOGS_DIR/build.log" \
+            "$LOGS_DIR/core-tests.log" \
+            "$LOGS_DIR/widget-tests.log" \
+            "$LOGS_DIR/analyze.log" \
+            > "$REPORTS_DIR/xcode-log-audit.md"
+          {
+            cat "$REPORTS_DIR/core-tests-summary.md"
+            printf '\n'
+            cat "$REPORTS_DIR/widget-tests-summary.md"
+            printf '\n'
+            cat "$REPORTS_DIR/xcode-coverage-summary.md"
+            printf '\n'
+            cat "$REPORTS_DIR/xcode-log-audit.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Xcode artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: build/reports/tests.html
-
-      - name: Generate code coverage
-        run: |
-          xcrun llvm-cov export \
-            -format="lcov" \
-            -instr-profile=$(find ~/Library/Developer/Xcode/DerivedData -name "*.profdata" | head -1) \
-            $(find ~/Library/Developer/Xcode/DerivedData -name "RunicQuotes" -type f | head -1) \
-            > coverage.lcov
+          name: xcode-validation-artifacts
+          path: |
+            ${{ env.RESULTS_DIR }}
+            ${{ env.REPORTS_DIR }}
+            ${{ env.LOGS_DIR }}
+            coverage.lcov
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.lcov
+          disable_search: true
           fail_ci_if_error: false
 
-  ui-tests:
-    name: UI Tests
+  ui-smoke:
+    name: UI Smoke
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     runs-on: macos-15
-    if: hashFiles('**/*.xcodeproj/project.pbxproj') != '' || hashFiles('**/*.xcworkspace/contents.xcworkspacedata') != ''
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Prepare macOS toolchain
+        uses: ./.github/actions/setup-macos-ci
+        with:
+          install-homebrew-tools: "false"
 
-      - name: Install xcpretty
-        run: gem install xcpretty
+      - name: Create report directories
+        run: mkdir -p "$DERIVED_DATA_PATH" "$RESULTS_DIR" "$REPORTS_DIR" "$LOGS_DIR"
 
-      - name: Run UI Tests
+      - name: Run UI smoke tests
+        shell: bash
         run: |
+          set -o pipefail
           xcodebuild test \
-            -scheme ${{ env.SCHEME }} \
-            -destination 'platform=${{ env.PLATFORM }}' \
-            -only-testing:RunicQuotesUITests \
+            -project "$PROJECT_PATH" \
+            -scheme "$UI_SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$RESULTS_DIR/${UI_SCHEME}.xcresult" \
+            -only-testing:RunicQuotesUITests/RunicQuotesUISmokeTests \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            | xcpretty
+            2>&1 | tee "$LOGS_DIR/ui-smoke.log"
 
-  widget-tests:
-    name: Widget Tests
-    runs-on: macos-15
-    if: hashFiles('**/*.xcodeproj/project.pbxproj') != '' || hashFiles('**/*.xcworkspace/contents.xcworkspacedata') != ''
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-
-      - name: Install xcpretty
-        run: gem install xcpretty
-
-      - name: Run Widget Tests
+      - name: Publish UI smoke summaries
         run: |
-          xcodebuild test \
-            -scheme ${{ env.SCHEME }} \
-            -destination 'platform=${{ env.PLATFORM }}' \
-            -only-testing:RunicQuotesWidgetTests \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            | xcpretty
+          python3 scripts/ci/xcresult_summary.py \
+            "$RESULTS_DIR/${UI_SCHEME}.xcresult" \
+            "UI smoke tests" \
+            > "$REPORTS_DIR/ui-smoke-summary.md"
+          python3 scripts/ci/log_audit.py \
+            "$LOGS_DIR/ui-smoke.log" \
+            > "$REPORTS_DIR/ui-smoke-log-audit.md"
+          {
+            cat "$REPORTS_DIR/ui-smoke-summary.md"
+            printf '\n'
+            cat "$REPORTS_DIR/ui-smoke-log-audit.md"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-  analyze:
-    name: Static Analysis
-    runs-on: macos-15
-    if: hashFiles('**/*.xcodeproj/project.pbxproj') != '' || hashFiles('**/*.xcworkspace/contents.xcworkspacedata') != ''
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-
-      - name: Run Xcode Analyze
-        run: |
-          xcodebuild analyze \
-            -scheme ${{ env.SCHEME }} \
-            -destination 'platform=${{ env.PLATFORM }}' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO
+      - name: Upload UI smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-smoke-artifacts
+          path: |
+            ${{ env.RESULTS_DIR }}
+            ${{ env.REPORTS_DIR }}
+            ${{ env.LOGS_DIR }}

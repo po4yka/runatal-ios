@@ -1,14 +1,14 @@
 //
 //  QuoteRepositoryTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.10.25.
 //
 
 import Foundation
+@testable import RunicQuotes
 import SwiftData
 import Testing
-@testable import RunicQuotes
 
 @Suite(.serialized, .tags(.repository))
 struct QuoteRepositoryTests {
@@ -108,7 +108,7 @@ struct QuoteRepositoryTests {
 
         var ids = Set<UUID>()
         for _ in 0 ..< 10 {
-            ids.insert(try repository.randomQuote(for: .elder).id)
+            try ids.insert(repository.randomQuote(for: .elder).id)
         }
 
         #expect(ids.count > 1)
@@ -143,8 +143,8 @@ struct QuoteRepositoryTests {
             storedRunic: RunicTextBundle(
                 elder: "ELDER-OVERRIDE",
                 younger: nil,
-                cirth: "CIRTH-OVERRIDE"
-            )
+                cirth: "CIRTH-OVERRIDE",
+            ),
         )
 
         #expect(record.runicElder == "ELDER-OVERRIDE")
@@ -162,12 +162,12 @@ struct QuoteRepositoryTests {
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: nil
+            storedRunic: nil,
         )
         try translationRepository.cache(
             result: TestSupport.makeTranslationResult(script: .elder, glyphOutput: "ᚹᚢᛚᚠᚨᛉ"),
             for: record.id,
-            sourceText: record.textLatin
+            sourceText: record.textLatin,
         )
 
         #expect(try translationRepository.latestTranslation(for: record.id, script: .elder) != nil)
@@ -178,7 +178,7 @@ struct QuoteRepositoryTests {
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: nil
+            storedRunic: nil,
         )
 
         #expect(try translationRepository.latestTranslation(for: record.id, script: .elder) == nil)
@@ -193,7 +193,7 @@ struct QuoteRepositoryTests {
             author: "Runatal",
             source: nil,
             collection: .stoic,
-            storedRunic: nil
+            storedRunic: nil,
         )
 
         let hiddenRecord = try repository.hideQuote(id: record.id)
@@ -219,12 +219,12 @@ struct QuoteRepositoryTests {
             author: "Runatal",
             source: nil,
             collection: .tolkien,
-            storedRunic: nil
+            storedRunic: nil,
         )
 
         let deleted = try repository.softDeleteQuote(
             id: record.id,
-            deletedAt: Date(timeIntervalSince1970: 1_700_000_000)
+            deletedAt: Date(timeIntervalSince1970: 1_700_000_000),
         )
         #expect(deleted.isDeleted)
         #expect(deleted.deletedAt != nil)

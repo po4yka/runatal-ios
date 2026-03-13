@@ -1,12 +1,12 @@
 //
 //  RunicQuoteEntry.swift
-//  RunicQuotesWidget
+//  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 09.10.25.
 //
 
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 /// Timeline entry for the widget
 struct RunicQuoteEntry: TimelineEntry {
@@ -45,8 +45,8 @@ struct RunicQuoteEntry: TimelineEntry {
                 theme: .obsidian,
                 widgetMode: .daily,
                 widgetStyle: .runeFirst,
-                showsDecorativeGlyphs: true
-            )
+                showsDecorativeGlyphs: true,
+            ),
         )
     }
 

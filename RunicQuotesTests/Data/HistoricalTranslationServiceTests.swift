@@ -5,8 +5,8 @@
 //  Created by Claude on 13.03.26.
 //
 
-import Testing
 @testable import RunicQuotes
+import Testing
 
 @Suite(.tags(.repository))
 struct HistoricalTranslationServiceTests {
@@ -14,10 +14,10 @@ struct HistoricalTranslationServiceTests {
 
     @Test
     func strictYoungerTranslationUsesCuratedGoldExample() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "The wolf hunts at night",
             script: .younger,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         #expect(result.derivationKind == .goldExample)
@@ -29,10 +29,10 @@ struct HistoricalTranslationServiceTests {
 
     @Test
     func strictElderTranslationReturnsUnavailableForUnsupportedWords() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "signal",
             script: .elder,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         #expect(result.resolutionStatus == .unavailable)
@@ -42,10 +42,10 @@ struct HistoricalTranslationServiceTests {
 
     @Test
     func cirthPhraseMappingIsPreferredWhenCurated() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "Under the mountain",
             script: .cirth,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         #expect(result.derivationKind == .phraseTemplate)
@@ -56,17 +56,17 @@ struct HistoricalTranslationServiceTests {
 
     @Test
     func youngerVariantChangesGlyphsOnly() {
-        let longBranch = service.translate(
+        let longBranch = self.service.translate(
             text: "king night",
             script: .younger,
             fidelity: .strict,
-            youngerVariant: .longBranch
+            youngerVariant: .longBranch,
         )
-        let shortTwig = service.translate(
+        let shortTwig = self.service.translate(
             text: "king night",
             script: .younger,
             fidelity: .strict,
-            youngerVariant: .shortTwig
+            youngerVariant: .shortTwig,
         )
 
         #expect(longBranch.normalizedForm == shortTwig.normalizedForm)
@@ -76,10 +76,10 @@ struct HistoricalTranslationServiceTests {
 
     @Test
     func unsupportedLanguageRejectsWithGuidance() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "волк ночью",
             script: .younger,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         #expect(result.supportLevel == .unsupported)
@@ -90,10 +90,10 @@ struct HistoricalTranslationServiceTests {
 
     @Test
     func readableYoungerHandlesNegationAndCopula() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "He is not lost",
             script: .younger,
-            fidelity: .readable
+            fidelity: .readable,
         )
 
         #expect(result.isAvailable)
@@ -103,10 +103,10 @@ struct HistoricalTranslationServiceTests {
 
     @Test
     func readableYoungerMergesConfiguredMultiwordExpression() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "Honor the old ways",
             script: .younger,
-            fidelity: .readable
+            fidelity: .readable,
         )
 
         #expect(result.isAvailable)

@@ -1,13 +1,13 @@
 //
 //  QuoteTimelineProvider.swift
-//  RunicQuotesWidget
+//  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 09.10.25.
 //
 
-@preconcurrency import WidgetKit
-import SwiftUI
 import os
+import SwiftUI
+@preconcurrency import WidgetKit
 
 /// Timeline provider for the runic quotes widget with AppIntent configuration
 struct QuoteTimelineProvider: AppIntentTimelineProvider {
@@ -17,7 +17,7 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
 
     init(
         makeTimelineService: @escaping @Sendable () throws -> any WidgetTimelineServicing = Self.bootstrapTimelineService,
-        generator: WidgetTimelineGenerator = WidgetTimelineGenerator()
+        generator: WidgetTimelineGenerator = WidgetTimelineGenerator(),
     ) {
         self.makeTimelineService = makeTimelineService
         self.generator = generator
@@ -41,25 +41,25 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
             script: configuration.script.toRunicScript,
             widgetMode: configuration.mode.toWidgetMode,
             widgetStyle: configuration.style.toWidgetStyle,
-            showsRuneText: configuration.showRuneText
+            showsRuneText: configuration.showRuneText,
         )
 
         do {
             let service = try makeTimelineService()
             let timelineData = try await generator.generateTimeline(
                 for: displayConfiguration,
-                service: service
+                service: service,
             )
             return Timeline(
                 entries: timelineData.entries.map(RunicQuoteEntry.init(snapshot:)),
-                policy: timelinePolicy(for: timelineData.reloadPolicy)
+                policy: self.timelinePolicy(for: timelineData.reloadPolicy),
             )
         } catch {
             Self.logger.error("Widget timeline error: \(error.localizedDescription)")
-            let timelineData = generator.fallbackTimeline()
+            let timelineData = self.generator.fallbackTimeline()
             return Timeline(
                 entries: timelineData.entries.map(RunicQuoteEntry.init(snapshot:)),
-                policy: timelinePolicy(for: timelineData.reloadPolicy)
+                policy: self.timelinePolicy(for: timelineData.reloadPolicy),
             )
         }
     }
@@ -69,9 +69,9 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
     private func timelinePolicy(for policy: WidgetTimelineReloadPolicy) -> TimelineReloadPolicy {
         switch policy {
         case .atEnd:
-            return .atEnd
+            .atEnd
         case .after(let date):
-            return .after(date)
+            .after(date)
         }
     }
 
@@ -81,7 +81,7 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
             let rootComponent = try WidgetRootComponent(modelContainer: ModelContainerHelper.createSharedContainer())
             return rootComponent.timelineService
         } catch {
-            Self.logger.error("Failed to bootstrap widget root component: \(error.localizedDescription)")
+            self.logger.error("Failed to bootstrap widget root component: \(error.localizedDescription)")
             throw WidgetError.containerNotFound
         }
     }
@@ -95,9 +95,9 @@ enum WidgetError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noQuotesAvailable:
-            return "No quotes available in the database"
+            "No quotes available in the database"
         case .containerNotFound:
-            return "Could not access shared container"
+            "Could not access shared container"
         }
     }
 }

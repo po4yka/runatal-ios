@@ -1,8 +1,8 @@
 //
 //  WidgetTimelineService.swift
-//  RunicQuotesWidget
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -16,11 +16,11 @@ final class WidgetTimelineService: WidgetTimelineServicing, @unchecked Sendable 
     }
 
     func loadPreferences() throws -> UserPreferencesSnapshot {
-        try makePreferencesRepository().snapshot()
+        try self.makePreferencesRepository().snapshot()
     }
 
     func quoteOfTheDay(for script: RunicScript, date: Date = Date()) async throws -> QuoteData {
-        let provider = makeQuoteProvider()
+        let provider = self.makeQuoteProvider()
         try await provider.seedIfNeeded()
 
         let allQuotes = try await provider.allQuotes()
@@ -33,9 +33,9 @@ final class WidgetTimelineService: WidgetTimelineServicing, @unchecked Sendable 
     }
 
     func randomQuote(for script: RunicScript) async throws -> QuoteData {
-        let provider = makeQuoteProvider()
+        let provider = self.makeQuoteProvider()
         try await provider.seedIfNeeded()
-        return QuoteData(from: try await provider.randomQuote(for: script))
+        return try await QuoteData(from: provider.randomQuote(for: script))
     }
 
     private func makeQuoteProvider() -> QuoteProvider {
@@ -43,12 +43,12 @@ final class WidgetTimelineService: WidgetTimelineServicing, @unchecked Sendable 
         let translationRepository = SwiftDataTranslationRepository(modelContext: context)
         let quoteRepository = SwiftDataQuoteRepository(
             modelContext: context,
-            translationCacheRepository: translationRepository
+            translationCacheRepository: translationRepository,
         )
         return QuoteProvider(repository: quoteRepository)
     }
 
     private func makePreferencesRepository() -> SwiftDataUserPreferencesRepository {
-        SwiftDataUserPreferencesRepository(modelContext: ModelContext(modelContainer))
+        SwiftDataUserPreferencesRepository(modelContext: ModelContext(self.modelContainer))
     }
 }

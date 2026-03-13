@@ -24,9 +24,6 @@ targets:
   RunicQuotes:
     type: application
     platform: iOS
-    preBuildScripts:
-      - path: scripts/generate-needle.sh
-        name: Generate Needle Graph
     sources:
       - path: RunicQuotes
         excludes:
@@ -93,9 +90,6 @@ targets:
   RunicQuotesWidget:
     type: app-extension
     platform: iOS
-    preBuildScripts:
-      - path: scripts/generate-needle.sh
-        name: Generate Needle Graph
     sources:
       - path: RunicQuotes/DI/Shared
         excludes:
@@ -213,3 +207,31 @@ schemes:
       config: Release
     archive:
       config: Release
+
+  RunicQuotesCoreCI:
+    build:
+      targets:
+        RunicQuotes: all
+    test:
+      config: Debug
+      targets:
+        - RunicQuotesTests
+
+  RunicQuotesWidgetCI:
+    build:
+      targets:
+        RunicQuotes: all
+    test:
+      config: Debug
+      targets:
+        - RunicQuotesWidgetTests
+
+  RunicQuotesUICI:
+    build:
+      targets:
+        RunicQuotes: all
+        RunicQuotesUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - RunicQuotesUITests

@@ -1,12 +1,12 @@
 //
 //  RunicTransliteratorTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.10.25.
 //
 
-import Testing
 @testable import RunicQuotes
+import Testing
 
 @Suite(.tags(.utility))
 struct RunicTransliteratorTests {
@@ -54,7 +54,7 @@ struct RunicTransliteratorTests {
     func elderFutharkCaseInsensitive() {
         #expect(
             RunicTransliterator.transliterate("fortune", to: .elder) ==
-                RunicTransliterator.transliterate("FORTUNE", to: .elder)
+                RunicTransliterator.transliterate("FORTUNE", to: .elder),
         )
     }
 

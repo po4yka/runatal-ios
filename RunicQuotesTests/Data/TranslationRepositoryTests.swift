@@ -5,9 +5,9 @@
 //  Created by Claude on 13.03.26.
 //
 
+@testable import RunicQuotes
 import SwiftData
 import Testing
-@testable import RunicQuotes
 
 @Suite(.serialized, .tags(.repository))
 struct TranslationRepositoryTests {
@@ -22,13 +22,13 @@ struct TranslationRepositoryTests {
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: nil
+            storedRunic: nil,
         )
         let result = HistoricalTranslationService().translate(
             text: quote.textLatin,
             script: .younger,
             fidelity: .strict,
-            youngerVariant: .longBranch
+            youngerVariant: .longBranch,
         )
 
         try translationRepository.cache(result: result, for: quote.id, sourceText: quote.textLatin)
@@ -52,12 +52,12 @@ struct TranslationRepositoryTests {
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: nil
+            storedRunic: nil,
         )
         let result = HistoricalTranslationService().translate(
             text: quote.textLatin,
             script: .elder,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         try translationRepository.cache(result: result, for: quote.id, sourceText: quote.textLatin)

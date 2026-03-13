@@ -5,46 +5,46 @@
 //  Created by Claude on 13.03.26.
 //
 
-import TipKit
-import Testing
 @testable import RunicQuotes
+import Testing
+import TipKit
 
 @MainActor
 @Suite(.serialized, .tags(.utility))
 struct FeatureDiscoveryControllerTests {
     @Test
-    func testingModeReturnsLiveByDefault() {
+    func ingModeReturnsLiveByDefault() {
         #expect(FeatureDiscoveryController.testingMode(for: [:]) == .live)
     }
 
     @Test
-    func testingModeReturnsHiddenForUITesting() {
+    func ingModeReturnsHiddenForUITesting() {
         #expect(FeatureDiscoveryController.testingMode(for: ["UI_TESTING": "1"]) == .hidden)
     }
 
     @Test
-    func testingModePrefersShowAllOverride() {
+    func ingModePrefersShowAllOverride() {
         #expect(
             FeatureDiscoveryController.testingMode(for: [
                 "UI_TESTING": "1",
-                "TIPKIT_SHOW_ALL": "1"
-            ]) == .showAll
+                "TIPKIT_SHOW_ALL": "1",
+            ]) == .showAll,
         )
     }
 
     @Test
-    func testingModeAllowsLiveTipsDuringUITestingWhenRequested() {
+    func ingModeAllowsLiveTipsDuringUITestingWhenRequested() {
         #expect(
             FeatureDiscoveryController.testingMode(for: [
                 "UI_TESTING": "1",
-                "TIPKIT_LIVE": "1"
-            ]) == .live
+                "TIPKIT_LIVE": "1",
+            ]) == .live,
         )
     }
 
     @Test
     func replayTipsUpdatesRefreshIDAndPreservesEligibilityParameters() throws {
-        try resetTipKitState()
+        try self.resetTipKitState()
         defer { resetTipKitStateSilently() }
 
         let controller = FeatureDiscoveryController()
@@ -76,7 +76,7 @@ struct FeatureDiscoveryControllerTests {
 
     @Test
     func replayTipsResetsHomeTestingSequence() throws {
-        try resetTipKitState()
+        try self.resetTipKitState()
         defer { resetTipKitStateSilently() }
 
         let controller = FeatureDiscoveryController()

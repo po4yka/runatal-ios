@@ -1,14 +1,14 @@
 //
 //  DatabaseCoordinatorTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
+@testable import RunicQuotes
 import SwiftData
 import Testing
-@testable import RunicQuotes
 
 @Suite(.serialized, .tags(.actors))
 struct DatabaseCoordinatorTests {
@@ -23,7 +23,7 @@ struct DatabaseCoordinatorTests {
                 quoteRepository.recordFactoryUse()
                 return quoteRepository
             },
-            translationRepositoryFactory: { _, _ in translationRepository }
+            translationRepositoryFactory: { _, _ in translationRepository },
         )
 
         async let firstSeed: Void = coordinator.seedIfNeeded()
@@ -45,7 +45,7 @@ struct DatabaseCoordinatorTests {
                 quoteRepository.recordFactoryUse()
                 return quoteRepository
             },
-            translationRepositoryFactory: { _, _ in translationRepository }
+            translationRepositoryFactory: { _, _ in translationRepository },
         )
 
         await coordinator.purgeExpiredQuotes()
@@ -62,7 +62,7 @@ struct DatabaseCoordinatorTests {
         let coordinator = DatabaseCoordinator(
             modelContainer: container,
             quoteRepositoryFactory: { _, _ in quoteRepository },
-            translationRepositoryFactory: { _, _ in translationRepository }
+            translationRepositoryFactory: { _, _ in translationRepository },
         )
 
         await coordinator.backfillTranslations()
@@ -89,26 +89,26 @@ private final class DatabaseQuoteRepositorySpy: DatabaseQuoteRepository, @unchec
     }
 
     func recordFactoryUse() {
-        lock.lock()
-        factoryUseCount += 1
-        lock.unlock()
+        self.lock.lock()
+        self.factoryUseCount += 1
+        self.lock.unlock()
     }
 
     func seedIfNeeded() throws {
-        lock.lock()
-        seedCallCount += 1
-        lock.unlock()
+        self.lock.lock()
+        self.seedCallCount += 1
+        self.lock.unlock()
 
-        if seedDelay > 0 {
-            Thread.sleep(forTimeInterval: seedDelay)
+        if self.seedDelay > 0 {
+            Thread.sleep(forTimeInterval: self.seedDelay)
         }
     }
 
     func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int {
-        lock.lock()
-        purgeCallCount += 1
-        lastCutoffDate = cutoffDate
-        lock.unlock()
+        self.lock.lock()
+        self.purgeCallCount += 1
+        self.lastCutoffDate = cutoffDate
+        self.lock.unlock()
         return 2
     }
 }
@@ -118,8 +118,8 @@ private final class DatabaseTranslationRepositorySpy: DatabaseTranslationReposit
     private(set) var backfillCallCount = 0
 
     func backfillAllQuotes() throws {
-        lock.lock()
-        backfillCallCount += 1
-        lock.unlock()
+        self.lock.lock()
+        self.backfillCallCount += 1
+        self.lock.unlock()
     }
 }

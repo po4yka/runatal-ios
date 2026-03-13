@@ -33,6 +33,7 @@ struct RunicQuotesApp: App {
 
     init() {
         registerProviderFactories()
+        UITestPersistentStoreConfigurator.prepareIfNeeded()
         let featureDiscoveryController = FeatureDiscoveryController()
         self.featureDiscoveryController = featureDiscoveryController
 
@@ -101,6 +102,7 @@ struct RunicQuotesApp: App {
                                 .font(.caption)
                                 .foregroundStyle(.white)
                         }
+                        .accessibilityIdentifier("database_error_banner")
                         .padding()
                         .background(Color.black.opacity(0.8))
                         .clipShape(.rect(cornerRadius: 8))
@@ -170,7 +172,7 @@ struct RunicQuotesApp: App {
                 object: nil,
                 userInfo: [
                     "script": script,
-                    "mode": mode
+                    "mode": mode,
                 ],
             )
         case "settings":

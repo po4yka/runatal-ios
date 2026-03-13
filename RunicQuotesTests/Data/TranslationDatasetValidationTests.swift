@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import Testing
 @testable import RunicQuotes
+import Testing
 
 @Suite(.tags(.dataset))
 struct TranslationDatasetValidationTests {
@@ -15,7 +15,7 @@ struct TranslationDatasetValidationTests {
 
     @Test
     func datasetManifestDeclaresSourceOfTruthPackage() {
-        let manifest = provider.datasetManifest()
+        let manifest = self.provider.datasetManifest()
 
         #expect(manifest.version == "2026.03-curated-v3")
         #expect(manifest.sourceOfTruthPackage == "TranslationCuration/translation-curation-v1")
@@ -23,7 +23,7 @@ struct TranslationDatasetValidationTests {
 
     @Test
     func sourceManifestEntriesHaveLicenseNotesAndValidURLs() {
-        for source in provider.sourceManifest().sources {
+        for source in self.provider.sourceManifest().sources {
             #expect(!(source.licenseNote ?? "").isEmpty)
             #expect(URL(string: source.url) != nil)
         }
@@ -31,8 +31,8 @@ struct TranslationDatasetValidationTests {
 
     @Test
     func strictEntriesHaveStableIDsAndCitations() {
-        let oldNorse = provider.oldNorseLexicon()
-        let protoNorse = provider.protoNorseLexicon()
+        let oldNorse = self.provider.oldNorseLexicon()
+        let protoNorse = self.provider.protoNorseLexicon()
 
         #expect(Set(oldNorse.map(\.id)).count == oldNorse.count)
         #expect(Set(protoNorse.map(\.id)).count == protoNorse.count)
@@ -50,7 +50,7 @@ struct TranslationDatasetValidationTests {
 
     @Test
     func onpEntriesExposeLemmaAuthorityIdentifiers() {
-        let onpEntries = provider.oldNorseLexicon().filter { $0.sourceID == "onp" }
+        let onpEntries = self.provider.oldNorseLexicon().filter { $0.sourceID == "onp" }
 
         #expect(!onpEntries.isEmpty)
         #expect(onpEntries.allSatisfy { ($0.lemmaAuthorityID ?? "").hasPrefix("ONP:") })
@@ -59,7 +59,7 @@ struct TranslationDatasetValidationTests {
     @Test
     func goldCorpusBenchmarksReferenceKnownAttestationIDs() {
         let referenceIDs = Set(provider.runicCorpusReferences().map(\.id))
-        let goldCorpus = provider.goldCorpus()
+        let goldCorpus = self.provider.goldCorpus()
 
         #expect(!goldCorpus.benchmarks.isEmpty)
 

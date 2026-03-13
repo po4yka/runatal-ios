@@ -1,13 +1,13 @@
 //
 //  QuoteTimelineProviderTests.swift
-//  RunicQuotesWidgetTests
+//  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.10.25.
 //
 
 import Foundation
-import Testing
 @testable import RunicQuotes
+import Testing
 
 /// Widget extension binaries do not export symbols for direct unit testing, so these tests
 /// validate the shared RunicQuotes types that power widget behaviour.
@@ -49,7 +49,7 @@ struct QuoteTimelineProviderTests {
             author: "Virgil",
             runicElder: "ᚠᛟᚱᛏᚢᚾᛖ",
             runicYounger: nil,
-            runicCirth: nil
+            runicCirth: nil,
         )
 
         #expect(parsed == .openQuote(script: .elder, mode: .daily))

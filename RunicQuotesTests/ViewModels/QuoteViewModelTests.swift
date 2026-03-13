@@ -5,9 +5,9 @@
 //  Created by Claude on 30.10.25.
 //
 
+@testable import RunicQuotes
 import SwiftData
 import Testing
-@testable import RunicQuotes
 
 @MainActor
 @Suite(.serialized, .tags(.viewModel))
@@ -24,17 +24,17 @@ struct QuoteViewModelTests {
 
     @Test
     func defaultScript() throws {
-        #expect(try makeViewModel().state.currentScript == .elder)
+        #expect(try self.makeViewModel().state.currentScript == .elder)
     }
 
     @Test
     func defaultFont() throws {
-        #expect(try makeViewModel().state.currentFont == .noto)
+        #expect(try self.makeViewModel().state.currentFont == .noto)
     }
 
     @Test
     func defaultCollection() throws {
-        #expect(try makeViewModel().state.currentCollection == .all)
+        #expect(try self.makeViewModel().state.currentCollection == .all)
     }
 
     @Test
@@ -175,7 +175,7 @@ struct QuoteViewModelTests {
 
         viewModel.onOpenQuoteDeepLink(
             scriptRaw: RunicScript.younger.rawValue,
-            modeRaw: WidgetMode.random.rawValue
+            modeRaw: WidgetMode.random.rawValue,
         )
 
         #expect(await TestSupport.eventually {
@@ -264,10 +264,10 @@ struct QuoteViewModelTests {
                 provenance: [],
                 tokenBreakdown: [],
                 engineVersion: "test-engine",
-                datasetVersion: "test-dataset"
+                datasetVersion: "test-dataset",
             ),
             for: quoteID,
-            sourceText: viewModel.state.latinText
+            sourceText: viewModel.state.latinText,
         )
 
         viewModel.onTranslationCacheUpdated(for: quoteID)
@@ -278,7 +278,7 @@ struct QuoteViewModelTests {
     }
 
     private func makeViewModel(seedData: Bool = true) throws -> QuoteViewModel {
-        try makeViewModelWithContext(seedData: seedData).0
+        try self.makeViewModelWithContext(seedData: seedData).0
     }
 
     private func makeViewModelWithContext(seedData: Bool = true) throws -> (QuoteViewModel, ModelContext) {
@@ -294,13 +294,13 @@ struct QuoteViewModelTests {
                 quoteProvider: QuoteProvider(
                     repository: SwiftDataQuoteRepository(
                         modelContext: context,
-                        translationCacheRepository: translationRepository
-                    )
+                        translationCacheRepository: translationRepository,
+                    ),
                 ),
                 translationProvider: TranslationProvider(repository: translationRepository),
-                preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context)
+                preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context),
             ),
-            context
+            context,
         )
     }
 }

@@ -1,21 +1,21 @@
 //
 //  QuoteCollectionTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-02-13.
+//  Created by Claude on 13.02.26.
 //
 
-import Testing
 @testable import RunicQuotes
+import Testing
 
 @Suite(.tags(.model))
 struct QuoteCollectionTests {
     @Test
     func containsUsesExplicitQuoteCollectionTag() {
-        let quote = makeRecord(
+        let quote = self.makeRecord(
             text: "Wisdom is welcome wherever it comes from.",
             author: "Old English Proverb",
-            collection: .stoic
+            collection: .stoic,
         )
 
         #expect(QuoteCollection.stoic.contains(quote))
@@ -25,10 +25,10 @@ struct QuoteCollectionTests {
 
     @Test
     func allCollectionContainsAnyQuote() {
-        let quote = makeRecord(
+        let quote = self.makeRecord(
             text: "Fortune favors the bold.",
             author: "Virgil",
-            collection: .stoic
+            collection: .stoic,
         )
 
         #expect(QuoteCollection.all.contains(quote))
@@ -45,7 +45,7 @@ struct QuoteCollectionTests {
     @Test(arguments: [
         ("Motivation", QuoteCollection.motivation),
         ("Stoic", QuoteCollection.stoic),
-        ("Tolkien", QuoteCollection.tolkien)
+        ("Tolkien", QuoteCollection.tolkien),
     ])
     func quoteCollectionRawValuesDecodeFromSeedTags(rawValue: String, expected: QuoteCollection) {
         #expect(QuoteCollection(rawValue: rawValue) == expected)

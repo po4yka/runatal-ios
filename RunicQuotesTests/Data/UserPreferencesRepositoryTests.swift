@@ -1,14 +1,14 @@
 //
 //  UserPreferencesRepositoryTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
+@testable import RunicQuotes
 import SwiftData
 import Testing
-@testable import RunicQuotes
 
 @Suite(.serialized, .tags(.repository))
 struct UserPreferencesRepositoryTests {

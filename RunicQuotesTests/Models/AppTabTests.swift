@@ -1,13 +1,13 @@
 //
 //  AppTabTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
+@testable import RunicQuotes
 import SwiftUI
 import Testing
-@testable import RunicQuotes
 
 @Suite(.tags(.model))
 struct AppTabTests {
