@@ -2,7 +2,7 @@
 //  TranslationRecord.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -62,7 +62,7 @@ final class TranslationRecord {
         engineVersion: String,
         datasetVersion: String,
         createdAt: Date,
-        updatedAt: Date
+        updatedAt: Date,
     ) {
         self.cacheKey = cacheKey
         self.quoteID = quoteID
@@ -101,7 +101,7 @@ extension TranslationRecord {
                 fidelity: result.fidelity,
                 requestedVariant: result.requestedVariant,
                 engineVersion: result.engineVersion,
-                datasetVersion: result.datasetVersion
+                datasetVersion: result.datasetVersion,
             ),
             quoteID: quoteID,
             scriptRaw: result.script.rawValue,
@@ -126,48 +126,48 @@ extension TranslationRecord {
             engineVersion: result.engineVersion,
             datasetVersion: result.datasetVersion,
             createdAt: result.createdAt,
-            updatedAt: result.updatedAt
+            updatedAt: result.updatedAt,
         )
     }
 
     var script: RunicScript {
-        RunicScript(rawValue: scriptRaw) ?? .elder
+        RunicScript(rawValue: self.scriptRaw) ?? .elder
     }
 
     var fidelity: TranslationFidelity {
-        TranslationFidelity(rawValue: fidelityRaw) ?? .strict
+        TranslationFidelity(rawValue: self.fidelityRaw) ?? .strict
     }
 
     var requestedVariant: YoungerFutharkVariant? {
-        requestedVariantRaw.flatMap(YoungerFutharkVariant.init(rawValue:))
+        self.requestedVariantRaw.flatMap(YoungerFutharkVariant.init(rawValue:))
     }
 
     var result: TranslationResult {
         TranslationResult(
             sourceText: "",
-            script: script,
-            fidelity: fidelity,
-            derivationKind: TranslationDerivationKind(rawValue: derivationKindRaw) ?? .tokenComposed,
-            historicalStage: HistoricalStage(rawValue: historicalStageRaw) ?? .modernEnglish,
-            normalizedForm: normalizedForm,
-            diplomaticForm: diplomaticForm,
-            glyphOutput: glyphOutput,
-            requestedVariant: requestedVariantRaw,
-            resolutionStatus: TranslationResolutionStatus(rawValue: resolutionStatusRaw) ?? .unavailable,
-            supportLevel: TranslationSupportLevel(rawValue: supportLevelRaw) ?? .unsupported,
-            evidenceTier: TranslationEvidenceTier(rawValue: evidenceTierRaw) ?? .unsupported,
-            confidence: confidence,
-            notes: Self.decode([String].self, from: notesData),
-            unresolvedTokens: Self.decode([String].self, from: unresolvedTokensData),
-            provenance: Self.decode([TranslationProvenanceEntry].self, from: provenanceData),
-            tokenBreakdown: Self.decode([TranslationTokenBreakdown].self, from: tokenBreakdownData),
-            attestationRefs: Self.decode([String].self, from: attestationRefsData),
-            inputLanguage: TranslationSourceLanguage(rawValue: inputLanguageRaw) ?? .english,
-            userFacingWarnings: Self.decode([String].self, from: userFacingWarningsData),
-            engineVersion: engineVersion,
-            datasetVersion: datasetVersion,
-            createdAt: createdAt,
-            updatedAt: updatedAt
+            script: self.script,
+            fidelity: self.fidelity,
+            derivationKind: TranslationDerivationKind(rawValue: self.derivationKindRaw) ?? .tokenComposed,
+            historicalStage: HistoricalStage(rawValue: self.historicalStageRaw) ?? .modernEnglish,
+            normalizedForm: self.normalizedForm,
+            diplomaticForm: self.diplomaticForm,
+            glyphOutput: self.glyphOutput,
+            requestedVariant: self.requestedVariantRaw,
+            resolutionStatus: TranslationResolutionStatus(rawValue: self.resolutionStatusRaw) ?? .unavailable,
+            supportLevel: TranslationSupportLevel(rawValue: self.supportLevelRaw) ?? .unsupported,
+            evidenceTier: TranslationEvidenceTier(rawValue: self.evidenceTierRaw) ?? .unsupported,
+            confidence: self.confidence,
+            notes: Self.decode([String].self, from: self.notesData),
+            unresolvedTokens: Self.decode([String].self, from: self.unresolvedTokensData),
+            provenance: Self.decode([TranslationProvenanceEntry].self, from: self.provenanceData),
+            tokenBreakdown: Self.decode([TranslationTokenBreakdown].self, from: self.tokenBreakdownData),
+            attestationRefs: Self.decode([String].self, from: self.attestationRefsData),
+            inputLanguage: TranslationSourceLanguage(rawValue: self.inputLanguageRaw) ?? .english,
+            userFacingWarnings: Self.decode([String].self, from: self.userFacingWarningsData),
+            engineVersion: self.engineVersion,
+            datasetVersion: self.datasetVersion,
+            createdAt: self.createdAt,
+            updatedAt: self.updatedAt,
         )
     }
 
@@ -178,7 +178,7 @@ extension TranslationRecord {
         fidelity: TranslationFidelity,
         requestedVariant: String?,
         engineVersion: String,
-        datasetVersion: String
+        datasetVersion: String,
     ) -> String {
         [
             quoteID.uuidString.lowercased(),
@@ -186,11 +186,11 @@ extension TranslationRecord {
             fidelity.rawValue,
             requestedVariant ?? "NONE",
             engineVersion,
-            datasetVersion
+            datasetVersion,
         ].joined(separator: "|")
     }
 
-    private static func encode<T: Encodable>(_ value: T) -> Data {
+    private static func encode(_ value: some Encodable) -> Data {
         (try? JSONEncoder().encode(value)) ?? Data("[]".utf8)
     }
 

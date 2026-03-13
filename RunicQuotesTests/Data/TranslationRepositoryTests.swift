@@ -1,13 +1,13 @@
 //
 //  TranslationRepositoryTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
+@testable import RunicQuotes
 import SwiftData
 import XCTest
-@testable import RunicQuotes
 
 final class TranslationRepositoryTests: XCTestCase {
     private var modelContainer: ModelContainer?
@@ -19,18 +19,18 @@ final class TranslationRepositoryTests: XCTestCase {
         let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: config)
-        modelContainer = container
+        self.modelContainer = container
         let context = ModelContext(container)
-        modelContext = context
-        quoteRepository = SwiftDataQuoteRepository(modelContext: context)
-        translationRepository = SwiftDataTranslationRepository(modelContext: context)
+        self.modelContext = context
+        self.quoteRepository = SwiftDataQuoteRepository(modelContext: context)
+        self.translationRepository = SwiftDataTranslationRepository(modelContext: context)
     }
 
     override func tearDownWithError() throws {
-        modelContainer = nil
-        modelContext = nil
-        quoteRepository = nil
-        translationRepository = nil
+        self.modelContainer = nil
+        self.modelContext = nil
+        self.quoteRepository = nil
+        self.translationRepository = nil
     }
 
     func testCacheAndLatestTranslationRoundTrip() throws {
@@ -39,16 +39,16 @@ final class TranslationRepositoryTests: XCTestCase {
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: nil
+            storedRunic: nil,
         )
         let result = HistoricalTranslationService().translate(
             text: quote.textLatin,
             script: .younger,
             fidelity: .strict,
-            youngerVariant: .longBranch
+            youngerVariant: .longBranch,
         )
 
-        try XCTUnwrap(translationRepository).cache(result: result, for: quote.id, sourceText: quote.textLatin)
+        try XCTUnwrap(self.translationRepository).cache(result: result, for: quote.id, sourceText: quote.textLatin)
         let cached = try XCTUnwrap(try XCTUnwrap(translationRepository).latestTranslation(for: quote.id, script: .younger))
 
         XCTAssertEqual(cached.glyphOutput, result.glyphOutput)
@@ -64,19 +64,19 @@ final class TranslationRepositoryTests: XCTestCase {
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: nil
+            storedRunic: nil,
         )
         let result = HistoricalTranslationService().translate(
             text: quote.textLatin,
             script: .elder,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
-        try XCTUnwrap(translationRepository).cache(result: result, for: quote.id, sourceText: quote.textLatin)
-        XCTAssertNotNil(try XCTUnwrap(translationRepository).latestTranslation(for: quote.id, script: .elder))
+        try XCTUnwrap(self.translationRepository).cache(result: result, for: quote.id, sourceText: quote.textLatin)
+        XCTAssertNotNil(try XCTUnwrap(self.translationRepository).latestTranslation(for: quote.id, script: .elder))
 
-        try XCTUnwrap(translationRepository).deleteTranslations(for: quote.id)
+        try XCTUnwrap(self.translationRepository).deleteTranslations(for: quote.id)
 
-        XCTAssertNil(try XCTUnwrap(translationRepository).latestTranslation(for: quote.id, script: .elder))
+        XCTAssertNil(try XCTUnwrap(self.translationRepository).latestTranslation(for: quote.id, script: .elder))
     }
 }

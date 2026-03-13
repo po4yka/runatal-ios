@@ -2,7 +2,7 @@
 //  TranslationSupplementarySectionsView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -13,52 +13,54 @@ struct TranslationSupplementarySectionsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
-            if state.translationMode == .translate,
-               state.normalizedForm != nil || state.diplomaticForm != nil {
-                layersCard
+            if self.state.translationMode == .translate,
+               self.state.normalizedForm != nil || self.state.diplomaticForm != nil
+            {
+                self.layersCard
             }
 
-            if state.translationMode == .translate,
-               !state.notes.isEmpty ||
-                !state.unresolvedTokens.isEmpty ||
-                state.derivationKind != nil ||
-                state.supportLevel != nil ||
-                state.evidenceTier != nil ||
-                !state.attestationRefs.isEmpty ||
-                !state.userFacingWarnings.isEmpty {
-                notesCard
+            if self.state.translationMode == .translate,
+               !self.state.notes.isEmpty ||
+               !self.state.unresolvedTokens.isEmpty ||
+               self.state.derivationKind != nil ||
+               self.state.supportLevel != nil ||
+               self.state.evidenceTier != nil ||
+               !self.state.attestationRefs.isEmpty ||
+               !self.state.userFacingWarnings.isEmpty
+            {
+                self.notesCard
             }
 
-            if state.translationMode == .translate, !state.provenance.isEmpty {
-                provenanceCard
+            if self.state.translationMode == .translate, !self.state.provenance.isEmpty {
+                self.provenanceCard
             }
 
-            if state.isWordByWordEnabled, !state.tokenBreakdown.isEmpty {
-                breakdownCard
+            if self.state.isWordByWordEnabled, !self.state.tokenBreakdown.isEmpty {
+                self.breakdownCard
             }
         }
     }
 
     private var layersCard: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.low
+            shadowRadius: DesignTokens.Elevation.low,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SectionLabel(title: "Layers", palette: palette)
+                SectionLabel(title: "Layers", palette: self.palette)
 
                 Text("Language layers")
                     .font(DesignTokens.Typography.sectionTitle)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
                 if let normalized = state.normalizedForm {
-                    labelValueRow(title: "Normalized", value: normalized)
+                    self.labelValueRow(title: "Normalized", value: normalized)
                 }
 
                 if let diplomatic = state.diplomaticForm {
-                    labelValueRow(title: "Diplomatic", value: diplomatic)
+                    self.labelValueRow(title: "Diplomatic", value: diplomatic)
                 }
             }
         }
@@ -66,65 +68,65 @@ struct TranslationSupplementarySectionsView: View {
 
     private var notesCard: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.low
+            shadowRadius: DesignTokens.Elevation.low,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SectionLabel(title: "Notes", palette: palette)
+                SectionLabel(title: "Notes", palette: self.palette)
 
                 if let derivationKind = state.derivationKind {
-                    labelValueRow(title: "Derivation", value: derivationKind.displayName)
+                    self.labelValueRow(title: "Derivation", value: derivationKind.displayName)
                 }
 
                 if let supportLevel = state.supportLevel {
-                    labelValueRow(title: "Support", value: supportLevel.displayName)
+                    self.labelValueRow(title: "Support", value: supportLevel.displayName)
                 }
 
                 if let evidenceTier = state.evidenceTier {
-                    labelValueRow(title: "Evidence", value: evidenceTier.displayName)
+                    self.labelValueRow(title: "Evidence", value: evidenceTier.displayName)
                 }
 
-                if !state.notes.isEmpty {
+                if !self.state.notes.isEmpty {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                         Text("Reading notes")
                             .font(DesignTokens.Typography.bodyEmphasis)
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
 
-                        ForEach(state.notes, id: \.self) { note in
+                        ForEach(self.state.notes, id: \.self) { note in
                             Text(note)
                                 .font(DesignTokens.Typography.callout)
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(self.palette.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
 
-                if !state.unresolvedTokens.isEmpty {
-                    labelValueRow(
+                if !self.state.unresolvedTokens.isEmpty {
+                    self.labelValueRow(
                         title: "Unresolved tokens",
-                        value: state.unresolvedTokens.joined(separator: ", ")
+                        value: self.state.unresolvedTokens.joined(separator: ", "),
                     )
                 }
 
-                if !state.attestationRefs.isEmpty {
-                    labelValueRow(
+                if !self.state.attestationRefs.isEmpty {
+                    self.labelValueRow(
                         title: "Attestation refs",
-                        value: state.attestationRefs.joined(separator: ", ")
+                        value: self.state.attestationRefs.joined(separator: ", "),
                     )
                 }
 
-                if !state.userFacingWarnings.isEmpty {
+                if !self.state.userFacingWarnings.isEmpty {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                         Text("Support notes")
                             .font(DesignTokens.Typography.bodyEmphasis)
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
 
-                        ForEach(state.userFacingWarnings, id: \.self) { warning in
+                        ForEach(self.state.userFacingWarnings, id: \.self) { warning in
                             Text(warning)
                                 .font(DesignTokens.Typography.callout)
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(self.palette.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -135,42 +137,42 @@ struct TranslationSupplementarySectionsView: View {
 
     private var provenanceCard: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.low
+            shadowRadius: DesignTokens.Elevation.low,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SectionLabel(title: "Evidence", palette: palette)
+                SectionLabel(title: "Evidence", palette: self.palette)
 
                 Text("Provenance")
                     .font(DesignTokens.Typography.sectionTitle)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
-                ForEach(Array(state.provenance.enumerated()), id: \.offset) { index, entry in
+                ForEach(Array(self.state.provenance.enumerated()), id: \.offset) { index, entry in
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                         HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                                 Text(entry.label)
                                     .font(DesignTokens.Typography.bodyEmphasis)
-                                    .foregroundStyle(palette.textPrimary)
+                                    .foregroundStyle(self.palette.textPrimary)
 
                                 Text(entry.role)
                                     .font(DesignTokens.Typography.metadata)
-                                    .foregroundStyle(palette.textSecondary)
+                                    .foregroundStyle(self.palette.textSecondary)
                             }
 
                             Spacer()
 
                             Text(entry.license)
                                 .font(DesignTokens.Typography.metadata)
-                                .foregroundStyle(palette.textTertiary)
+                                .foregroundStyle(self.palette.textTertiary)
                         }
 
                         if let detail = entry.detail {
                             Text(detail)
                                 .font(DesignTokens.Typography.callout)
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(self.palette.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
@@ -178,14 +180,14 @@ struct TranslationSupplementarySectionsView: View {
                             Link(destination: resolvedURL) {
                                 Text(url)
                                     .font(DesignTokens.Typography.metadata)
-                                    .foregroundStyle(palette.accent)
+                                    .foregroundStyle(self.palette.accent)
                                     .lineLimit(1)
                             }
                         }
 
-                        if index < state.provenance.count - 1 {
+                        if index < self.state.provenance.count - 1 {
                             Divider()
-                                .overlay(palette.contentStroke.opacity(0.6))
+                                .overlay(self.palette.contentStroke.opacity(0.6))
                         }
                     }
                 }
@@ -195,30 +197,30 @@ struct TranslationSupplementarySectionsView: View {
 
     private var breakdownCard: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .secondary,
             cornerRadius: DesignTokens.CornerRadius.xxl,
-            shadowRadius: DesignTokens.Elevation.low
+            shadowRadius: DesignTokens.Elevation.low,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                SectionLabel(title: "Breakdown", palette: palette)
+                SectionLabel(title: "Breakdown", palette: self.palette)
 
-                Text(state.translationMode == .translate ? "Token breakdown" : "Character breakdown")
+                Text(self.state.translationMode == .translate ? "Token breakdown" : "Character breakdown")
                     .font(DesignTokens.Typography.sectionTitle)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
 
-                ForEach(Array(state.tokenBreakdown.enumerated()), id: \.element.id) { index, token in
+                ForEach(Array(self.state.tokenBreakdown.enumerated()), id: \.element.id) { index, token in
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                         HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                                 Text(token.sourceToken)
                                     .font(DesignTokens.Typography.bodyEmphasis)
-                                    .foregroundStyle(palette.textPrimary)
+                                    .foregroundStyle(self.palette.textPrimary)
 
-                                if state.translationMode == .translate {
+                                if self.state.translationMode == .translate {
                                     Text(token.resolutionStatus.displayName)
                                         .font(DesignTokens.Typography.metadata)
-                                        .foregroundStyle(palette.textTertiary)
+                                        .foregroundStyle(self.palette.textTertiary)
                                 }
                             }
 
@@ -226,28 +228,28 @@ struct TranslationSupplementarySectionsView: View {
 
                             Text(token.glyphToken)
                                 .runicTextStyle(
-                                    script: state.selectedScript,
-                                    font: state.selectedFont,
+                                    script: self.state.selectedScript,
+                                    font: self.state.selectedFont,
                                     style: .title3,
                                     minSize: 20,
-                                    maxSize: 40
+                                    maxSize: 40,
                                 )
-                                .foregroundStyle(palette.textPrimary)
+                                .foregroundStyle(self.palette.textPrimary)
                         }
 
-                        if state.translationMode == .translate {
+                        if self.state.translationMode == .translate {
                             Text("Normalized: \(token.normalizedToken)")
                                 .font(DesignTokens.Typography.metadata)
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(self.palette.textSecondary)
 
                             Text("Diplomatic: \(token.diplomaticToken)")
                                 .font(DesignTokens.Typography.metadata)
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(self.palette.textSecondary)
                         }
 
-                        if index < state.tokenBreakdown.count - 1 {
+                        if index < self.state.tokenBreakdown.count - 1 {
                             Divider()
-                                .overlay(palette.contentStroke.opacity(0.6))
+                                .overlay(self.palette.contentStroke.opacity(0.6))
                         }
                     }
                 }
@@ -259,11 +261,11 @@ struct TranslationSupplementarySectionsView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
             Text(title)
                 .font(DesignTokens.Typography.bodyEmphasis)
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(self.palette.textPrimary)
 
             Text(value)
                 .font(DesignTokens.Typography.callout)
-                .foregroundStyle(palette.textSecondary)
+                .foregroundStyle(self.palette.textSecondary)
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
         }

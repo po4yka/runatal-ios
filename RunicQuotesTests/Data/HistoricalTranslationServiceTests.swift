@@ -1,21 +1,21 @@
 //
 //  HistoricalTranslationServiceTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
-import XCTest
 @testable import RunicQuotes
+import XCTest
 
 final class HistoricalTranslationServiceTests: XCTestCase {
     private let service = HistoricalTranslationService()
 
     func testStrictYoungerTranslationUsesCuratedGoldExample() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "The wolf hunts at night",
             script: .younger,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         XCTAssertEqual(result.derivationKind, .goldExample)
@@ -26,10 +26,10 @@ final class HistoricalTranslationServiceTests: XCTestCase {
     }
 
     func testStrictElderTranslationReturnsUnavailableForUnsupportedWords() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "signal",
             script: .elder,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         XCTAssertEqual(result.resolutionStatus, .unavailable)
@@ -38,10 +38,10 @@ final class HistoricalTranslationServiceTests: XCTestCase {
     }
 
     func testCirthPhraseMappingIsPreferredWhenCurated() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "Under the mountain",
             script: .cirth,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         XCTAssertEqual(result.derivationKind, .phraseTemplate)
@@ -51,17 +51,17 @@ final class HistoricalTranslationServiceTests: XCTestCase {
     }
 
     func testYoungerVariantChangesGlyphsOnly() {
-        let longBranch = service.translate(
+        let longBranch = self.service.translate(
             text: "king night",
             script: .younger,
             fidelity: .strict,
-            youngerVariant: .longBranch
+            youngerVariant: .longBranch,
         )
-        let shortTwig = service.translate(
+        let shortTwig = self.service.translate(
             text: "king night",
             script: .younger,
             fidelity: .strict,
-            youngerVariant: .shortTwig
+            youngerVariant: .shortTwig,
         )
 
         XCTAssertEqual(longBranch.normalizedForm, shortTwig.normalizedForm)
@@ -70,10 +70,10 @@ final class HistoricalTranslationServiceTests: XCTestCase {
     }
 
     func testUnsupportedLanguageRejectsWithGuidance() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "волк ночью",
             script: .younger,
-            fidelity: .strict
+            fidelity: .strict,
         )
 
         XCTAssertEqual(result.supportLevel, .unsupported)
@@ -83,10 +83,10 @@ final class HistoricalTranslationServiceTests: XCTestCase {
     }
 
     func testReadableYoungerHandlesNegationAndCopula() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "He is not lost",
             script: .younger,
-            fidelity: .readable
+            fidelity: .readable,
         )
 
         XCTAssertTrue(result.isAvailable)
@@ -95,10 +95,10 @@ final class HistoricalTranslationServiceTests: XCTestCase {
     }
 
     func testReadableYoungerMergesConfiguredMultiwordExpression() {
-        let result = service.translate(
+        let result = self.service.translate(
             text: "Honor the old ways",
             script: .younger,
-            fidelity: .readable
+            fidelity: .readable,
         )
 
         XCTAssertTrue(result.isAvailable)

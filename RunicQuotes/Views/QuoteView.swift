@@ -2,16 +2,16 @@
 //  QuoteView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 07.10.25.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 #if canImport(AppKit)
-import AppKit
+    import AppKit
 #endif
 
 // swiftlint:disable type_body_length
@@ -29,11 +29,10 @@ struct QuoteView: View {
     @State private var showActionsSheet = false
     @State private var showDeleteConfirmation = false
     @State private var editingQuoteRecord: QuoteRecord?
-    @State private var showCoachMarks = false
-    @AppStorage(AppConstants.featureTourCompletedKey) private var hasCompletedFeatureTour = false
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @EnvironmentObject private var homeAccessoryController: HomeAccessoryController
+    @EnvironmentObject private var featureDiscoveryController: FeatureDiscoveryController
     private let createEditQuoteViewBuilder: CreateEditQuoteViewBuilder
     private let translationViewBuilder: TranslationViewBuilder
 
@@ -42,7 +41,7 @@ struct QuoteView: View {
     init(
         viewModel: QuoteViewModel,
         createEditQuoteViewBuilder: CreateEditQuoteViewBuilder,
-        translationViewBuilder: TranslationViewBuilder
+        translationViewBuilder: TranslationViewBuilder,
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.createEditQuoteViewBuilder = createEditQuoteViewBuilder
@@ -52,193 +51,180 @@ struct QuoteView: View {
     // MARK: - Body
 
     var body: some View {
-        presentedContent
+        self.presentedContent
     }
 
     private var lifecycleAwareContent: some View {
-        rootContent
+        self.rootContent
             .task {
-                guard !didInitialize else { return }
-                didInitialize = true
-                viewModel.onAppear()
+                guard !self.didInitialize else { return }
+                self.didInitialize = true
+                self.viewModel.onAppear()
             }
-            .onChange(of: viewModel.state.isLoading) { _, isLoading in
-                if !isLoading && !hasCompletedFeatureTour && didInitialize {
-                    showCoachMarks = true
-                }
-            }
-            .onChange(of: viewModel.state.currentScript) { _, _ in
-                startScriptMorphTransition()
+            .onChange(of: self.viewModel.state.currentScript) { _, _ in
+                self.startScriptMorphTransition()
             }
             .onReceive(NotificationCenter.default.publisher(for: .preferencesDidChange)) { _ in
-                viewModel.onPreferencesChanged()
+                self.viewModel.onPreferencesChanged()
             }
             .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { notification in
                 let scriptRaw = notification.userInfo?["script"] as? String
                 let modeRaw = notification.userInfo?["mode"] as? String
-                viewModel.onOpenQuoteDeepLink(scriptRaw: scriptRaw, modeRaw: modeRaw)
+                self.viewModel.onOpenQuoteDeepLink(scriptRaw: scriptRaw, modeRaw: modeRaw)
             }
             .onReceive(NotificationCenter.default.publisher(for: .loadNextQuote)) { _ in
-                Haptics.trigger(.newQuote)
-                viewModel.onNextQuoteTapped()
+                self.handleNextQuoteTriggered()
             }
             .onReceive(NotificationCenter.default.publisher(for: .translationCacheUpdated)) { notification in
                 let quoteID = notification.userInfo?["quoteID"] as? UUID
-                viewModel.onTranslationCacheUpdated(for: quoteID)
+                self.viewModel.onTranslationCacheUpdated(for: quoteID)
             }
-            .onChange(of: viewModel.state.currentCollection) { _, _ in
-                syncHomeAccessory()
+            .onChange(of: self.viewModel.state.currentCollection) { _, _ in
+                self.syncHomeAccessory()
             }
-            .onChange(of: viewModel.state.currentScript) { _, _ in
-                syncHomeAccessory()
+            .onChange(of: self.viewModel.state.currentScript) { _, _ in
+                self.syncHomeAccessory()
             }
-            .onChange(of: viewModel.state.latinText) { _, _ in
-                syncHomeAccessory()
+            .onChange(of: self.viewModel.state.latinText) { _, _ in
+                self.syncHomeAccessory()
             }
     }
 
     private var chromeContent: some View {
-        lifecycleAwareContent
+        self.lifecycleAwareContent
             .onDisappear {
-                scriptMorphTask?.cancel()
-                scriptMorphTask = nil
-                homeAccessoryController.hide()
+                self.scriptMorphTask?.cancel()
+                self.scriptMorphTask = nil
+                self.homeAccessoryController.hide()
+                self.featureDiscoveryController.updateHomeQuoteReady(false)
             }
             .navigationTitle("Home")
-#if os(iOS)
+        #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
-#endif
+        #endif
             .toolbar {
                 QuoteToolbar(
-                    currentCollection: viewModel.state.currentCollection,
-                    palette: palette,
+                    currentCollection: self.viewModel.state.currentCollection,
+                    palette: self.palette,
                     createQuote: {
-                        showCreateQuote = true
+                        self.showCreateQuote = true
                     },
                     openTranslation: {
-                        showTranslationView = true
-                    }
+                        self.showTranslationView = true
+                    },
                 )
             }
     }
 
     private var presentedContent: some View {
-        chromeContent
-            .sheet(isPresented: $showShareView) {
+        self.chromeContent
+            .sheet(isPresented: self.$showShareView) {
                 NavigationStack {
                     ShareQuoteView(
-                        runicText: viewModel.state.runicText,
-                        latinText: viewModel.state.latinText,
-                        author: viewModel.state.author,
-                        script: viewModel.state.currentScript,
-                        font: viewModel.state.currentFont,
-                        presentationSource: viewModel.state.runicPresentationSource,
-                        evidenceTier: viewModel.state.runicEvidenceTier,
-                        primarySourceLabel: viewModel.state.runicPrimarySourceLabel
+                        runicText: self.viewModel.state.runicText,
+                        latinText: self.viewModel.state.latinText,
+                        author: self.viewModel.state.author,
+                        script: self.viewModel.state.currentScript,
+                        font: self.viewModel.state.currentFont,
+                        presentationSource: self.viewModel.state.runicPresentationSource,
+                        evidenceTier: self.viewModel.state.runicEvidenceTier,
+                        primarySourceLabel: self.viewModel.state.runicPrimarySourceLabel,
                     )
                 }
             }
-            .sheet(isPresented: $showCreateQuote) {
+            .sheet(isPresented: self.$showCreateQuote) {
                 NavigationStack {
-                    createEditQuoteViewBuilder.makeView(mode: .create, onSaved: { _ in
-                        viewModel.onAppear()
+                    self.createEditQuoteViewBuilder.makeView(mode: .create, onSaved: { _ in
+                        self.viewModel.onAppear()
                     })
                 }
             }
-            .sheet(isPresented: $showTranslationView) {
+            .sheet(isPresented: self.$showTranslationView) {
                 NavigationStack {
-                    translationViewBuilder.makeView()
+                    self.translationViewBuilder.makeView()
                 }
             }
             .confirmationDialog(
                 "Current passage",
-                isPresented: $showActionsSheet,
-                titleVisibility: .visible
+                isPresented: self.$showActionsSheet,
+                titleVisibility: .visible,
             ) {
-                ForEach(availableQuoteActions) { action in
+                ForEach(self.availableQuoteActions) { action in
                     Button(action.title, role: action.isDestructive ? .destructive : nil) {
-                        handleQuoteAction(action)
+                        self.handleQuoteAction(action)
                     }
                 }
             } message: {
                 Text("Choose how this quote should be handled.")
             }
-            .sheet(item: $editingQuoteRecord) { record in
+            .sheet(item: self.$editingQuoteRecord) { record in
                 NavigationStack {
-                    createEditQuoteViewBuilder.makeView(mode: .edit(record), onSaved: { _ in
-                        viewModel.onAppear()
+                    self.createEditQuoteViewBuilder.makeView(mode: .edit(record), onSaved: { _ in
+                        self.viewModel.onAppear()
                     })
                 }
             }
-            .alert("Delete Quote?", isPresented: $showDeleteConfirmation) {
-                Button("Cancel", role: .cancel) { }
+            .alert("Delete Quote?", isPresented: self.$showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) {}
                 Button("Delete", role: .destructive) {
-                    viewModel.deleteCurrentQuote()
+                    self.viewModel.deleteCurrentQuote()
                 }
             } message: {
                 Text("This will move the quote to your archive. You can restore it later from Settings > Archive.")
             }
-            .task(id: viewModel.state.currentQuoteID) {
-                syncHomeAccessory()
+            .task(id: self.viewModel.state.currentQuoteID) {
+                self.syncHomeAccessory()
+                self.featureDiscoveryController.updateHomeQuoteReady(self.viewModel.state.currentQuoteID != nil)
             }
     }
 
-    @ViewBuilder
     private var rootContent: some View {
         ZStack {
             ScreenScaffold(
-                palette: palette,
-                scrollEnabled: !viewModel.state.isLoading && viewModel.state.errorMessage == nil
+                palette: self.palette,
+                scrollEnabled: !self.viewModel.state.isLoading && self.viewModel.state.errorMessage == nil,
             ) {
-                if viewModel.state.isLoading {
-                    QuoteLoadingView(palette: palette)
+                if self.viewModel.state.isLoading {
+                    QuoteLoadingView(palette: self.palette)
                         .frame(maxWidth: .infinity, minHeight: 480, alignment: .center)
                 } else if let error = viewModel.state.errorMessage {
-                    QuoteErrorView(message: error, palette: palette) {
-                        viewModel.refresh()
+                    QuoteErrorView(message: error, palette: self.palette) {
+                        self.viewModel.refresh()
                     }
                     .frame(maxWidth: .infinity, minHeight: 480, alignment: .center)
                 } else {
-                    quoteContentView
+                    self.quoteContentView
                 }
             }
 
-            RunicAtmosphere(script: viewModel.state.currentScript)
+            RunicAtmosphere(script: self.viewModel.state.currentScript)
                 .ignoresSafeArea()
                 .opacity(0.08)
                 .allowsHitTesting(false)
-
-            // Coach marks overlay
-            if showCoachMarks {
-                CoachMarksView {
-                    hasCompletedFeatureTour = true
-                    showCoachMarks = false
-                }
-            }
         }
     }
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
     private var decorativeGlyph: String {
-        switch viewModel.state.currentScript {
-        case .elder: return "\u{16A0}"
-        case .younger: return "\u{16A2}"
-        case .cirth: return "\u{16CB}"
+        switch self.viewModel.state.currentScript {
+        case .elder: "\u{16A0}"
+        case .younger: "\u{16A2}"
+        case .cirth: "\u{16CB}"
         }
     }
 
     private var availableQuoteActions: [QuoteAction] {
         [
             .share,
-            viewModel.state.isCurrentQuoteSaved ? .removeFromFavorites : .addToFavorites,
+            self.viewModel.state.isCurrentQuoteSaved ? .removeFromFavorites : .addToFavorites,
             .addToCollection,
             .copyText,
             .edit,
             .hide,
-            .delete
+            .delete,
         ]
     }
 
@@ -251,40 +237,39 @@ struct QuoteView: View {
                 title: "Reading",
                 subtitle: "One passage, one quiet focal point.",
                 meta: [
-                    viewModel.state.currentCollection.displayName,
-                    viewModel.state.currentScript.displayName,
-                    viewModel.state.currentWidgetMode.displayName
+                    self.viewModel.state.currentCollection.displayName,
+                    self.viewModel.state.currentScript.displayName,
+                    self.viewModel.state.currentWidgetMode.displayName,
                 ],
-                palette: palette
+                palette: self.palette,
             )
 
-            homeChrome
+            self.homeChrome
 
             QuoteCardSectionView(
-                runicText: viewModel.state.runicText,
-                presentationSource: viewModel.state.runicPresentationSource,
-                evidenceTier: viewModel.state.runicEvidenceTier,
-                primarySourceLabel: viewModel.state.runicPrimarySourceLabel,
-                latinText: viewModel.state.latinText,
-                author: viewModel.state.author,
-                script: viewModel.state.currentScript,
-                font: viewModel.state.currentFont,
-                decorativeGlyph: decorativeGlyph,
-                palette: palette,
-                isScriptMorphing: isScriptMorphing,
-                isSaved: viewModel.state.isCurrentQuoteSaved,
+                runicText: self.viewModel.state.runicText,
+                presentationSource: self.viewModel.state.runicPresentationSource,
+                evidenceTier: self.viewModel.state.runicEvidenceTier,
+                primarySourceLabel: self.viewModel.state.runicPrimarySourceLabel,
+                latinText: self.viewModel.state.latinText,
+                author: self.viewModel.state.author,
+                script: self.viewModel.state.currentScript,
+                font: self.viewModel.state.currentFont,
+                decorativeGlyph: self.decorativeGlyph,
+                palette: self.palette,
+                isScriptMorphing: self.isScriptMorphing,
+                isSaved: self.viewModel.state.isCurrentQuoteSaved,
+                tipRefreshID: self.featureDiscoveryController.refreshID,
                 onNextQuote: {
-                    Haptics.trigger(.newQuote)
-                    viewModel.onNextQuoteTapped()
+                    self.handleNextQuoteTriggered()
                 },
                 onToggleSave: {
-                    Haptics.trigger(.saveOrShare)
-                    viewModel.onToggleSaveTapped()
+                    self.handleSaveTriggered()
                 },
                 onShowActions: {
                     Haptics.trigger(.saveOrShare)
-                    showActionsSheet = true
-                }
+                    self.showActionsSheet = true
+                },
             )
         }
     }
@@ -292,59 +277,59 @@ struct QuoteView: View {
     private var homeChrome: some View {
         VStack(spacing: DesignTokens.Spacing.md) {
             QuoteScriptPickerView(
-                palette: palette,
-                selectedScript: viewModel.state.currentScript
+                palette: self.palette,
+                selectedScript: self.viewModel.state.currentScript,
             ) { newScript in
                 Haptics.trigger(.scriptSwitch)
-                viewModel.onScriptChanged(newScript)
+                self.viewModel.onScriptChanged(newScript)
             }
 
             CollectionCoverCarousel(
-                covers: viewModel.state.collectionCovers,
-                selectedCollection: viewModel.state.currentCollection,
-                script: viewModel.state.currentScript,
-                font: viewModel.state.currentFont,
-                palette: palette
+                covers: self.viewModel.state.collectionCovers,
+                selectedCollection: self.viewModel.state.currentCollection,
+                script: self.viewModel.state.currentScript,
+                font: self.viewModel.state.currentFont,
+                palette: self.palette,
             ) { collection in
-                guard collection != viewModel.state.currentCollection else { return }
+                guard collection != self.viewModel.state.currentCollection else { return }
                 Haptics.trigger(.scriptSwitch)
-                viewModel.onCollectionChanged(collection)
+                self.viewModel.onCollectionChanged(collection)
             }
 
             Button {
                 NotificationCenter.default.post(
                     name: .switchToTab,
                     object: nil,
-                    userInfo: ["tab": AppTab.search]
+                    userInfo: ["tab": AppTab.search],
                 )
             } label: {
                 LiquidCard(
-                    palette: palette,
+                    palette: self.palette,
                     role: .chrome,
                     cornerRadius: DesignTokens.CornerRadius.xl,
                     shadowRadius: DesignTokens.Elevation.chrome,
                     contentPadding: DesignTokens.Spacing.md,
-                    interactive: true
+                    interactive: true,
                 ) {
                     HStack(spacing: DesignTokens.Spacing.sm) {
                         Image(systemName: "magnifyingglass")
-                            .foregroundStyle(palette.subtleAccentText)
+                            .foregroundStyle(self.palette.subtleAccentText)
 
                         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                             Text("Search the library")
                                 .font(DesignTokens.Typography.bodyLarge)
-                                .foregroundStyle(palette.textPrimary)
+                                .foregroundStyle(self.palette.textPrimary)
 
                             Text("Move into the dedicated Search tab for authors, fragments, and collections.")
                                 .font(DesignTokens.Typography.metadata)
-                                .foregroundStyle(palette.textTertiary)
+                                .foregroundStyle(self.palette.textTertiary)
                         }
 
                         Spacer()
 
                         Image(systemName: "arrow.right")
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(palette.subtleAccentText)
+                            .foregroundStyle(self.palette.subtleAccentText)
                     }
                 }
             }
@@ -354,63 +339,80 @@ struct QuoteView: View {
     }
 
     private func syncHomeAccessory() {
-        guard didInitialize else { return }
-        homeAccessoryController.update(
-            collection: viewModel.state.currentCollection,
-            script: viewModel.state.currentScript,
-            caption: viewModel.state.author.isEmpty ? "Continue reading" : viewModel.state.author
+        guard self.didInitialize else { return }
+        self.homeAccessoryController.update(
+            collection: self.viewModel.state.currentCollection,
+            script: self.viewModel.state.currentScript,
+            caption: self.viewModel.state.author.isEmpty ? "Continue reading" : self.viewModel.state.author,
         )
     }
+
     // MARK: - Script Morph Animation
 
     private func startScriptMorphTransition() {
-        scriptMorphTask?.cancel()
-        scriptMorphTask = Task { @MainActor in
+        self.scriptMorphTask?.cancel()
+        self.scriptMorphTask = Task { @MainActor in
             withAnimation(.easeOut(duration: 0.08)) {
-                isScriptMorphing = true
+                self.isScriptMorphing = true
             }
 
             try? await Task.sleep(for: .milliseconds(90))
             guard !Task.isCancelled else { return }
 
             withAnimation(.easeInOut(duration: 0.22)) {
-                isScriptMorphing = false
+                self.isScriptMorphing = false
             }
         }
     }
 
     private func copyCurrentQuote() {
-        let payload = "\(viewModel.state.latinText)\n— \(viewModel.state.author)"
+        let payload = "\(viewModel.state.latinText)\n— \(self.viewModel.state.author)"
 
-#if canImport(UIKit)
-        UIPasteboard.general.string = payload
-#elseif canImport(AppKit)
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(payload, forType: .string)
-#endif
+        #if canImport(UIKit)
+            UIPasteboard.general.string = payload
+        #elseif canImport(AppKit)
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(payload, forType: .string)
+        #endif
     }
 
     // MARK: - Quote Actions
 
+    private func handleNextQuoteTriggered() {
+        Haptics.trigger(.newQuote)
+        self.viewModel.onNextQuoteTapped()
+        FeatureDiscoveryEvents.homeAdvancedQuote.sendDonation()
+        HomeNextQuoteTip().invalidate(reason: .actionPerformed)
+    }
+
+    private func handleSaveTriggered() {
+        let wasSaved = self.viewModel.state.isCurrentQuoteSaved
+        Haptics.trigger(.saveOrShare)
+        self.viewModel.onToggleSaveTapped()
+
+        guard !wasSaved else { return }
+        FeatureDiscoveryEvents.homeSavedQuote.sendDonation()
+        HomeSaveQuoteTip().invalidate(reason: .actionPerformed)
+    }
+
     private func handleQuoteAction(_ action: QuoteAction) {
         switch action {
         case .share:
-            showShareView = true
+            self.showShareView = true
         case .addToFavorites, .removeFromFavorites:
-            Haptics.trigger(.saveOrShare)
-            viewModel.onToggleSaveTapped()
+            self.handleSaveTriggered()
         case .addToCollection:
             // Currently quotes belong to one collection set at creation.
             // Open edit flow so the user can change the collection.
-            editingQuoteRecord = viewModel.currentQuoteRecord()
+            self.editingQuoteRecord = self.viewModel.currentQuoteRecord()
         case .copyText:
-            copyCurrentQuote()
+            self.copyCurrentQuote()
         case .edit:
-            editingQuoteRecord = viewModel.currentQuoteRecord()
+            self.editingQuoteRecord = self.viewModel.currentQuoteRecord()
         case .hide:
-            viewModel.hideCurrentQuote()
+            self.viewModel.hideCurrentQuote()
         case .delete:
-            showDeleteConfirmation = true
+            self.showDeleteConfirmation = true
         }
     }
 
@@ -424,7 +426,7 @@ private enum QuoteViewPreviewFactory {
         let container = ModelContainerHelper.createPlaceholderContainer()
         let quote = Quote(
             textLatin: "Not all those who wander are lost.",
-            author: "J.R.R. Tolkien"
+            author: "J.R.R. Tolkien",
         )
         quote.runicElder = "ᚾᛟᛏ ᚨᛚᛚ ᚦᛟᛋᛖ ᚹᚺᛟ ᚹᚨᚾᛞᛖᚱ ᚨᚱᛖ ᛚᛟᛋᛏ"
         container.mainContext.insert(quote)
@@ -439,14 +441,15 @@ private enum QuoteViewPreviewFactory {
             CreateEditQuoteView(
                 viewModel: CreateEditQuoteViewModel.preview(mode: mode),
                 mode: mode,
-                onSaved: onSaved
+                onSaved: onSaved,
             )
         },
         translationViewBuilder: TranslationViewBuilder {
             TranslationView(viewModel: TranslationViewModel.preview())
-        }
+        },
     )
-        .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
+    .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
+    .environmentObject(FeatureDiscoveryController.preview())
 }
 
 #Preview("With Sample Data") {
@@ -456,13 +459,15 @@ private enum QuoteViewPreviewFactory {
             CreateEditQuoteView(
                 viewModel: CreateEditQuoteViewModel.preview(mode: mode),
                 mode: mode,
-                onSaved: onSaved
+                onSaved: onSaved,
             )
         },
         translationViewBuilder: TranslationViewBuilder {
             TranslationView(viewModel: TranslationViewModel.preview())
-        }
+        },
     )
     .modelContainer(QuoteViewPreviewFactory.sampleContainer())
+    .environmentObject(FeatureDiscoveryController.preview())
 }
+
 // swiftlint:enable type_body_length

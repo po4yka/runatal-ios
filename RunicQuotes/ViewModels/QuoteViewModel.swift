@@ -2,7 +2,7 @@
 //  QuoteViewModel.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 07.10.25.
 //
 
 import Foundation
@@ -12,7 +12,7 @@ import SwiftUI
 // swiftlint:disable file_length
 
 /// UI state for the quote view
-struct QuoteUiState: Sendable {
+struct QuoteUiState {
     var runicText: String = ""
     var runicPresentationSource: RunicPresentationSource = .storedTransliteration
     var runicEvidenceTier: TranslationEvidenceTier?
@@ -29,11 +29,12 @@ struct QuoteUiState: Sendable {
     var collectionCovers: [QuoteCollectionCover] = QuoteCollection.allCases.map {
         QuoteCollectionCover.placeholder(for: $0)
     }
+
     var isLoading: Bool = true
     var errorMessage: String?
 }
 
-enum RunicPresentationSource: String, Sendable {
+enum RunicPresentationSource: String {
     case structuredTranslation
     case storedTransliteration
     case liveTransliteration
@@ -41,35 +42,37 @@ enum RunicPresentationSource: String, Sendable {
     var disclosureTitle: String {
         switch self {
         case .structuredTranslation:
-            return "Structured historical translation"
+            "Structured historical translation"
         case .storedTransliteration:
-            return "Stored transliteration"
+            "Stored transliteration"
         case .liveTransliteration:
-            return "On-demand transliteration"
+            "On-demand transliteration"
         }
     }
 
     var shareDisclosureTitle: String {
         switch self {
         case .structuredTranslation:
-            return "Historical translation"
+            "Historical translation"
         case .storedTransliteration:
-            return "Stored transliteration"
+            "Stored transliteration"
         case .liveTransliteration:
-            return "Transliteration fallback"
+            "Transliteration fallback"
         }
     }
 }
 
 /// Display data for collection cover cards.
-struct QuoteCollectionCover: Identifiable, Sendable {
+struct QuoteCollectionCover: Identifiable {
     let collection: QuoteCollection
     let quoteCount: Int
     let runicPreview: String
     let latinPreview: String
     let authorPreview: String
 
-    var id: String { collection.rawValue }
+    var id: String {
+        self.collection.rawValue
+    }
 
     static func placeholder(for collection: QuoteCollection) -> QuoteCollectionCover {
         QuoteCollectionCover(
@@ -77,13 +80,13 @@ struct QuoteCollectionCover: Identifiable, Sendable {
             quoteCount: 0,
             runicPreview: collection.heroRunicText,
             latinPreview: collection.heroLatinText,
-            authorPreview: collection.displayName
+            authorPreview: collection.displayName,
         )
     }
 }
 
 /// Search suggestion item for quote discovery.
-struct QuoteSearchResult: Identifiable, Sendable {
+struct QuoteSearchResult: Identifiable {
     let id: UUID
     let latinText: String
     let author: String
@@ -111,7 +114,7 @@ final class QuoteViewModel: ObservableObject {
     init(
         quoteProvider: QuoteProvider,
         translationProvider: TranslationProvider,
-        preferencesRepository: any UserPreferencesRepository
+        preferencesRepository: any UserPreferencesRepository,
     ) {
         self.quoteProvider = quoteProvider
         self.translationProvider = translationProvider
@@ -123,59 +126,59 @@ final class QuoteViewModel: ObservableObject {
     /// Load initial quote when view appears
     func onAppear() {
         Task {
-            await loadPreferences()
-            await loadQuoteOfTheDay()
+            await self.loadPreferences()
+            await self.loadQuoteOfTheDay()
         }
     }
 
     /// Load the next random quote
     func onNextQuoteTapped() {
-        state.isLoading = true
+        self.state.isLoading = true
         Task {
-            await loadRandomQuote()
+            await self.loadRandomQuote()
         }
     }
 
     /// Toggle save state for the currently visible quote.
     func onToggleSaveTapped() {
         guard let quoteID = state.currentQuoteID else { return }
-        toggleSavedState(for: quoteID)
+        self.toggleSavedState(for: quoteID)
     }
 
     /// Change the current runic script
     func onScriptChanged(_ script: RunicScript) {
-        state.isLoading = true
+        self.state.isLoading = true
         Task {
-            await updateScript(script)
+            await self.updateScript(script)
         }
     }
 
     /// Change the current font
     func onFontChanged(_ font: RunicFont) {
         Task {
-            await updateFont(font)
+            await self.updateFont(font)
         }
     }
 
     /// Change the current quote collection.
     func onCollectionChanged(_ collection: QuoteCollection) {
-        guard state.currentCollection != collection else { return }
+        guard self.state.currentCollection != collection else { return }
 
-        preferences.selectedCollection = collection
-        state.currentCollection = collection
-        persistPreferences()
-        state.isLoading = true
+        self.preferences.selectedCollection = collection
+        self.state.currentCollection = collection
+        self.persistPreferences()
+        self.state.isLoading = true
 
         Task {
-            await loadQuote(using: state.currentWidgetMode, updateContext: false)
+            await self.loadQuote(using: self.state.currentWidgetMode, updateContext: false)
         }
     }
 
     /// Refresh the quote of the day
     func refresh() {
-        state.isLoading = true
+        self.state.isLoading = true
         Task {
-            await loadQuoteOfTheDay()
+            await self.loadQuoteOfTheDay()
         }
     }
 
@@ -184,7 +187,7 @@ final class QuoteViewModel: ObservableObject {
         let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedQuery.isEmpty else { return [] }
 
-        let searchScope = quotes(for: state.currentCollection, within: cachedQuotes)
+        let searchScope = self.quotes(for: self.state.currentCollection, within: self.cachedQuotes)
         return searchScope
             .filter {
                 $0.textLatin.localizedStandardContains(normalizedQuery) ||
@@ -196,7 +199,7 @@ final class QuoteViewModel: ObservableObject {
                     id: $0.id,
                     latinText: $0.textLatin,
                     author: $0.author,
-                    collection: $0.collection
+                    collection: $0.collection,
                 )
             }
     }
@@ -205,58 +208,59 @@ final class QuoteViewModel: ObservableObject {
     func showQuote(withID quoteID: UUID) {
         guard let match = cachedQuotes.first(where: { $0.id == quoteID }) else { return }
         Task {
-            await updateState(with: match)
+            await self.updateState(with: match)
         }
     }
 
     /// Apply updated persisted preferences (e.g. after changes in Settings tab).
     func onPreferencesChanged() {
-        state.isLoading = true
+        self.state.isLoading = true
         Task {
-            let previousScript = state.currentScript
-            let previousMode = state.currentWidgetMode
-            let previousCollection = state.currentCollection
-            await loadPreferences()
+            let previousScript = self.state.currentScript
+            let previousMode = self.state.currentWidgetMode
+            let previousCollection = self.state.currentCollection
+            await self.loadPreferences()
 
-            if previousScript != state.currentScript ||
-                previousMode != state.currentWidgetMode ||
-                previousCollection != state.currentCollection {
-                await loadQuote(using: state.currentWidgetMode, updateContext: true)
+            if previousScript != self.state.currentScript ||
+                previousMode != self.state.currentWidgetMode ||
+                previousCollection != self.state.currentCollection
+            {
+                await self.loadQuote(using: self.state.currentWidgetMode, updateContext: true)
             }
         }
     }
 
     func updateDisplayedRunicText(_ runicText: String) {
-        state.runicText = runicText
+        self.state.runicText = runicText
     }
 
     func updateDisplayedRunicPresentation(_ presentation: ResolvedRunicPresentation) {
-        state.runicText = presentation.text
-        state.runicPresentationSource = presentation.source
-        state.runicEvidenceTier = presentation.evidenceTier
-        state.runicPrimarySourceLabel = presentation.primarySourceLabel
+        self.state.runicText = presentation.text
+        self.state.runicPresentationSource = presentation.source
+        self.state.runicEvidenceTier = presentation.evidenceTier
+        self.state.runicPrimarySourceLabel = presentation.primarySourceLabel
     }
 
     /// Apply deep-link context from widget and open quote screen in matching state.
     func onOpenQuoteDeepLink(scriptRaw: String?, modeRaw: String?) {
-        let script = parseScript(from: scriptRaw)
-        let mode = parseMode(from: modeRaw)
-        state.isLoading = true
+        let script = self.parseScript(from: scriptRaw)
+        let mode = self.parseMode(from: modeRaw)
+        self.state.isLoading = true
 
         Task {
-            await loadPreferences()
+            await self.loadPreferences()
 
             if let script {
-                applyScriptPreference(script)
+                self.applyScriptPreference(script)
             }
 
             if let mode {
-                state.currentWidgetMode = mode
-                preferences.widgetMode = mode
+                self.state.currentWidgetMode = mode
+                self.preferences.widgetMode = mode
             }
 
-            persistPreferences()
-            await loadQuote(using: mode ?? state.currentWidgetMode, updateContext: true)
+            self.persistPreferences()
+            await self.loadQuote(using: mode ?? self.state.currentWidgetMode, updateContext: true)
         }
     }
 
@@ -264,116 +268,116 @@ final class QuoteViewModel: ObservableObject {
 
     private func loadPreferences() async {
         do {
-            preferences = try preferencesRepository.snapshot()
+            self.preferences = try self.preferencesRepository.snapshot()
 
             // Update state with preferences
-            state.currentScript = preferences.selectedScript
-            state.currentFont = preferences.selectedFont
-            state.currentWidgetMode = preferences.widgetMode
-            state.currentCollection = preferences.selectedCollection
-            state.currentTheme = preferences.selectedTheme
-            syncSavedStateForCurrentQuote()
+            self.state.currentScript = self.preferences.selectedScript
+            self.state.currentFont = self.preferences.selectedFont
+            self.state.currentWidgetMode = self.preferences.widgetMode
+            self.state.currentCollection = self.preferences.selectedCollection
+            self.state.currentTheme = self.preferences.selectedTheme
+            self.syncSavedStateForCurrentQuote()
         } catch {
-            state.errorMessage = "Failed to load preferences: \(error.localizedDescription)"
+            self.state.errorMessage = "Failed to load preferences: \(error.localizedDescription)"
         }
     }
 
     private func loadQuoteOfTheDay() async {
-        await loadQuote(using: .daily, updateContext: false)
+        await self.loadQuote(using: .daily, updateContext: false)
     }
 
     private func loadRandomQuote() async {
-        await loadQuote(using: .random, updateContext: false)
+        await self.loadQuote(using: .random, updateContext: false)
     }
 
     private func loadQuote(using mode: WidgetMode, updateContext: Bool) async {
-        state.isLoading = true
-        state.errorMessage = nil
+        self.state.isLoading = true
+        self.state.errorMessage = nil
         if updateContext {
-            state.currentWidgetMode = mode
+            self.state.currentWidgetMode = mode
         }
 
         do {
             let allQuotes = try await quoteProvider.allQuotes()
-            cachedQuotes = allQuotes
-            updateCollectionCovers(using: allQuotes)
+            self.cachedQuotes = allQuotes
+            self.updateCollectionCovers(using: allQuotes)
 
-            let filteredQuotes = quotes(for: state.currentCollection, within: allQuotes)
+            let filteredQuotes = self.quotes(for: self.state.currentCollection, within: allQuotes)
             guard !filteredQuotes.isEmpty else {
-                throw QuoteViewModelError.emptyCollection(state.currentCollection)
+                throw QuoteViewModelError.emptyCollection(self.state.currentCollection)
             }
 
-            let quote = selectQuote(from: filteredQuotes, mode: mode)
-            await updateState(with: quote)
-            state.isLoading = false
+            let quote = self.selectQuote(from: filteredQuotes, mode: mode)
+            await self.updateState(with: quote)
+            self.state.isLoading = false
         } catch {
-            state.errorMessage = error.localizedDescription
-            state.isLoading = false
+            self.state.errorMessage = error.localizedDescription
+            self.state.isLoading = false
         }
     }
 
     private func updateScript(_ script: RunicScript) async {
-        applyScriptPreference(script)
-        persistPreferences()
+        self.applyScriptPreference(script)
+        self.persistPreferences()
 
         // Reload quote with new script
-        await loadQuote(using: state.currentWidgetMode, updateContext: false)
+        await self.loadQuote(using: self.state.currentWidgetMode, updateContext: false)
     }
 
     private func updateFont(_ font: RunicFont) async {
         // Verify compatibility
-        guard font.isCompatible(with: state.currentScript) else {
-            state.errorMessage = "\(font.displayName) is not compatible with \(state.currentScript.displayName)"
+        guard font.isCompatible(with: self.state.currentScript) else {
+            self.state.errorMessage = "\(font.displayName) is not compatible with \(self.state.currentScript.displayName)"
             return
         }
 
         // Update preferences
-        preferences.selectedFont = font
-        persistPreferences()
+        self.preferences.selectedFont = font
+        self.persistPreferences()
 
         // Update state
-        state.currentFont = font
+        self.state.currentFont = font
     }
 
     private func updateState(with quote: QuoteRecord) async {
-        currentQuoteRecordCache = quote
-        state.latinText = quote.textLatin
-        state.author = quote.author
+        self.currentQuoteRecordCache = quote
+        self.state.latinText = quote.textLatin
+        self.state.author = quote.author
         let presentation = await preferredRunicPresentation(for: quote)
-        updateDisplayedRunicPresentation(presentation)
+        self.updateDisplayedRunicPresentation(presentation)
 
-        state.currentQuoteID = quote.id
-        syncSavedStateForCurrentQuote()
+        self.state.currentQuoteID = quote.id
+        self.syncSavedStateForCurrentQuote()
     }
 
     private func applyScriptPreference(_ script: RunicScript) {
-        preferences.selectedScript = script
-        state.currentScript = script
+        self.preferences.selectedScript = script
+        self.state.currentScript = script
 
-        if !state.currentFont.isCompatible(with: script) {
+        if !self.state.currentFont.isCompatible(with: script) {
             let recommendedFont = RunicFontConfiguration.recommendedFont(for: script)
-            state.currentFont = recommendedFont
-            preferences.selectedFont = recommendedFont
+            self.state.currentFont = recommendedFont
+            self.preferences.selectedFont = recommendedFont
         }
     }
 
     private func toggleSavedState(for quoteID: UUID) {
-        state.isCurrentQuoteSaved = preferences.toggleSavedQuote(quoteID)
-        persistPreferences()
+        self.state.isCurrentQuoteSaved = self.preferences.toggleSavedQuote(quoteID)
+        self.persistPreferences()
     }
 
     private func syncSavedStateForCurrentQuote() {
         guard let quoteID = state.currentQuoteID else {
-            state.isCurrentQuoteSaved = false
+            self.state.isCurrentQuoteSaved = false
             return
         }
 
-        state.isCurrentQuoteSaved = preferences.isQuoteSaved(quoteID)
+        self.state.isCurrentQuoteSaved = self.preferences.isQuoteSaved(quoteID)
     }
 
     /// Return the current quote as a `QuoteRecord`, or `nil` if unavailable.
     func currentQuoteRecord() -> QuoteRecord? {
-        currentQuoteRecordCache
+        self.currentQuoteRecordCache
     }
 
     /// Hide the current quote and advance to the next one.
@@ -382,10 +386,10 @@ final class QuoteViewModel: ObservableObject {
 
         Task {
             do {
-                currentQuoteRecordCache = try await quoteProvider.hideQuote(id: quoteID)
-                onNextQuoteTapped()
+                self.currentQuoteRecordCache = try await self.quoteProvider.hideQuote(id: quoteID)
+                self.onNextQuoteTapped()
             } catch {
-                state.errorMessage = error.localizedDescription
+                self.state.errorMessage = error.localizedDescription
             }
         }
     }
@@ -396,19 +400,19 @@ final class QuoteViewModel: ObservableObject {
 
         Task {
             do {
-                currentQuoteRecordCache = try await quoteProvider.softDeleteQuote(id: quoteID)
-                onNextQuoteTapped()
+                self.currentQuoteRecordCache = try await self.quoteProvider.softDeleteQuote(id: quoteID)
+                self.onNextQuoteTapped()
             } catch {
-                state.errorMessage = error.localizedDescription
+                self.state.errorMessage = error.localizedDescription
             }
         }
     }
 
     private func persistPreferences() {
         do {
-            try preferencesRepository.save(preferences)
+            try self.preferencesRepository.save(self.preferences)
         } catch {
-            state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
+            self.state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
         }
     }
 
@@ -452,40 +456,41 @@ final class QuoteViewModel: ObservableObject {
             let index = AppConstants.dailyQuoteIndex(totalQuotes: quotes.count)
             return quotes[index]
         case .random:
-            let randomIndex = Int.random(in: 0..<quotes.count)
+            let randomIndex = Int.random(in: 0 ..< quotes.count)
             return quotes[randomIndex]
         }
     }
 
     func updateCollectionCovers(using allQuotes: [QuoteRecord]) {
-        state.collectionCovers = QuoteCollection.allCases.map { collection in
-            let collectionQuotes = quotes(for: collection, within: allQuotes)
+        self.state.collectionCovers = QuoteCollection.allCases.map { collection in
+            let collectionQuotes = self.quotes(for: collection, within: allQuotes)
 
             guard let firstQuote = collectionQuotes.first else {
                 return QuoteCollectionCover.placeholder(for: collection)
             }
 
-            let runicPreview = firstQuote.runicText(for: state.currentScript)
-                ?? RunicTransliterator.transliterate(firstQuote.textLatin, to: state.currentScript)
+            let runicPreview = firstQuote.runicText(for: self.state.currentScript)
+                ?? RunicTransliterator.transliterate(firstQuote.textLatin, to: self.state.currentScript)
 
             return QuoteCollectionCover(
                 collection: collection,
                 quoteCount: collectionQuotes.count,
                 runicPreview: runicPreview,
                 latinPreview: firstQuote.textLatin,
-                authorPreview: firstQuote.author
+                authorPreview: firstQuote.author,
             )
         }
     }
 
 }
+
 enum QuoteViewModelError: LocalizedError {
     case emptyCollection(QuoteCollection)
 
     var errorDescription: String? {
         switch self {
         case .emptyCollection(let collection):
-            return "No quotes available in the \(collection.displayName) collection."
+            "No quotes available in the \(collection.displayName) collection."
         }
     }
 }
@@ -500,12 +505,12 @@ extension QuoteViewModel {
         let translationRepository = SwiftDataTranslationRepository(modelContext: container.mainContext)
         let quoteRepository = SwiftDataQuoteRepository(
             modelContext: container.mainContext,
-            translationCacheRepository: translationRepository
+            translationCacheRepository: translationRepository,
         )
         return QuoteViewModel(
             quoteProvider: QuoteProvider(repository: quoteRepository),
             translationProvider: TranslationProvider(repository: translationRepository),
-            preferencesRepository: preferencesRepository
+            preferencesRepository: preferencesRepository,
         )
     }
 }

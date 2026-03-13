@@ -2,7 +2,7 @@
 //  TranslationResultSectionView.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -21,7 +21,7 @@ struct TranslationResultSectionView: View {
         copyAction: @escaping () -> Void,
         clearAction: @escaping () -> Void,
         saveAction: @escaping () -> Void,
-        openSourcesAction: (() -> Void)? = nil
+        openSourcesAction: (() -> Void)? = nil,
     ) {
         self.state = state
         self.palette = palette
@@ -34,29 +34,29 @@ struct TranslationResultSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             ContentPlate(
-                palette: palette,
+                palette: self.palette,
                 tone: .hero,
                 cornerRadius: DesignTokens.CornerRadius.xxl,
-                shadowRadius: DesignTokens.Elevation.hero
+                shadowRadius: DesignTokens.Elevation.hero,
             ) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                    header
+                    self.header
 
-                    if state.outputText.isEmpty {
+                    if self.state.outputText.isEmpty {
                         Text("The result will appear here as soon as the source text is ready.")
                             .font(DesignTokens.Typography.callout)
-                            .foregroundStyle(palette.textSecondary)
+                            .foregroundStyle(self.palette.textSecondary)
                             .accessibilityIdentifier("translation_output_text")
                     } else {
-                        Text(state.outputText)
+                        Text(self.state.outputText)
                             .runicTextStyle(
-                                script: state.selectedScript,
-                                font: state.selectedFont,
+                                script: self.state.selectedScript,
+                                font: self.state.selectedFont,
                                 style: .title2,
                                 minSize: 28,
-                                maxSize: 52
+                                maxSize: 52,
                             )
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .textSelection(.enabled)
                             .accessibilityIdentifier("translation_output_text")
@@ -65,21 +65,21 @@ struct TranslationResultSectionView: View {
                     if let errorMessage = state.errorMessage {
                         Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
                             .font(DesignTokens.Typography.metadata)
-                            .foregroundStyle(palette.error)
+                            .foregroundStyle(self.palette.error)
                     }
 
                     if let fallbackSuggestion = state.fallbackSuggestion {
                         Text(fallbackSuggestion)
                             .font(DesignTokens.Typography.metadata)
-                            .foregroundStyle(palette.textSecondary)
+                            .foregroundStyle(self.palette.textSecondary)
                     }
 
-                    if !state.userFacingWarnings.isEmpty {
+                    if !self.state.userFacingWarnings.isEmpty {
                         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                            ForEach(state.userFacingWarnings, id: \.self) { warning in
+                            ForEach(self.state.userFacingWarnings, id: \.self) { warning in
                                 Label(warning, systemImage: "info.circle")
                                     .font(DesignTokens.Typography.metadata)
-                                    .foregroundStyle(palette.textSecondary)
+                                    .foregroundStyle(self.palette.textSecondary)
                             }
                         }
                     }
@@ -87,18 +87,18 @@ struct TranslationResultSectionView: View {
             }
             .accessibilityIdentifier("translation_output_card")
 
-            LiquidActionCluster(palette: palette) {
+            LiquidActionCluster(palette: self.palette) {
                 ViewThatFits(in: .horizontal) {
                     HStack(spacing: DesignTokens.Spacing.sm) {
-                        copyButton
-                        clearButton
-                        saveButton
+                        self.copyButton
+                        self.clearButton
+                        self.saveButton
                     }
 
                     VStack(spacing: DesignTokens.Spacing.sm) {
-                        copyButton
-                        clearButton
-                        saveButton
+                        self.copyButton
+                        self.clearButton
+                        self.saveButton
                     }
                 }
             }
@@ -109,49 +109,43 @@ struct TranslationResultSectionView: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             HStack(alignment: .top, spacing: DesignTokens.Spacing.md) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                    SectionLabel(title: "Output", palette: palette)
+                    SectionLabel(title: "Output", palette: self.palette)
 
                     Text("Runic result")
                         .font(DesignTokens.Typography.sectionTitle)
-                        .foregroundStyle(palette.textPrimary)
+                        .foregroundStyle(self.palette.textPrimary)
                 }
 
                 Spacer()
 
                 if let resolutionStatus = state.resolutionStatus {
                     HStack(spacing: DesignTokens.Spacing.xs) {
-                        statusBadge(resolutionStatus.displayName)
+                        self.statusBadge(resolutionStatus.displayName)
                         if let evidenceTier = state.evidenceTier {
-                            statusBadge(evidenceTier.displayName)
+                            self.statusBadge(evidenceTier.displayName)
                         }
                         if let supportLevel = state.supportLevel {
-                            statusBadge(supportLevel.displayName)
+                            self.statusBadge(supportLevel.displayName)
                         }
                     }
                 }
             }
 
-            MetaRow(items: outputMeta, palette: palette)
-
-            if let banner = state.sourceLanguageBanner {
-                Label(banner, systemImage: "textformat.abc")
-                    .font(DesignTokens.Typography.metadata)
-                    .foregroundStyle(palette.textSecondary)
-            }
+            MetaRow(items: self.outputMeta, palette: self.palette)
 
             if let primarySourceLabel = state.primarySourceLabel {
                 HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
                         Text("Primary source")
                             .font(DesignTokens.Typography.metadata)
-                            .foregroundStyle(palette.textTertiary)
+                            .foregroundStyle(self.palette.textTertiary)
                         Text(primarySourceLabel)
                             .font(DesignTokens.Typography.bodyEmphasis)
-                            .foregroundStyle(palette.textPrimary)
+                            .foregroundStyle(self.palette.textPrimary)
                         if let detail = state.primarySourceDetail {
                             Text(detail)
                                 .font(DesignTokens.Typography.metadata)
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(self.palette.textSecondary)
                         }
                     }
 
@@ -160,7 +154,7 @@ struct TranslationResultSectionView: View {
                     if let openSourcesAction {
                         Button("Sources", action: openSourcesAction)
                             .font(DesignTokens.Typography.metadata)
-                            .foregroundStyle(palette.accent)
+                            .foregroundStyle(self.palette.accent)
                     }
                 }
             }
@@ -169,7 +163,7 @@ struct TranslationResultSectionView: View {
 
     private var outputMeta: [String] {
         var items = [state.selectedScript.displayName]
-        items.append(state.translationMode == .translate ? state.selectedFidelity.displayName : "Direct transliteration")
+        items.append(self.state.translationMode == .translate ? self.state.selectedFidelity.displayName : "Direct transliteration")
         if let derivationKind = state.derivationKind {
             items.append(derivationKind.displayName)
         }
@@ -177,47 +171,47 @@ struct TranslationResultSectionView: View {
     }
 
     private var copyButton: some View {
-        Button(action: copyAction) {
+        Button(action: self.copyAction) {
             Label("Copy", systemImage: "doc.on.doc")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: false))
-        .disabled(state.outputText.isEmpty)
+        .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: false))
+        .disabled(self.state.outputText.isEmpty)
         .accessibilityIdentifier("translation_copy_button")
     }
 
     private var clearButton: some View {
-        Button(action: clearAction) {
+        Button(action: self.clearAction) {
             Label("Clear", systemImage: "xmark.circle")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: false))
+        .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: false))
         .accessibilityIdentifier("translation_clear_button")
     }
 
     private var saveButton: some View {
-        Button(action: saveAction) {
-            Label(saveTitle, systemImage: "square.and.arrow.down")
+        Button(action: self.saveAction) {
+            Label(self.saveTitle, systemImage: "square.and.arrow.down")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: true))
-        .disabled(state.isInputEmpty || state.isSaving)
+        .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
+        .disabled(self.state.isInputEmpty || self.state.isSaving)
         .accessibilityIdentifier("translation_save_button")
     }
 
     private var saveTitle: String {
-        state.translationMode == .translate ? "Save Translation" : "Save"
+        self.state.translationMode == .translate ? "Save Translation" : "Save"
     }
 
     private func statusBadge(_ title: String) -> some View {
         Text(title)
             .font(DesignTokens.Typography.metadata)
-            .foregroundStyle(palette.subtleAccentText)
+            .foregroundStyle(self.palette.subtleAccentText)
             .padding(.horizontal, DesignTokens.Spacing.sm)
             .padding(.vertical, DesignTokens.Spacing.xs)
             .background(
                 Capsule(style: .continuous)
-                    .fill(palette.rowInsetFill)
+                    .fill(self.palette.rowInsetFill),
             )
     }
 }

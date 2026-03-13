@@ -2,7 +2,7 @@
 //  TranslationProvenanceDetailSheet.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import SwiftUI
@@ -16,47 +16,47 @@ struct TranslationProvenanceDetailSheet: View {
 
     var body: some View {
         NavigationStack {
-            LiquidListScaffold(palette: palette) {
-                if provenance.isEmpty {
+            LiquidListScaffold(palette: self.palette) {
+                if self.provenance.isEmpty {
                     Section {
                         EditorialEmptyState(
-                            palette: palette,
+                            palette: self.palette,
                             icon: "books.vertical",
                             eyebrow: "Reference",
                             title: "No sources available",
-                            message: "This result does not have bundled provenance metadata yet."
+                            message: "This result does not have bundled provenance metadata yet.",
                         )
                         .listRowSeparator(.hidden)
                     }
                 } else {
                     Section {
-                        ForEach(Array(provenance.enumerated()), id: \.offset) { _, entry in
+                        ForEach(Array(self.provenance.enumerated()), id: \.offset) { _, entry in
                             ContentPlate(
-                                palette: palette,
+                                palette: self.palette,
                                 tone: .secondary,
                                 cornerRadius: DesignTokens.CornerRadius.xxl,
-                                shadowRadius: DesignTokens.Elevation.low
+                                shadowRadius: DesignTokens.Elevation.low,
                             ) {
                                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                                    SectionLabel(title: entry.role, palette: palette)
+                                    SectionLabel(title: entry.role, palette: self.palette)
 
                                     Text(entry.label)
                                         .font(DesignTokens.Typography.sectionTitle)
-                                        .foregroundStyle(palette.textPrimary)
+                                        .foregroundStyle(self.palette.textPrimary)
 
                                     if let sourceWork = entry.sourceWork {
                                         Text(sourceWork)
                                             .font(DesignTokens.Typography.bodyEmphasis)
-                                            .foregroundStyle(palette.textPrimary)
+                                            .foregroundStyle(self.palette.textPrimary)
                                     }
 
                                     if let detail = entry.detail {
                                         Text(detail)
                                             .font(DesignTokens.Typography.callout)
-                                            .foregroundStyle(palette.textSecondary)
+                                            .foregroundStyle(self.palette.textSecondary)
                                     }
 
-                                    metadataRows(for: entry)
+                                    self.metadataRows(for: entry)
                                 }
                             }
                             .listRowSeparator(.hidden)
@@ -65,52 +65,51 @@ struct TranslationProvenanceDetailSheet: View {
                 }
             }
             .navigationTitle("Sources")
-#if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-#endif
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
-                        dismiss()
+            #if os(iOS)
+                .navigationBarTitleDisplayMode(.inline)
+            #endif
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Done") {
+                            self.dismiss()
+                        }
                     }
                 }
-            }
         }
     }
 
     private var palette: AppThemePalette {
-        .themed(runicTheme, for: colorScheme)
+        .themed(self.runicTheme, for: self.colorScheme)
     }
 
-    @ViewBuilder
     private func metadataRows(for entry: TranslationProvenanceEntry) -> some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-            metadataRow(title: "Source ID", value: entry.sourceID)
+            self.metadataRow(title: "Source ID", value: entry.sourceID)
             if let referenceID = entry.referenceID {
-                metadataRow(title: "Reference", value: referenceID)
+                self.metadataRow(title: "Reference", value: referenceID)
             }
             if let attestationStatus = entry.attestationStatus?.rawValue {
-                metadataRow(title: "Attestation", value: attestationStatus.replacingOccurrences(of: "_", with: " "))
+                self.metadataRow(title: "Attestation", value: attestationStatus.replacingOccurrences(of: "_", with: " "))
             }
             if let grammaticalClass = entry.grammaticalClass {
-                metadataRow(title: "Grammar", value: grammaticalClass)
+                self.metadataRow(title: "Grammar", value: grammaticalClass)
             }
             if let historicalStage = entry.historicalStage {
-                metadataRow(title: "Stage", value: historicalStage)
+                self.metadataRow(title: "Stage", value: historicalStage)
             }
             if let lemmaAuthorityID = entry.lemmaAuthorityID {
-                metadataRow(title: "Lemma ID", value: lemmaAuthorityID)
+                self.metadataRow(title: "Lemma ID", value: lemmaAuthorityID)
             }
             if let regressionID = entry.regressionID {
-                metadataRow(title: "Regression", value: regressionID)
+                self.metadataRow(title: "Regression", value: regressionID)
             }
             if let licenseNote = entry.licenseNote {
-                metadataRow(title: "License note", value: licenseNote)
+                self.metadataRow(title: "License note", value: licenseNote)
             } else {
-                metadataRow(title: "License", value: entry.license)
+                self.metadataRow(title: "License", value: entry.license)
             }
             if let url = entry.url {
-                metadataRow(title: "URL", value: url)
+                self.metadataRow(title: "URL", value: url)
             }
         }
     }
@@ -119,10 +118,10 @@ struct TranslationProvenanceDetailSheet: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
             Text(title)
                 .font(DesignTokens.Typography.metadata)
-                .foregroundStyle(palette.textTertiary)
+                .foregroundStyle(self.palette.textTertiary)
             Text(value)
                 .font(DesignTokens.Typography.callout)
-                .foregroundStyle(palette.textSecondary)
+                .foregroundStyle(self.palette.textSecondary)
                 .textSelection(.enabled)
         }
     }
@@ -145,8 +144,8 @@ struct TranslationProvenanceDetailSheet: View {
                 historicalStage: "Old Norse",
                 regressionID: nil,
                 detail: "Bundled lexical source used for the selected term.",
-                url: "https://example.com"
-            )
-        ]
+                url: "https://example.com",
+            ),
+        ],
     )
 }

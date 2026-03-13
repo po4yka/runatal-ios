@@ -1,13 +1,13 @@
 //
 //  QuoteViewModelTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Claude on 2025-11-15.
+//  Created by Claude on 30.10.25.
 //
 
-import XCTest
-import SwiftData
 @testable import RunicQuotes
+import SwiftData
+import XCTest
 
 // swiftlint:disable type_body_length
 final class QuoteViewModelTests: XCTestCase {
@@ -48,7 +48,7 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("view model finishes loading") {
+        await self.waitUntil("view model finishes loading") {
             !viewModel.state.isLoading
         }
 
@@ -62,7 +62,7 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("quote loads") {
+        await self.waitUntil("quote loads") {
             !viewModel.state.isLoading
         }
 
@@ -70,7 +70,7 @@ final class QuoteViewModelTests: XCTestCase {
         XCTAssertNotEqual(
             viewModel.state.runicText,
             viewModel.state.latinText,
-            "Runic text should differ from Latin text"
+            "Runic text should differ from Latin text",
         )
     }
 
@@ -81,13 +81,13 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading
         }
 
         viewModel.onScriptChanged(.younger)
 
-        await waitUntil("script switches to younger") {
+        await self.waitUntil("script switches to younger") {
             viewModel.state.currentScript == .younger && !viewModel.state.isLoading
         }
 
@@ -99,14 +99,14 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading
         }
 
         let originalText = viewModel.state.latinText
         viewModel.onScriptChanged(.cirth)
 
-        await waitUntil("script switches to cirth and reload completes") {
+        await self.waitUntil("script switches to cirth and reload completes") {
             viewModel.state.currentScript == .cirth && !viewModel.state.isLoading
         }
 
@@ -121,13 +121,13 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading
         }
 
         viewModel.onFontChanged(.babelstone)
 
-        await waitUntil("font switches to BabelStone") {
+        await self.waitUntil("font switches to BabelStone") {
             viewModel.state.currentFont == .babelstone
         }
 
@@ -139,13 +139,13 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onScriptChanged(.cirth)
 
-        await waitUntil("script switches to cirth") {
+        await self.waitUntil("script switches to cirth") {
             viewModel.state.currentScript == .cirth && !viewModel.state.isLoading
         }
 
         viewModel.onFontChanged(.noto)
 
-        await waitUntil("font compatibility check completes") {
+        await self.waitUntil("font compatibility check completes") {
             viewModel.state.errorMessage != nil || viewModel.state.currentFont != .noto
         }
 
@@ -153,7 +153,7 @@ final class QuoteViewModelTests: XCTestCase {
             let errorMessage = try XCTUnwrap(viewModel.state.errorMessage)
             XCTAssertTrue(
                 errorMessage.contains("compatible"),
-                "Error should mention compatibility"
+                "Error should mention compatibility",
             )
         }
     }
@@ -165,13 +165,13 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading
         }
 
         viewModel.onNextQuoteTapped()
 
-        await waitUntil("next quote load completes with content") {
+        await self.waitUntil("next quote load completes with content") {
             !viewModel.state.isLoading && !viewModel.state.latinText.isEmpty && !viewModel.state.author.isEmpty
         }
 
@@ -184,13 +184,13 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading
         }
 
         viewModel.onCollectionChanged(.tolkien)
 
-        await waitUntil("tolkien collection quote loads") {
+        await self.waitUntil("tolkien collection quote loads") {
             viewModel.state.currentCollection == .tolkien && !viewModel.state.isLoading
         }
 
@@ -198,7 +198,7 @@ final class QuoteViewModelTests: XCTestCase {
         XCTAssertEqual(
             currentQuote.collection,
             .tolkien,
-            "Loaded quote should come from the selected Tolkien collection"
+            "Loaded quote should come from the selected Tolkien collection",
         )
     }
 
@@ -207,19 +207,19 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads with id") {
+        await self.waitUntil("initial quote loads with id") {
             !viewModel.state.isLoading && viewModel.state.currentQuoteID != nil
         }
 
         XCTAssertFalse(viewModel.state.isCurrentQuoteSaved, "Quote should start unsaved")
 
         viewModel.onToggleSaveTapped()
-        await waitUntil("quote becomes saved") {
+        await self.waitUntil("quote becomes saved") {
             viewModel.state.isCurrentQuoteSaved
         }
 
         viewModel.onToggleSaveTapped()
-        await waitUntil("quote becomes unsaved") {
+        await self.waitUntil("quote becomes unsaved") {
             !viewModel.state.isCurrentQuoteSaved
         }
     }
@@ -229,19 +229,19 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading
         }
 
         viewModel.onOpenQuoteDeepLink(
             scriptRaw: RunicScript.younger.rawValue,
-            modeRaw: WidgetMode.random.rawValue
+            modeRaw: WidgetMode.random.rawValue,
         )
 
-        await waitUntil("deep link context is applied") {
+        await self.waitUntil("deep link context is applied") {
             viewModel.state.currentScript == .younger &&
-            viewModel.state.currentWidgetMode == .random &&
-            !viewModel.state.isLoading
+                viewModel.state.currentWidgetMode == .random &&
+                !viewModel.state.isLoading
         }
 
         XCTAssertEqual(viewModel.state.currentScript, .younger, "Script should switch to deep-link script")
@@ -256,13 +256,13 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading
         }
 
         viewModel.refresh()
 
-        await waitUntil("refresh completes") {
+        await self.waitUntil("refresh completes") {
             !viewModel.state.isLoading
         }
 
@@ -277,7 +277,7 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel(seedData: false)
         viewModel.onAppear()
 
-        await waitUntil("error state is populated") {
+        await self.waitUntil("error state is populated") {
             !viewModel.state.isLoading && viewModel.state.errorMessage != nil
         }
 
@@ -292,22 +292,22 @@ final class QuoteViewModelTests: XCTestCase {
         let viewModel = try makeViewModel()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading
         }
 
         viewModel.onScriptChanged(.younger)
-        await waitUntil("script switches to younger") {
+        await self.waitUntil("script switches to younger") {
             viewModel.state.currentScript == .younger && !viewModel.state.isLoading
         }
 
         viewModel.onFontChanged(.babelstone)
-        await waitUntil("font switches to BabelStone") {
+        await self.waitUntil("font switches to BabelStone") {
             viewModel.state.currentFont == .babelstone
         }
 
         viewModel.onNextQuoteTapped()
-        await waitUntil("next quote load completes") {
+        await self.waitUntil("next quote load completes") {
             !viewModel.state.isLoading
         }
 
@@ -321,7 +321,7 @@ final class QuoteViewModelTests: XCTestCase {
         let (viewModel, modelContext) = try makeViewModelWithContext()
         viewModel.onAppear()
 
-        await waitUntil("initial quote loads") {
+        await self.waitUntil("initial quote loads") {
             !viewModel.state.isLoading && viewModel.state.currentQuoteID != nil
         }
 
@@ -345,15 +345,15 @@ final class QuoteViewModelTests: XCTestCase {
                 provenance: [],
                 tokenBreakdown: [],
                 engineVersion: "test-engine",
-                datasetVersion: "test-dataset"
+                datasetVersion: "test-dataset",
             ),
             for: quoteID,
-            sourceText: viewModel.state.latinText
+            sourceText: viewModel.state.latinText,
         )
 
         viewModel.onTranslationCacheUpdated(for: quoteID)
 
-        await waitUntil("cached translation is preferred") {
+        await self.waitUntil("cached translation is preferred") {
             viewModel.state.runicText == "ᛏᛖᛋᛏ"
         }
 
@@ -365,7 +365,7 @@ final class QuoteViewModelTests: XCTestCase {
 
     @MainActor
     private func makeViewModel(seedData: Bool = true) throws -> QuoteViewModel {
-        try makeViewModelWithContext(seedData: seedData).0
+        try self.makeViewModelWithContext(seedData: seedData).0
     }
 
     @MainActor
@@ -386,13 +386,13 @@ final class QuoteViewModelTests: XCTestCase {
                 quoteProvider: QuoteProvider(
                     repository: SwiftDataQuoteRepository(
                         modelContext: modelContext,
-                        translationCacheRepository: translationRepository
-                    )
+                        translationCacheRepository: translationRepository,
+                    ),
                 ),
                 translationProvider: TranslationProvider(repository: translationRepository),
-                preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext)
+                preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext),
             ),
-            modelContext
+            modelContext,
         )
     }
 
@@ -401,7 +401,7 @@ final class QuoteViewModelTests: XCTestCase {
         _ description: String,
         timeoutNanoseconds: UInt64 = 2_000_000_000,
         pollIntervalNanoseconds: UInt64 = 25_000_000,
-        condition: () -> Bool
+        condition: () -> Bool,
     ) async {
         let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
 
@@ -416,4 +416,5 @@ final class QuoteViewModelTests: XCTestCase {
         XCTFail("Timed out waiting for condition: \(description)")
     }
 }
+
 // swiftlint:enable type_body_length

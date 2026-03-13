@@ -1,19 +1,19 @@
 //
 //  TranslationQualityRegressionTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
-import XCTest
 @testable import RunicQuotes
+import XCTest
 
 final class TranslationQualityRegressionTests: XCTestCase {
     private let provider = AssetTranslationDatasetProvider()
     private let service = HistoricalTranslationService()
 
     func testGoldCorpusBenchmarksRemainStable() throws {
-        let benchmarks = provider.goldCorpus().benchmarks
+        let benchmarks = self.provider.goldCorpus().benchmarks
         XCTAssertFalse(benchmarks.isEmpty)
 
         for benchmark in benchmarks {
@@ -22,12 +22,12 @@ final class TranslationQualityRegressionTests: XCTestCase {
                 let fidelity = try XCTUnwrap(TranslationFidelity(rawValue: expectation.fidelity))
                 let variant = expectation.requestedVariant.flatMap(YoungerFutharkVariant.init(rawValue:)) ?? .longBranch
 
-                let result = service.translate(
+                let result = self.service.translate(
                     text: benchmark.sourceText,
                     script: script,
                     fidelity: fidelity,
                     youngerVariant: variant,
-                    sourceLanguage: .english
+                    sourceLanguage: .english,
                 )
 
                 XCTAssertEqual(result.normalizedForm, expectation.normalizedForm, benchmark.id)
@@ -42,7 +42,7 @@ final class TranslationQualityRegressionTests: XCTestCase {
                 for fragment in expectation.warningFragments {
                     XCTAssertTrue(
                         warningsBlob.localizedCaseInsensitiveContains(fragment),
-                        "Expected warning fragment '\(fragment)' for \(benchmark.id)"
+                        "Expected warning fragment '\(fragment)' for \(benchmark.id)",
                     )
                 }
             }

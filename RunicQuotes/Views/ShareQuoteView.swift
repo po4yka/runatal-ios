@@ -2,27 +2,29 @@
 //  ShareQuoteView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-12.
+//  Created by Claude on 12.03.26.
 //
 
 import SwiftUI
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 // MARK: - Share Card Style
 
 /// Visual style for the share card image.
-enum ShareCardStyle: String, Codable, CaseIterable, Identifiable, Sendable {
+enum ShareCardStyle: String, Codable, CaseIterable, Identifiable {
     case dark
     case light
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
-        case .dark: return "Dark"
-        case .light: return "Light"
+        case .dark: "Dark"
+        case .light: "Light"
         }
     }
 }
@@ -61,7 +63,7 @@ struct ShareQuoteView: View {
         font: RunicFont,
         presentationSource: RunicPresentationSource = .storedTransliteration,
         evidenceTier: TranslationEvidenceTier? = nil,
-        primarySourceLabel: String? = nil
+        primarySourceLabel: String? = nil,
     ) {
         self.runicText = runicText
         self.latinText = latinText
@@ -76,14 +78,14 @@ struct ShareQuoteView: View {
     // MARK: - Body
 
     var body: some View {
-        let palette = AppThemePalette.themed(runicTheme, for: colorScheme)
+        let palette = AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
 
         ZStack {
             // Background
             LinearGradient(
                 colors: palette.appBackgroundGradient,
                 startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                endPoint: .bottomTrailing,
             )
             .ignoresSafeArea()
 
@@ -91,13 +93,13 @@ struct ShareQuoteView: View {
                 Spacer()
 
                 // Card preview
-                shareCardView
+                self.shareCardView
                     .padding(.horizontal, DesignTokens.Spacing.xxxl)
 
                 Spacer()
 
                 // Card style picker
-                Picker("Card Style", selection: $cardStyle) {
+                Picker("Card Style", selection: self.$cardStyle) {
                     ForEach(ShareCardStyle.allCases) { style in
                         Text(style.displayName).tag(style)
                     }
@@ -107,59 +109,59 @@ struct ShareQuoteView: View {
                 .padding(.bottom, DesignTokens.Spacing.xl)
 
                 // Action bar
-                actionBar(palette: palette)
+                self.actionBar(palette: palette)
                     .padding(.bottom, DesignTokens.Spacing.xl)
             }
         }
         .navigationTitle("Share")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    shareAsImage()
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
-                        .symbolRenderingMode(.monochrome)
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        self.shareAsImage()
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                            .symbolRenderingMode(.monochrome)
+                    }
                 }
             }
-        }
-        .sheet(isPresented: $isShareSheetPresented) {
-#if canImport(UIKit)
-            ActivityViewControllerWrapper(activityItems: shareItems)
-#else
-            Text("Sharing is unavailable on this platform.")
-                .padding()
-#endif
-        }
-        .overlay {
-            if showSavedConfirmation {
-                savedConfirmationOverlay(palette: AppThemePalette.themed(runicTheme, for: colorScheme))
+            .sheet(isPresented: self.$isShareSheetPresented) {
+                #if canImport(UIKit)
+                    ActivityViewControllerWrapper(activityItems: self.shareItems)
+                #else
+                    Text("Sharing is unavailable on this platform.")
+                        .padding()
+                #endif
             }
-        }
+            .overlay {
+                if self.showSavedConfirmation {
+                    self.savedConfirmationOverlay(palette: AppThemePalette.themed(self.runicTheme, for: self.colorScheme))
+                }
+            }
     }
 
     // MARK: - Share Card
 
     private var shareCardView: some View {
         ShareCardContent(
-            runicText: runicText,
-            latinText: latinText,
-            author: author,
-            script: script,
-            font: font,
-            style: cardStyle,
-            presentationSource: presentationSource,
-            evidenceTier: evidenceTier,
-            primarySourceLabel: primarySourceLabel
+            runicText: self.runicText,
+            latinText: self.latinText,
+            author: self.author,
+            script: self.script,
+            font: self.font,
+            style: self.cardStyle,
+            presentationSource: self.presentationSource,
+            evidenceTier: self.evidenceTier,
+            primarySourceLabel: self.primarySourceLabel,
         )
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl))
         .shadow(
             color: .black.opacity(0.3),
             radius: 20,
             x: 0,
-            y: 8
+            y: 8,
         )
     }
 
@@ -167,28 +169,28 @@ struct ShareQuoteView: View {
 
     private func actionBar(palette: AppThemePalette) -> some View {
         HStack(spacing: DesignTokens.Spacing.md) {
-            actionButton(
+            self.actionButton(
                 icon: "doc.on.doc",
                 label: "Copy",
-                palette: palette
+                palette: palette,
             ) {
-                copyQuoteText()
+                self.copyQuoteText()
             }
 
-            actionButton(
+            self.actionButton(
                 icon: "square.and.arrow.down",
                 label: "Save",
-                palette: palette
+                palette: palette,
             ) {
-                saveImage()
+                self.saveImage()
             }
 
-            actionButton(
+            self.actionButton(
                 icon: "square.and.arrow.up",
                 label: "Share",
-                palette: palette
+                palette: palette,
             ) {
-                shareAsImage()
+                self.shareAsImage()
             }
         }
     }
@@ -197,17 +199,17 @@ struct ShareQuoteView: View {
         icon: String,
         label: String,
         palette: AppThemePalette,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> some View {
         Button(action: action) {
             VStack(spacing: DesignTokens.Spacing.xs) {
                 ZStack {
                     RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
-                        .fill(DesignTokens.GlassColor.background(for: colorScheme))
+                        .fill(DesignTokens.GlassColor.background(for: self.colorScheme))
                     RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
                         .strokeBorder(
-                            DesignTokens.GlassColor.border(for: colorScheme),
-                            lineWidth: 0.5
+                            DesignTokens.GlassColor.border(for: self.colorScheme),
+                            lineWidth: 0.5,
                         )
                     Image(systemName: icon)
                         .font(.system(size: 16, weight: .medium))
@@ -218,7 +220,7 @@ struct ShareQuoteView: View {
                     color: .black.opacity(0.12),
                     radius: 12,
                     x: 0,
-                    y: 4
+                    y: 4,
                 )
 
                 Text(label)
@@ -234,63 +236,63 @@ struct ShareQuoteView: View {
     private func copyQuoteText() {
         Haptics.trigger(.saveOrShare)
         let payload = "\"\(latinText)\"\n-- \(author)"
-#if canImport(UIKit)
-        UIPasteboard.general.string = payload
-#endif
+        #if canImport(UIKit)
+            UIPasteboard.general.string = payload
+        #endif
     }
 
     @MainActor
     private func saveImage() {
-#if canImport(UIKit)
-        Haptics.trigger(.saveOrShare)
-        guard let image = renderShareImage() else { return }
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-        withAnimation(.easeInOut(duration: 0.3)) {
-            showSavedConfirmation = true
-        }
-        Task {
-            try? await Task.sleep(for: .milliseconds(1500))
+        #if canImport(UIKit)
+            Haptics.trigger(.saveOrShare)
+            guard let image = renderShareImage() else { return }
+            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
             withAnimation(.easeInOut(duration: 0.3)) {
-                showSavedConfirmation = false
+                self.showSavedConfirmation = true
             }
-        }
-#endif
+            Task {
+                try? await Task.sleep(for: .milliseconds(1500))
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.showSavedConfirmation = false
+                }
+            }
+        #endif
     }
 
     @MainActor
     private func shareAsImage() {
-#if canImport(UIKit)
-        Haptics.trigger(.saveOrShare)
-        if let image = renderShareImage() {
-            shareItems = [image]
-        } else {
-            shareItems = ["\"\(latinText)\"\n-- \(author)"]
+        #if canImport(UIKit)
+            Haptics.trigger(.saveOrShare)
+            if let image = renderShareImage() {
+                self.shareItems = [image]
+            } else {
+                self.shareItems = ["\"\(self.latinText)\"\n-- \(self.author)"]
+            }
+            self.isShareSheetPresented = true
+        #endif
+    }
+
+    #if canImport(UIKit)
+        @MainActor
+        private func renderShareImage() -> UIImage? {
+            let cardContent = ShareCardContent(
+                runicText: runicText,
+                latinText: latinText,
+                author: author,
+                script: script,
+                font: font,
+                style: cardStyle,
+                presentationSource: presentationSource,
+                evidenceTier: evidenceTier,
+                primarySourceLabel: primarySourceLabel,
+            )
+            .frame(width: AppConstants.shareSnapshotWidth)
+
+            let renderer = ImageRenderer(content: cardContent)
+            renderer.scale = self.displayScale
+            return renderer.uiImage
         }
-        isShareSheetPresented = true
-#endif
-    }
-
-#if canImport(UIKit)
-    @MainActor
-    private func renderShareImage() -> UIImage? {
-        let cardContent = ShareCardContent(
-            runicText: runicText,
-            latinText: latinText,
-            author: author,
-            script: script,
-            font: font,
-            style: cardStyle,
-            presentationSource: presentationSource,
-            evidenceTier: evidenceTier,
-            primarySourceLabel: primarySourceLabel
-        )
-        .frame(width: AppConstants.shareSnapshotWidth)
-
-        let renderer = ImageRenderer(content: cardContent)
-        renderer.scale = displayScale
-        return renderer.uiImage
-    }
-#endif
+    #endif
 
     // MARK: - Saved Confirmation
 
@@ -306,7 +308,7 @@ struct ShareQuoteView: View {
         .padding(DesignTokens.Spacing.xl)
         .background(
             RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
-                .fill(.ultraThinMaterial)
+                .fill(.ultraThinMaterial),
         )
         .transition(.opacity.combined(with: .scale(scale: 0.9)))
     }
@@ -328,18 +330,18 @@ struct ShareCardContent: View {
     let primarySourceLabel: String?
 
     private var cardBG: Color {
-        style == .dark ? Color(hex: 0x0C1118) : .white
+        self.style == .dark ? Color(hex: 0x0C1118) : .white
     }
 
     private var cardBorder: Color {
-        style == .dark
+        self.style == .dark
             ? Color.white.opacity(0.06)
             : Color(hex: 0x48566A).opacity(0.12)
     }
 
-    // Dark card always uses dark palette colors, light card uses light palette
+    /// Dark card always uses dark palette colors, light card uses light palette
     private var cardPalette: AppThemePalette {
-        style == .dark
+        self.style == .dark
             ? .adaptive(for: .dark)
             : .adaptive(for: .light)
     }
@@ -350,19 +352,19 @@ struct ShareCardContent: View {
                 .frame(height: DesignTokens.Spacing.xxl)
 
             // Decorative rune ornament
-            runeOrnament
+            self.runeOrnament
                 .padding(.bottom, DesignTokens.Spacing.xl)
 
             // Runic text (smaller, secondary)
-            Text(runicText)
+            Text(self.runicText)
                 .runicTextStyle(
-                    script: script,
-                    font: font,
+                    script: self.script,
+                    font: self.font,
                     style: .caption,
                     minSize: 11,
-                    maxSize: 14
+                    maxSize: 14,
                 )
-                .foregroundStyle(cardPalette.textSecondary.opacity(0.5))
+                .foregroundStyle(self.cardPalette.textSecondary.opacity(0.5))
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
                 .tracking(1.12)
@@ -370,44 +372,44 @@ struct ShareCardContent: View {
 
             // Separator
             Rectangle()
-                .fill(cardPalette.separator.opacity(0.5))
+                .fill(self.cardPalette.separator.opacity(0.5))
                 .frame(height: 0.5)
                 .frame(maxWidth: 80)
                 .padding(.vertical, DesignTokens.Spacing.md)
 
             // Quote text
-            Text("\u{201C}\(latinText)\u{201D}")
+            Text("\u{201C}\(self.latinText)\u{201D}")
                 .font(.custom(RunicFontConfiguration.serifFontName, size: 15, relativeTo: .body))
-                .foregroundStyle(cardPalette.textPrimary)
+                .foregroundStyle(self.cardPalette.textPrimary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
                 .padding(.horizontal, DesignTokens.Spacing.xxl)
 
             // Author
-            Text(author)
+            Text(self.author)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(cardPalette.textSecondary)
+                .foregroundStyle(self.cardPalette.textSecondary)
                 .padding(.top, DesignTokens.Spacing.sm)
 
             // Dot ornament
-            dotOrnament
+            self.dotOrnament
                 .padding(.top, DesignTokens.Spacing.lg)
 
             // Branding
-            brandingLabel
+            self.brandingLabel
                 .padding(.top, DesignTokens.Spacing.lg)
 
-            disclosureLabel
+            self.disclosureLabel
                 .padding(.top, DesignTokens.Spacing.sm)
 
             Spacer()
                 .frame(height: DesignTokens.Spacing.xxl)
         }
         .frame(maxWidth: .infinity)
-        .background(cardBG)
+        .background(self.cardBG)
         .overlay(
             RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
-                .strokeBorder(cardBorder, lineWidth: 0.5)
+                .strokeBorder(self.cardBorder, lineWidth: 0.5),
         )
     }
 
@@ -416,9 +418,9 @@ struct ShareCardContent: View {
     private var runeOrnament: some View {
         // Decorative SVG-like ornament from Figma (three-line mark)
         HStack(spacing: 4) {
-            ForEach(0..<3, id: \.self) { _ in
+            ForEach(0 ..< 3, id: \.self) { _ in
                 RoundedRectangle(cornerRadius: 1)
-                    .fill(cardPalette.textTertiary.opacity(0.3))
+                    .fill(self.cardPalette.textTertiary.opacity(0.3))
                     .frame(width: 8, height: 2)
             }
         }
@@ -426,9 +428,9 @@ struct ShareCardContent: View {
 
     private var dotOrnament: some View {
         HStack(spacing: 4) {
-            ForEach(0..<3, id: \.self) { _ in
+            ForEach(0 ..< 3, id: \.self) { _ in
                 Circle()
-                    .fill(cardPalette.textTertiary.opacity(0.12))
+                    .fill(self.cardPalette.textTertiary.opacity(0.12))
                     .frame(width: 3, height: 3)
             }
         }
@@ -438,27 +440,27 @@ struct ShareCardContent: View {
         HStack(spacing: DesignTokens.Spacing.xs) {
             Text("\u{16B1}")
                 .font(.system(size: 8))
-                .foregroundStyle(cardPalette.textTertiary)
+                .foregroundStyle(self.cardPalette.textTertiary)
             Text("Runic Quotes")
                 .font(.system(size: 10))
-                .foregroundStyle(cardPalette.textTertiary)
+                .foregroundStyle(self.cardPalette.textTertiary)
         }
     }
 
     private var disclosureLabel: some View {
         VStack(spacing: 2) {
-            Text(presentationSource.shareDisclosureTitle)
+            Text(self.presentationSource.shareDisclosureTitle)
                 .font(.system(size: 9))
-                .foregroundStyle(cardPalette.textTertiary)
+                .foregroundStyle(self.cardPalette.textTertiary)
 
             if let evidenceTier {
                 Text(evidenceTier.displayName)
                     .font(.system(size: 9))
-                    .foregroundStyle(cardPalette.textTertiary.opacity(0.9))
+                    .foregroundStyle(self.cardPalette.textTertiary.opacity(0.9))
             } else if let primarySourceLabel {
                 Text(primarySourceLabel)
                     .font(.system(size: 9))
-                    .foregroundStyle(cardPalette.textTertiary.opacity(0.9))
+                    .foregroundStyle(self.cardPalette.textTertiary.opacity(0.9))
                     .lineLimit(1)
             }
         }
@@ -468,15 +470,15 @@ struct ShareCardContent: View {
 // MARK: - UIKit Wrappers
 
 #if canImport(UIKit)
-private struct ActivityViewControllerWrapper: UIViewControllerRepresentable {
-    let activityItems: [Any]
+    private struct ActivityViewControllerWrapper: UIViewControllerRepresentable {
+        let activityItems: [Any]
 
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        func makeUIViewController(context: Context) -> UIActivityViewController {
+            UIActivityViewController(activityItems: self.activityItems, applicationActivities: nil)
+        }
+
+        func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
     }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
 #endif
 
 // MARK: - Preview
@@ -488,7 +490,7 @@ private struct ActivityViewControllerWrapper: UIViewControllerRepresentable {
             latinText: "Not all those who wander are lost.",
             author: "J.R.R. Tolkien",
             script: .elder,
-            font: .noto
+            font: .noto,
         )
     }
 }

@@ -2,12 +2,12 @@
 //  QuoteViewModel+Translation.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
 
-struct ResolvedRunicPresentation: Sendable {
+struct ResolvedRunicPresentation {
     let text: String
     let source: RunicPresentationSource
     let evidenceTier: TranslationEvidenceTier?
@@ -35,13 +35,13 @@ extension QuoteViewModel {
     func preferredRunicPresentation(for quote: QuoteRecord) async -> ResolvedRunicPresentation {
         if let cachedTranslation = try? await translationProvider.latestTranslation(
             for: quote.id,
-            script: state.currentScript
+            script: state.currentScript,
         ), cachedTranslation.isAvailable {
             return ResolvedRunicPresentation(
                 text: cachedTranslation.glyphOutput,
                 source: .structuredTranslation,
                 evidenceTier: cachedTranslation.evidenceTier,
-                primarySourceLabel: cachedTranslation.primaryEvidenceLabel
+                primarySourceLabel: cachedTranslation.primaryEvidenceLabel,
             )
         }
 
@@ -50,7 +50,7 @@ extension QuoteViewModel {
                 text: storedRunic,
                 source: .storedTransliteration,
                 evidenceTier: nil,
-                primarySourceLabel: nil
+                primarySourceLabel: nil,
             )
         }
 
@@ -58,11 +58,11 @@ extension QuoteViewModel {
             text: RunicTransliterator.transliterate(quote.textLatin, to: state.currentScript),
             source: .liveTransliteration,
             evidenceTier: nil,
-            primarySourceLabel: nil
+            primarySourceLabel: nil,
         )
     }
 
     func preferredRunicText(for quote: QuoteRecord) async -> String {
-        await preferredRunicPresentation(for: quote).text
+        await self.preferredRunicPresentation(for: quote).text
     }
 }

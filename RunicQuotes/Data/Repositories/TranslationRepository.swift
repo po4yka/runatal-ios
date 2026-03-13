@@ -2,7 +2,7 @@
 //  TranslationRepository.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -22,7 +22,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
 
     init(
         modelContext: ModelContext,
-        translationService: HistoricalTranslationService = HistoricalTranslationService()
+        translationService: HistoricalTranslationService = HistoricalTranslationService(),
     ) {
         self.modelContext = modelContext
         self.translationService = translationService
@@ -33,7 +33,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             predicate: #Predicate {
                 $0.quoteID == quoteID && $0.scriptRaw == script.rawValue
             },
-            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)],
         )
         descriptor.fetchLimit = 1
         guard let record = try modelContext.fetch(descriptor).first else {
@@ -51,11 +51,11 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             fidelity: result.fidelity,
             requestedVariant: result.requestedVariant,
             engineVersion: result.engineVersion,
-            datasetVersion: result.datasetVersion
+            datasetVersion: result.datasetVersion,
         )
 
         var descriptor = FetchDescriptor<TranslationRecord>(
-            predicate: #Predicate { $0.cacheKey == cacheKey }
+            predicate: #Predicate { $0.cacheKey == cacheKey },
         )
         descriptor.fetchLimit = 1
 
@@ -76,10 +76,10 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             existing.userFacingWarningsData = try JSONEncoder().encode(result.userFacingWarnings)
             existing.updatedAt = Date()
         } else {
-            modelContext.insert(TranslationRecord(result: result.withSourceText(sourceText), quoteID: quoteID))
+            self.modelContext.insert(TranslationRecord(result: result.withSourceText(sourceText), quoteID: quoteID))
         }
 
-        try modelContext.save()
+        try self.modelContext.save()
         NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": quoteID])
     }
 
@@ -91,21 +91,21 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
 
     func deleteTranslations(for quoteID: UUID) throws {
         let descriptor = FetchDescriptor<TranslationRecord>(
-            predicate: #Predicate { $0.quoteID == quoteID }
+            predicate: #Predicate { $0.quoteID == quoteID },
         )
-        for record in try modelContext.fetch(descriptor) {
-            modelContext.delete(record)
+        for record in try self.modelContext.fetch(descriptor) {
+            self.modelContext.delete(record)
         }
-        try modelContext.save()
+        try self.modelContext.save()
         NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": quoteID])
     }
 
     func backfillAllQuotes() throws {
-        translationService.warmUp()
+        self.translationService.warmUp()
 
         let state = try fetchOrCreateBackfillState()
-        let versionSignature = translationService.versionSignature
-        let datasetVersion = translationService.datasetVersion
+        let versionSignature = self.translationService.versionSignature
+        let datasetVersion = self.translationService.datasetVersion
         if state.isCompleted && state.engineVersion == versionSignature && state.datasetVersion == datasetVersion {
             return
         }
@@ -117,7 +117,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         state.updatedAt = Date()
         state.completedAt = nil
         state.isCompleted = false
-        try modelContext.save()
+        try self.modelContext.save()
 
         let descriptor = FetchDescriptor<Quote>(sortBy: [SortDescriptor(\.createdAt)])
         let quotes = try modelContext.fetch(descriptor)
@@ -126,13 +126,13 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             let elder = translationService.translate(
                 text: quote.textLatin,
                 script: .elder,
-                fidelity: .strict
+                fidelity: .strict,
             )
             let younger = translationService.translate(
                 text: quote.textLatin,
                 script: .younger,
                 fidelity: .strict,
-                youngerVariant: .longBranch
+                youngerVariant: .longBranch,
             )
             try cache(results: [elder, younger], for: quote.id, sourceText: quote.textLatin)
             state.processedCount += 1
@@ -142,21 +142,21 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         state.isCompleted = true
         state.completedAt = Date()
         state.updatedAt = Date()
-        try modelContext.save()
+        try self.modelContext.save()
         NotificationCenter.default.post(name: .translationCacheUpdated, object: nil)
     }
 
     private func fetchOrCreateBackfillState() throws -> TranslationBackfillState {
         var descriptor = FetchDescriptor<TranslationBackfillState>(
-            predicate: #Predicate { $0.key == "translation-backfill-state" }
+            predicate: #Predicate { $0.key == "translation-backfill-state" },
         )
         descriptor.fetchLimit = 1
         if let state = try modelContext.fetch(descriptor).first {
             return state
         }
         let state = TranslationBackfillState()
-        modelContext.insert(state)
-        try modelContext.save()
+        self.modelContext.insert(state)
+        try self.modelContext.save()
         return state
     }
 }
@@ -187,7 +187,7 @@ private extension TranslationResult {
             engineVersion: engineVersion,
             datasetVersion: datasetVersion,
             createdAt: createdAt,
-            updatedAt: updatedAt
+            updatedAt: updatedAt,
         )
     }
 }

@@ -1,33 +1,33 @@
 //
 //  TranslationDatasetValidationTests.swift
-//  RunicQuotesTests
+//  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
-import XCTest
 @testable import RunicQuotes
+import XCTest
 
 final class TranslationDatasetValidationTests: XCTestCase {
     private let provider = AssetTranslationDatasetProvider()
 
     func testDatasetManifestDeclaresSourceOfTruthPackage() {
-        let manifest = provider.datasetManifest()
+        let manifest = self.provider.datasetManifest()
 
         XCTAssertEqual(manifest.version, "2026.03-curated-v3")
         XCTAssertEqual(manifest.sourceOfTruthPackage, "TranslationCuration/translation-curation-v1")
     }
 
     func testSourceManifestEntriesHaveLicenseNotesAndValidURLs() {
-        for source in provider.sourceManifest().sources {
+        for source in self.provider.sourceManifest().sources {
             XCTAssertFalse((source.licenseNote ?? "").isEmpty, "Missing license note for source \(source.id)")
             XCTAssertNotNil(URL(string: source.url), "Invalid URL for source \(source.id)")
         }
     }
 
     func testStrictEntriesHaveStableIDsAndCitations() {
-        let oldNorse = provider.oldNorseLexicon()
-        let protoNorse = provider.protoNorseLexicon()
+        let oldNorse = self.provider.oldNorseLexicon()
+        let protoNorse = self.provider.protoNorseLexicon()
 
         XCTAssertEqual(Set(oldNorse.map(\.id)).count, oldNorse.count)
         XCTAssertEqual(Set(protoNorse.map(\.id)).count, protoNorse.count)
@@ -44,7 +44,7 @@ final class TranslationDatasetValidationTests: XCTestCase {
     }
 
     func testOnpEntriesExposeLemmaAuthorityIdentifiers() {
-        let onpEntries = provider.oldNorseLexicon().filter { $0.sourceID == "onp" }
+        let onpEntries = self.provider.oldNorseLexicon().filter { $0.sourceID == "onp" }
 
         XCTAssertFalse(onpEntries.isEmpty, "Expected at least one ONP-backed entry")
         XCTAssertTrue(onpEntries.allSatisfy { ($0.lemmaAuthorityID ?? "").hasPrefix("ONP:") })
@@ -52,7 +52,7 @@ final class TranslationDatasetValidationTests: XCTestCase {
 
     func testGoldCorpusBenchmarksReferenceKnownAttestationIDs() {
         let referenceIDs = Set(provider.runicCorpusReferences().map(\.id))
-        let goldCorpus = provider.goldCorpus()
+        let goldCorpus = self.provider.goldCorpus()
 
         XCTAssertFalse(goldCorpus.benchmarks.isEmpty)
 

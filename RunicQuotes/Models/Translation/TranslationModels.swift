@@ -2,7 +2,7 @@
 //  TranslationModels.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -10,18 +10,20 @@ import Foundation
 // MARK: - Core Enums
 
 /// Presentation mode for the translation screen.
-enum TranslationMode: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationMode: String, Codable, CaseIterable, Identifiable {
     case transliterate = "TRANSLITERATE"
     case translate = "TRANSLATE"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .transliterate:
-            return "Transliterate"
+            "Transliterate"
         case .translate:
-            return "Translate"
+            "Translate"
         }
     }
 
@@ -29,21 +31,23 @@ enum TranslationMode: String, Codable, CaseIterable, Identifiable, Sendable {
 }
 
 /// Fidelity level for historical translation output.
-enum TranslationFidelity: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationFidelity: String, Codable, CaseIterable, Identifiable {
     case strict = "STRICT"
     case readable = "READABLE"
     case decorative = "DECORATIVE"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .strict:
-            return "Strict"
+            "Strict"
         case .readable:
-            return "Readable"
+            "Readable"
         case .decorative:
-            return "Decorative"
+            "Decorative"
         }
     }
 
@@ -51,18 +55,20 @@ enum TranslationFidelity: String, Codable, CaseIterable, Identifiable, Sendable 
 }
 
 /// Supported source-language set for the historical translation pipeline.
-enum TranslationSourceLanguage: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationSourceLanguage: String, Codable, CaseIterable, Identifiable {
     case english = "ENGLISH"
     case unsupported = "UNSUPPORTED"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .english:
-            return "English"
+            "English"
         case .unsupported:
-            return "Unsupported"
+            "Unsupported"
         }
     }
 
@@ -72,166 +78,184 @@ enum TranslationSourceLanguage: String, Codable, CaseIterable, Identifiable, Sen
 }
 
 /// Evidence ceiling for requests that need stricter attestation requirements.
-enum TranslationEvidenceCap: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationEvidenceCap: String, Codable, CaseIterable, Identifiable {
     case fullDataset = "FULL_DATASET"
     case attestedOnly = "ATTESTED_ONLY"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 }
 
 /// Historical confidence tier for a translation result.
-enum TranslationResolutionStatus: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationResolutionStatus: String, Codable, CaseIterable, Identifiable {
     case attested = "ATTESTED"
     case reconstructed = "RECONSTRUCTED"
     case approximated = "APPROXIMATED"
     case unavailable = "UNAVAILABLE"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .attested:
-            return "Attested"
+            "Attested"
         case .reconstructed:
-            return "Reconstructed"
+            "Reconstructed"
         case .approximated:
-            return "Approximation"
+            "Approximation"
         case .unavailable:
-            return "Unavailable"
+            "Unavailable"
         }
     }
 }
 
 /// User-facing statement about how broadly the result is supported.
-enum TranslationSupportLevel: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationSupportLevel: String, Codable, CaseIterable, Identifiable {
     case supported = "SUPPORTED"
     case partial = "PARTIAL"
     case unsupported = "UNSUPPORTED"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .supported:
-            return "Supported"
+            "Supported"
         case .partial:
-            return "Partial"
+            "Partial"
         case .unsupported:
-            return "Unsupported"
+            "Unsupported"
         }
     }
 }
 
 /// User-facing evidence badge.
-enum TranslationEvidenceTier: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationEvidenceTier: String, Codable, CaseIterable, Identifiable {
     case attested = "ATTESTED"
     case reconstructed = "RECONSTRUCTED"
     case approximate = "APPROXIMATE"
     case unsupported = "UNSUPPORTED"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .attested:
-            return "Attested"
+            "Attested"
         case .reconstructed:
-            return "Reconstructed"
+            "Reconstructed"
         case .approximate:
-            return "Approximate"
+            "Approximate"
         case .unsupported:
-            return "Unsupported"
+            "Unsupported"
         }
     }
 }
 
 /// Dataset-level evidence state for curated rows.
-enum TranslationAttestationStatus: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationAttestationStatus: String, Codable, CaseIterable, Identifiable {
     case attested = "ATTESTED"
     case reconstructed = "RECONSTRUCTED"
     case fallback = "FALLBACK"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 }
 
 /// Inventory split used by the curation source of truth.
-enum TranslationInventoryKind: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationInventoryKind: String, Codable, CaseIterable, Identifiable {
     case attestedFormula = "ATTESTED_FORMULA"
     case approvedReconstruction = "APPROVED_RECONSTRUCTION"
     case readableParaphrase = "READABLE_PARAPHRASE"
     case decorativeFallback = "DECORATIVE_FALLBACK"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var isStrictEligible: Bool {
         switch self {
         case .attestedFormula, .approvedReconstruction:
-            return true
+            true
         case .readableParaphrase, .decorativeFallback:
-            return false
+            false
         }
     }
 }
 
 /// Explains how a historical translation result was derived.
-enum TranslationDerivationKind: String, Codable, CaseIterable, Identifiable, Sendable {
+enum TranslationDerivationKind: String, Codable, CaseIterable, Identifiable {
     case goldExample = "GOLD_EXAMPLE"
     case phraseTemplate = "PHRASE_TEMPLATE"
     case tokenComposed = "TOKEN_COMPOSED"
     case sequenceTranscription = "SEQUENCE_TRANSCRIPTION"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .goldExample:
-            return "Gold example"
+            "Gold example"
         case .phraseTemplate:
-            return "Phrase template"
+            "Phrase template"
         case .tokenComposed:
-            return "Token composed"
+            "Token composed"
         case .sequenceTranscription:
-            return "Sequence transcription"
+            "Sequence transcription"
         }
     }
 }
 
 /// Intermediate language stage used before glyph rendering.
-enum HistoricalStage: String, Codable, CaseIterable, Identifiable, Sendable {
+enum HistoricalStage: String, Codable, CaseIterable, Identifiable {
     case oldNorse = "OLD_NORSE"
     case protoNorse = "PROTO_NORSE"
     case ereborEnglish = "EREBOR_ENGLISH"
     case modernEnglish = "MODERN_ENGLISH"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .oldNorse:
-            return "Old Norse"
+            "Old Norse"
         case .protoNorse:
-            return "Proto-Norse"
+            "Proto-Norse"
         case .ereborEnglish:
-            return "Erebor English"
+            "Erebor English"
         case .modernEnglish:
-            return "Modern English"
+            "Modern English"
         }
     }
 }
 
 /// Rendering variant for Younger Futhark.
-enum YoungerFutharkVariant: String, Codable, CaseIterable, Identifiable, Sendable {
+enum YoungerFutharkVariant: String, Codable, CaseIterable, Identifiable {
     case longBranch = "LONG_BRANCH"
     case shortTwig = "SHORT_TWIG"
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
         case .longBranch:
-            return "Long-branch"
+            "Long-branch"
         case .shortTwig:
-            return "Short-twig"
+            "Short-twig"
         }
     }
 
@@ -241,7 +265,7 @@ enum YoungerFutharkVariant: String, Codable, CaseIterable, Identifiable, Sendabl
 // MARK: - Structured Output
 
 /// Source attribution for a translated result or one of its stages.
-struct TranslationProvenanceEntry: Codable, Hashable, Sendable {
+struct TranslationProvenanceEntry: Codable, Hashable {
     let sourceID: String
     let referenceID: String?
     let label: String
@@ -276,7 +300,7 @@ struct TranslationProvenanceEntry: Codable, Hashable, Sendable {
 }
 
 /// Per-token translation trace for educational UI and persistence.
-struct TranslationTokenBreakdown: Codable, Hashable, Sendable, Identifiable {
+struct TranslationTokenBreakdown: Codable, Hashable, Identifiable {
     let sourceToken: String
     let normalizedToken: String
     let diplomaticToken: String
@@ -285,12 +309,12 @@ struct TranslationTokenBreakdown: Codable, Hashable, Sendable, Identifiable {
     let provenance: [TranslationProvenanceEntry]
 
     var id: String {
-        "\(sourceToken)|\(normalizedToken)|\(diplomaticToken)|\(glyphToken)"
+        "\(self.sourceToken)|\(self.normalizedToken)|\(self.diplomaticToken)|\(self.glyphToken)"
     }
 }
 
 /// Input for a historical translation engine.
-struct TranslationRequest: Codable, Hashable, Sendable {
+struct TranslationRequest: Codable, Hashable {
     let sourceText: String
     let script: RunicScript
     let fidelity: TranslationFidelity
@@ -304,7 +328,7 @@ struct TranslationRequest: Codable, Hashable, Sendable {
         fidelity: TranslationFidelity = .default,
         youngerVariant: YoungerFutharkVariant = .default,
         sourceLanguage: TranslationSourceLanguage = .english,
-        evidenceCap: TranslationEvidenceCap = .fullDataset
+        evidenceCap: TranslationEvidenceCap = .fullDataset,
     ) {
         self.sourceText = sourceText
         self.script = script
@@ -316,7 +340,7 @@ struct TranslationRequest: Codable, Hashable, Sendable {
 }
 
 /// Structured translation output with intermediate layers.
-struct TranslationResult: Codable, Hashable, Sendable {
+struct TranslationResult: Codable, Hashable {
     let sourceText: String
     let script: RunicScript
     let fidelity: TranslationFidelity
@@ -366,7 +390,7 @@ struct TranslationResult: Codable, Hashable, Sendable {
         engineVersion: String,
         datasetVersion: String,
         createdAt: Date = Date(),
-        updatedAt: Date? = nil
+        updatedAt: Date? = nil,
     ) {
         self.sourceText = sourceText
         self.script = script
@@ -395,38 +419,38 @@ struct TranslationResult: Codable, Hashable, Sendable {
     }
 
     var isAvailable: Bool {
-        resolutionStatus != .unavailable && !glyphOutput.isEmpty
+        self.resolutionStatus != .unavailable && !self.glyphOutput.isEmpty
     }
 
     var primaryProvenance: TranslationProvenanceEntry? {
-        provenance.first
+        self.provenance.first
     }
 
     var primaryEvidenceLabel: String? {
-        primaryProvenance?.label
+        self.primaryProvenance?.label
     }
 
     static func defaultSupportLevel(for resolutionStatus: TranslationResolutionStatus) -> TranslationSupportLevel {
         switch resolutionStatus {
         case .attested, .reconstructed:
-            return .supported
+            .supported
         case .approximated:
-            return .partial
+            .partial
         case .unavailable:
-            return .unsupported
+            .unsupported
         }
     }
 
     static func defaultEvidenceTier(for resolutionStatus: TranslationResolutionStatus) -> TranslationEvidenceTier {
         switch resolutionStatus {
         case .attested:
-            return .attested
+            .attested
         case .reconstructed:
-            return .reconstructed
+            .reconstructed
         case .approximated:
-            return .approximate
+            .approximate
         case .unavailable:
-            return .unsupported
+            .unsupported
         }
     }
 }
@@ -437,11 +461,11 @@ extension RunicScript {
     var translationScriptName: String {
         switch self {
         case .elder:
-            return "ELDER_FUTHARK"
+            "ELDER_FUTHARK"
         case .younger:
-            return "YOUNGER_FUTHARK"
+            "YOUNGER_FUTHARK"
         case .cirth:
-            return "CIRTH"
+            "CIRTH"
         }
     }
 }

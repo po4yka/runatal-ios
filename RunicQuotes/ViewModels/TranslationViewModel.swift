@@ -2,17 +2,17 @@
 //  TranslationViewModel.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
+import os
 import SwiftData
 import SwiftUI
-import os
 
 private let translationMaxInputLength = 280
 
-struct TranslationUiState: Sendable {
+struct TranslationUiState {
     var inputText: String = ""
     var selectedScript: RunicScript = .elder
     var selectedFont: RunicFont = .noto
@@ -40,33 +40,33 @@ struct TranslationUiState: Sendable {
     var didSave = false
 
     var remainingCharacters: Int {
-        max(0, translationMaxInputLength - inputText.count)
+        max(0, translationMaxInputLength - self.inputText.count)
     }
 
     var isInputEmpty: Bool {
-        inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        self.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var fallbackSuggestion: String? {
-        guard translationMode == .translate else { return nil }
-        guard resolutionStatus == .unavailable else { return nil }
-        if selectedFidelity == .strict {
+        guard self.translationMode == .translate else { return nil }
+        guard self.resolutionStatus == .unavailable else { return nil }
+        if self.selectedFidelity == .strict {
             return "Try Readable or Decorative to allow approximated output."
         }
         return "This phrase has gaps in the curated dataset for the selected script."
     }
 
     var sourceLanguageBanner: String? {
-        guard translationMode == .translate else { return nil }
+        guard self.translationMode == .translate else { return nil }
         return "Historical translation currently supports English input only."
     }
 
     var primarySourceLabel: String? {
-        provenance.first?.label
+        self.provenance.first?.label
     }
 
     var primarySourceDetail: String? {
-        provenance.first?.detail ?? provenance.first?.sourceWork
+        self.provenance.first?.detail ?? self.provenance.first?.sourceWork
     }
 }
 
@@ -85,7 +85,7 @@ final class TranslationViewModel: ObservableObject {
         quoteRepository: QuoteRepository,
         translationRepository: TranslationRepository,
         preferencesRepository: any UserPreferencesRepository,
-        translationService: HistoricalTranslationService = HistoricalTranslationService()
+        translationService: HistoricalTranslationService = HistoricalTranslationService(),
     ) {
         self.quoteRepository = quoteRepository
         self.translationRepository = translationRepository
@@ -95,130 +95,130 @@ final class TranslationViewModel: ObservableObject {
 
     convenience init(
         modelContext: ModelContext,
-        translationService: HistoricalTranslationService = HistoricalTranslationService()
+        translationService: HistoricalTranslationService = HistoricalTranslationService(),
     ) {
         let translationRepository = SwiftDataTranslationRepository(
             modelContext: modelContext,
-            translationService: translationService
+            translationService: translationService,
         )
         self.init(
             quoteRepository: SwiftDataQuoteRepository(
                 modelContext: modelContext,
-                translationCacheRepository: translationRepository
+                translationCacheRepository: translationRepository,
             ),
             translationRepository: translationRepository,
             preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext),
-            translationService: translationService
+            translationService: translationService,
         )
     }
 
     func onAppear() {
-        loadPreferences()
-        rebuildPresentation()
+        self.loadPreferences()
+        self.rebuildPresentation()
     }
 
     func updateInputText(_ text: String) {
-        state.inputText = String(text.prefix(translationMaxInputLength))
-        state.errorMessage = nil
-        state.successMessage = nil
-        rebuildPresentation()
+        self.state.inputText = String(text.prefix(translationMaxInputLength))
+        self.state.errorMessage = nil
+        self.state.successMessage = nil
+        self.rebuildPresentation()
     }
 
     func selectMode(_ mode: TranslationMode) {
-        state.translationMode = mode
-        state.errorMessage = nil
-        state.successMessage = nil
-        rebuildPresentation()
+        self.state.translationMode = mode
+        self.state.errorMessage = nil
+        self.state.successMessage = nil
+        self.rebuildPresentation()
     }
 
     func selectScript(_ script: RunicScript) {
-        state.selectedScript = script
-        if !state.selectedFont.isCompatible(with: script) {
-            state.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
+        self.state.selectedScript = script
+        if !self.state.selectedFont.isCompatible(with: script) {
+            self.state.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
         }
-        preferences.selectedScript = script
-        preferences.selectedFont = state.selectedFont
-        persistPreferences()
-        rebuildPresentation()
+        self.preferences.selectedScript = script
+        self.preferences.selectedFont = self.state.selectedFont
+        self.persistPreferences()
+        self.rebuildPresentation()
     }
 
     func selectFidelity(_ fidelity: TranslationFidelity) {
-        state.selectedFidelity = fidelity
-        rebuildPresentation()
+        self.state.selectedFidelity = fidelity
+        self.rebuildPresentation()
     }
 
     func selectYoungerVariant(_ variant: YoungerFutharkVariant) {
-        state.selectedYoungerVariant = variant
-        rebuildPresentation()
+        self.state.selectedYoungerVariant = variant
+        self.rebuildPresentation()
     }
 
     func clearInput() {
-        state.inputText = ""
-        state.outputText = ""
-        state.normalizedForm = nil
-        state.diplomaticForm = nil
-        state.notes = []
-        state.provenance = []
-        state.tokenBreakdown = []
-        state.unresolvedTokens = []
-        state.attestationRefs = []
-        state.inputLanguage = .english
-        state.userFacingWarnings = []
-        state.resolutionStatus = nil
-        state.supportLevel = nil
-        state.evidenceTier = nil
-        state.derivationKind = nil
-        state.errorMessage = nil
-        state.successMessage = nil
-        state.didSave = false
+        self.state.inputText = ""
+        self.state.outputText = ""
+        self.state.normalizedForm = nil
+        self.state.diplomaticForm = nil
+        self.state.notes = []
+        self.state.provenance = []
+        self.state.tokenBreakdown = []
+        self.state.unresolvedTokens = []
+        self.state.attestationRefs = []
+        self.state.inputLanguage = .english
+        self.state.userFacingWarnings = []
+        self.state.resolutionStatus = nil
+        self.state.supportLevel = nil
+        self.state.evidenceTier = nil
+        self.state.derivationKind = nil
+        self.state.errorMessage = nil
+        self.state.successMessage = nil
+        self.state.didSave = false
     }
 
     func toggleWordByWordMode() {
-        state.isWordByWordEnabled.toggle()
+        self.state.isWordByWordEnabled.toggle()
     }
 
     func setWordByWordEnabled(_ enabled: Bool) {
-        state.isWordByWordEnabled = enabled
+        self.state.isWordByWordEnabled = enabled
     }
 
     func saveToLibrary() {
-        let input = state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let input = self.state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !input.isEmpty else {
-            state.errorMessage = "Enter a phrase to save."
+            self.state.errorMessage = "Enter a phrase to save."
             return
         }
 
-        state.isSaving = true
-        state.errorMessage = nil
-        state.successMessage = nil
-        state.didSave = false
+        self.state.isSaving = true
+        self.state.errorMessage = nil
+        self.state.successMessage = nil
+        self.state.didSave = false
 
         do {
             let savedQuote: QuoteRecord
             let saveMessage: String
-            switch state.translationMode {
+            switch self.state.translationMode {
             case .transliterate:
-                (savedQuote, saveMessage) = try saveTransliterationQuote(
+                (savedQuote, saveMessage) = try self.saveTransliterationQuote(
                     input: input,
-                    quoteRepository: quoteRepository
+                    quoteRepository: self.quoteRepository,
                 )
 
             case .translate:
-                (savedQuote, saveMessage) = try saveStructuredQuote(
+                (savedQuote, saveMessage) = try self.saveStructuredQuote(
                     input: input,
-                    quoteRepository: quoteRepository,
-                    translationRepository: translationRepository
+                    quoteRepository: self.quoteRepository,
+                    translationRepository: self.translationRepository,
                 )
             }
 
-            logger.info("Saved translation flow quote: \(savedQuote.id)")
-            state.isSaving = false
-            state.successMessage = saveMessage
-            state.didSave = true
+            self.logger.info("Saved translation flow quote: \(savedQuote.id)")
+            self.state.isSaving = false
+            self.state.successMessage = saveMessage
+            self.state.didSave = true
         } catch {
-            state.isSaving = false
-            state.errorMessage = error.localizedDescription
-            logger.error("Failed to save translation flow quote: \(error.localizedDescription)")
+            self.state.isSaving = false
+            self.state.errorMessage = error.localizedDescription
+            self.logger.error("Failed to save translation flow quote: \(error.localizedDescription)")
         }
     }
 
@@ -229,98 +229,98 @@ final class TranslationViewModel: ObservableObject {
         return TranslationViewModel(
             quoteRepository: SwiftDataQuoteRepository(
                 modelContext: context,
-                translationCacheRepository: translationRepository
+                translationCacheRepository: translationRepository,
             ),
             translationRepository: translationRepository,
-            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context)
+            preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context),
         )
     }
 
     private func loadPreferences() {
         do {
-            preferences = try preferencesRepository.snapshot()
-            state.selectedScript = preferences.selectedScript
-            state.selectedFont = preferences.selectedFont.isCompatible(with: preferences.selectedScript)
-                ? preferences.selectedFont
-                : RunicFontConfiguration.recommendedFont(for: preferences.selectedScript)
+            self.preferences = try self.preferencesRepository.snapshot()
+            self.state.selectedScript = self.preferences.selectedScript
+            self.state.selectedFont = self.preferences.selectedFont.isCompatible(with: self.preferences.selectedScript)
+                ? self.preferences.selectedFont
+                : RunicFontConfiguration.recommendedFont(for: self.preferences.selectedScript)
         } catch {
-            state.errorMessage = "Failed to load preferences: \(error.localizedDescription)"
+            self.state.errorMessage = "Failed to load preferences: \(error.localizedDescription)"
         }
     }
 
     private func persistPreferences() {
         do {
-            try preferencesRepository.save(preferences)
+            try self.preferencesRepository.save(self.preferences)
         } catch {
-            state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
+            self.state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
         }
     }
 
     private func rebuildPresentation() {
-        let input = state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let input = self.state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !input.isEmpty else {
-            state.outputText = ""
-            state.normalizedForm = nil
-            state.diplomaticForm = nil
-            state.resolutionStatus = nil
-            state.supportLevel = nil
-            state.evidenceTier = nil
-            state.derivationKind = nil
-            state.notes = []
-            state.provenance = []
-            state.tokenBreakdown = []
-            state.unresolvedTokens = []
-            state.attestationRefs = []
-            state.inputLanguage = .english
-            state.userFacingWarnings = []
+            self.state.outputText = ""
+            self.state.normalizedForm = nil
+            self.state.diplomaticForm = nil
+            self.state.resolutionStatus = nil
+            self.state.supportLevel = nil
+            self.state.evidenceTier = nil
+            self.state.derivationKind = nil
+            self.state.notes = []
+            self.state.provenance = []
+            self.state.tokenBreakdown = []
+            self.state.unresolvedTokens = []
+            self.state.attestationRefs = []
+            self.state.inputLanguage = .english
+            self.state.userFacingWarnings = []
             return
         }
 
-        switch state.translationMode {
+        switch self.state.translationMode {
         case .transliterate:
-            state.outputText = RunicTransliterator.transliterate(input, to: state.selectedScript)
-            state.normalizedForm = nil
-            state.diplomaticForm = nil
-            state.resolutionStatus = nil
-            state.supportLevel = nil
-            state.evidenceTier = nil
-            state.derivationKind = nil
-            state.notes = []
-            state.provenance = []
-            state.unresolvedTokens = []
-            state.attestationRefs = []
-            state.inputLanguage = .english
-            state.userFacingWarnings = []
-            state.tokenBreakdown = buildTransliterationBreakdown(for: input, script: state.selectedScript)
+            self.state.outputText = RunicTransliterator.transliterate(input, to: self.state.selectedScript)
+            self.state.normalizedForm = nil
+            self.state.diplomaticForm = nil
+            self.state.resolutionStatus = nil
+            self.state.supportLevel = nil
+            self.state.evidenceTier = nil
+            self.state.derivationKind = nil
+            self.state.notes = []
+            self.state.provenance = []
+            self.state.unresolvedTokens = []
+            self.state.attestationRefs = []
+            self.state.inputLanguage = .english
+            self.state.userFacingWarnings = []
+            self.state.tokenBreakdown = self.buildTransliterationBreakdown(for: input, script: self.state.selectedScript)
 
         case .translate:
-            let result = translationService.translate(
+            let result = self.translationService.translate(
                 text: input,
-                script: state.selectedScript,
-                fidelity: state.selectedFidelity,
-                youngerVariant: state.selectedYoungerVariant,
-                sourceLanguage: .english
+                script: self.state.selectedScript,
+                fidelity: self.state.selectedFidelity,
+                youngerVariant: self.state.selectedYoungerVariant,
+                sourceLanguage: .english,
             )
-            state.outputText = result.glyphOutput
-            state.normalizedForm = result.normalizedForm.nilIfEmpty
-            state.diplomaticForm = result.diplomaticForm.nilIfEmpty
-            state.resolutionStatus = result.resolutionStatus
-            state.supportLevel = result.supportLevel
-            state.evidenceTier = result.evidenceTier
-            state.derivationKind = result.derivationKind
-            state.notes = result.notes
-            state.provenance = result.provenance
-            state.tokenBreakdown = result.tokenBreakdown
-            state.unresolvedTokens = result.unresolvedTokens
-            state.attestationRefs = result.attestationRefs
-            state.inputLanguage = result.inputLanguage
-            state.userFacingWarnings = result.userFacingWarnings
+            self.state.outputText = result.glyphOutput
+            self.state.normalizedForm = result.normalizedForm.nilIfEmpty
+            self.state.diplomaticForm = result.diplomaticForm.nilIfEmpty
+            self.state.resolutionStatus = result.resolutionStatus
+            self.state.supportLevel = result.supportLevel
+            self.state.evidenceTier = result.evidenceTier
+            self.state.derivationKind = result.derivationKind
+            self.state.notes = result.notes
+            self.state.provenance = result.provenance
+            self.state.tokenBreakdown = result.tokenBreakdown
+            self.state.unresolvedTokens = result.unresolvedTokens
+            self.state.attestationRefs = result.attestationRefs
+            self.state.inputLanguage = result.inputLanguage
+            self.state.userFacingWarnings = result.userFacingWarnings
         }
     }
 
     private func buildTransliterationBreakdown(
         for text: String,
-        script: RunicScript
+        script: RunicScript,
     ) -> [TranslationTokenBreakdown] {
         text
             .split(whereSeparator: \.isWhitespace)
@@ -332,26 +332,26 @@ final class TranslationViewModel: ObservableObject {
                     diplomaticToken: token.lowercased(),
                     glyphToken: RunicTransliterator.transliterate(token, to: script),
                     resolutionStatus: .reconstructed,
-                    provenance: []
+                    provenance: [],
                 )
             }
     }
 
     private func saveTransliterationQuote(
         input: String,
-        quoteRepository: QuoteRepository
+        quoteRepository: QuoteRepository,
     ) throws -> (QuoteRecord, String) {
         let bundle = RunicTextBundle(
             elder: RunicTransliterator.transliterate(input, to: .elder),
             younger: RunicTransliterator.transliterate(input, to: .younger),
-            cirth: RunicTransliterator.transliterate(input, to: .cirth)
+            cirth: RunicTransliterator.transliterate(input, to: .cirth),
         )
         let savedQuote = try quoteRepository.createQuote(
             textLatin: input,
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: bundle
+            storedRunic: bundle,
         )
         return (savedQuote, String(localized: "translation.save.success"))
     }
@@ -359,13 +359,13 @@ final class TranslationViewModel: ObservableObject {
     private func saveStructuredQuote(
         input: String,
         quoteRepository: QuoteRepository,
-        translationRepository: TranslationRepository
+        translationRepository: TranslationRepository,
     ) throws -> (QuoteRecord, String) {
-        let results = translationService.translateAllAvailable(
+        let results = self.translationService.translateAllAvailable(
             text: input,
-            fidelity: state.selectedFidelity,
-            youngerVariant: state.selectedYoungerVariant,
-            sourceLanguage: .english
+            fidelity: self.state.selectedFidelity,
+            youngerVariant: self.state.selectedYoungerVariant,
+            sourceLanguage: .english,
         )
         guard results.contains(where: \.isAvailable) else {
             throw TranslationSaveError.noStructuredTranslationsAvailable
@@ -373,14 +373,14 @@ final class TranslationViewModel: ObservableObject {
         let bundle = RunicTextBundle(
             elder: results.first(where: { $0.script == .elder && $0.isAvailable })?.glyphOutput,
             younger: results.first(where: { $0.script == .younger && $0.isAvailable })?.glyphOutput,
-            cirth: results.first(where: { $0.script == .cirth && $0.isAvailable })?.glyphOutput
+            cirth: results.first(where: { $0.script == .cirth && $0.isAvailable })?.glyphOutput,
         )
         let savedQuote = try quoteRepository.createQuote(
             textLatin: input,
             author: "Runatal",
             source: nil,
             collection: .motivation,
-            storedRunic: bundle
+            storedRunic: bundle,
         )
         try translationRepository.cache(results: results, for: savedQuote.id, sourceText: input)
         return (savedQuote, String(localized: "translation.save.success.structured"))
@@ -393,7 +393,7 @@ private enum TranslationSaveError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noStructuredTranslationsAvailable:
-            return "No structured historical translation is available for this input yet."
+            "No structured historical translation is available for this input yet."
         }
     }
 }

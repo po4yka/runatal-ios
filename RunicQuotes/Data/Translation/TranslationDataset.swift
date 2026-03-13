@@ -2,7 +2,7 @@
 //  TranslationDataset.swift
 //  RunicQuotes
 //
-//  Created by Codex on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
 import Foundation
@@ -38,7 +38,7 @@ protocol EreborOrthographyStore {
 
 // MARK: - Dataset Models
 
-struct TranslationDatasetManifest: Codable, Sendable {
+struct TranslationDatasetManifest: Codable {
     let version: String
     let generatedAt: String
     let generatedBy: String
@@ -47,15 +47,15 @@ struct TranslationDatasetManifest: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        version = try container.decode(String.self, forKey: .version)
-        generatedAt = try container.decode(String.self, forKey: .generatedAt)
-        generatedBy = try container.decode(String.self, forKey: .generatedBy)
-        sourceOfTruthPackage = try container.decodeIfPresent(String.self, forKey: .sourceOfTruthPackage)
-        notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
+        self.version = try container.decode(String.self, forKey: .version)
+        self.generatedAt = try container.decode(String.self, forKey: .generatedAt)
+        self.generatedBy = try container.decode(String.self, forKey: .generatedBy)
+        self.sourceOfTruthPackage = try container.decodeIfPresent(String.self, forKey: .sourceOfTruthPackage)
+        self.notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
     }
 }
 
-struct OldNorseLexiconEntry: Codable, Sendable {
+struct OldNorseLexiconEntry: Codable {
     let id: String
     let english: String
     let partOfSpeech: String
@@ -102,40 +102,40 @@ struct OldNorseLexiconEntry: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        english = try container.decode(String.self, forKey: .english)
-        partOfSpeech = try container.decode(String.self, forKey: .partOfSpeech)
-        lemma = try container.decode(String.self, forKey: .lemma)
-        paradigmID = try container.decodeIfPresent(String.self, forKey: .paradigmID)
-        present3sg = try container.decodeIfPresent(String.self, forKey: .present3sg)
-        past3sg = try container.decodeIfPresent(String.self, forKey: .past3sg)
-        pluralForm = try container.decodeIfPresent(String.self, forKey: .pluralForm)
-        dativePhrase = try container.decodeIfPresent(String.self, forKey: .dativePhrase)
-        strictEligible = try container.decodeIfPresent(Bool.self, forKey: .strictEligible) ?? true
-        sourceID = try container.decode(String.self, forKey: .sourceID)
-        sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
-        citations = try container.decodeIfPresent([String].self, forKey: .citations) ?? []
-        attestationStatusRaw = try container.decodeIfPresent(String.self, forKey: .attestationStatusRaw)
-            ?? (strictEligible ? TranslationAttestationStatus.reconstructed.rawValue : TranslationAttestationStatus.fallback.rawValue)
-        inventoryRaw = try container.decodeIfPresent(String.self, forKey: .inventoryRaw)
-            ?? (strictEligible ? TranslationInventoryKind.approvedReconstruction.rawValue : TranslationInventoryKind.readableParaphrase.rawValue)
-        lemmaAuthorityID = try container.decodeIfPresent(String.self, forKey: .lemmaAuthorityID)
-        grammaticalClass = try container.decodeIfPresent(String.self, forKey: .grammaticalClass)
-        historicalStage = try container.decodeIfPresent(String.self, forKey: .historicalStage)
-        licenseNote = try container.decodeIfPresent(String.self, forKey: .licenseNote)
-        regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.english = try container.decode(String.self, forKey: .english)
+        self.partOfSpeech = try container.decode(String.self, forKey: .partOfSpeech)
+        self.lemma = try container.decode(String.self, forKey: .lemma)
+        self.paradigmID = try container.decodeIfPresent(String.self, forKey: .paradigmID)
+        self.present3sg = try container.decodeIfPresent(String.self, forKey: .present3sg)
+        self.past3sg = try container.decodeIfPresent(String.self, forKey: .past3sg)
+        self.pluralForm = try container.decodeIfPresent(String.self, forKey: .pluralForm)
+        self.dativePhrase = try container.decodeIfPresent(String.self, forKey: .dativePhrase)
+        self.strictEligible = try container.decodeIfPresent(Bool.self, forKey: .strictEligible) ?? true
+        self.sourceID = try container.decode(String.self, forKey: .sourceID)
+        self.sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
+        self.citations = try container.decodeIfPresent([String].self, forKey: .citations) ?? []
+        self.attestationStatusRaw = try container.decodeIfPresent(String.self, forKey: .attestationStatusRaw)
+            ?? (self.strictEligible ? TranslationAttestationStatus.reconstructed.rawValue : TranslationAttestationStatus.fallback.rawValue)
+        self.inventoryRaw = try container.decodeIfPresent(String.self, forKey: .inventoryRaw)
+            ?? (self.strictEligible ? TranslationInventoryKind.approvedReconstruction.rawValue : TranslationInventoryKind.readableParaphrase.rawValue)
+        self.lemmaAuthorityID = try container.decodeIfPresent(String.self, forKey: .lemmaAuthorityID)
+        self.grammaticalClass = try container.decodeIfPresent(String.self, forKey: .grammaticalClass)
+        self.historicalStage = try container.decodeIfPresent(String.self, forKey: .historicalStage)
+        self.licenseNote = try container.decodeIfPresent(String.self, forKey: .licenseNote)
+        self.regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
     }
 
     var attestationStatus: TranslationAttestationStatus {
-        TranslationAttestationStatus(rawValue: attestationStatusRaw) ?? .reconstructed
+        TranslationAttestationStatus(rawValue: self.attestationStatusRaw) ?? .reconstructed
     }
 
     var inventory: TranslationInventoryKind {
-        TranslationInventoryKind(rawValue: inventoryRaw) ?? .approvedReconstruction
+        TranslationInventoryKind(rawValue: self.inventoryRaw) ?? .approvedReconstruction
     }
 }
 
-struct ProtoNorseLexiconEntry: Codable, Sendable {
+struct ProtoNorseLexiconEntry: Codable {
     let id: String
     let english: String
     let form: String
@@ -172,56 +172,56 @@ struct ProtoNorseLexiconEntry: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        english = try container.decode(String.self, forKey: .english)
-        form = try container.decode(String.self, forKey: .form)
-        partOfSpeech = try container.decode(String.self, forKey: .partOfSpeech)
-        strictEligible = try container.decodeIfPresent(Bool.self, forKey: .strictEligible) ?? false
-        sourceID = try container.decode(String.self, forKey: .sourceID)
-        sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
-        citations = try container.decodeIfPresent([String].self, forKey: .citations) ?? []
-        attestationStatusRaw = try container.decodeIfPresent(String.self, forKey: .attestationStatusRaw)
-            ?? (strictEligible ? TranslationAttestationStatus.reconstructed.rawValue : TranslationAttestationStatus.fallback.rawValue)
-        inventoryRaw = try container.decodeIfPresent(String.self, forKey: .inventoryRaw)
-            ?? (strictEligible ? TranslationInventoryKind.approvedReconstruction.rawValue : TranslationInventoryKind.readableParaphrase.rawValue)
-        lemmaAuthorityID = try container.decodeIfPresent(String.self, forKey: .lemmaAuthorityID)
-        grammaticalClass = try container.decodeIfPresent(String.self, forKey: .grammaticalClass)
-        historicalStage = try container.decodeIfPresent(String.self, forKey: .historicalStage)
-        licenseNote = try container.decodeIfPresent(String.self, forKey: .licenseNote)
-        regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.english = try container.decode(String.self, forKey: .english)
+        self.form = try container.decode(String.self, forKey: .form)
+        self.partOfSpeech = try container.decode(String.self, forKey: .partOfSpeech)
+        self.strictEligible = try container.decodeIfPresent(Bool.self, forKey: .strictEligible) ?? false
+        self.sourceID = try container.decode(String.self, forKey: .sourceID)
+        self.sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
+        self.citations = try container.decodeIfPresent([String].self, forKey: .citations) ?? []
+        self.attestationStatusRaw = try container.decodeIfPresent(String.self, forKey: .attestationStatusRaw)
+            ?? (self.strictEligible ? TranslationAttestationStatus.reconstructed.rawValue : TranslationAttestationStatus.fallback.rawValue)
+        self.inventoryRaw = try container.decodeIfPresent(String.self, forKey: .inventoryRaw)
+            ?? (self.strictEligible ? TranslationInventoryKind.approvedReconstruction.rawValue : TranslationInventoryKind.readableParaphrase.rawValue)
+        self.lemmaAuthorityID = try container.decodeIfPresent(String.self, forKey: .lemmaAuthorityID)
+        self.grammaticalClass = try container.decodeIfPresent(String.self, forKey: .grammaticalClass)
+        self.historicalStage = try container.decodeIfPresent(String.self, forKey: .historicalStage)
+        self.licenseNote = try container.decodeIfPresent(String.self, forKey: .licenseNote)
+        self.regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
     }
 
     var attestationStatus: TranslationAttestationStatus {
-        TranslationAttestationStatus(rawValue: attestationStatusRaw) ?? .reconstructed
+        TranslationAttestationStatus(rawValue: self.attestationStatusRaw) ?? .reconstructed
     }
 
     var inventory: TranslationInventoryKind {
-        TranslationInventoryKind(rawValue: inventoryRaw) ?? .approvedReconstruction
+        TranslationInventoryKind(rawValue: self.inventoryRaw) ?? .approvedReconstruction
     }
 }
 
-struct ParadigmTablesData: Codable, Sendable {
+struct ParadigmTablesData: Codable {
     let nounParadigms: [String: NounParadigm]
     let verbParadigms: [String: VerbParadigm]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        nounParadigms = try container.decodeIfPresent([String: NounParadigm].self, forKey: .nounParadigms) ?? [:]
-        verbParadigms = try container.decodeIfPresent([String: VerbParadigm].self, forKey: .verbParadigms) ?? [:]
+        self.nounParadigms = try container.decodeIfPresent([String: NounParadigm].self, forKey: .nounParadigms) ?? [:]
+        self.verbParadigms = try container.decodeIfPresent([String: VerbParadigm].self, forKey: .verbParadigms) ?? [:]
     }
 }
 
-struct NounParadigm: Codable, Sendable {
+struct NounParadigm: Codable {
     let nominativeSingularSuffix: String
     let pluralSuffix: String
 }
 
-struct VerbParadigm: Codable, Sendable {
+struct VerbParadigm: Codable {
     let thirdPersonPresentSuffix: String
     let thirdPersonPastSuffix: String
 }
 
-struct EreborTablesData: Codable, Sendable {
+struct EreborTablesData: Codable {
     let phraseMappings: [EreborPhraseMappingEntry]
     let sequences: [String: String]
     let singleCharacters: [String: String]
@@ -231,16 +231,16 @@ struct EreborTablesData: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        phraseMappings = try container.decodeIfPresent([EreborPhraseMappingEntry].self, forKey: .phraseMappings) ?? []
-        sequences = try container.decodeIfPresent([String: String].self, forKey: .sequences) ?? [:]
-        singleCharacters = try container.decodeIfPresent([String: String].self, forKey: .singleCharacters) ?? [:]
-        longVowels = try container.decodeIfPresent([String: String].self, forKey: .longVowels) ?? [:]
-        longConsonants = try container.decodeIfPresent([String: String].self, forKey: .longConsonants) ?? [:]
-        wordSeparator = try container.decodeIfPresent(String.self, forKey: .wordSeparator) ?? "·"
+        self.phraseMappings = try container.decodeIfPresent([EreborPhraseMappingEntry].self, forKey: .phraseMappings) ?? []
+        self.sequences = try container.decodeIfPresent([String: String].self, forKey: .sequences) ?? [:]
+        self.singleCharacters = try container.decodeIfPresent([String: String].self, forKey: .singleCharacters) ?? [:]
+        self.longVowels = try container.decodeIfPresent([String: String].self, forKey: .longVowels) ?? [:]
+        self.longConsonants = try container.decodeIfPresent([String: String].self, forKey: .longConsonants) ?? [:]
+        self.wordSeparator = try container.decodeIfPresent(String.self, forKey: .wordSeparator) ?? "·"
     }
 }
 
-struct EreborPhraseMappingEntry: Codable, Sendable {
+struct EreborPhraseMappingEntry: Codable {
     let id: String
     let sourceText: String
     let diplomaticForm: String
@@ -261,17 +261,17 @@ struct EreborPhraseMappingEntry: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        sourceText = try container.decode(String.self, forKey: .sourceText)
-        diplomaticForm = try container.decode(String.self, forKey: .diplomaticForm)
-        glyphOutput = try container.decodeIfPresent(String.self, forKey: .glyphOutput) ?? ""
-        resolutionStatus = try container.decodeIfPresent(String.self, forKey: .resolutionStatus) ?? "ATTESTED"
-        notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
-        referenceIDs = try container.decodeIfPresent([String].self, forKey: .referenceIDs) ?? []
+        self.id = try container.decode(String.self, forKey: .id)
+        self.sourceText = try container.decode(String.self, forKey: .sourceText)
+        self.diplomaticForm = try container.decode(String.self, forKey: .diplomaticForm)
+        self.glyphOutput = try container.decodeIfPresent(String.self, forKey: .glyphOutput) ?? ""
+        self.resolutionStatus = try container.decodeIfPresent(String.self, forKey: .resolutionStatus) ?? "ATTESTED"
+        self.notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
+        self.referenceIDs = try container.decodeIfPresent([String].self, forKey: .referenceIDs) ?? []
     }
 }
 
-struct GrammarRulesData: Codable, Sendable {
+struct GrammarRulesData: Codable {
     let removableWords: [String]
     let prepositionMap: [String: String]
     let interrogatives: [String]
@@ -291,7 +291,7 @@ struct GrammarRulesData: Codable, Sendable {
         negationMap: [String: String],
         multiwordExpressions: [String],
         imperativeHints: [String],
-        englishFunctionWords: [String]
+        englishFunctionWords: [String],
     ) {
         self.removableWords = removableWords
         self.prepositionMap = prepositionMap
@@ -306,48 +306,48 @@ struct GrammarRulesData: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        removableWords = try container.decodeIfPresent([String].self, forKey: .removableWords) ?? []
-        prepositionMap = try container.decodeIfPresent([String: String].self, forKey: .prepositionMap) ?? [:]
-        interrogatives = try container.decodeIfPresent([String].self, forKey: .interrogatives) ?? []
-        pronounMap = try container.decodeIfPresent([String: String].self, forKey: .pronounMap) ?? [:]
-        auxiliaryMap = try container.decodeIfPresent([String: String].self, forKey: .auxiliaryMap) ?? [:]
-        negationMap = try container.decodeIfPresent([String: String].self, forKey: .negationMap) ?? [:]
-        multiwordExpressions = try container.decodeIfPresent([String].self, forKey: .multiwordExpressions) ?? []
-        imperativeHints = try container.decodeIfPresent([String].self, forKey: .imperativeHints) ?? []
-        englishFunctionWords = try container.decodeIfPresent([String].self, forKey: .englishFunctionWords) ?? []
+        self.removableWords = try container.decodeIfPresent([String].self, forKey: .removableWords) ?? []
+        self.prepositionMap = try container.decodeIfPresent([String: String].self, forKey: .prepositionMap) ?? [:]
+        self.interrogatives = try container.decodeIfPresent([String].self, forKey: .interrogatives) ?? []
+        self.pronounMap = try container.decodeIfPresent([String: String].self, forKey: .pronounMap) ?? [:]
+        self.auxiliaryMap = try container.decodeIfPresent([String: String].self, forKey: .auxiliaryMap) ?? [:]
+        self.negationMap = try container.decodeIfPresent([String: String].self, forKey: .negationMap) ?? [:]
+        self.multiwordExpressions = try container.decodeIfPresent([String].self, forKey: .multiwordExpressions) ?? []
+        self.imperativeHints = try container.decodeIfPresent([String].self, forKey: .imperativeHints) ?? []
+        self.englishFunctionWords = try container.decodeIfPresent([String].self, forKey: .englishFunctionWords) ?? []
     }
 }
 
-struct NameAdaptationsData: Codable, Sendable {
+struct NameAdaptationsData: Codable {
     let names: [String: String]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        names = try container.decodeIfPresent([String: String].self, forKey: .names) ?? [:]
+        self.names = try container.decodeIfPresent([String: String].self, forKey: .names) ?? [:]
     }
 }
 
-struct FallbackTemplatesData: Codable, Sendable {
+struct FallbackTemplatesData: Codable {
     let synonyms: [String: String]
     let paraphrases: [String: String]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        synonyms = try container.decodeIfPresent([String: String].self, forKey: .synonyms) ?? [:]
-        paraphrases = try container.decodeIfPresent([String: String].self, forKey: .paraphrases) ?? [:]
+        self.synonyms = try container.decodeIfPresent([String: String].self, forKey: .synonyms) ?? [:]
+        self.paraphrases = try container.decodeIfPresent([String: String].self, forKey: .paraphrases) ?? [:]
     }
 }
 
-struct TranslationSourceManifest: Codable, Sendable {
+struct TranslationSourceManifest: Codable {
     let sources: [TranslationSourceEntry]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        sources = try container.decodeIfPresent([TranslationSourceEntry].self, forKey: .sources) ?? []
+        self.sources = try container.decodeIfPresent([TranslationSourceEntry].self, forKey: .sources) ?? []
     }
 }
 
-struct TranslationSourceEntry: Codable, Sendable {
+struct TranslationSourceEntry: Codable {
     let id: String
     let name: String
     let role: String
@@ -357,7 +357,7 @@ struct TranslationSourceEntry: Codable, Sendable {
     let url: String
 }
 
-struct RunicCorpusReferenceEntry: Codable, Sendable {
+struct RunicCorpusReferenceEntry: Codable {
     let id: String
     let sourceID: String
     let label: String
@@ -384,25 +384,25 @@ struct RunicCorpusReferenceEntry: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        sourceID = try container.decode(String.self, forKey: .sourceID)
-        label = try container.decode(String.self, forKey: .label)
-        detail = try container.decode(String.self, forKey: .detail)
-        url = try container.decodeIfPresent(String.self, forKey: .url)
-        sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
-        attestationStatusRaw = try container.decodeIfPresent(String.self, forKey: .attestationStatusRaw)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.sourceID = try container.decode(String.self, forKey: .sourceID)
+        self.label = try container.decode(String.self, forKey: .label)
+        self.detail = try container.decode(String.self, forKey: .detail)
+        self.url = try container.decodeIfPresent(String.self, forKey: .url)
+        self.sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
+        self.attestationStatusRaw = try container.decodeIfPresent(String.self, forKey: .attestationStatusRaw)
             ?? TranslationAttestationStatus.reconstructed.rawValue
-        historicalStage = try container.decodeIfPresent(String.self, forKey: .historicalStage)
-        licenseNote = try container.decodeIfPresent(String.self, forKey: .licenseNote)
-        regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
+        self.historicalStage = try container.decodeIfPresent(String.self, forKey: .historicalStage)
+        self.licenseNote = try container.decodeIfPresent(String.self, forKey: .licenseNote)
+        self.regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
     }
 
     var attestationStatus: TranslationAttestationStatus {
-        TranslationAttestationStatus(rawValue: attestationStatusRaw) ?? .reconstructed
+        TranslationAttestationStatus(rawValue: self.attestationStatusRaw) ?? .reconstructed
     }
 }
 
-struct HistoricalPhraseTemplateEntry: Codable, Sendable {
+struct HistoricalPhraseTemplateEntry: Codable {
     let id: String
     let script: String
     let fidelity: String
@@ -443,37 +443,37 @@ struct HistoricalPhraseTemplateEntry: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        script = try container.decode(String.self, forKey: .script)
-        fidelity = try container.decode(String.self, forKey: .fidelity)
-        derivationKind = try container.decode(String.self, forKey: .derivationKind)
-        historicalStage = try container.decode(String.self, forKey: .historicalStage)
-        sourceText = try container.decode(String.self, forKey: .sourceText)
-        normalizedForm = try container.decode(String.self, forKey: .normalizedForm)
-        diplomaticForm = try container.decode(String.self, forKey: .diplomaticForm)
-        resolutionStatus = try container.decodeIfPresent(String.self, forKey: .resolutionStatus) ?? "RECONSTRUCTED"
-        notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
-        referenceIDs = try container.decodeIfPresent([String].self, forKey: .referenceIDs) ?? []
-        tokenBreakdown = try container.decodeIfPresent([HistoricalTemplateTokenEntry].self, forKey: .tokenBreakdown) ?? []
-        inventoryRaw = try container.decodeIfPresent(String.self, forKey: .inventoryRaw)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.script = try container.decode(String.self, forKey: .script)
+        self.fidelity = try container.decode(String.self, forKey: .fidelity)
+        self.derivationKind = try container.decode(String.self, forKey: .derivationKind)
+        self.historicalStage = try container.decode(String.self, forKey: .historicalStage)
+        self.sourceText = try container.decode(String.self, forKey: .sourceText)
+        self.normalizedForm = try container.decode(String.self, forKey: .normalizedForm)
+        self.diplomaticForm = try container.decode(String.self, forKey: .diplomaticForm)
+        self.resolutionStatus = try container.decodeIfPresent(String.self, forKey: .resolutionStatus) ?? "RECONSTRUCTED"
+        self.notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
+        self.referenceIDs = try container.decodeIfPresent([String].self, forKey: .referenceIDs) ?? []
+        self.tokenBreakdown = try container.decodeIfPresent([HistoricalTemplateTokenEntry].self, forKey: .tokenBreakdown) ?? []
+        self.inventoryRaw = try container.decodeIfPresent(String.self, forKey: .inventoryRaw)
             ?? TranslationInventoryKind.approvedReconstruction.rawValue
-        attestationStatusRaw = try container.decodeIfPresent(String.self, forKey: .attestationStatusRaw)
+        self.attestationStatusRaw = try container.decodeIfPresent(String.self, forKey: .attestationStatusRaw)
             ?? TranslationAttestationStatus.reconstructed.rawValue
-        sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
-        licenseNote = try container.decodeIfPresent(String.self, forKey: .licenseNote)
-        regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
+        self.sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
+        self.licenseNote = try container.decodeIfPresent(String.self, forKey: .licenseNote)
+        self.regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
     }
 
     var inventory: TranslationInventoryKind {
-        TranslationInventoryKind(rawValue: inventoryRaw) ?? .approvedReconstruction
+        TranslationInventoryKind(rawValue: self.inventoryRaw) ?? .approvedReconstruction
     }
 
     var attestationStatus: TranslationAttestationStatus {
-        TranslationAttestationStatus(rawValue: attestationStatusRaw) ?? .reconstructed
+        TranslationAttestationStatus(rawValue: self.attestationStatusRaw) ?? .reconstructed
     }
 }
 
-struct HistoricalTemplateTokenEntry: Codable, Sendable {
+struct HistoricalTemplateTokenEntry: Codable {
     let sourceToken: String
     let normalizedToken: String
     let diplomaticToken: String
@@ -490,15 +490,15 @@ struct HistoricalTemplateTokenEntry: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        sourceToken = try container.decode(String.self, forKey: .sourceToken)
-        normalizedToken = try container.decode(String.self, forKey: .normalizedToken)
-        diplomaticToken = try container.decode(String.self, forKey: .diplomaticToken)
-        resolutionStatus = try container.decodeIfPresent(String.self, forKey: .resolutionStatus) ?? "RECONSTRUCTED"
-        referenceIDs = try container.decodeIfPresent([String].self, forKey: .referenceIDs) ?? []
+        self.sourceToken = try container.decode(String.self, forKey: .sourceToken)
+        self.normalizedToken = try container.decode(String.self, forKey: .normalizedToken)
+        self.diplomaticToken = try container.decode(String.self, forKey: .diplomaticToken)
+        self.resolutionStatus = try container.decodeIfPresent(String.self, forKey: .resolutionStatus) ?? "RECONSTRUCTED"
+        self.referenceIDs = try container.decodeIfPresent([String].self, forKey: .referenceIDs) ?? []
     }
 }
 
-struct TranslationGoldExampleEntry: Codable, Sendable {
+struct TranslationGoldExampleEntry: Codable {
     let id: String
     let sourceText: String
     let regressionID: String?
@@ -512,7 +512,7 @@ struct TranslationGoldExampleEntry: Codable, Sendable {
     }
 }
 
-struct TranslationGoldExampleResult: Codable, Sendable {
+struct TranslationGoldExampleResult: Codable {
     let script: String
     let fidelity: String
     let derivationKind: String
@@ -535,25 +535,25 @@ struct TranslationGoldExampleResult: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        script = try container.decode(String.self, forKey: .script)
-        fidelity = try container.decode(String.self, forKey: .fidelity)
-        derivationKind = try container.decodeIfPresent(String.self, forKey: .derivationKind) ?? "GOLD_EXAMPLE"
-        historicalStage = try container.decode(String.self, forKey: .historicalStage)
-        normalizedForm = try container.decode(String.self, forKey: .normalizedForm)
-        diplomaticForm = try container.decode(String.self, forKey: .diplomaticForm)
-        glyphOutput = try container.decodeIfPresent(String.self, forKey: .glyphOutput) ?? ""
-        requestedVariant = try container.decodeIfPresent(String.self, forKey: .requestedVariant)
-        resolutionStatus = try container.decodeIfPresent(String.self, forKey: .resolutionStatus) ?? "ATTESTED"
-        confidence = try container.decodeIfPresent(Double.self, forKey: .confidence) ?? 1
-        notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
-        unresolvedTokens = try container.decodeIfPresent([String].self, forKey: .unresolvedTokens) ?? []
-        provenance = try container.decodeIfPresent([TranslationProvenanceEntry].self, forKey: .provenance) ?? []
-        tokenBreakdown = try container.decodeIfPresent([TranslationTokenBreakdown].self, forKey: .tokenBreakdown) ?? []
-        supportLevelRaw = try container.decodeIfPresent(String.self, forKey: .supportLevelRaw)
-        evidenceTierRaw = try container.decodeIfPresent(String.self, forKey: .evidenceTierRaw)
-        attestationRefs = try container.decodeIfPresent([String].self, forKey: .attestationRefs) ?? []
-        inputLanguageRaw = try container.decodeIfPresent(String.self, forKey: .inputLanguageRaw)
-        userFacingWarnings = try container.decodeIfPresent([String].self, forKey: .userFacingWarnings) ?? []
+        self.script = try container.decode(String.self, forKey: .script)
+        self.fidelity = try container.decode(String.self, forKey: .fidelity)
+        self.derivationKind = try container.decodeIfPresent(String.self, forKey: .derivationKind) ?? "GOLD_EXAMPLE"
+        self.historicalStage = try container.decode(String.self, forKey: .historicalStage)
+        self.normalizedForm = try container.decode(String.self, forKey: .normalizedForm)
+        self.diplomaticForm = try container.decode(String.self, forKey: .diplomaticForm)
+        self.glyphOutput = try container.decodeIfPresent(String.self, forKey: .glyphOutput) ?? ""
+        self.requestedVariant = try container.decodeIfPresent(String.self, forKey: .requestedVariant)
+        self.resolutionStatus = try container.decodeIfPresent(String.self, forKey: .resolutionStatus) ?? "ATTESTED"
+        self.confidence = try container.decodeIfPresent(Double.self, forKey: .confidence) ?? 1
+        self.notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
+        self.unresolvedTokens = try container.decodeIfPresent([String].self, forKey: .unresolvedTokens) ?? []
+        self.provenance = try container.decodeIfPresent([TranslationProvenanceEntry].self, forKey: .provenance) ?? []
+        self.tokenBreakdown = try container.decodeIfPresent([TranslationTokenBreakdown].self, forKey: .tokenBreakdown) ?? []
+        self.supportLevelRaw = try container.decodeIfPresent(String.self, forKey: .supportLevelRaw)
+        self.evidenceTierRaw = try container.decodeIfPresent(String.self, forKey: .evidenceTierRaw)
+        self.attestationRefs = try container.decodeIfPresent([String].self, forKey: .attestationRefs) ?? []
+        self.inputLanguageRaw = try container.decodeIfPresent(String.self, forKey: .inputLanguageRaw)
+        self.userFacingWarnings = try container.decodeIfPresent([String].self, forKey: .userFacingWarnings) ?? []
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -579,16 +579,16 @@ struct TranslationGoldExampleResult: Codable, Sendable {
     }
 }
 
-struct TranslationGoldCorpus: Codable, Sendable {
+struct TranslationGoldCorpus: Codable {
     let benchmarks: [TranslationBenchmarkEntry]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        benchmarks = try container.decodeIfPresent([TranslationBenchmarkEntry].self, forKey: .benchmarks) ?? []
+        self.benchmarks = try container.decodeIfPresent([TranslationBenchmarkEntry].self, forKey: .benchmarks) ?? []
     }
 }
 
-struct TranslationBenchmarkEntry: Codable, Sendable {
+struct TranslationBenchmarkEntry: Codable {
     let id: String
     let category: String
     let sourceText: String
@@ -597,15 +597,15 @@ struct TranslationBenchmarkEntry: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        category = try container.decode(String.self, forKey: .category)
-        sourceText = try container.decode(String.self, forKey: .sourceText)
-        expectations = try container.decodeIfPresent([TranslationBenchmarkExpectation].self, forKey: .expectations) ?? []
-        notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
+        self.id = try container.decode(String.self, forKey: .id)
+        self.category = try container.decode(String.self, forKey: .category)
+        self.sourceText = try container.decode(String.self, forKey: .sourceText)
+        self.expectations = try container.decodeIfPresent([TranslationBenchmarkExpectation].self, forKey: .expectations) ?? []
+        self.notes = try container.decodeIfPresent([String].self, forKey: .notes) ?? []
     }
 }
 
-struct TranslationBenchmarkExpectation: Codable, Sendable {
+struct TranslationBenchmarkExpectation: Codable {
     let script: String
     let fidelity: String
     let requestedVariant: String?
@@ -621,17 +621,17 @@ struct TranslationBenchmarkExpectation: Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        script = try container.decode(String.self, forKey: .script)
-        fidelity = try container.decode(String.self, forKey: .fidelity)
-        requestedVariant = try container.decodeIfPresent(String.self, forKey: .requestedVariant)
-        normalizedForm = try container.decode(String.self, forKey: .normalizedForm)
-        diplomaticForm = try container.decode(String.self, forKey: .diplomaticForm)
-        glyphOutput = try container.decode(String.self, forKey: .glyphOutput)
-        resolutionStatus = try container.decode(String.self, forKey: .resolutionStatus)
-        evidenceTier = try container.decode(String.self, forKey: .evidenceTier)
-        supportLevel = try container.decode(String.self, forKey: .supportLevel)
-        attestationRefs = try container.decodeIfPresent([String].self, forKey: .attestationRefs) ?? []
-        warningFragments = try container.decodeIfPresent([String].self, forKey: .warningFragments) ?? []
-        regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
+        self.script = try container.decode(String.self, forKey: .script)
+        self.fidelity = try container.decode(String.self, forKey: .fidelity)
+        self.requestedVariant = try container.decodeIfPresent(String.self, forKey: .requestedVariant)
+        self.normalizedForm = try container.decode(String.self, forKey: .normalizedForm)
+        self.diplomaticForm = try container.decode(String.self, forKey: .diplomaticForm)
+        self.glyphOutput = try container.decode(String.self, forKey: .glyphOutput)
+        self.resolutionStatus = try container.decode(String.self, forKey: .resolutionStatus)
+        self.evidenceTier = try container.decode(String.self, forKey: .evidenceTier)
+        self.supportLevel = try container.decode(String.self, forKey: .supportLevel)
+        self.attestationRefs = try container.decodeIfPresent([String].self, forKey: .attestationRefs) ?? []
+        self.warningFragments = try container.decodeIfPresent([String].self, forKey: .warningFragments) ?? []
+        self.regressionID = try container.decodeIfPresent(String.self, forKey: .regressionID)
     }
 }

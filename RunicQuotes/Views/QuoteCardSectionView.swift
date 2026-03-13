@@ -2,9 +2,10 @@
 //  QuoteCardSectionView.swift
 //  RunicQuotes
 //
-//  Created by Claude on 2026-03-13.
+//  Created by Claude on 13.03.26.
 //
 
+import TipKit
 import SwiftUI
 
 /// Main quote presentation card used on the home screen.
@@ -21,6 +22,7 @@ struct QuoteCardSectionView: View {
     let palette: AppThemePalette
     let isScriptMorphing: Bool
     let isSaved: Bool
+    let tipRefreshID: UUID
     let onNextQuote: () -> Void
     let onToggleSave: () -> Void
     let onShowActions: () -> Void
@@ -31,93 +33,93 @@ struct QuoteCardSectionView: View {
 
     var body: some View {
         ContentPlate(
-            palette: palette,
+            palette: self.palette,
             tone: .hero,
             cornerRadius: DesignTokens.CornerRadius.xxl,
             shadowRadius: DesignTokens.Elevation.hero,
-            contentPadding: DesignTokens.Spacing.lg
+            contentPadding: DesignTokens.Spacing.lg,
         ) {
             VStack(spacing: 0) {
-                header
+                self.header
 
-                Text(runicText)
+                Text(self.runicText)
                     .runicTextStyle(
-                        script: script,
-                        font: font,
+                        script: self.script,
+                        font: self.font,
                         style: .title,
                         minSize: 28,
-                        maxSize: 56
+                        maxSize: 56,
                     )
-                    .foregroundStyle(palette.runeText)
+                    .foregroundStyle(self.palette.runeText)
                     .multilineTextAlignment(.center)
                     .lineSpacing(10)
                     .frame(maxWidth: .infinity, minHeight: 200, alignment: .center)
                     .padding(.horizontal, DesignTokens.Spacing.xs)
                     .padding(.top, DesignTokens.Spacing.xs)
                     .padding(.bottom, DesignTokens.Spacing.lg)
-                    .opacity(isScriptMorphing ? 0.2 : 1.0)
-                    .blur(radius: isScriptMorphing ? 7 : 0)
-                    .scaleEffect(isScriptMorphing ? 0.98 : 1.0)
+                    .opacity(self.isScriptMorphing ? 0.2 : 1.0)
+                    .blur(radius: self.isScriptMorphing ? 7 : 0)
+                    .scaleEffect(self.isScriptMorphing ? 0.98 : 1.0)
                     .contentTransition(.opacity)
                     .accessibilityLabel("Runic text")
-                    .accessibilityValue(runicText)
-                    .accessibilityHint("The quote displayed in \(script.rawValue)")
+                    .accessibilityValue(self.runicText)
+                    .accessibilityHint("The quote displayed in \(self.script.rawValue)")
 
                 Rectangle()
                     .fill(
                         LinearGradient(
                             colors: [
                                 .clear,
-                                palette.separator.opacity(0.35),
-                                palette.accent.opacity(0.55),
-                                palette.separator.opacity(0.35),
-                                .clear
+                                self.palette.separator.opacity(0.35),
+                                self.palette.accent.opacity(0.55),
+                                self.palette.separator.opacity(0.35),
+                                .clear,
                             ],
                             startPoint: .leading,
-                            endPoint: .trailing
-                        )
+                            endPoint: .trailing,
+                        ),
                     )
                     .frame(height: 1.5)
                     .padding(.horizontal, DesignTokens.Spacing.xs)
                     .accessibilityHidden(true)
 
-                Text(latinText)
+                Text(self.latinText)
                     .font(DesignTokens.Typography.sectionTitle)
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(self.palette.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(6)
                     .padding(.horizontal, DesignTokens.Spacing.md)
                     .padding(.top, DesignTokens.Spacing.md)
                     .padding(.bottom, DesignTokens.Spacing.sm)
-                    .opacity(isScriptMorphing ? 0.65 : 1.0)
+                    .opacity(self.isScriptMorphing ? 0.65 : 1.0)
                     .contentTransition(.opacity)
                     .accessibilityLabel("Quote")
-                    .accessibilityValue(latinText)
+                    .accessibilityValue(self.latinText)
                     .accessibilityIdentifier("quoteText")
 
                 Spacer(minLength: 8)
 
                 HStack {
-                    Text("— \(author)")
+                    Text("— \(self.author)")
                         .font(DesignTokens.Typography.callout)
-                        .foregroundStyle(palette.textTertiary)
+                        .foregroundStyle(self.palette.textTertiary)
                         .italic()
                         .accessibilityLabel("Author")
-                        .accessibilityValue(author)
+                        .accessibilityValue(self.author)
                         .accessibilityIdentifier("authorText")
 
                     Spacer()
                 }
-                    .padding(.top, DesignTokens.Spacing.sm)
+                .padding(.top, DesignTokens.Spacing.sm)
 
-                actionBar
+                self.actionBar
                     .padding(.top, DesignTokens.Spacing.md)
             }
             .frame(maxWidth: .infinity, minHeight: 380, alignment: .top)
             .overlay(alignment: .topTrailing) {
-                Text(decorativeGlyph)
+                Text(self.decorativeGlyph)
                     .font(.system(size: 60))
-                    .foregroundStyle(palette.ornament)
+                    .foregroundStyle(self.palette.ornament)
                     .opacity(0.32)
                     .rotationEffect(.degrees(-12))
                     .padding(.top, DesignTokens.Spacing.sm)
@@ -127,97 +129,109 @@ struct QuoteCardSectionView: View {
             }
         }
         .padding(.horizontal, DesignTokens.Spacing.md)
-        .scaleEffect(appearScale)
-        .opacity(appearOpacity)
-        .onChange(of: latinText) {
-            guard !reduceMotion else { return }
-            appearScale = 0.97
-            appearOpacity = 0.6
+        .scaleEffect(self.appearScale)
+        .opacity(self.appearOpacity)
+        .onChange(of: self.latinText) {
+            guard !self.reduceMotion else { return }
+            self.appearScale = 0.97
+            self.appearOpacity = 0.6
             withAnimation(AnimationPresets.cardAppear) {
-                appearScale = 1.0
-                appearOpacity = 1.0
+                self.appearScale = 1.0
+                self.appearOpacity = 1.0
             }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("quote_card")
         .accessibilityAction(named: "More actions") {
-            onShowActions()
+            self.onShowActions()
         }
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-            SectionLabel(title: "Current Reading", palette: palette)
-            Text("Rendered in \(script.displayName)")
+            SectionLabel(title: "Current Reading", palette: self.palette)
+            Text("Rendered in \(self.script.displayName)")
                 .font(DesignTokens.Typography.metadata)
-                .foregroundStyle(palette.textTertiary)
+                .foregroundStyle(self.palette.textTertiary)
 
             HStack(spacing: DesignTokens.Spacing.xs) {
-                Text(presentationSource.disclosureTitle)
+                Text(self.presentationSource.disclosureTitle)
                     .font(DesignTokens.Typography.metadata)
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(self.palette.textSecondary)
 
                 if let evidenceTier {
                     Text("· \(evidenceTier.displayName)")
                         .font(DesignTokens.Typography.metadata)
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(self.palette.textSecondary)
                 }
             }
 
             if let primarySourceLabel {
                 Text(primarySourceLabel)
                     .font(DesignTokens.Typography.metadata)
-                    .foregroundStyle(palette.textTertiary)
+                    .foregroundStyle(self.palette.textTertiary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var actionBar: some View {
-        ActionBar(palette: palette) {
-            actionButton(
-                title: "New Quote",
-                systemImage: "sparkles",
-                emphasized: true,
-                action: onNextQuote
-            )
-            actionButton(
-                title: isSaved ? "Saved" : "Save",
-                systemImage: isSaved ? "bookmark.fill" : "bookmark",
-                emphasized: false,
-                action: onToggleSave
-            )
-            actionButton(
+        ActionBar(palette: self.palette) {
+            self.nextQuoteButton
+            self.saveQuoteButton
+            self.actionButton(
                 title: "Actions",
                 systemImage: "ellipsis.circle",
                 emphasized: false,
-                action: onShowActions
+                action: self.onShowActions,
             )
         }
+    }
+
+    private var nextQuoteButton: some View {
+        self.actionButton(
+            title: "New Quote",
+            systemImage: "sparkles",
+            emphasized: true,
+            action: self.onNextQuote,
+        )
+        .popoverTip(HomeNextQuoteTip(), arrowEdge: .bottom)
+        .id("home-next-quote-tip-\(self.tipRefreshID.uuidString)")
+    }
+
+    private var saveQuoteButton: some View {
+        self.actionButton(
+            title: self.isSaved ? "Saved" : "Save",
+            systemImage: self.isSaved ? "bookmark.fill" : "bookmark",
+            emphasized: false,
+            action: self.onToggleSave,
+        )
+        .popoverTip(HomeSaveQuoteTip(), arrowEdge: .bottom)
+        .id("home-save-quote-tip-\(self.tipRefreshID.uuidString)")
     }
 
     private func actionButton(
         title: String,
         systemImage: String,
         emphasized: Bool,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
     ) -> some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(LiquidProminentButtonStyle(palette: palette, emphasized: emphasized))
-        .accessibilityIdentifier(accessibilityID(for: title))
+        .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: emphasized))
+        .accessibilityIdentifier(self.accessibilityID(for: title))
     }
 
     private func accessibilityID(for title: String) -> String {
         switch title {
         case "New Quote":
-            return "quote_next_button"
+            "quote_next_button"
         case "Save", "Saved":
-            return "quote_save_button"
+            "quote_save_button"
         default:
-            return "quote_actions_button"
+            "quote_actions_button"
         }
     }
 }
