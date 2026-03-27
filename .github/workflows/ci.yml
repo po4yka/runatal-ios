@@ -293,7 +293,7 @@ jobs:
             coverage.lcov
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ./coverage.lcov
           disable_search: true
