@@ -15,12 +15,9 @@ Install the local tooling once:
 brew install xcodegen needle swiftlint swiftformat
 ```
 
-- `xcodegen`
-  Regenerates the `.xcodeproj` from `project.yml`.
-- `needle`
-  Regenerates the DI graph.
-- `swiftlint` and `swiftformat`
-  Match the repo’s validation commands.
+- `xcodegen` Regenerates the `.xcodeproj` from `project.yml`.
+- `needle` Regenerates the DI graph.
+- `swiftlint` and `swiftformat` Match the repo’s validation commands.
 
 ## Quick Start
 

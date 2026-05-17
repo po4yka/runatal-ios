@@ -50,15 +50,11 @@ mcp__claude_ai_Figma__get_screenshot(fileKey="OQ9lz2369ZW8yobV6eLsGZ", nodeId="<
 
 **Goal**: Replace hardcoded colors with the new Scandinavian cold-slate design system.
 
-1. **Refactor `AppThemePalette`** to use the new color tokens from the design system spec. The new palette supports proper dark/light mode via `@Environment(\.colorScheme)` instead of the current 3-theme approach (Obsidian/Parchment/NordicDawn). The Figma design uses a single cohesive dark+light system.
-   - Add new tokens: `background`, `groupedBG`, `surface`, `surfaceElevated`, `accent`, `accentSecondary`, `textPrimary`, `textSecondary`, `textTertiary`, `runeText`, `success`, `warning`, `error`, `separator`
-   - Wire dark/light variants via Color asset catalog or adaptive Color initializers
+1. **Refactor `AppThemePalette`** to use the new color tokens from the design system spec. The new palette supports proper dark/light mode via `@Environment(\.colorScheme)` instead of the current 3-theme approach (Obsidian/Parchment/NordicDawn). The Figma design uses a single cohesive dark+light system. - Add new tokens: `background`, `groupedBG`, `surface`, `surfaceElevated`, `accent`, `accentSecondary`, `textPrimary`, `textSecondary`, `textTertiary`, `runeText`, `success`, `warning`, `error`, `separator` - Wire dark/light variants via Color asset catalog or adaptive Color initializers
 
 2. **Create `DesignTokens` enum** with spacing scale (`4, 8, 12, 16, 20, 24, 32, 40, 48, 64`) and corner radius tokens (`xs=6, sm=10, md=14, lg=18, xl=22, 2xl=26, 3xl=30, full=100`)
 
-3. **Update `GlassCard` and `GlassButton`** to use new glass material tokens:
-   - 3 intensity levels: Strong (blur 60px, sat 2.0), Medium (blur 40px, sat 1.8), Light (blur 24px, sat 1.5)
-   - Glass BG, Border, Highlight tokens for dark/light
+3. **Update `GlassCard` and `GlassButton`** to use new glass material tokens: - 3 intensity levels: Strong (blur 60px, sat 2.0), Medium (blur 40px, sat 1.8), Light (blur 24px, sat 1.5) - Glass BG, Border, Highlight tokens for dark/light
 
 4. **Verify**: All existing views still compile and render correctly with new tokens. Run `xcodebuild -scheme RunicQuotes build`.
 
@@ -68,12 +64,7 @@ mcp__claude_ai_Figma__get_screenshot(fileKey="OQ9lz2369ZW8yobV6eLsGZ", nodeId="<
 
 **Goal**: Expand from 2-tab to 5-tab navigation matching Figma.
 
-1. **Refactor `MainTabView`** from 2 tabs (Quote, Settings) to 5 tabs:
-   - Home (quote display)
-   - Collections (browse by collection)
-   - Search
-   - Saved (bookmarked/favorited quotes)
-   - Settings
+1. **Refactor `MainTabView`** from 2 tabs (Quote, Settings) to 5 tabs: - Home (quote display) - Collections (browse by collection) - Search - Saved (bookmarked/favorited quotes) - Settings
 
 2. **Tab bar**: Liquid Glass pill style, 52px height per design spec
 3. **Navigation bars**: Glass medium material, support both large-title and inline styles

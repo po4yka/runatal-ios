@@ -4,18 +4,12 @@ RunicQuotes is a SwiftUI iOS application with a WidgetKit extension and an offli
 
 ## Targets
 
-- `RunicQuotes`
-  Main iOS application target.
-- `RunicQuotesWidget`
-  WidgetKit extension with App Intent configuration.
-- `RunicQuotesTests`
-  Unit and package-level tests.
-- `RunicQuotesUITests`
-  End-to-end UI validation.
-- `RunicQuotesWidgetTests`
-  Widget-specific tests.
-- `TranslationCuration`
-  Repo-level source-of-truth package for the bundled translation dataset.
+- `RunicQuotes` Main iOS application target.
+- `RunicQuotesWidget` WidgetKit extension with App Intent configuration.
+- `RunicQuotesTests` Unit and package-level tests.
+- `RunicQuotesUITests` End-to-end UI validation.
+- `RunicQuotesWidgetTests` Widget-specific tests.
+- `TranslationCuration` Repo-level source-of-truth package for the bundled translation dataset.
 
 ## Architecture
 
@@ -29,14 +23,10 @@ The app uses a pragmatic layered structure:
 
 Important runtime boundaries:
 
-- `RunicTransliterator`
-  Direct Latin-to-rune transliteration.
-- `HistoricalTranslationService`
-  Offline structured translation and Cirth transcription.
-- `QuoteRepository` / `TranslationRepository`
-  Persistence and cache orchestration.
-- `QuoteProvider` / `TranslationProvider`
-  Actor-backed serialized access.
+- `RunicTransliterator` Direct Latin-to-rune transliteration.
+- `HistoricalTranslationService` Offline structured translation and Cirth transcription.
+- `QuoteRepository` / `TranslationRepository` Persistence and cache orchestration.
+- `QuoteProvider` / `TranslationProvider` Actor-backed serialized access.
 
 ## Main Runtime Flows
 

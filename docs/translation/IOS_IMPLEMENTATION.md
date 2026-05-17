@@ -5,9 +5,7 @@ This document describes the iOS translation feature added in March 2026.
 ## Scope
 
 - `Transliterate` remains the default presentation mode.
-- `Translate` is fully user-facing on iOS and available from:
-  - Settings -> Translation
-  - Home toolbar -> Create menu -> Translate
+- `Translate` is fully user-facing on iOS and available from: - Settings -> Translation - Home toolbar -> Create menu -> Translate
 
 ## Bundled assets
 
@@ -18,16 +16,11 @@ This document describes the iOS translation feature added in March 2026.
 
 ## Runtime architecture
 
-- `HistoricalTranslationService` ports the Android precedence rules for:
-  - Younger Futhark historical translation
-  - Elder Futhark constrained reconstruction
-  - Erebor/Cirth transcription
+- `HistoricalTranslationService` ports the Android precedence rules for: - Younger Futhark historical translation - Elder Futhark constrained reconstruction - Erebor/Cirth transcription
 - The service now performs an explicit English-input analysis stage before token resolution.
 - Unsupported non-English input is rejected with guidance instead of silently fabricating approximate output.
 - `AssetTranslationDatasetProvider` backs the service with bundled JSON and caches decoded payloads in memory.
-- `SwiftDataTranslationRepository` stores structured results in:
-  - `TranslationRecord`
-  - `TranslationBackfillState`
+- `SwiftDataTranslationRepository` stores structured results in: - `TranslationRecord` - `TranslationBackfillState`
 - `TranslationProvider` mirrors the existing quote actor pattern for serialized cache access.
 
 ## Persistence behavior
@@ -47,12 +40,7 @@ This document describes the iOS translation feature added in March 2026.
 
 ## Quality and support surfaces
 
-- Translation now displays:
-  - English-only source-language disclosure
-  - support and evidence badges
-  - primary source summary
-  - provenance detail sheet
-  - user-facing warnings for unsupported constructions
+- Translation now displays: - English-only source-language disclosure - support and evidence badges - primary source summary - provenance detail sheet - user-facing warnings for unsupported constructions
 - The accuracy screen now explains evidence badges and English-only support.
 
 ## Release gating

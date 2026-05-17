@@ -87,10 +87,8 @@ Theme and font still come from the shared app preferences.
 
 ## Update Policy
 
-- `Daily`
-  Uses deterministic quote-of-the-day selection and refreshes at midnight.
-- `Random`
-  Refreshes hourly with a new quote.
+- `Daily` Uses deterministic quote-of-the-day selection and refreshes at midnight.
+- `Random` Refreshes hourly with a new quote.
 
 The timeline provider emits a current entry plus the next scheduled update entry.
 

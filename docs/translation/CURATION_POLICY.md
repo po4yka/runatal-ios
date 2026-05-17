@@ -10,8 +10,7 @@ Curated source extracts are checked into:
 
 - `TranslationCuration/source/translation/`
 
-These checked-in files are the source of truth for runtime translation assets.
-Generated runtime mirrors are exported into:
+These checked-in files are the source of truth for runtime translation assets. Generated runtime mirrors are exported into:
 
 - `RunicQuotes/Resources/Translation/`
 - optional Android mirror output via `./scripts/export-translation-assets.sh`

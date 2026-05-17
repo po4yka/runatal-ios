@@ -4,8 +4,7 @@
 
 ## Layout
 
-- `source/translation/`
-  Checked-in curated JSON with stable ids, source metadata, regression ids, and benchmark corpus files.
+- `source/translation/` Checked-in curated JSON with stable ids, source metadata, regression ids, and benchmark corpus files.
 
 ## Export workflow
 
