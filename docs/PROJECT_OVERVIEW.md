@@ -17,7 +17,7 @@ The app uses a pragmatic layered structure:
 
 - MVVM for screen orchestration
 - Repository protocols backed by SwiftData implementations
-- Actors for serialized data access and background work
+- ModelActor-owned contexts and model executors for serialized persistence; UI repositories use the main context
 - Needle for dependency injection
 - XcodeGen for project generation
 

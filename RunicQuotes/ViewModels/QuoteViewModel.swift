@@ -505,14 +505,9 @@ extension QuoteViewModel {
     static func preview() -> QuoteViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
         let preferencesRepository = SwiftDataUserPreferencesRepository(modelContext: container.mainContext)
-        let translationRepository = SwiftDataTranslationRepository(modelContext: container.mainContext)
-        let quoteRepository = SwiftDataQuoteRepository(
-            modelContext: container.mainContext,
-            translationCacheRepository: translationRepository,
-        )
         return QuoteViewModel(
-            quoteProvider: QuoteProvider(repository: quoteRepository),
-            translationProvider: TranslationProvider(repository: translationRepository),
+            quoteProvider: QuoteProvider(modelContainer: container),
+            translationProvider: TranslationProvider(modelContainer: container),
             preferencesRepository: preferencesRepository,
         )
     }

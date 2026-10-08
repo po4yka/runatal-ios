@@ -7,7 +7,7 @@ RunicQuotes is an iOS app for reading and saving quotes in Elder Futhark, Younge
 - Platform: iOS 26.0+
 - Toolchain: Xcode 27.0, Swift 6.4 (Swift 6 language mode)
 - UI: SwiftUI + WidgetKit
-- Storage: SwiftData
+- Storage: SwiftData with ModelActor-isolated persistence
 - DI: Needle + generated components
 - Build config: XcodeGen via `project.yml`
 - Translation data: bundled offline JSON curated in `TranslationCuration/`

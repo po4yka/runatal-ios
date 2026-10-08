@@ -13,13 +13,13 @@ import Testing
 @Suite(.serialized, .tags(.viewModel))
 struct ArchiveViewModelTests {
     @Test
-    func onAppearLoadsArchivedQuotesAndComputesCounts() async {
+    func onAppearLoadsArchivedQuotesAndComputesCounts() async throws {
         let hidden = TestSupport.makeQuoteRecord(text: "Hidden", author: "Virgil", isHidden: true)
         let deleted = TestSupport.makeQuoteRecord(text: "Deleted", author: "Tolkien", isDeleted: true, deletedAt: .now)
 
         let repository = TestQuoteRepository()
         repository.archivedQuotesValue = [hidden, deleted]
-        let viewModel = ArchiveViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
 
         viewModel.onAppear()
 
@@ -38,13 +38,13 @@ struct ArchiveViewModelTests {
     }
 
     @Test
-    func restoreQuoteReloadsArchive() async {
+    func restoreQuoteReloadsArchive() async throws {
         let quote = TestSupport.makeQuoteRecord(isDeleted: true, deletedAt: .now)
         let repository = TestQuoteRepository()
         repository.archivedQuotesValue = [quote]
         repository.quoteByID[quote.id] = quote
 
-        let viewModel = ArchiveViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
         viewModel.onAppear()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
@@ -57,25 +57,25 @@ struct ArchiveViewModelTests {
     }
 
     @Test
-    func unhideQuoteDelegatesToRestore() async {
+    func unhideQuoteDelegatesToRestore() async throws {
         let quote = TestSupport.makeQuoteRecord(isHidden: true)
         let repository = TestQuoteRepository()
         repository.archivedQuotesValue = [quote]
         repository.quoteByID[quote.id] = quote
 
-        let viewModel = ArchiveViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
         viewModel.unhideQuote(quote.id)
 
         #expect(await TestSupport.eventually { repository.restoredQuoteIDs == [quote.id] })
     }
 
     @Test
-    func eraseQuoteReloadsArchive() async {
+    func eraseQuoteReloadsArchive() async throws {
         let quote = TestSupport.makeQuoteRecord(isDeleted: true, deletedAt: .now)
         let repository = TestQuoteRepository()
         repository.archivedQuotesValue = [quote]
 
-        let viewModel = ArchiveViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
         viewModel.eraseQuote(quote.id)
 
         #expect(await TestSupport.eventually {
@@ -84,10 +84,10 @@ struct ArchiveViewModelTests {
     }
 
     @Test
-    func restoreQuoteSurfacesErrors() async {
+    func restoreQuoteSurfacesErrors() async throws {
         let repository = TestQuoteRepository()
         repository.restoreError = TestError(message: "restore failed")
-        let viewModel = ArchiveViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
 
         viewModel.restoreQuote(UUID())
 

@@ -104,9 +104,8 @@ extension SavedQuotesViewModel {
     static func preview() -> SavedQuotesViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
         let preferencesRepository = SwiftDataUserPreferencesRepository(modelContext: container.mainContext)
-        let quoteRepository = SwiftDataQuoteRepository(modelContext: container.mainContext)
         return SavedQuotesViewModel(
-            quoteProvider: QuoteProvider(repository: quoteRepository),
+            quoteProvider: QuoteProvider(modelContainer: container),
             preferencesRepository: preferencesRepository,
         )
     }

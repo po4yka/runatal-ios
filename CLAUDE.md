@@ -14,7 +14,7 @@ MVVM + Repository + Actor-based concurrency:
 
 - **ViewModels**: `@MainActor final class`, `@Published private(set) var state` with Sendable state struct
 - **Repository**: `QuoteRepository` protocol -> `SwiftDataQuoteRepository`
-- **Actor**: `QuoteProvider` for thread-safe quote access
+- **Actors**: `QuoteProvider`, `TranslationProvider`, and `DatabaseCoordinator` use `@ModelActor` with owned contexts; UI repositories use the main context
 - **DTO**: `QuoteRecord` (Sendable) for cross-boundary data
 
 ## Build & Lint

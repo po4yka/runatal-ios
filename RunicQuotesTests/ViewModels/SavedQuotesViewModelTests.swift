@@ -13,7 +13,7 @@ import Testing
 @Suite(.serialized, .tags(.viewModel))
 struct SavedQuotesViewModelTests {
     @Test
-    func onAppearLoadsSavedQuotesFromSnapshot() async {
+    func onAppearLoadsSavedQuotesFromSnapshot() async throws {
         let savedQuote = TestSupport.makeQuoteRecord(text: "The hidden road", author: "Tolkien")
         let repository = TestQuoteRepository()
         repository.allQuotesValue = [savedQuote, TestSupport.makeQuoteRecord(text: "Other", author: "Virgil")]
@@ -23,8 +23,8 @@ struct SavedQuotesViewModelTests {
         snapshot.savedQuoteIDs = [savedQuote.id]
         preferences.snapshotResult = .success(snapshot)
 
-        let viewModel = SavedQuotesViewModel(
-            quoteProvider: QuoteProvider(repository: repository),
+        let viewModel = try SavedQuotesViewModel(
+            quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }),
             preferencesRepository: preferences,
         )
 
@@ -36,7 +36,7 @@ struct SavedQuotesViewModelTests {
     }
 
     @Test
-    func toggleSavedPersistsAndRemovesQuoteLocally() async {
+    func toggleSavedPersistsAndRemovesQuoteLocally() async throws {
         let savedQuote = TestSupport.makeQuoteRecord()
         let repository = TestQuoteRepository()
         repository.allQuotesValue = [savedQuote]
@@ -45,8 +45,8 @@ struct SavedQuotesViewModelTests {
         snapshot.savedQuoteIDs = [savedQuote.id]
         preferences.snapshotResult = .success(snapshot)
 
-        let viewModel = SavedQuotesViewModel(
-            quoteProvider: QuoteProvider(repository: repository),
+        let viewModel = try SavedQuotesViewModel(
+            quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }),
             preferencesRepository: preferences,
         )
         viewModel.onAppear()
@@ -60,7 +60,7 @@ struct SavedQuotesViewModelTests {
     }
 
     @Test
-    func toggleSavedSurfacesPersistenceErrors() async {
+    func toggleSavedSurfacesPersistenceErrors() async throws {
         let savedQuote = TestSupport.makeQuoteRecord()
         let repository = TestQuoteRepository()
         repository.allQuotesValue = [savedQuote]
@@ -70,8 +70,8 @@ struct SavedQuotesViewModelTests {
         preferences.snapshotResult = .success(snapshot)
         preferences.saveResult = .failure(TestError(message: "save failed"))
 
-        let viewModel = SavedQuotesViewModel(
-            quoteProvider: QuoteProvider(repository: repository),
+        let viewModel = try SavedQuotesViewModel(
+            quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }),
             preferencesRepository: preferences,
         )
         viewModel.onAppear()
@@ -83,10 +83,10 @@ struct SavedQuotesViewModelTests {
     }
 
     @Test
-    func copyQuoteTextFormatsForSharing() {
+    func copyQuoteTextFormatsForSharing() throws {
         let quote = TestSupport.makeQuoteRecord(text: "Fortune favors the bold", author: "Virgil")
-        let viewModel = SavedQuotesViewModel(
-            quoteProvider: QuoteProvider(repository: TestQuoteRepository()),
+        let viewModel = try SavedQuotesViewModel(
+            quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in TestQuoteRepository() }),
             preferencesRepository: TestPreferencesRepository(),
         )
 
@@ -94,14 +94,14 @@ struct SavedQuotesViewModelTests {
     }
 
     @Test
-    func onAppearSurfacesLoadErrors() async {
+    func onAppearSurfacesLoadErrors() async throws {
         let repository = TestQuoteRepository()
         repository.allQuotesError = TestError(message: "quotes failed")
         let preferences = TestPreferencesRepository()
         preferences.snapshotResult = .success(UserPreferencesSnapshot())
 
-        let viewModel = SavedQuotesViewModel(
-            quoteProvider: QuoteProvider(repository: repository),
+        let viewModel = try SavedQuotesViewModel(
+            quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }),
             preferencesRepository: preferences,
         )
 

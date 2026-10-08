@@ -288,16 +288,10 @@ struct QuoteViewModelTests {
             _ = try TestSupport.makeSeededRepository(in: context)
         }
 
-        let translationRepository = SwiftDataTranslationRepository(modelContext: context)
         return (
             QuoteViewModel(
-                quoteProvider: QuoteProvider(
-                    repository: SwiftDataQuoteRepository(
-                        modelContext: context,
-                        translationCacheRepository: translationRepository,
-                    ),
-                ),
-                translationProvider: TranslationProvider(repository: translationRepository),
+                quoteProvider: QuoteProvider(modelContainer: context.container),
+                translationProvider: TranslationProvider(modelContainer: context.container),
                 preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context),
             ),
             context,

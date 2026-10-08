@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 
+@MainActor
 final class HomeAccessoryController: ObservableObject {
     @Published private(set) var collectionName = QuoteCollection.all.displayName
     @Published private(set) var scriptName = RunicScript.elder.displayName

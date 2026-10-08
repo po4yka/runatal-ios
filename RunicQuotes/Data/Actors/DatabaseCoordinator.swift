@@ -22,6 +22,7 @@ extension SwiftDataQuoteRepository: DatabaseQuoteRepository {}
 extension SwiftDataTranslationRepository: DatabaseTranslationRepository {}
 
 /// Thread-safe coordinator for database seeding and maintenance operations.
+@ModelActor
 actor DatabaseCoordinator {
     typealias QuoteRepositoryFactory = @Sendable (ModelContext, HistoricalTranslationService) -> any DatabaseQuoteRepository
     typealias TranslationRepositoryFactory = @Sendable (ModelContext, HistoricalTranslationService)
@@ -29,41 +30,49 @@ actor DatabaseCoordinator {
 
     private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "DatabaseCoordinator")
 
-    private let modelContainer: ModelContainer
-    private let translationService: HistoricalTranslationService
-    private let quoteRepositoryFactory: QuoteRepositoryFactory
-    private let translationRepositoryFactory: TranslationRepositoryFactory
+    private static let defaultQuoteRepositoryFactory: QuoteRepositoryFactory = { context, translationService in
+        let translationRepository = SwiftDataTranslationRepository(
+            modelContext: context,
+            translationService: translationService,
+        )
+        return SwiftDataQuoteRepository(
+            modelContext: context,
+            translationCacheRepository: translationRepository,
+        )
+    }
+
+    private static let defaultTranslationRepositoryFactory: TranslationRepositoryFactory = { context, translationService in
+        SwiftDataTranslationRepository(
+            modelContext: context,
+            translationService: translationService,
+        )
+    }
+
+    private var translationService = HistoricalTranslationService()
+    private var quoteRepositoryFactory: QuoteRepositoryFactory = DatabaseCoordinator.defaultQuoteRepositoryFactory
+    private var translationRepositoryFactory: TranslationRepositoryFactory = DatabaseCoordinator.defaultTranslationRepositoryFactory
+    private var hasSeeded = false
     private var seedingTask: Task<Void, Error>?
     private var translationBackfillTask: Task<Void, Error>?
 
     init(
         modelContainer: ModelContainer,
         translationService: HistoricalTranslationService = HistoricalTranslationService(),
-        quoteRepositoryFactory: @escaping QuoteRepositoryFactory = { context, translationService in
-            let translationRepository = SwiftDataTranslationRepository(
-                modelContext: context,
-                translationService: translationService,
-            )
-            return SwiftDataQuoteRepository(
-                modelContext: context,
-                translationCacheRepository: translationRepository,
-            )
-        },
-        translationRepositoryFactory: @escaping TranslationRepositoryFactory = { context, translationService in
-            SwiftDataTranslationRepository(
-                modelContext: context,
-                translationService: translationService,
-            )
-        },
+        quoteRepositoryFactory: @escaping QuoteRepositoryFactory = DatabaseCoordinator.defaultQuoteRepositoryFactory,
+        translationRepositoryFactory: @escaping TranslationRepositoryFactory = DatabaseCoordinator.defaultTranslationRepositoryFactory,
     ) {
+        let context = ModelContext(modelContainer)
+        self.modelExecutor = DefaultSerialModelExecutor(modelContext: context)
         self.modelContainer = modelContainer
         self.translationService = translationService
         self.quoteRepositoryFactory = quoteRepositoryFactory
         self.translationRepositoryFactory = translationRepositoryFactory
     }
 
-    /// Seed the database if needed, ensuring only one seeding operation runs at a time.
+    /// Seed successfully once per coordinator lifetime, coalescing in-flight requests and retrying failures.
     func seedIfNeeded() async throws {
+        guard !self.hasSeeded else { return }
+
         if let existingTask = seedingTask {
             Self.logger.debug("Seeding already in progress, waiting for completion")
             try await existingTask.value
@@ -72,11 +81,12 @@ actor DatabaseCoordinator {
 
         let task = Task {
             do {
-                let context = ModelContext(modelContainer)
-                let repository = self.quoteRepositoryFactory(context, self.translationService)
+                let repository = self.quoteRepositoryFactory(self.modelContext, self.translationService)
                 try repository.seedIfNeeded()
+                self.hasSeeded = true
                 Self.logger.info("Database seeding completed successfully")
             } catch {
+                self.modelContext.rollback()
                 Self.logger.error("Database seeding failed: \(error.localizedDescription)")
                 throw error
             }
@@ -93,14 +103,14 @@ actor DatabaseCoordinator {
         let cutoffDate = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
 
         do {
-            let context = ModelContext(modelContainer)
-            let repository = self.quoteRepositoryFactory(context, self.translationService)
+            let repository = self.quoteRepositoryFactory(self.modelContext, self.translationService)
             let purgedCount = try repository.purgeDeletedQuotes(before: cutoffDate)
 
             if purgedCount > 0 {
                 Self.logger.info("Purged \(purgedCount) expired quote(s)")
             }
         } catch {
+            self.modelContext.rollback()
             Self.logger.error("Failed to purge expired quotes: \(error.localizedDescription)")
         }
     }
@@ -118,11 +128,11 @@ actor DatabaseCoordinator {
 
         let task = Task(priority: .utility) {
             do {
-                let context = ModelContext(modelContainer)
-                let repository = self.translationRepositoryFactory(context, self.translationService)
+                let repository = self.translationRepositoryFactory(self.modelContext, self.translationService)
                 try repository.backfillAllQuotes()
                 Self.logger.info("Translation backfill completed successfully")
             } catch {
+                self.modelContext.rollback()
                 Self.logger.error("Translation backfill failed: \(error.localizedDescription)")
                 throw error
             }

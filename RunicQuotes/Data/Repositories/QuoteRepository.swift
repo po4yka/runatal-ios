@@ -114,9 +114,9 @@ protocol QuoteRepository: Sendable {
 // swiftlint:disable type_body_length
 /// SwiftData implementation of the QuoteRepository
 ///
-/// Safety: `@unchecked Sendable` because `ModelContext` is not `Sendable`.
-/// Thread-safety is guaranteed by only accessing this type from within
-/// `QuoteProvider` (an actor) or `@MainActor`-isolated callers.
+/// Safety: each repository instance and its non-Sendable `ModelContext` remain confined
+/// to one owning `ModelActor` executor or the UI's main actor. Repository instances
+/// must never be shared between those owners; only Sendable DTOs cross the boundary.
 final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     private let modelContext: ModelContext
     private let translationCacheRepository: TranslationRepository

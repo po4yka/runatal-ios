@@ -55,13 +55,13 @@ final class AppRootComponent: BootstrapComponent {
 
     var quoteProvider: QuoteProvider {
         shared {
-            QuoteProvider(repository: self.quoteRepository)
+            QuoteProvider(modelContainer: self.modelContainer)
         }
     }
 
     var translationProvider: TranslationProvider {
         shared {
-            TranslationProvider(repository: self.translationRepository)
+            TranslationProvider(modelContainer: self.modelContainer)
         }
     }
 

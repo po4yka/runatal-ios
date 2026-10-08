@@ -9,6 +9,7 @@
 import Testing
 
 @Suite(.tags(.utility))
+@MainActor
 struct AppSearchCoordinatorTests {
     @Test
     func clearResetsQueryAndPresentationState() {

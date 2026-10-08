@@ -5,6 +5,7 @@
 //  Created by Claude on 07.10.25.
 //
 
+import Combine
 import SwiftData
 import SwiftUI
 #if canImport(UIKit)
@@ -81,7 +82,7 @@ struct QuoteView: View {
             .onReceive(NotificationCenter.default.publisher(for: .loadNextQuote)) { _ in
                 self.handleNextQuoteTriggered()
             }
-            .onReceive(NotificationCenter.default.publisher(for: .translationCacheUpdated)) { notification in
+            .onReceive(NotificationCenter.default.publisher(for: .translationCacheUpdated).receive(on: RunLoop.main)) { notification in
                 let quoteID = notification.userInfo?["quoteID"] as? UUID
                 self.viewModel.onTranslationCacheUpdated(for: quoteID)
             }

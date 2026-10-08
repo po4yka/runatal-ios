@@ -6,13 +6,24 @@
 //
 
 import Foundation
+import SwiftData
 
-/// Thread-safe wrapper around structured translation cache access.
+/// Serializes translation operations on its own SwiftData context and model executor.
+@ModelActor
 actor TranslationProvider {
-    private let repository: TranslationRepository
+    typealias RepositoryFactory = @Sendable (ModelContext) -> any TranslationRepository
 
-    init(repository: TranslationRepository) {
-        self.repository = repository
+    private var repositoryFactory: RepositoryFactory = { context in
+        SwiftDataTranslationRepository(modelContext: context)
+    }
+
+    private lazy var repository: any TranslationRepository = self.repositoryFactory(self.modelContext)
+
+    init(modelContainer: ModelContainer, repositoryFactory: @escaping RepositoryFactory) {
+        let context = ModelContext(modelContainer)
+        self.modelContainer = modelContainer
+        self.modelExecutor = DefaultSerialModelExecutor(modelContext: context)
+        self.repositoryFactory = repositoryFactory
     }
 
     func latestTranslation(for quoteID: UUID, script: RunicScript) throws -> TranslationResult? {

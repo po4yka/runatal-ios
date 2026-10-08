@@ -9,6 +9,7 @@ import Combine
 import Foundation
 import SwiftUI
 
+@MainActor
 final class AppSearchCoordinator: ObservableObject {
     @Published var query = ""
     @Published var isPresented = false

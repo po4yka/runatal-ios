@@ -6,14 +6,24 @@
 //
 
 import Foundation
+import SwiftData
 
-/// Thread-safe actor for providing quotes
-/// Avoids race conditions when both app and widget access quotes
+/// Serializes quote operations on its own SwiftData context and model executor.
+@ModelActor
 actor QuoteProvider {
-    private let repository: QuoteRepository
+    typealias RepositoryFactory = @Sendable (ModelContext) -> any QuoteRepository
 
-    init(repository: QuoteRepository) {
-        self.repository = repository
+    private var repositoryFactory: RepositoryFactory = { context in
+        SwiftDataQuoteRepository(modelContext: context)
+    }
+
+    private lazy var repository: any QuoteRepository = self.repositoryFactory(self.modelContext)
+
+    init(modelContainer: ModelContainer, repositoryFactory: @escaping RepositoryFactory) {
+        let context = ModelContext(modelContainer)
+        self.modelContainer = modelContainer
+        self.modelExecutor = DefaultSerialModelExecutor(modelContext: context)
+        self.repositoryFactory = repositoryFactory
     }
 
     /// Get the quote of the day for a specific script

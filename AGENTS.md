@@ -11,7 +11,7 @@ Swift 6.4 | iOS 26+ | SwiftUI + SwiftData + WidgetKit | strict concurrency | Nee
 - MVVM + Repository + Actor
 - ViewModels: `@MainActor final class`, `@Published private(set) var state` (Sendable struct)
 - `QuoteRepository` protocol -> `SwiftDataQuoteRepository`
-- `QuoteProvider` actor for thread-safe access
+- `QuoteProvider`, `TranslationProvider`, and `DatabaseCoordinator`: `@ModelActor` with owned contexts; UI repositories use the main context
 - `QuoteRecord` Sendable DTO for cross-boundary data
 
 ## Build / Test / Lint

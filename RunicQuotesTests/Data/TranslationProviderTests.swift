@@ -7,6 +7,7 @@
 
 import Foundation
 @testable import RunicQuotes
+import SwiftData
 import Testing
 
 @Suite(.serialized, .tags(.actors))
@@ -17,7 +18,7 @@ struct TranslationProviderTests {
         let quoteID = UUID()
         let result = TestSupport.makeTranslationResult(script: .elder)
         repository.latestTranslationResults = [quoteID: [.elder: result]]
-        let provider = TranslationProvider(repository: repository)
+        let provider = try TranslationProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository })
 
         #expect(try await provider.latestTranslation(for: quoteID, script: .elder)?.glyphOutput == result.glyphOutput)
 
@@ -32,10 +33,10 @@ struct TranslationProviderTests {
     }
 
     @Test
-    func propagatesRepositoryErrors() async {
+    func propagatesRepositoryErrors() async throws {
         let repository = TestTranslationRepository()
         repository.latestTranslationError = TestError(message: "translation failed")
-        let provider = TranslationProvider(repository: repository)
+        let provider = try TranslationProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository })
 
         var didThrow = false
         do {
@@ -46,5 +47,36 @@ struct TranslationProviderTests {
         }
 
         #expect(didThrow)
+    }
+
+    @MainActor
+    @Test
+    func mainContextCacheEditsAreVisibleThroughExistingProvider() async throws {
+        let container = try TestSupport.makeModelContainer()
+        let uiRepository = SwiftDataTranslationRepository(modelContext: container.mainContext)
+        let quoteID = UUID()
+        let first = TestSupport.makeTranslationResult(script: .elder, glyphOutput: "ᚠ")
+        try uiRepository.cache(result: first, for: quoteID, sourceText: first.sourceText)
+        let provider = TranslationProvider(modelContainer: container)
+        #expect(try await provider.latestTranslation(for: quoteID, script: .elder)?.glyphOutput == "ᚠ")
+
+        let revised = TestSupport.makeTranslationResult(script: .elder, glyphOutput: "ᚢ")
+        try uiRepository.cache(result: revised, for: quoteID, sourceText: revised.sourceText)
+
+        #expect(try await provider.latestTranslation(for: quoteID, script: .elder)?.glyphOutput == "ᚢ")
+    }
+
+    @MainActor
+    @Test
+    func actorCacheWritePersistsForAnotherContext() async throws {
+        let container = try TestSupport.makeModelContainer()
+        let provider = TranslationProvider(modelContainer: container)
+        let quoteID = UUID()
+        let result = TestSupport.makeTranslationResult(script: .elder)
+
+        try await provider.cache(result: result, for: quoteID, sourceText: result.sourceText)
+
+        let persistedRepository = SwiftDataTranslationRepository(modelContext: ModelContext(container))
+        #expect(try persistedRepository.latestTranslation(for: quoteID, script: .elder)?.glyphOutput == result.glyphOutput)
     }
 }

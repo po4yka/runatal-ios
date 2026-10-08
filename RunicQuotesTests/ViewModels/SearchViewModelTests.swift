@@ -12,13 +12,13 @@ import Testing
 @Suite(.serialized, .tags(.viewModel))
 struct SearchViewModelTests {
     @Test
-    func onAppearLoadsQuotesAndFiltersBySearchText() async {
+    func onAppearLoadsQuotesAndFiltersBySearchText() async throws {
         let repository = TestQuoteRepository()
         repository.allQuotesValue = [
             TestSupport.makeQuoteRecord(text: "Fortune favors the bold", author: "Virgil", collection: .stoic),
             TestSupport.makeQuoteRecord(text: "The hidden road", author: "Tolkien", collection: .tolkien),
         ]
-        let viewModel = SearchViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try SearchViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
 
         viewModel.onAppear()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
@@ -32,13 +32,13 @@ struct SearchViewModelTests {
     }
 
     @Test
-    func selectedCollectionFiltersAndToggleClearsSelection() async {
+    func selectedCollectionFiltersAndToggleClearsSelection() async throws {
         let repository = TestQuoteRepository()
         repository.allQuotesValue = [
             TestSupport.makeQuoteRecord(text: "Fortune favors the bold", author: "Virgil", collection: .stoic),
             TestSupport.makeQuoteRecord(text: "The hidden road", author: "Tolkien", collection: .tolkien),
         ]
-        let viewModel = SearchViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try SearchViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
 
         viewModel.onAppear()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
@@ -55,10 +55,10 @@ struct SearchViewModelTests {
     }
 
     @Test
-    func clearSearchResetsPresentationState() {
+    func clearSearchResetsPresentationState() throws {
         let repository = TestQuoteRepository()
         repository.allQuotesValue = [TestSupport.makeQuoteRecord()]
-        let viewModel = SearchViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try SearchViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
 
         viewModel.updateSearchText("wolf")
         viewModel.updateSelectedCollection(.stoic)
@@ -71,10 +71,10 @@ struct SearchViewModelTests {
     }
 
     @Test
-    func onAppearSurfacesLoadingErrors() async {
+    func onAppearSurfacesLoadingErrors() async throws {
         let repository = TestQuoteRepository()
         repository.allQuotesError = TestError(message: "load failed")
-        let viewModel = SearchViewModel(quoteProvider: QuoteProvider(repository: repository))
+        let viewModel = try SearchViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
 
         viewModel.onAppear()
 

@@ -208,32 +208,6 @@ jobs:
             -resultBundlePath "$RESULTS_DIR/${CORE_SCHEME}.xcresult" \
             2>&1 | tee "$LOGS_DIR/core-tests.log"
 
-      - name: Run widget tests
-        shell: bash
-        run: |
-          set -o pipefail
-          xcodebuild test \
-            -project "$PROJECT_PATH" \
-            -scheme "$WIDGET_SCHEME" \
-            -destination "$DESTINATION" \
-            -configuration Debug \
-            -derivedDataPath "$DERIVED_DATA_PATH" \
-            -resultBundlePath "$RESULTS_DIR/${WIDGET_SCHEME}.xcresult" \
-            2>&1 | tee "$LOGS_DIR/widget-tests.log"
-
-      - name: Run Xcode analyze
-        shell: bash
-        run: |
-          set -o pipefail
-          xcodebuild analyze \
-            -project "$PROJECT_PATH" \
-            -scheme "$APP_SCHEME" \
-            -destination "$DESTINATION" \
-            -configuration Debug \
-            -derivedDataPath "$DERIVED_DATA_PATH" \
-            -resultBundlePath "$RESULTS_DIR/RunicQuotesAnalyze.xcresult" \
-            2>&1 | tee "$LOGS_DIR/analyze.log"
-
       - name: Generate Xcode coverage reports
         run: |
           APP_BINARY="$DERIVED_DATA_PATH/Build/Products/Debug-iphonesimulator/RunicQuotes.app/RunicQuotes.debug.dylib"
@@ -267,6 +241,32 @@ jobs:
             "$REPORTS_DIR/xcode-coverage-summary.json" \
             "Xcode coverage summary" \
             > "$REPORTS_DIR/xcode-coverage-summary.md"
+
+      - name: Run widget tests
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project "$PROJECT_PATH" \
+            -scheme "$WIDGET_SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$RESULTS_DIR/${WIDGET_SCHEME}.xcresult" \
+            2>&1 | tee "$LOGS_DIR/widget-tests.log"
+
+      - name: Run Xcode analyze
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild analyze \
+            -project "$PROJECT_PATH" \
+            -scheme "$APP_SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$RESULTS_DIR/RunicQuotesAnalyze.xcresult" \
+            2>&1 | tee "$LOGS_DIR/analyze.log"
 
       - name: Publish Xcode summaries
         run: |

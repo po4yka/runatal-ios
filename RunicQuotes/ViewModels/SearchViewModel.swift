@@ -116,7 +116,6 @@ extension SearchViewModel {
     /// Create a view model for SwiftUI previews
     static func preview() -> SearchViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
-        let quoteRepository = SwiftDataQuoteRepository(modelContext: container.mainContext)
-        return SearchViewModel(quoteProvider: QuoteProvider(repository: quoteRepository))
+        return SearchViewModel(quoteProvider: QuoteProvider(modelContainer: container))
     }
 }

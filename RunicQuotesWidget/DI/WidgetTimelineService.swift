@@ -39,13 +39,7 @@ final class WidgetTimelineService: WidgetTimelineServicing, @unchecked Sendable 
     }
 
     private func makeQuoteProvider() -> QuoteProvider {
-        let context = ModelContext(modelContainer)
-        let translationRepository = SwiftDataTranslationRepository(modelContext: context)
-        let quoteRepository = SwiftDataQuoteRepository(
-            modelContext: context,
-            translationCacheRepository: translationRepository,
-        )
-        return QuoteProvider(repository: quoteRepository)
+        QuoteProvider(modelContainer: self.modelContainer)
     }
 
     private func makePreferencesRepository() -> SwiftDataUserPreferencesRepository {

@@ -151,7 +151,6 @@ extension ArchiveViewModel {
     /// Create a view model for SwiftUI previews.
     static func preview() -> ArchiveViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
-        let quoteRepository = SwiftDataQuoteRepository(modelContext: container.mainContext)
-        return ArchiveViewModel(quoteProvider: QuoteProvider(repository: quoteRepository))
+        return ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: container))
     }
 }
