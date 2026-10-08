@@ -36,7 +36,6 @@ export SOURCEKIT_LOGGING=0
   "$ROOT_DIR/RunicQuotes/Models" \
   "$ROOT_DIR/RunicQuotes/Data" \
   "$ROOT_DIR/RunicQuotes/Utilities" \
-  "$ROOT_DIR/RunicQuotes/DI/Shared" \
   --exclude-paths \
   "/RunicQuotes/App/" \
   "/RunicQuotes/Views/" \

@@ -612,13 +612,6 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
-		12FED77631EAEC4CE5BBADEE /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Shared;
-			sourceTree = "<group>";
-		};
 		178DC495D7B60E052C2C307C /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -722,7 +715,6 @@
 			isa = PBXGroup;
 			children = (
 				CF81C4C1FBB0B3AD172B72CA /* App */,
-				12FED77631EAEC4CE5BBADEE /* Shared */,
 			);
 			path = DI;
 			sourceTree = "<group>";

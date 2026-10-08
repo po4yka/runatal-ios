@@ -92,9 +92,6 @@ targets:
     type: app-extension
     platform: iOS
     sources:
-      - path: RunicQuotes/DI/Shared
-        excludes:
-          - "**/*.md"
       - path: RunicQuotesWidget
         excludes:
           - "**/*.md"

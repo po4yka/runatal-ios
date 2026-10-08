@@ -38,7 +38,6 @@ Per `project.yml`, the widget target compiles shared code from:
 - `RunicQuotes/Models`
 - `RunicQuotes/Data`
 - `RunicQuotes/Utilities`
-- `RunicQuotes/DI/Shared`
 
 This gives the widget access to:
 
