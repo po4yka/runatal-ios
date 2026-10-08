@@ -5,8 +5,9 @@
 //  Created by Claude on 30.10.25.
 //
 
-@preconcurrency import XCTest
+import XCTest
 
+@MainActor
 final class RunicQuotesUITests: RunicQuotesUITestCase {
 
     // MARK: - Launch Tests

@@ -5,8 +5,9 @@
 //  Created by Claude on 13.03.26.
 //
 
-@preconcurrency import XCTest
+import XCTest
 
+@MainActor
 final class TipKitUITests: RunicQuotesUITestCase {
     override var launchesAppInSetUp: Bool {
         false

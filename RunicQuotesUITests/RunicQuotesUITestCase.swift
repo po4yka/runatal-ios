@@ -5,8 +5,9 @@
 //  Created by Claude on 13.03.26.
 //
 
-@preconcurrency import XCTest
+import XCTest
 
+@MainActor
 class RunicQuotesUITestCase: XCTestCase {
     private(set) var app: XCUIApplication?
 
@@ -21,7 +22,8 @@ class RunicQuotesUITestCase: XCTestCase {
         ]
     }
 
-    override func setUpWithError() throws {
+    @MainActor
+    override func setUp() async throws {
         continueAfterFailure = false
 
         if self.launchesAppInSetUp {
@@ -29,7 +31,8 @@ class RunicQuotesUITestCase: XCTestCase {
         }
     }
 
-    override func tearDownWithError() throws {
+    @MainActor
+    override func tearDown() async throws {
         if let app, app.state != .notRunning {
             app.terminate()
         }

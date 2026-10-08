@@ -33,6 +33,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -79,10 +81,9 @@ jobs:
       - name: Generate package coverage summaries
         run: |
           mkdir -p "$REPORTS_DIR"
-          PROF=$(find .build -name '*.profdata' | head -1)
-          BIN=$(find .build -path '*RunicQuotesPackageTests.xctest/Contents/MacOS/RunicQuotesPackageTests' | head -1)
-          xcrun llvm-cov report "$BIN" -instr-profile="$PROF" > "$REPORTS_DIR/package-coverage-details.txt"
-          xcrun llvm-cov export -summary-only "$BIN" -instr-profile="$PROF" > "$REPORTS_DIR/package-coverage-summary.json"
+          COVERAGE_JSON=$(swift test --show-codecov-path)
+          test -s "$COVERAGE_JSON"
+          cp "$COVERAGE_JSON" "$REPORTS_DIR/package-coverage-summary.json"
           python3 - <<'PY'
           import json
           from pathlib import Path
@@ -127,6 +128,15 @@ jobs:
                   output.append(f"{metric_labels[key]}: {covered}/{count} ({percent:.1f}%)")
 
               Path(output_path).write_text("\n".join(output) + "\n")
+
+          details = ["Package coverage by file", ""]
+          for file in files:
+              metrics = ", ".join(
+                  f"{key}: {file['summary'][key]['covered']}/{file['summary'][key]['count']}"
+                  for key in ("lines", "functions", "regions", "branches")
+              )
+              details.append(f"{normalize(file['filename'])}: {metrics}")
+          Path("build/reports/package-coverage-details.txt").write_text("\n".join(details) + "\n")
 
           render(
               "Package coverage summary",
