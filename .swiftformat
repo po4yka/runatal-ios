@@ -2,7 +2,10 @@
 # Documentation: https://github.com/nicklockwood/SwiftFormat
 
 # File options
---swiftversion 6.1
+--swiftversion 6.4
+--date-format dd.MM.yy
+--timezone UTC
+--test-case-name-format preserve
 --exclude Pods,.build,DerivedData,build
 
 # Format options
@@ -56,7 +59,7 @@
 --enable redundantType
 --enable redundantVoidReturnType
 --enable semicolons
---enable sortedImports
+--enable sortImports
 --enable spaceAroundBraces
 --enable spaceAroundBrackets
 --enable spaceAroundComments

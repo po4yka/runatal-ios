@@ -115,7 +115,7 @@ struct WidgetDecorativeBackground: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                ForEach(Array(self.points.enumerated()), id: \.offset) { index, point in
+                ForEach(self.points.enumerated(), id: \.offset) { index, point in
                     Text(self.glyph)
                         .font(.system(size: 16 + CGFloat(index % 3) * 7, weight: .semibold))
                         .foregroundStyle((index.isMultiple(of: 2) ? self.palette.accent : self.palette.separator).opacity(0.16))

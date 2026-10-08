@@ -19,7 +19,7 @@ env:
   WIDGET_SCHEME: RunicQuotesWidgetCI
   UI_SCHEME: RunicQuotesUICI
   PROJECT_PATH: RunicQuotes.xcodeproj
-  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.2
+  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=27.0
   DERIVED_DATA_PATH: build/DerivedData
   RESULTS_DIR: build/results
   REPORTS_DIR: build/reports
@@ -28,11 +28,11 @@ env:
 jobs:
   repo-consistency:
     name: Repo Consistency
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 20
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -59,11 +59,11 @@ jobs:
 
   package-validation:
     name: Package Validation
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 20
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -150,18 +150,18 @@ jobs:
           PY
 
       - name: Upload package coverage summaries
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: package-coverage-summaries
           path: ${{ env.REPORTS_DIR }}/package-coverage*.txt
 
   xcode-validation:
     name: Xcode Validation
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 45
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -228,7 +228,10 @@ jobs:
         run: |
           APP_BINARY="$DERIVED_DATA_PATH/Build/Products/Debug-iphonesimulator/RunicQuotes.app/RunicQuotes.debug.dylib"
           COVERAGE_IGNORE_REGEX='.*/SourcePackages/.*'
-          mapfile -t PROFDATA_FILES < <(find "$DERIVED_DATA_PATH" -name 'Coverage.profdata' -type f | sort)
+          PROFDATA_FILES=()
+          while IFS= read -r profile; do
+            PROFDATA_FILES+=("$profile")
+          done < <(find "$DERIVED_DATA_PATH" -name 'Coverage.profdata' -type f | sort)
           if [ ! -f "$APP_BINARY" ]; then
             echo "Expected app binary missing at $APP_BINARY" >&2
             exit 1
@@ -283,7 +286,7 @@ jobs:
 
       - name: Upload Xcode artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: xcode-validation-artifacts
           path: |
@@ -293,7 +296,7 @@ jobs:
             coverage.lcov
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.lcov
           disable_search: true
@@ -302,11 +305,11 @@ jobs:
   ui-smoke:
     name: UI Smoke
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare macOS toolchain
         uses: ./.github/actions/setup-macos-ci
@@ -347,7 +350,7 @@ jobs:
 
       - name: Upload UI smoke artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ui-smoke-artifacts
           path: |

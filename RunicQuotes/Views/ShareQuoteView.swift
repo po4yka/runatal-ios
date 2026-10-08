@@ -50,6 +50,8 @@ struct ShareQuoteView: View {
     @State private var isShareSheetPresented = false
     @State private var shareItems: [Any] = []
     @State private var showSavedConfirmation = false
+    @State private var isSavingImage = false
+    @State private var saveErrorMessage: String?
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @Environment(\.dismiss) private var dismiss
@@ -140,6 +142,24 @@ struct ShareQuoteView: View {
                     self.savedConfirmationOverlay(palette: AppThemePalette.themed(self.runicTheme, for: self.colorScheme))
                 }
             }
+            .alert("Unable to Save Image", isPresented: self.isSaveErrorPresented) {
+                Button("OK", role: .cancel) {
+                    self.saveErrorMessage = nil
+                }
+            } message: {
+                Text(self.saveErrorMessage ?? "Please try again.")
+            }
+            .task(id: self.showSavedConfirmation) {
+                guard self.showSavedConfirmation else { return }
+                do {
+                    try await Task.sleep(for: .milliseconds(1500))
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.showSavedConfirmation = false
+                    }
+                } catch {
+                    // A new save or dismissal cancels the previous confirmation timer.
+                }
+            }
     }
 
     // MARK: - Share Card
@@ -184,6 +204,7 @@ struct ShareQuoteView: View {
             ) {
                 self.saveImage()
             }
+            .disabled(self.isSavingImage)
 
             self.actionButton(
                 icon: "square.and.arrow.up",
@@ -244,19 +265,37 @@ struct ShareQuoteView: View {
     @MainActor
     private func saveImage() {
         #if canImport(UIKit)
-            Haptics.trigger(.saveOrShare)
-            guard let image = renderShareImage() else { return }
-            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-            withAnimation(.easeInOut(duration: 0.3)) {
-                self.showSavedConfirmation = true
+            guard !self.isSavingImage else { return }
+            guard let imageData = renderShareImage()?.pngData() else {
+                self.saveErrorMessage = PhotoLibraryImageSaveError.renderingFailed.localizedDescription
+                return
             }
+            self.isSavingImage = true
+            self.showSavedConfirmation = false
             Task {
-                try? await Task.sleep(for: .milliseconds(1500))
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    self.showSavedConfirmation = false
+                defer { self.isSavingImage = false }
+                do {
+                    try await PhotoLibraryImageSaver().save(imageData)
+                    Haptics.trigger(.saveOrShare)
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.showSavedConfirmation = true
+                    }
+                } catch {
+                    self.saveErrorMessage = error.localizedDescription
                 }
             }
         #endif
+    }
+
+    private var isSaveErrorPresented: Binding<Bool> {
+        Binding(
+            get: { self.saveErrorMessage != nil },
+            set: {
+                if !$0 {
+                    self.saveErrorMessage = nil
+                }
+            },
+        )
     }
 
     @MainActor
@@ -311,159 +350,6 @@ struct ShareQuoteView: View {
                 .fill(.ultraThinMaterial),
         )
         .transition(.opacity.combined(with: .scale(scale: 0.9)))
-    }
-}
-
-// MARK: - Share Card Content
-
-/// The styled share card used for both preview and image rendering.
-/// Always uses dark palette for the dark card style, white bg for light.
-struct ShareCardContent: View {
-    let runicText: String
-    let latinText: String
-    let author: String
-    let script: RunicScript
-    let font: RunicFont
-    let style: ShareCardStyle
-    let presentationSource: RunicPresentationSource
-    let evidenceTier: TranslationEvidenceTier?
-    let primarySourceLabel: String?
-
-    private var cardBG: Color {
-        self.style == .dark ? Color(hex: 0x0C1118) : .white
-    }
-
-    private var cardBorder: Color {
-        self.style == .dark
-            ? Color.white.opacity(0.06)
-            : Color(hex: 0x48566A).opacity(0.12)
-    }
-
-    /// Dark card always uses dark palette colors, light card uses light palette
-    private var cardPalette: AppThemePalette {
-        self.style == .dark
-            ? .adaptive(for: .dark)
-            : .adaptive(for: .light)
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-                .frame(height: DesignTokens.Spacing.xxl)
-
-            // Decorative rune ornament
-            self.runeOrnament
-                .padding(.bottom, DesignTokens.Spacing.xl)
-
-            // Runic text (smaller, secondary)
-            Text(self.runicText)
-                .runicTextStyle(
-                    script: self.script,
-                    font: self.font,
-                    style: .caption,
-                    minSize: 11,
-                    maxSize: 14,
-                )
-                .foregroundStyle(self.cardPalette.textSecondary.opacity(0.5))
-                .multilineTextAlignment(.center)
-                .lineLimit(1)
-                .tracking(1.12)
-                .padding(.horizontal, DesignTokens.Spacing.xl)
-
-            // Separator
-            Rectangle()
-                .fill(self.cardPalette.separator.opacity(0.5))
-                .frame(height: 0.5)
-                .frame(maxWidth: 80)
-                .padding(.vertical, DesignTokens.Spacing.md)
-
-            // Quote text
-            Text("\u{201C}\(self.latinText)\u{201D}")
-                .font(.custom(RunicFontConfiguration.serifFontName, size: 15, relativeTo: .body))
-                .foregroundStyle(self.cardPalette.textPrimary)
-                .multilineTextAlignment(.center)
-                .lineSpacing(4)
-                .padding(.horizontal, DesignTokens.Spacing.xxl)
-
-            // Author
-            Text(self.author)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(self.cardPalette.textSecondary)
-                .padding(.top, DesignTokens.Spacing.sm)
-
-            // Dot ornament
-            self.dotOrnament
-                .padding(.top, DesignTokens.Spacing.lg)
-
-            // Branding
-            self.brandingLabel
-                .padding(.top, DesignTokens.Spacing.lg)
-
-            self.disclosureLabel
-                .padding(.top, DesignTokens.Spacing.sm)
-
-            Spacer()
-                .frame(height: DesignTokens.Spacing.xxl)
-        }
-        .frame(maxWidth: .infinity)
-        .background(self.cardBG)
-        .overlay(
-            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
-                .strokeBorder(self.cardBorder, lineWidth: 0.5),
-        )
-    }
-
-    // MARK: - Ornaments
-
-    private var runeOrnament: some View {
-        // Decorative SVG-like ornament from Figma (three-line mark)
-        HStack(spacing: 4) {
-            ForEach(0 ..< 3, id: \.self) { _ in
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(self.cardPalette.textTertiary.opacity(0.3))
-                    .frame(width: 8, height: 2)
-            }
-        }
-    }
-
-    private var dotOrnament: some View {
-        HStack(spacing: 4) {
-            ForEach(0 ..< 3, id: \.self) { _ in
-                Circle()
-                    .fill(self.cardPalette.textTertiary.opacity(0.12))
-                    .frame(width: 3, height: 3)
-            }
-        }
-    }
-
-    private var brandingLabel: some View {
-        HStack(spacing: DesignTokens.Spacing.xs) {
-            Text("\u{16B1}")
-                .font(.system(size: 8))
-                .foregroundStyle(self.cardPalette.textTertiary)
-            Text("Runic Quotes")
-                .font(.system(size: 10))
-                .foregroundStyle(self.cardPalette.textTertiary)
-        }
-    }
-
-    private var disclosureLabel: some View {
-        VStack(spacing: 2) {
-            Text(self.presentationSource.shareDisclosureTitle)
-                .font(.system(size: 9))
-                .foregroundStyle(self.cardPalette.textTertiary)
-
-            if let evidenceTier {
-                Text(evidenceTier.displayName)
-                    .font(.system(size: 9))
-                    .foregroundStyle(self.cardPalette.textTertiary.opacity(0.9))
-            } else if let primarySourceLabel {
-                Text(primarySourceLabel)
-                    .font(.system(size: 9))
-                    .foregroundStyle(self.cardPalette.textTertiary.opacity(0.9))
-                    .lineLimit(1)
-            }
-        }
     }
 }
 

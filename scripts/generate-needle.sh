@@ -15,6 +15,8 @@ else
   ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 fi
 
+"$ROOT_DIR/scripts/ci/check-tool-versions.sh" needle swiftformat
+
 export SOURCEKIT_LOGGING=0
 
 "$NEEDLE_BIN" generate \
@@ -42,3 +44,8 @@ export SOURCEKIT_LOGGING=0
   "/RunicQuotes/DI/App/" \
   "/AppNeedleGenerated.swift" \
   "/WidgetNeedleGenerated.swift"
+
+swiftformat \
+  "$ROOT_DIR/RunicQuotes/DI/App/AppNeedleGenerated.swift" \
+  "$ROOT_DIR/RunicQuotesWidget/DI/WidgetNeedleGenerated.swift" \
+  --config "$ROOT_DIR/.swiftformat"

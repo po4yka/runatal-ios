@@ -236,9 +236,15 @@ class RunicQuotesUITestCase: XCTestCase {
         let text = app.staticTexts["Translation"]
 
         for _ in 0 ..< 5 {
-            if identifier.exists { return identifier }
-            if button.exists { return button }
-            if text.exists { return text }
+            if identifier.exists {
+                return identifier
+            }
+            if button.exists {
+                return button
+            }
+            if text.exists {
+                return text
+            }
             app.swipeUp()
         }
 

@@ -136,7 +136,7 @@ struct QuotePackDetailView: View {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 SectionLabel(title: "Preview", palette: self.palette)
 
-                ForEach(Array(self.pack.previewQuotes.enumerated()), id: \.offset) { index, quote in
+                ForEach(self.pack.previewQuotes.enumerated(), id: \.offset) { index, quote in
                     HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                         Text("\(index + 1)")
                             .font(DesignTokens.Typography.controlLabel)

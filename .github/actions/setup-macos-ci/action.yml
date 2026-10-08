@@ -14,21 +14,27 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Select Xcode 26.3
+    - name: Select Xcode 27.0
       shell: bash
       run: |
         set -euo pipefail
-        XCODE_APP=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
-        if [ -z "$XCODE_APP" ]; then
-          XCODE_APP=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+        XCODE_APP=/Applications/Xcode_27.0.app
+        if [ ! -d "$XCODE_APP" ]; then
+          echo "Required stable Xcode 27.0 is missing at $XCODE_APP" >&2
+          exit 1
         fi
         sudo xcode-select -s "$XCODE_APP/Contents/Developer"
         xcodebuild -version
+        xcrun swift --version
+        test "$(xcodebuild -version | head -1)" = "Xcode 27.0"
+        xcrun swift --version | grep -Eq 'Apple Swift version 6\.4([ .]|$)'
 
     - name: Install Homebrew tools
       if: ${{ inputs.install-homebrew-tools == 'true' }}
       shell: bash
       run: |
         set -euo pipefail
+        brew update
         export HOMEBREW_NO_AUTO_UPDATE=1
-        brew bundle --file "${{ github.workspace }}/${{ inputs.brewfile-path }}" --no-lock
+        brew bundle install --file "${{ github.workspace }}/${{ inputs.brewfile-path }}"
+        "${{ github.workspace }}/scripts/ci/check-tool-versions.sh"

@@ -35,6 +35,8 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Save your runic quote images to your photo library.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>NotoSansRunic-Regular.ttf</string>

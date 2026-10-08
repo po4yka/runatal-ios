@@ -67,7 +67,7 @@ swift test
 swiftlint lint --strict
 swiftformat --lint .
 xcodebuild -scheme RunicQuotes \
-  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' \
   build
 ```
 

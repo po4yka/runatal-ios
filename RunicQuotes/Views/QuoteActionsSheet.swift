@@ -112,7 +112,7 @@ struct QuoteActionsSheet: View {
             .padding(.horizontal, DesignTokens.Spacing.lg)
             .padding(.bottom, DesignTokens.Spacing.sm)
 
-            ForEach(Array(self.actions.enumerated()), id: \.element.id) { index, action in
+            ForEach(self.actions.enumerated(), id: \.element.id) { index, action in
                 self.actionRow(action)
 
                 if index < self.actions.count - 1 && !action.isDestructive && self.actions[safe: index + 1]?.isDestructive != true {

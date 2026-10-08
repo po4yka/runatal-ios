@@ -17,25 +17,23 @@ struct SettingsNavigationLinksSectionView: View {
     let palette: AppThemePalette
 
     var body: some View {
-        Group {
-            NavigationLink(value: SettingsDestination.translation) {
-                self.linkCard(
-                    title: String(localized: "translation.link.title"),
-                    icon: "character.cursor.ibeam",
-                )
-            }
-            .accessibilityIdentifier("settings_translation_link")
+        NavigationLink(value: SettingsDestination.translation) {
+            self.linkCard(
+                title: String(localized: "translation.link.title"),
+                icon: "character.cursor.ibeam",
+            )
+        }
+        .accessibilityIdentifier("settings_translation_link")
 
-            NavigationLink(value: SettingsDestination.runeReference) {
-                self.linkCard(
-                    title: "Rune Reference",
-                    icon: "character.book.closed",
-                )
-            }
+        NavigationLink(value: SettingsDestination.runeReference) {
+            self.linkCard(
+                title: "Rune Reference",
+                icon: "character.book.closed",
+            )
+        }
 
-            NavigationLink(value: SettingsDestination.archive) {
-                self.linkCard(title: "Archive", icon: "archivebox")
-            }
+        NavigationLink(value: SettingsDestination.archive) {
+            self.linkCard(title: "Archive", icon: "archivebox")
         }
     }
 

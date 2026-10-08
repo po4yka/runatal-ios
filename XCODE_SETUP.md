@@ -2,17 +2,22 @@
 
 ## Current Toolchain
 
-- Xcode 26.3 or newer
-- Swift 6.2
+- Xcode 27.0 or newer
+- Swift 6.4 (Swift 6 language mode)
 - iOS deployment target: 26.0
-- Recommended simulator for CLI validation: iPhone 17, iOS 26.2
+- Recommended simulator for CLI validation: iPhone 17, iOS 27.0
+
+The package requires Swift 6.4 tools, while `SWIFT_VERSION` uses the supported Swift 6 language mode (`6.0`). App and widget deployment targets remain iOS 26.0; builds use the iOS 27 SDK.
+
+CI uses GitHub's [`xcode-27` Apple silicon image](https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md) with stable Xcode 27.0 selected explicitly. [The runner is currently in public preview](https://github.com/actions/runner-images/issues/14404).
 
 ## Required Tools
 
 Install the local tooling once:
 
 ```bash
-brew install xcodegen needle swiftlint swiftformat
+brew bundle
+./scripts/ci/check-tool-versions.sh
 ```
 
 - `xcodegen` Regenerates the `.xcodeproj` from `project.yml`.
@@ -37,7 +42,7 @@ swift test
 swiftlint lint --strict
 swiftformat --lint .
 xcodebuild -scheme RunicQuotes \
-  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' \
   build
 ```
 

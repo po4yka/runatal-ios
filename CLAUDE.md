@@ -5,8 +5,8 @@ SwiftUI iOS app for displaying quotes in runic scripts (Elder Futhark, Younger F
 ## Stack
 
 - SwiftUI, SwiftData, WidgetKit
-- Swift 6.1, iOS 17+, strict concurrency
-- Zero third-party dependencies
+- Swift 6.4, iOS 26+, strict concurrency
+- Needle 0.25.1 for dependency injection
 
 ## Architecture
 

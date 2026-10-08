@@ -6,7 +6,7 @@ Refactor the Runatal (RunicQuotes) iOS app to match the new Figma design system.
 
 ## Architecture Context
 
-- **Stack**: SwiftUI, SwiftData, WidgetKit, Swift 6.1, iOS 17+, strict concurrency, zero deps
+- **Stack**: SwiftUI, SwiftData, WidgetKit, Swift 6.4, iOS 26+, strict concurrency, Needle 0.25.1
 - **Pattern**: MVVM + Repository + Actor-based concurrency
 - **Current state**: 2-tab app (Quote, Settings) with glass morphism components, 3 themes (Obsidian, Parchment, NordicDawn), onboarding flow
 
@@ -168,7 +168,7 @@ mcp__claude_ai_Figma__get_screenshot(fileKey="OQ9lz2369ZW8yobV6eLsGZ", nodeId="<
 - `static func preview()` on ViewModels, `#Preview` on Views
 - File headers: standard Xcode template (filename, target, date)
 - Enums: `String, Codable, CaseIterable, Identifiable, Sendable`
-- SwiftUI + SwiftData, iOS 17+, strict concurrency, zero third-party deps
+- SwiftUI + SwiftData, iOS 26+, strict concurrency, Needle for dependency injection
 - Prefer `@Environment(\.colorScheme)` for dark/light adaptation
 
 ## Working Rules

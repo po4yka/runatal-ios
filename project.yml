@@ -3,14 +3,14 @@ options:
   bundleIdPrefix: com.po4yka
   deploymentTarget:
     iOS: "26.0"
-  xcodeVersion: "26.3"
+  xcodeVersion: "27.0"
   createIntermediateGroups: true
   generateEmptyDirectories: false
   groupSortPosition: top
 
 settings:
   base:
-    SWIFT_VERSION: "6.2"
+    SWIFT_VERSION: "6.0"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
     CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: YES
@@ -43,6 +43,7 @@ targets:
       path: RunicQuotes/App/Info.plist
       properties:
         CFBundleDisplayName: Runic Quotes
+        NSPhotoLibraryAddUsageDescription: Save your runic quote images to your photo library.
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
         UIAppFonts:

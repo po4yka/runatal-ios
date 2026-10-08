@@ -261,7 +261,9 @@ struct MainTabView: View {
         }
         .onChange(of: self.selectedTab) { _, newTab in
             self.searchCoordinator.isPresented = newTab == .search
-            if newTab != .home { self.homeAccessoryController.hide() }
+            if newTab != .home {
+                self.homeAccessoryController.hide()
+            }
         }
     }
 

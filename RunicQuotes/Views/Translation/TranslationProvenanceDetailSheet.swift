@@ -30,7 +30,7 @@ struct TranslationProvenanceDetailSheet: View {
                     }
                 } else {
                     Section {
-                        ForEach(Array(self.provenance.enumerated()), id: \.offset) { _, entry in
+                        ForEach(self.provenance.enumerated(), id: \.offset) { _, entry in
                             ContentPlate(
                                 palette: self.palette,
                                 tone: .secondary,

@@ -17,7 +17,7 @@ struct MetaRow: View {
 
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
-            ForEach(Array(self.visibleItems.enumerated()), id: \.offset) { index, item in
+            ForEach(self.visibleItems.enumerated(), id: \.offset) { index, item in
                 if index > 0 {
                     Circle()
                         .fill(self.palette.textTertiary.opacity(0.55))

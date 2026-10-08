@@ -4,7 +4,7 @@ SwiftUI iOS app for runic script quotes with WidgetKit extension.
 
 ## Stack
 
-Swift 6.1 | iOS 17+ | SwiftUI + SwiftData + WidgetKit | strict concurrency | zero deps
+Swift 6.4 | iOS 26+ | SwiftUI + SwiftData + WidgetKit | strict concurrency | Needle 0.25.1
 
 ## Architecture
 
