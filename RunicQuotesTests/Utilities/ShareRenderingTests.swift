@@ -50,7 +50,7 @@
                 style: style,
                 presentationSource: .storedTransliteration,
                 evidenceTier: nil,
-                primarySourceLabel: nil,
+                primarySourceLabel: quote.source,
             )
             .frame(width: 320)
             let renderer = ImageRenderer(content: card)

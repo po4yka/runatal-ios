@@ -66,7 +66,7 @@ struct ShareCardContent: View {
                     Text("Runic rendering unavailable").font(.caption)
                 }
             }
-            .foregroundStyle(self.cardPalette.textSecondary.opacity(0.5))
+            .foregroundStyle(self.cardPalette.textSecondary)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
             .tracking(1.12)
@@ -110,6 +110,8 @@ struct ShareCardContent: View {
                 .padding(.top, DesignTokens.Spacing.lg)
 
             self.disclosureLabel
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, DesignTokens.Spacing.xl)
                 .padding(.top, DesignTokens.Spacing.sm)
 
             Spacer()
@@ -160,18 +162,19 @@ struct ShareCardContent: View {
     private var disclosureLabel: some View {
         VStack(spacing: 2) {
             Text(self.presentationSource.shareDisclosureTitle)
-                .font(.system(size: 9))
-                .foregroundStyle(self.cardPalette.textTertiary)
+                .font(.caption)
+                .foregroundStyle(self.cardPalette.textSecondary)
 
             if let evidenceTier {
                 Text(self.presentationSource.evidenceLabel(evidenceTier))
-                    .font(.system(size: 9))
-                    .foregroundStyle(self.cardPalette.textTertiary.opacity(0.9))
-            } else if let primarySourceLabel {
+                    .font(.caption)
+                    .foregroundStyle(self.cardPalette.textSecondary)
+            }
+            if let primarySourceLabel {
                 Text(primarySourceLabel)
-                    .font(.system(size: 9))
-                    .foregroundStyle(self.cardPalette.textTertiary.opacity(0.9))
-                    .lineLimit(1)
+                    .font(.caption)
+                    .foregroundStyle(self.cardPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
