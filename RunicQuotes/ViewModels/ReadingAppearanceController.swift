@@ -61,7 +61,7 @@ final class ReadingAppearanceController: ObservableObject {
 
     private func refresh() {
         guard self.loadTask == nil else { self.needsRefresh = true; return }
-        self.loadTask = Task {
+        self.loadTask = Task { [self] in
             defer {
                 self.loadTask = nil
                 if self.needsRefresh {
