@@ -15,6 +15,9 @@ import SwiftUI
 /// UI state for the quote view
 struct QuoteUiState {
     var runicText: String = ""
+    var runicWarnings: [String] = []
+    var isRunicRenderingAvailable = true
+    var savedTranslationArtifact: TranslationResult?
     var runicPresentationSource: RunicPresentationSource = .storedTransliteration
     var runicEvidenceTier: TranslationEvidenceTier?
     var runicPrimarySourceLabel: String?
@@ -33,34 +36,6 @@ struct QuoteUiState {
 
     var isLoading: Bool = true
     var errorMessage: String?
-}
-
-enum RunicPresentationSource: String {
-    case structuredTranslation
-    case storedTransliteration
-    case liveTransliteration
-
-    var disclosureTitle: String {
-        switch self {
-        case .structuredTranslation:
-            "Structured historical translation"
-        case .storedTransliteration:
-            "Stored transliteration"
-        case .liveTransliteration:
-            "On-demand transliteration"
-        }
-    }
-
-    var shareDisclosureTitle: String {
-        switch self {
-        case .structuredTranslation:
-            "Historical translation"
-        case .storedTransliteration:
-            "Stored transliteration"
-        case .liveTransliteration:
-            "Transliteration fallback"
-        }
-    }
 }
 
 /// Display data for collection cover cards.
@@ -241,6 +216,9 @@ final class QuoteViewModel: ObservableObject {
 
     func updateDisplayedRunicPresentation(_ presentation: ResolvedRunicPresentation) {
         self.state.runicText = presentation.text
+        self.state.runicWarnings = presentation.warnings
+        self.state.isRunicRenderingAvailable = presentation.isRenderable
+        self.state.savedTranslationArtifact = presentation.savedArtifact
         self.state.runicPresentationSource = presentation.source
         self.state.runicEvidenceTier = presentation.evidenceTier
         self.state.runicPrimarySourceLabel = presentation.primarySourceLabel
@@ -418,32 +396,6 @@ final class QuoteViewModel: ObservableObject {
         }
     }
 
-    private func parseScript(from rawValue: String?) -> RunicScript? {
-        guard let rawValue else { return nil }
-        let normalized = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if let script = RunicScript(rawValue: normalized) {
-            return script
-        }
-
-        return RunicScript.allCases.first {
-            $0.rawValue.caseInsensitiveCompare(normalized) == .orderedSame
-        }
-    }
-
-    private func parseMode(from rawValue: String?) -> WidgetMode? {
-        guard let rawValue else { return nil }
-        let normalized = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if let mode = WidgetMode(rawValue: normalized) {
-            return mode
-        }
-
-        return WidgetMode.allCases.first {
-            $0.rawValue.caseInsensitiveCompare(normalized) == .orderedSame
-        }
-    }
-
     private func quotes(for collection: QuoteCollection, within allQuotes: [QuoteRecord]) -> [QuoteRecord] {
         if collection == .all {
             return allQuotes
@@ -471,8 +423,8 @@ final class QuoteViewModel: ObservableObject {
                 return QuoteCollectionCover.placeholder(for: collection)
             }
 
-            let runicPreview = firstQuote.runicText(for: self.state.currentScript)
-                ?? RunicTransliterator.transliterate(firstQuote.textLatin, to: self.state.currentScript).glyphOutput
+            let presentation = RunicPresentationResolver.resolve(RunicPresentationInput(quote: firstQuote, script: self.state.currentScript), currentCache: nil)
+            let runicPreview = presentation.isRenderable ? presentation.text : ""
 
             return QuoteCollectionCover(
                 collection: collection,
@@ -481,6 +433,35 @@ final class QuoteViewModel: ObservableObject {
                 latinPreview: firstQuote.textLatin,
                 authorPreview: firstQuote.author,
             )
+        }
+    }
+
+}
+
+private extension QuoteViewModel {
+    private func parseScript(from rawValue: String?) -> RunicScript? {
+        guard let rawValue else { return nil }
+        let normalized = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let script = RunicScript(rawValue: normalized) {
+            return script
+        }
+
+        return RunicScript.allCases.first {
+            $0.rawValue.caseInsensitiveCompare(normalized) == .orderedSame
+        }
+    }
+
+    private func parseMode(from rawValue: String?) -> WidgetMode? {
+        guard let rawValue else { return nil }
+        let normalized = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let mode = WidgetMode(rawValue: normalized) {
+            return mode
+        }
+
+        return WidgetMode.allCases.first {
+            $0.rawValue.caseInsensitiveCompare(normalized) == .orderedSame
         }
     }
 

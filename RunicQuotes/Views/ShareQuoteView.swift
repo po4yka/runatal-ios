@@ -45,6 +45,8 @@ struct ShareQuoteView: View {
     let presentationSource: RunicPresentationSource
     let evidenceTier: TranslationEvidenceTier?
     let primarySourceLabel: String?
+    let warnings: [String]
+    let isRunicRenderingAvailable: Bool
 
     @State private var cardStyle: ShareCardStyle = .dark
     @State private var isShareSheetPresented = false
@@ -66,6 +68,8 @@ struct ShareQuoteView: View {
         presentationSource: RunicPresentationSource = .storedTransliteration,
         evidenceTier: TranslationEvidenceTier? = nil,
         primarySourceLabel: String? = nil,
+        warnings: [String] = [],
+        isRunicRenderingAvailable: Bool = true,
     ) {
         self.runicText = runicText
         self.latinText = latinText
@@ -75,6 +79,8 @@ struct ShareQuoteView: View {
         self.presentationSource = presentationSource
         self.evidenceTier = evidenceTier
         self.primarySourceLabel = primarySourceLabel
+        self.warnings = warnings
+        self.isRunicRenderingAvailable = isRunicRenderingAvailable
     }
 
     // MARK: - Body
@@ -171,6 +177,8 @@ struct ShareQuoteView: View {
             author: self.author,
             script: self.script,
             font: self.font,
+            warnings: self.warnings,
+            isRunicRenderingAvailable: self.isRunicRenderingAvailable,
             style: self.cardStyle,
             presentationSource: self.presentationSource,
             evidenceTier: self.evidenceTier,
@@ -320,6 +328,8 @@ struct ShareQuoteView: View {
                 author: author,
                 script: script,
                 font: font,
+                warnings: warnings,
+                isRunicRenderingAvailable: isRunicRenderingAvailable,
                 style: cardStyle,
                 presentationSource: presentationSource,
                 evidenceTier: evidenceTier,

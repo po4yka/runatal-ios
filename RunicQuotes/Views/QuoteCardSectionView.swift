@@ -21,6 +21,8 @@ struct QuoteCardSectionView: View {
     let author: String
     let script: RunicScript
     let font: RunicFont
+    var warnings: [String] = []
+    var isRunicRenderingAvailable = true
     let decorativeGlyph: String
     let palette: AppThemePalette
     let isScriptMorphing: Bool
@@ -46,28 +48,36 @@ struct QuoteCardSectionView: View {
             VStack(spacing: 0) {
                 self.header
 
-                Text(self.runicText)
-                    .runicTextStyle(
-                        script: self.script,
-                        font: self.font,
-                        style: .title,
-                        minSize: 28,
-                        maxSize: 56,
-                    )
-                    .foregroundStyle(self.palette.runeText)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(10)
-                    .frame(maxWidth: .infinity, minHeight: 200, alignment: .center)
-                    .padding(.horizontal, DesignTokens.Spacing.xs)
-                    .padding(.top, DesignTokens.Spacing.xs)
-                    .padding(.bottom, DesignTokens.Spacing.lg)
-                    .opacity(self.isScriptMorphing ? 0.2 : 1.0)
-                    .blur(radius: self.isScriptMorphing ? 7 : 0)
-                    .scaleEffect(self.isScriptMorphing ? 0.98 : 1.0)
-                    .contentTransition(.opacity)
-                    .accessibilityLabel("Runic text")
-                    .accessibilityValue(self.runicText)
-                    .accessibilityHint("The quote displayed in \(self.script.rawValue)")
+                Group {
+                    if self.isRunicRenderingAvailable {
+                        Text(self.runicText)
+                            .runicTextStyle(
+                                script: self.script,
+                                font: self.font,
+                                style: .title,
+                                minSize: 28,
+                                maxSize: 56,
+                            )
+
+                    } else {
+                        Label("Runic rendering unavailable", systemImage: "exclamationmark.triangle")
+                            .font(DesignTokens.Typography.supportingBody)
+                    }
+                }
+                .foregroundStyle(self.palette.runeText)
+                .multilineTextAlignment(.center)
+                .lineSpacing(10)
+                .frame(maxWidth: .infinity, minHeight: 200, alignment: .center)
+                .padding(.horizontal, DesignTokens.Spacing.xs)
+                .padding(.top, DesignTokens.Spacing.xs)
+                .padding(.bottom, DesignTokens.Spacing.lg)
+                .opacity(self.isScriptMorphing ? 0.2 : 1.0)
+                .blur(radius: self.isScriptMorphing ? 7 : 0)
+                .scaleEffect(self.isScriptMorphing ? 0.98 : 1.0)
+                .contentTransition(.opacity)
+                .accessibilityLabel("Runic text")
+                .accessibilityValue(self.runicText)
+                .accessibilityHint("The quote displayed in \(self.script.rawValue)")
 
                 Rectangle()
                     .fill(
@@ -100,6 +110,13 @@ struct QuoteCardSectionView: View {
                     .accessibilityLabel("Quote")
                     .accessibilityValue(self.latinText)
                     .accessibilityIdentifier("quoteText")
+
+                if !self.warnings.isEmpty {
+                    Text(self.warnings.joined(separator: "\n"))
+                        .font(.caption)
+                        .foregroundStyle(self.palette.warning)
+                        .accessibilityIdentifier("runic_rendering_warning")
+                }
 
                 Spacer(minLength: 8)
 
@@ -169,7 +186,7 @@ struct QuoteCardSectionView: View {
                     .foregroundStyle(self.palette.textSecondary)
 
                 if let evidenceTier {
-                    Text("· \(evidenceTier.displayName)")
+                    Text("· \(self.presentationSource.evidenceLabel(evidenceTier))")
                         .font(DesignTokens.Typography.listMeta)
                         .foregroundStyle(self.palette.textSecondary)
                 }

@@ -48,6 +48,11 @@ struct TranslationUiState {
         self.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    var canSave: Bool {
+        guard !self.isInputEmpty, !self.outputText.isEmpty, !self.isSaving else { return false }
+        return self.translationMode == .transliterate || (self.resolutionStatus != nil && self.resolutionStatus != .unavailable)
+    }
+
     var fallbackSuggestion: String? {
         guard self.translationMode == .translate else { return nil }
         guard self.resolutionStatus == .unavailable else { return nil }
@@ -359,7 +364,7 @@ final class TranslationViewModel: ObservableObject {
             youngerVariant: self.state.selectedYoungerVariant,
             sourceLanguage: .english,
         )
-        guard results.contains(where: \.isAvailable) else {
+        guard results.contains(where: { $0.script == self.state.selectedScript && $0.isAvailable }) else {
             throw TranslationSaveError.noStructuredTranslationsAvailable
         }
         let bundle = RunicTextBundle(
@@ -385,7 +390,7 @@ private enum TranslationSaveError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noStructuredTranslationsAvailable:
-            "No structured historical translation is available for this input yet."
+            "No structured result is available for the selected script."
         }
     }
 }

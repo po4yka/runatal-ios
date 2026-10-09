@@ -13,6 +13,20 @@ import Testing
 @Suite(.serialized, .tags(.viewModel))
 struct TranslationViewModelTests {
     @Test
+    func unavailableSelectedScriptCannotSaveAnotherScriptsAvailableResult() throws {
+        let (viewModel, context) = try self.makeViewModel()
+        viewModel.onAppear()
+        viewModel.selectMode(.translate)
+        viewModel.selectScript(.elder)
+        viewModel.updateInputText("Quantum tacos")
+        #expect(!viewModel.state.canSave)
+        viewModel.saveToLibrary()
+        #expect(!viewModel.state.didSave)
+        #expect(viewModel.state.errorMessage != nil)
+        #expect(try SwiftDataQuoteRepository(modelContext: context).allQuotes().isEmpty)
+    }
+
+    @Test
     func translateModeProducesStructuredResult() throws {
         let (viewModel, _) = try makeViewModel()
 

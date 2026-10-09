@@ -7,13 +7,6 @@
 
 import Foundation
 
-struct ResolvedRunicPresentation {
-    let text: String
-    let source: RunicPresentationSource
-    let evidenceTier: TranslationEvidenceTier?
-    let primarySourceLabel: String?
-}
-
 extension QuoteViewModel {
     func onTranslationCacheUpdated(for quoteID: UUID?) {
         guard let currentQuoteID = state.currentQuoteID else { return }
@@ -33,33 +26,9 @@ extension QuoteViewModel {
     }
 
     func preferredRunicPresentation(for quote: QuoteRecord) async -> ResolvedRunicPresentation {
-        if let cachedTranslation = try? await translationProvider.latestTranslation(
-            for: quote.id,
-            script: state.currentScript,
-        ), cachedTranslation.isAvailable {
-            return ResolvedRunicPresentation(
-                text: cachedTranslation.glyphOutput,
-                source: .structuredTranslation,
-                evidenceTier: cachedTranslation.evidenceTier,
-                primarySourceLabel: cachedTranslation.primaryEvidenceLabel,
-            )
-        }
-
-        if let storedRunic = quote.runicText(for: state.currentScript) {
-            return ResolvedRunicPresentation(
-                text: storedRunic,
-                source: .storedTransliteration,
-                evidenceTier: nil,
-                primarySourceLabel: nil,
-            )
-        }
-
-        return ResolvedRunicPresentation(
-            text: RunicTransliterator.transliterate(quote.textLatin, to: state.currentScript).glyphOutput,
-            source: .liveTransliteration,
-            evidenceTier: nil,
-            primarySourceLabel: nil,
-        )
+        let script = self.state.currentScript
+        let cache = try? await self.translationProvider.latestTranslation(for: quote.id, script: script)
+        return RunicPresentationResolver.resolve(RunicPresentationInput(quote: quote, script: script), currentCache: cache)
     }
 
     func preferredRunicText(for quote: QuoteRecord) async -> String {

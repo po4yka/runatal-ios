@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TranslationProvenanceDetailSheet: View {
     let provenance: [TranslationProvenanceEntry]
+    var assessmentDisclosure: String?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
@@ -17,6 +18,9 @@ struct TranslationProvenanceDetailSheet: View {
     var body: some View {
         NavigationStack {
             LiquidListScaffold(palette: self.palette) {
+                if let assessmentDisclosure {
+                    Section { Text(assessmentDisclosure).accessibilityIdentifier("saved_assessment_disclosure") }
+                }
                 if self.provenance.isEmpty {
                     Section {
                         EditorialEmptyState(
@@ -64,7 +68,7 @@ struct TranslationProvenanceDetailSheet: View {
                     }
                 }
             }
-            .navigationTitle("Sources")
+            .navigationTitle(self.assessmentDisclosure == nil ? "Sources" : "Saved result sources")
             #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
             #endif

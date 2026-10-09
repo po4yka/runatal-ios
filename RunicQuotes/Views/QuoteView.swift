@@ -143,6 +143,8 @@ struct QuoteView: View {
                         presentationSource: self.viewModel.state.runicPresentationSource,
                         evidenceTier: self.viewModel.state.runicEvidenceTier,
                         primarySourceLabel: self.viewModel.state.runicPrimarySourceLabel,
+                        warnings: self.viewModel.state.runicWarnings,
+                        isRunicRenderingAvailable: self.viewModel.state.isRunicRenderingAvailable,
                     )
                 }
             }
@@ -270,6 +272,8 @@ struct QuoteView: View {
                 author: self.viewModel.state.author,
                 script: self.viewModel.state.currentScript,
                 font: self.viewModel.state.currentFont,
+                warnings: self.viewModel.state.runicWarnings,
+                isRunicRenderingAvailable: self.viewModel.state.isRunicRenderingAvailable,
                 decorativeGlyph: self.decorativeGlyph,
                 palette: self.palette,
                 isScriptMorphing: self.isScriptMorphing,
@@ -286,6 +290,7 @@ struct QuoteView: View {
                     self.showActionsSheet = true
                 },
             )
+            SavedAssessmentSourcesButton(artifact: self.viewModel.state.savedTranslationArtifact)
         }
     }
 

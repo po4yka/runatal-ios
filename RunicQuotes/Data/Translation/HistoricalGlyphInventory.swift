@@ -11,12 +11,19 @@ import Foundation
 /// Literal source numbers/symbols may survive, but letters cannot masquerade as runes.
 enum HistoricalGlyphInventory {
     static func unsupportedGlyphs(in result: TranslationResult, request: TranslationRequest) -> [String] {
-        let inventory = self.characters(for: request.script, variant: request.youngerVariant)
-        var literals = Set(request.sourceText.filter { !$0.isLetter && !$0.isWhitespace && !self.isPrivateUse($0) })
-        if request.sourceText.contains(where: { ["’", "‘", "ʼ"].contains($0) }) {
+        self.unsupportedGlyphs(in: [result.glyphOutput] + result.tokenBreakdown.map(\.glyphToken), sourceText: request.sourceText, script: request.script, variant: request.youngerVariant)
+    }
+
+    static func unsupportedGlyphs(in text: String, sourceText: String, script: RunicScript, variant: YoungerFutharkVariant) -> [String] {
+        self.unsupportedGlyphs(in: [text], sourceText: sourceText, script: script, variant: variant)
+    }
+
+    private static func unsupportedGlyphs(in outputs: [String], sourceText: String, script: RunicScript, variant: YoungerFutharkVariant) -> [String] {
+        let inventory = self.characters(for: script, variant: variant)
+        var literals = Set(sourceText.filter { !$0.isLetter && !$0.isWhitespace && !self.isPrivateUse($0) })
+        if sourceText.contains(where: { ["’", "‘", "ʼ"].contains($0) }) {
             literals.insert("'")
         }
-        let outputs = [result.glyphOutput] + result.tokenBreakdown.map(\.glyphToken)
         var seen = Set<Character>()
         return outputs.flatMap { Array($0) }.filter { character in
             !inventory.contains(character) && !character.isWhitespace && !literals.contains(character) && seen.insert(character).inserted

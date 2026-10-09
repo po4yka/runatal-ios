@@ -21,6 +21,7 @@ struct QuoteRecord: Identifiable {
     let runicElder: String?
     let runicYounger: String?
     let runicCirth: String?
+    let cirthEncodingRaw: String?
     let storedTranslationMetadataData: Data?
     let createdAt: Date
     let isHidden: Bool
@@ -37,6 +38,7 @@ struct QuoteRecord: Identifiable {
         self.runicElder = quote.runicElder
         self.runicYounger = quote.runicYounger
         self.runicCirth = quote.runicCirth
+        self.cirthEncodingRaw = quote.cirthEncodingRaw
         self.storedTranslationMetadataData = quote.storedTranslationMetadataData
         self.createdAt = quote.createdAt
         self.isHidden = quote.isHidden

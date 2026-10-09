@@ -195,7 +195,7 @@ struct TranslationResultSectionView: View {
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
-        .disabled(self.state.isInputEmpty || self.state.isSaving)
+        .disabled(!self.state.canSave)
         .accessibilityIdentifier("translation_save_button")
     }
 

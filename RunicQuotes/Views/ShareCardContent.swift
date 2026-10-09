@@ -17,6 +17,8 @@ struct ShareCardContent: View {
     let author: String
     let script: RunicScript
     let font: RunicFont
+    var warnings: [String] = []
+    var isRunicRenderingAvailable = true
     let style: ShareCardStyle
     let presentationSource: RunicPresentationSource
     let evidenceTier: TranslationEvidenceTier?
@@ -49,19 +51,34 @@ struct ShareCardContent: View {
                 .padding(.bottom, DesignTokens.Spacing.xl)
 
             // Runic text (smaller, secondary)
-            Text(self.runicText)
-                .runicTextStyle(
-                    script: self.script,
-                    font: self.font,
-                    style: .caption,
-                    minSize: 11,
-                    maxSize: 14,
-                )
-                .foregroundStyle(self.cardPalette.textSecondary.opacity(0.5))
-                .multilineTextAlignment(.center)
-                .lineLimit(1)
-                .tracking(1.12)
-                .padding(.horizontal, DesignTokens.Spacing.xl)
+            Group {
+                if self.isRunicRenderingAvailable {
+                    Text(self.runicText)
+                        .runicTextStyle(
+                            script: self.script,
+                            font: self.font,
+                            style: .caption,
+                            minSize: 11,
+                            maxSize: 14,
+                        )
+
+                } else {
+                    Text("Runic rendering unavailable").font(.caption)
+                }
+            }
+            .foregroundStyle(self.cardPalette.textSecondary.opacity(0.5))
+            .multilineTextAlignment(.center)
+            .lineLimit(1)
+            .tracking(1.12)
+            .padding(.horizontal, DesignTokens.Spacing.xl)
+
+            if !self.warnings.isEmpty {
+                Text(self.warnings.joined(separator: "\n"))
+                    .font(.caption)
+                    .foregroundStyle(self.cardPalette.textSecondary)
+                    .padding(.horizontal, DesignTokens.Spacing.xl)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             // Separator
             Rectangle()
@@ -147,7 +164,7 @@ struct ShareCardContent: View {
                 .foregroundStyle(self.cardPalette.textTertiary)
 
             if let evidenceTier {
-                Text(evidenceTier.displayName)
+                Text(self.presentationSource.evidenceLabel(evidenceTier))
                     .font(.system(size: 9))
                     .foregroundStyle(self.cardPalette.textTertiary.opacity(0.9))
             } else if let primarySourceLabel {
