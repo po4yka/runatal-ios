@@ -28,6 +28,19 @@ enum LegacyGeneratedRuneMigration {
         quote.runicTransliterationVersion = 1
     }
 
+    static func upgradeYounger(_ quote: Quote, render: (String, RunicScript) -> String) {
+        guard (quote.runicTransliterationVersion ?? 0) < 2 else { return }
+        let original = self.render(quote.textLatin, map: self.youngerMapV1, digraphs: ["th": "ᚦ", "ng": "ᚾ"])
+        if quote.storedTranslationMetadataData == nil, quote.runicYounger == original {
+            quote.runicYounger = render(quote.textLatin, .younger)
+        }
+        quote.runicTransliterationVersion = 2
+    }
+
+    private static let youngerMapV1: [Character: Character] = Dictionary(
+        uniqueKeysWithValues: zip("abcdefghijklmnopqrstuvwxyz", "ᚨᛒᚴᛞᚨᚠᚴᚻᛁᛃᚴᛚᛗᚾᚨᛒᚴᚱᛊᛏᚢᚠᚢᚴᛁᛊ"),
+    )
+
     static func elderV1(_ text: String) -> String {
         self.render(text, map: self.elderMapV1, digraphs: ["th": "ᚦ", "ng": "ᛜ", "ei": "ᛇ"])
     }

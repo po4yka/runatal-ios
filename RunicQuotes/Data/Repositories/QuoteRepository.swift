@@ -184,7 +184,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
                 context.insert(quote)
                 context.insert(QuoteSeedReceipt(seedID: entry.id, quoteID: quote.id))
             }
-            quotes.forEach { LegacyGeneratedRuneMigration.upgradeElder($0, render: self.transliterator.transliterate) }
+            for quote in quotes {
+                LegacyGeneratedRuneMigration.upgradeElder(quote, render: self.transliterator.transliterate)
+                LegacyGeneratedRuneMigration.upgradeYounger(quote, render: self.transliterator.transliterate)
+            }
             LegacyGeneratedRuneMigration.upgradeOriginalCirth(quotes, render: self.transliterator.transliterate)
             for preference in preferences {
                 preference.catalogIdentityVersion = "v1"

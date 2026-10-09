@@ -15,4 +15,11 @@ final class RunicTransliterationContractTests: XCTestCase {
         XCTAssertTrue(RunicTransliterator.transliterate("abcdefghijklmnopqrstuvwxyz", to: .elder).allSatisfy(alphabet.contains))
     }
 
+    func testYoungerOutputAndReferenceUseLongBranchGraphs() {
+        XCTAssertEqual(RunicTransliterator.transliterate("adhejmsoy", to: .younger), "ᛅᛏᚼᛁᛁᛘᛋᚢᚢ")
+        let alphabet = Set("ᚠᚢᚦᚬᚱᚴᚼᚾᛁᛅᛋᛏᛒᛘᛚᛦ")
+        XCTAssertTrue(RunicTransliterator.transliterate("abcdefghijklmnopqrstuvwxyz", to: .younger).allSatisfy(alphabet.contains))
+        XCTAssertEqual(Set(RuneInfo.youngerFuthark.map(\.glyph)), Set(alphabet.map(String.init)))
+    }
+
 }

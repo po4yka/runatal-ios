@@ -79,8 +79,8 @@ struct RunicTransliteratorTests {
 
     @Test
     func youngerFutharkMergedVowels() {
-        #expect(RunicTransliterator.transliterate("a", to: .younger) == RunicTransliterator.transliterate("e", to: .younger))
-        #expect(RunicTransliterator.transliterate("a", to: .younger) == RunicTransliterator.transliterate("o", to: .younger))
+        #expect(RunicTransliterator.transliterate("i", to: .younger) == RunicTransliterator.transliterate("e", to: .younger))
+        #expect(RunicTransliterator.transliterate("u", to: .younger) == RunicTransliterator.transliterate("o", to: .younger))
     }
 
     @Test

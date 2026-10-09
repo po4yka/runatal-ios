@@ -34,6 +34,24 @@ final class LegacyGeneratedRuneMigrationTests: XCTestCase {
         XCTAssertTrue(try repository.quote(id: artifact.id)?.runicElder == "ᚻᚩᚴᚡ")
     }
 
+    @MainActor
+    func testYoungerMigrationRepairsGeneratedFieldsAndPreservesOverrides() throws {
+        let (repository, context) = try makeRepository()
+        let generated = Quote(textLatin: "admhs", author: "Owner", isUserGenerated: true)
+        generated.runicYounger = "ᚨᛞᛗᚻᛊ"
+        generated.runicTransliterationVersion = 1
+        let custom = Quote(textLatin: "admhs", author: "Owner", isUserGenerated: true)
+        custom.runicYounger = "ᚬᛋᚢ"
+        custom.runicTransliterationVersion = 1
+        context.insert(generated)
+        context.insert(custom)
+        try context.save()
+        try repository.seedIfNeeded()
+        XCTAssertEqual(try repository.quote(id: generated.id)?.runicYounger, "ᛅᛏᛘᚼᛋ")
+        XCTAssertEqual(try repository.quote(id: custom.id)?.runicYounger, "ᚬᛋᚢ")
+    }
+
+    @MainActor
     private func makeRepository() throws -> (SwiftDataQuoteRepository, ModelContext) {
         let context = try TestSupport.makeModelContext()
         return (SwiftDataQuoteRepository(modelContext: context), context)
