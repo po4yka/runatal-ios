@@ -125,8 +125,13 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
     func testCirthShareUsesActualFontAndDisclosesCopyRequirements() {
         let app = self.requireApp()
         self.waitForQuoteCard(in: app)
-        let cirth = self.findElement(in: app, identifier: "script_option_CIRTH", maxSwipes: 3)
-        self.tapElement(cirth)
+        let options = app.buttons.matching(identifier: "script_option_CIRTH")
+        XCTAssertEqual(options.count, 1)
+        self.tapElement(options.element(boundBy: 0))
+        self.waitForQuoteCard(in: app)
+        let refreshedOptions = app.buttons.matching(identifier: "script_option_CIRTH")
+        XCTAssertEqual(refreshedOptions.count, 1)
+        let cirth = refreshedOptions.element(boundBy: 0)
         let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: cirth)
         XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
         let actions = self.findElement(in: app, identifier: "quote_actions_button", maxSwipes: 4)
@@ -142,4 +147,5 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
         attachment.lifetime = .keepAlways
         self.add(attachment)
     }
+
 }
