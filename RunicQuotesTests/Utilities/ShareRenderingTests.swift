@@ -40,6 +40,25 @@
             }
         }
 
+        func testShareBodyWrapsAndExpandsAtAccessibilitySizes() throws {
+            let quote = try XCTUnwrap(QuoteSeedCatalog.load().first { $0.id == "builtin-0001" })
+            let card = ShareCardContent(
+                runicText: "", latinText: quote.textLatin, author: quote.author,
+                script: .elder, font: .noto, style: .light,
+                presentationSource: .storedTransliteration, evidenceTier: nil, primarySourceLabel: nil,
+            ).frame(width: 320)
+            let normal = ImageRenderer(content: card.environment(\.dynamicTypeSize, .large))
+            let accessible = ImageRenderer(content: card.environment(\.dynamicTypeSize, .accessibility5))
+            let normalImage = try XCTUnwrap(normal.uiImage)
+            let accessibleImage = try XCTUnwrap(accessible.uiImage)
+            XCTAssertEqual(normalImage.size.width, accessibleImage.size.width)
+            XCTAssertGreaterThan(accessibleImage.size.height, normalImage.size.height + 50)
+            let attachment = XCTAttachment(image: accessibleImage)
+            attachment.name = "Share-320pt-system-serif-accessibility5"
+            attachment.lifetime = .keepAlways
+            self.add(attachment)
+        }
+
         private func render(runic: String, quote: QuoteCatalogEntry, script: RunicScript, style: ShareCardStyle) throws -> UIImage {
             let card = ShareCardContent(
                 runicText: runic,

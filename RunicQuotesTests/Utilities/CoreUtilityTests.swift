@@ -35,7 +35,7 @@ struct RunicFontConfigurationTests {
         #expect(RunicFontConfiguration.fontName(for: .elder, font: .noto) == "Noto Sans Runic")
         #expect(RunicFontConfiguration.fontName(for: .elder, font: .cirth) == "Noto Sans Runic")
         #expect(RunicFontConfiguration.fontName(for: .cirth, font: .noto) == "RunatalCirth-Regular")
-        #expect(RunicFontConfiguration.serifFontName == "SourceSerif4-Regular")
+        #expect(RunicFontConfiguration.fontName(for: .younger, font: .babelstone) == "BabelStone Runic")
     }
 
     @Test
