@@ -146,7 +146,6 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
         self.waitForPortrait(in: app)
         defer {
             XCUIDevice.shared.orientation = .portrait
-            self.waitForPortrait(in: app)
         }
         self.waitForQuoteCard(in: app)
         self.tapElement(app.buttons["quote_create_menu"])
@@ -177,7 +176,8 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         let landscape = XCTNSPredicateExpectation(predicate: NSPredicate { object, _ in
             guard let application = object as? XCUIApplication else { return false }
-            return application.frame.width > application.frame.height
+            let frame = application.frame
+            return frame.width > frame.height
         }, object: app)
         XCTAssertEqual(XCTWaiter.wait(for: [landscape], timeout: 5), .completed)
         let landscapeDock = app.otherElements["home_accessory"]
@@ -200,12 +200,23 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
         self.tapElement(next)
         self.waitForQuoteCard(in: app)
         XCTAssertTrue(app.staticTexts["Random"].waitForExistence(timeout: 5))
+        self.restorePortrait(in: app)
+    }
+
+    private func restorePortrait(in app: XCUIApplication) {
+        XCUIDevice.shared.orientation = .portrait
+        self.waitForPortrait(in: app)
+        let restored = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        restored.name = "Actual-live-reading-dock-restored-to-portrait"
+        restored.lifetime = .keepAlways
+        self.add(restored)
     }
 
     private func waitForPortrait(in app: XCUIApplication) {
         let portrait = XCTNSPredicateExpectation(predicate: NSPredicate { object, _ in
             guard let application = object as? XCUIApplication else { return false }
-            return application.frame.height > application.frame.width
+            let frame = application.frame
+            return frame.height > frame.width
         }, object: app)
         XCTAssertEqual(XCTWaiter.wait(for: [portrait], timeout: 5), .completed)
     }
