@@ -16,6 +16,7 @@ struct GlassScriptSelector: View {
     let cornerRadius: CGFloat
     let spacing: CGFloat
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
@@ -34,17 +35,14 @@ struct GlassScriptSelector: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: self.spacing) {
-            ForEach(RunicScript.allCases) { script in
-                ScriptButton(
-                    script: script,
-                    isSelected: self.selectedScript == script,
-                    cornerRadius: self.cornerRadius,
-                ) {
-                    withAnimation(self.reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7)) {
-                        self.selectedScript = script
-                    }
-                    Haptics.trigger(.scriptSwitch)
+        Group {
+            if self.dynamicTypeSize.isAccessibilitySize {
+                VStack(spacing: self.spacing) {
+                    self.scriptButtons
+                }
+            } else {
+                HStack(spacing: self.spacing) {
+                    self.scriptButtons
                 }
             }
         }
@@ -66,6 +64,21 @@ struct GlassScriptSelector: View {
 
     private var palette: AppThemePalette {
         AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
+    }
+
+    private var scriptButtons: some View {
+        ForEach(RunicScript.allCases) { script in
+            ScriptButton(
+                script: script,
+                isSelected: self.selectedScript == script,
+                cornerRadius: self.cornerRadius,
+            ) {
+                withAnimation(self.reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7)) {
+                    self.selectedScript = script
+                }
+                Haptics.trigger(.scriptSwitch)
+            }
+        }
     }
 }
 
