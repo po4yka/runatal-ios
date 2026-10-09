@@ -19,7 +19,6 @@
 		0663B7E5F2FB659A330E61A2 /* TranslationBackfillWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AAAFEA03CB24FCD2DDB641C /* TranslationBackfillWorker.swift */; };
 		06FAFF53E2563AAD040FD307 /* SavedFeatureComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C173C2EB1859D8C192275E0A /* SavedFeatureComponent.swift */; };
 		076F723A78F6A09F6149BCE5 /* HomeAccessoryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D287587E9500C7C77A17A9 /* HomeAccessoryController.swift */; };
-		07CD0BA0013127A13B6E4CA2 /* .gitkeep in Resources */ = {isa = PBXBuildFile; fileRef = F0C6AAD3297BCB76481D7FC5 /* .gitkeep */; };
 		086FDA1E9927DBD46404558E /* source_manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 051D10FB26786E9F8A6E5096 /* source_manifest.json */; };
 		08E7C8D8B9D7FAD57BB73468 /* QuoteSearchResultsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46530A831316B5DC7F21AEB /* QuoteSearchResultsSectionView.swift */; };
 		0A38C3D20E4A5E5DD642E1E6 /* proto_norse_lexicon.json in Resources */ = {isa = PBXBuildFile; fileRef = EA79F1EF076584C30A2E8F1A /* proto_norse_lexicon.json */; };
@@ -60,7 +59,6 @@
 		25071A27E9B2F9D76C9D108E /* AppThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */; };
 		2559DBF5E8351F90F2AE81DC /* GlassScriptSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D71542EC46EEF7E2614247D /* GlassScriptSelector.swift */; };
 		25D290090E22AA8D645C2A9A /* UserPreferencesMutation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5A81B02734C4B7F9068B1D /* UserPreferencesMutation.swift */; };
-		281807E746FCF6BD1A38B512 /* .gitkeep in Resources */ = {isa = PBXBuildFile; fileRef = E917694A8BB0D5A08FE8CE92 /* .gitkeep */; };
 		29B9E9ADFD6E1AD3077E6053 /* RunicTextBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319E8EBEC664357D97F6BBD2 /* RunicTextBundle.swift */; };
 		2A59105385340183C91A5D40 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D66DF992AD1C9DB6BB78E142 /* LaunchScreen.storyboard */; };
 		2A695DE651B4B834619F0BC7 /* attested-quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = 5F777F1DE186C172F4F0D819 /* attested-quotes.json */; };
@@ -87,7 +85,6 @@
 		33D1087E5F8D588F0D8D569D /* TranslationDataset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E33E8BF19601454BA34EB60 /* TranslationDataset.swift */; };
 		34363C10AA37E64A010147E3 /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927908F9119D131D5B0AFA82 /* SettingsViewModelTests.swift */; };
 		3469E397AD3AD02541DEB6D0 /* QuoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C086E6B5E1D77DDAAA16CD5B /* QuoteRepository.swift */; };
-		3550A1691E03C45CA28FBFBF /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B4D3620A88C7D09EEFB3FB35 /* README.md */; };
 		3577228D7D41C729B7FBFB56 /* SettingsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F787A7B45F76155400E703E2 /* SettingsPanel.swift */; };
 		37C424FEFB32320C0C76733A /* TranslationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDF889421625DED6C4D079F /* TranslationProvider.swift */; };
 		38B9C876638AB30653F8E765 /* SettingsLivePreviewSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 905C08E9F45C0E02763F20FF /* SettingsLivePreviewSectionView.swift */; };
@@ -552,7 +549,6 @@
 		B0185373B369090B54886138 /* HistoricalTranslationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalTranslationServiceTests.swift; sourceTree = "<group>"; };
 		B0E61E0F369C75C40DB778C1 /* SettingsTypographySectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTypographySectionView.swift; sourceTree = "<group>"; };
 		B1C901D68B1DE369B306CD39 /* WidgetTimelineGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetTimelineGenerator.swift; sourceTree = "<group>"; };
-		B4D3620A88C7D09EEFB3FB35 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B61E21E7B9A4101FEDBCED99 /* paradigm_tables.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = paradigm_tables.json; sourceTree = "<group>"; };
 		B6CBFE370E4B6FB5AAAA5DF7 /* runic_corpus_refs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = runic_corpus_refs.json; sourceTree = "<group>"; };
 		B7F1CD1D66B098CB8391721C /* SettingsWidgetSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWidgetSectionView.swift; sourceTree = "<group>"; };
@@ -1078,7 +1074,6 @@
 				E917694A8BB0D5A08FE8CE92 /* .gitkeep */,
 				97901C0182B80CACC32A10D7 /* BabelStoneRunic.ttf */,
 				32D3BA9B28CF8FB640C23F9F /* NotoSansRunic-Regular.ttf */,
-				B4D3620A88C7D09EEFB3FB35 /* README.md */,
 				17C99FAFF512BE3F9CF18CE3 /* RunatalCirth-OFL.txt */,
 				BEE3336A41C871722480B486 /* RunatalCirth-Regular.ttf */,
 			);
@@ -1480,11 +1475,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				281807E746FCF6BD1A38B512 /* .gitkeep in Resources */,
-				07CD0BA0013127A13B6E4CA2 /* .gitkeep in Resources */,
 				D0C7A4C13207FC3EA8BE3C27 /* BabelStoneRunic.ttf in Resources */,
 				6FBA537C07FD9903C884C206 /* NotoSansRunic-Regular.ttf in Resources */,
-				3550A1691E03C45CA28FBFBF /* README.md in Resources */,
 				2B64BFAC73A3696D99C968BD /* RunatalCirth-OFL.txt in Resources */,
 				3B3AF8255513BA1E26713ABB /* RunatalCirth-Regular.ttf in Resources */,
 				15620636F712D7DF21043982 /* attested-quotes.json in Resources */,

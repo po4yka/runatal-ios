@@ -106,10 +106,19 @@ targets:
           - "**/*.md"
       - path: RunicQuotes/Resources/Fonts
         buildPhase: resources
+        excludes:
+          - "**/.gitkeep"
+          - "**/*.md"
       - path: RunicQuotes/Resources/SeedData
         buildPhase: resources
+        excludes:
+          - "**/.gitkeep"
+          - "**/*.md"
       - path: RunicQuotes/Resources/Translation
         buildPhase: resources
+        excludes:
+          - "**/.gitkeep"
+          - "**/*.md"
     resources:
       - path: RunicQuotes/Resources/Fonts
         buildPhase: resources
