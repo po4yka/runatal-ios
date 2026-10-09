@@ -89,7 +89,6 @@ struct TranslationResultSectionView: View {
                     }
                 }
             }
-            .accessibilityIdentifier("translation_output_card")
 
             LiquidActionCluster(palette: self.palette) {
                 ViewThatFits(in: .horizontal) {
