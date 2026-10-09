@@ -120,7 +120,7 @@ Home, Share, Saved, Search, Archive and live widgets use `RunicPresentationResol
 
 Structured results distinguish historical translation, modern English transcription and mixed adaptation. Direct unresolved-character warnings survive library saves and sharing. Original passage attribution opens a separate source sheet with explicit HTTP(S) links, distinct from historical translation evidence. Share cards wrap all rune lines and source disclosures; Cirth copy guidance explains the compatible-font requirement and image export preserves appearance. Rune fonts use one system text-style scaling pass, with unrestricted multiline accessibility sizes.
 
-Home's reading dock uses a self-sizing bottom safe-area inset. Its context and Next Quote action stay above the tab bar; accessibility sizes stack the full context and action. The tab bar can minimize while the dock remains expanded. Changing text size keeps one stable tab hierarchy and preserves open Studio drafts.
+Home's reading dock uses a self-sizing bottom safe-area inset. Its context and Next Quote action stay above the tab bar; accessibility sizes stack the context and action. Long context is summarized in up to three visual lines, with the full attribution available to accessibility and in the scrollable quote. The tab bar can minimize while the dock remains expanded. Changing text size keeps one stable tab hierarchy and preserves open Studio drafts.
 
 ## Library startup, widgets and reminders
 

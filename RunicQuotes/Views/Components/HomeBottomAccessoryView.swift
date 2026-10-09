@@ -55,13 +55,18 @@ struct HomeBottomAccessoryView: View {
                 .fixedSize(horizontal: false, vertical: self.dynamicTypeSize.isAccessibilitySize)
                 .accessibilityIdentifier("home_accessory_collection")
 
-            Text("\(self.controller.scriptName) · \(self.controller.caption)")
+            Text(self.contextText)
                 .font(DesignTokens.Typography.listMeta)
                 .foregroundStyle(self.palette.textTertiary)
-                .lineLimit(self.dynamicTypeSize.isAccessibilitySize ? nil : 1)
+                .lineLimit(self.dynamicTypeSize.isAccessibilitySize ? 3 : 1)
                 .fixedSize(horizontal: false, vertical: self.dynamicTypeSize.isAccessibilitySize)
                 .accessibilityIdentifier("home_accessory_context")
+                .accessibilityLabel(self.contextText)
         }
+    }
+
+    private var contextText: String {
+        "\(self.controller.scriptName) · \(self.controller.caption)"
     }
 
     private var nextButton: some View {
