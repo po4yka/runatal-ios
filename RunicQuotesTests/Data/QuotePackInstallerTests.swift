@@ -76,6 +76,7 @@ struct QuotePackInstallerTests {
     func legacyInstalledFlagGainsContentOnBootstrapWithoutDuplicates() throws {
         let context = try TestSupport.makeModelContext()
         let preferences = UserPreferences()
+        preferences.catalogIdentityVersion = nil
         preferences.installedPackIDs = ["meditations"]
         context.insert(preferences)
         try context.save()

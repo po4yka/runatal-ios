@@ -98,7 +98,7 @@ struct RunicTransliteratorTests {
     @Test
     func cirthBasicVowels() {
         let result = RunicTransliterator.transliterate("aeiou", to: .cirth).glyphOutput
-        #expect(result == "aeiou")
+        #expect(result == "\u{E0B1}\u{E0AF}\u{E0A7}\u{E0B3}\u{E0AA}")
         #expect(!result.isEmpty)
     }
 
