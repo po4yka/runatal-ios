@@ -255,6 +255,37 @@ struct QuoteViewModelTests {
         #expect(viewModel.state.runicPresentationSource == .structuredTranslation)
     }
 
+    @Test
+    func appearancePreferenceChangesFinishLoadingAndPreservePassage() async throws {
+        let (viewModel, context) = try self.makeViewModelWithContext()
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        let quoteID = viewModel.state.currentQuoteID
+        let repository = SwiftDataUserPreferencesRepository(modelContext: context)
+        try repository.apply([.font(.babelstone), .theme(.nordicDawn), .widgetStyle(.translationFirst), .decorativeGlyphs(false)])
+        viewModel.onPreferencesChanged()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.currentQuoteID == quoteID)
+        #expect(viewModel.state.currentFont == .babelstone)
+        #expect(viewModel.state.currentTheme == .nordicDawn)
+        #expect(viewModel.state.errorMessage == nil)
+    }
+
+    @Test
+    func preferenceReadFailureEndsLoadingAndShowsError() async throws {
+        let context = try TestSupport.makeModelContext()
+        let preferences = TestPreferencesRepository()
+        preferences.snapshotResult = .failure(TestError(message: "Preference read failed"))
+        let viewModel = QuoteViewModel(
+            quoteProvider: QuoteProvider(modelContainer: context.container),
+            translationProvider: TranslationProvider(modelContainer: context.container),
+            preferencesRepository: preferences,
+        )
+        viewModel.onPreferencesChanged()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.errorMessage?.contains("Preference read failed") == true)
+    }
+
     private func makeViewModel(seedData: Bool = true) throws -> QuoteViewModel {
         try self.makeViewModelWithContext(seedData: seedData).0
     }

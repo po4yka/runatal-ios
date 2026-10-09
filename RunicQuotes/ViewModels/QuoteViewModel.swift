@@ -215,11 +215,14 @@ final class QuoteViewModel: ObservableObject {
     /// Apply updated persisted preferences (e.g. after changes in Settings tab).
     func onPreferencesChanged() {
         self.state.isLoading = true
+        self.state.errorMessage = nil
         Task {
+            defer { self.state.isLoading = false }
             let previousScript = self.state.currentScript
             let previousMode = self.state.currentWidgetMode
             let previousCollection = self.state.currentCollection
             await self.loadPreferences()
+            guard self.state.errorMessage == nil else { return }
 
             let preferencesChanged =
                 previousScript != self.state.currentScript ||
