@@ -24,7 +24,8 @@ struct ReadingAppearanceControllerTests {
         try SwiftDataTranslationRepository(modelContext: context).cache(result: result, for: quote.id, sourceText: text)
         let preferences = SwiftDataUserPreferencesRepository(modelContext: context)
         try preferences.apply([.script(.younger)])
-        let model = ReadingAppearanceController(repository: preferences, quotes: QuoteProvider(modelContainer: context.container), translations: TranslationProvider(modelContainer: context.container))
+        let providers = try await TestSupport.prepareReadingProviders(in: context)
+        let model = ReadingAppearanceController(repository: preferences, quotes: providers.quotes, translations: providers.translations)
         #expect(await TestSupport.eventually { model.script == .younger && model.presentation(for: quote).text == result.glyphOutput })
         #expect(model.font.isCompatible(with: .younger))
         let edited = try quotes.updateQuote(id: quote.id, textLatin: "An edited source passage", author: "Reader", source: nil, collection: .stoic, storedRunic: RunicTextBundle(elder: nil, younger: "EXACT SAVED OUTPUT", cirth: nil))
@@ -43,7 +44,8 @@ struct ReadingAppearanceControllerTests {
         let firstResult = HistoricalTranslationService().translate(text: first.textLatin, script: .elder, fidelity: .strict)
         #expect(firstResult.isAvailable)
         try translations.cache(result: firstResult, for: first.id, sourceText: first.textLatin)
-        let model = ReadingAppearanceController(repository: preferences, quotes: QuoteProvider(modelContainer: context.container), translations: TranslationProvider(modelContainer: context.container))
+        let providers = try await TestSupport.prepareReadingProviders(in: context)
+        let model = ReadingAppearanceController(repository: preferences, quotes: providers.quotes, translations: providers.translations)
         #expect(await TestSupport.eventually { model.presentation(for: first).source == .structuredTranslation })
 
         // Every event originates from a real successful detached repository mutation.

@@ -23,7 +23,7 @@ struct QuoteViewModelTranslationTests {
             textLatin: current.sourceText, author: "Reader", source: nil, collection: .stoic,
             storedRunic: RunicTextBundle(elder: artifact.glyphOutput, younger: nil, cirth: nil), translations: [artifact],
         )
-        let viewModel = self.makeViewModel(context: context)
+        let viewModel = try await self.makeViewModel(context: context)
         viewModel.onAppear()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
         #expect(viewModel.state.currentQuoteID == record.id)
@@ -46,7 +46,7 @@ struct QuoteViewModelTranslationTests {
         #expect(current.isAvailable)
         try SwiftDataTranslationRepository(modelContext: context).cache(result: current, for: quote.id, sourceText: quote.textLatin)
         try SwiftDataUserPreferencesRepository(modelContext: context).apply([.script(.younger)])
-        let viewModel = self.makeViewModel(context: context)
+        let viewModel = try await self.makeViewModel(context: context)
         viewModel.onAppear()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
         #expect(viewModel.state.runicText == quote.runicYounger)
@@ -64,7 +64,7 @@ struct QuoteViewModelTranslationTests {
         context.insert(quote)
         try context.save()
         try SwiftDataUserPreferencesRepository(modelContext: context).apply([.script(.cirth)])
-        let viewModel = self.makeViewModel(context: context)
+        let viewModel = try await self.makeViewModel(context: context)
         viewModel.onAppear()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
         #expect(viewModel.state.runicText == quote.runicCirth)
@@ -83,7 +83,7 @@ struct QuoteViewModelTranslationTests {
             textLatin: text, author: "Reader", source: nil, collection: .stoic,
             storedRunic: RunicTextBundle(elder: generated.glyphOutput, younger: nil, cirth: nil), translations: [],
         )
-        let viewModel = self.makeViewModel(context: context)
+        let viewModel = try await self.makeViewModel(context: context)
         viewModel.onAppear()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
         #expect(viewModel.state.latinText == text)
@@ -92,10 +92,11 @@ struct QuoteViewModelTranslationTests {
         #expect(viewModel.state.runicEvidenceTier == nil)
     }
 
-    private func makeViewModel(context: ModelContext) -> QuoteViewModel {
-        QuoteViewModel(
-            quoteProvider: QuoteProvider(modelContainer: context.container),
-            translationProvider: TranslationProvider(modelContainer: context.container),
+    private func makeViewModel(context: ModelContext) async throws -> QuoteViewModel {
+        let providers = try await TestSupport.prepareReadingProviders(in: context)
+        return QuoteViewModel(
+            quoteProvider: providers.quotes,
+            translationProvider: providers.translations,
             preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context),
         )
     }

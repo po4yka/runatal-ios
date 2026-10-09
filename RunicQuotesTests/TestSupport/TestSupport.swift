@@ -29,6 +29,18 @@ enum TestSupport {
     }
 
     @MainActor
+    static func prepareReadingProviders(in context: ModelContext) async throws -> (quotes: QuoteProvider, translations: TranslationProvider) {
+        let quotes = QuoteProvider(modelContainer: context.container)
+        let translations = TranslationProvider(modelContainer: context.container)
+        let records = try await quotes.readingLibraryQuotes()
+        let script = try SwiftDataUserPreferencesRepository(modelContext: context).snapshot().selectedScript
+        _ = try await translations.latestTranslations(for: records.map(\.id), script: script)
+        // Complete actual persistence fixture preparation before timing UI state publication.
+        // Concurrent suites otherwise charge their MainActor queue backlog to that deadline.
+        return (quotes, translations)
+    }
+
+    @MainActor
     static func eventually(
         timeout: Duration = .seconds(2),
         pollInterval: Duration = .milliseconds(25),
