@@ -10,8 +10,6 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-// swiftlint:disable file_length
-
 /// UI state for the quote view
 struct QuoteUiState {
     var runicText: String = ""
@@ -78,18 +76,25 @@ final class QuoteViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let quoteProvider: QuoteProvider
-    let translationProvider: TranslationProvider
+    private let quoteProvider: any QuoteReading
+    let translationProvider: any QuoteTranslationReading
     private let preferencesRepository: any UserPreferencesRepository
     private var preferences = UserPreferencesSnapshot()
     private var currentQuoteRecordCache: QuoteRecord?
     var cachedQuotes: [QuoteRecord] = []
+    private var acceptsPassiveLoads = true
+    private var desiredSelection: Selection = .daily
+    private var desiredMode: WidgetMode = .daily
+    private var loadGeneration = 0
+    private var loadTask: Task<Void, Never>?
+    private var presentationScriptOverride: RunicScript?
+    private var presentationCollectionOverride: QuoteCollection?
 
     // MARK: - Initialization
 
     init(
-        quoteProvider: QuoteProvider,
-        translationProvider: TranslationProvider,
+        quoteProvider: any QuoteReading,
+        translationProvider: any QuoteTranslationReading,
         preferencesRepository: any UserPreferencesRepository,
     ) {
         self.quoteProvider = quoteProvider
@@ -99,302 +104,229 @@ final class QuoteViewModel: ObservableObject {
 
     // MARK: - Public API
 
-    /// Load initial quote when view appears
     func onAppear() {
-        Task {
-            await self.loadPreferences()
-            await self.loadQuoteOfTheDay()
-        }
+        self.acceptsPassiveLoads = true
+        self.beginLoad(selection: self.desiredSelection)
     }
 
-    /// Load the next random quote
+    func onDisappear() {
+        self.acceptsPassiveLoads = false
+        self.loadGeneration += 1
+        self.loadTask?.cancel()
+        self.loadTask = nil
+    }
+
     func onNextQuoteTapped() {
-        self.state.isLoading = true
-        Task {
-            await self.loadRandomQuote()
-        }
+        self.beginLoad(selection: .random, mode: .random)
     }
 
-    /// Toggle save state for the currently visible quote.
     func onToggleSaveTapped() {
-        guard let quoteID = state.currentQuoteID else { return }
-        self.toggleSavedState(for: quoteID)
+        guard let id = self.state.currentQuoteID, self.persistPreferences([.toggleSavedQuote(id)]) else { return }
+        self.beginLoad(selection: .retain(id))
     }
 
-    /// Change the current runic script
     func onScriptChanged(_ script: RunicScript) {
-        self.state.isLoading = true
-        Task {
-            await self.updateScript(script)
-        }
+        guard self.persistPreferences([.script(script)]) else { return }
+        self.presentationScriptOverride = nil
+        self.beginLoad(selection: self.retainedSelection)
     }
 
-    /// Change the current font
     func onFontChanged(_ font: RunicFont) {
-        Task {
-            await self.updateFont(font)
-        }
+        let mutations: [UserPreferencesMutation] = self.presentationScriptOverride.map { [.script($0), .font(font)] } ?? [.font(font)]
+        guard self.persistPreferences(mutations) else { return }
+        self.presentationScriptOverride = nil
+        self.beginLoad(selection: self.retainedSelection)
     }
 
-    /// Change the current quote collection.
     func onCollectionChanged(_ collection: QuoteCollection) {
-        guard self.state.currentCollection != collection else { return }
-
         guard self.persistPreferences([.collection(collection)]) else { return }
-        self.state.currentCollection = self.preferences.selectedCollection
-        self.state.isLoading = true
-
-        Task {
-            await self.loadQuote(using: self.state.currentReadingMode, updateContext: false)
-        }
+        self.presentationCollectionOverride = nil
+        self.beginLoad(selection: self.selection(for: self.desiredMode))
     }
 
-    /// Focus the successfully persisted passage rather than choosing a new daily entry.
     func onQuoteSaved(_ id: UUID) {
-        self.state.isLoading = true
-        Task {
-            defer { self.state.isLoading = false }
-            do {
-                let quotes = try await self.quoteProvider.allQuotes()
-                guard let quote = quotes.first(where: { $0.id == id }) else { throw QuoteRepositoryError.quoteNotFound }
-                self.cachedQuotes = quotes
-                if !self.state.currentCollection.contains(quote) {
-                    self.state.currentCollection = quote.collection
-                }
-                self.updateCollectionCovers(using: quotes)
-                await self.updateState(with: quote)
-            } catch { self.state.errorMessage = error.localizedDescription }
-        }
+        self.beginLoad(selection: .focus(id))
     }
 
-    /// Refresh the quote of the day
     func refresh() {
-        self.state.isLoading = true
-        Task {
-            await self.loadQuoteOfTheDay()
-        }
+        self.beginLoad(selection: .daily, mode: .daily)
     }
 
-    /// Search cached quotes by author or content and return compact suggestions.
     func searchResults(for query: String) -> [QuoteSearchResult] {
-        let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !normalizedQuery.isEmpty else { return [] }
-
-        let searchScope = self.quotes(for: self.state.currentCollection, within: self.cachedQuotes)
-        return searchScope
-            .filter {
-                $0.textLatin.localizedStandardContains(normalizedQuery) ||
-                    $0.author.localizedStandardContains(normalizedQuery)
-            }
+        let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return [] }
+        return self.quotes(for: self.state.currentCollection, within: self.cachedQuotes)
+            .filter { $0.textLatin.localizedStandardContains(query) || $0.author.localizedStandardContains(query) }
             .prefix(8)
-            .map {
-                QuoteSearchResult(
-                    id: $0.id,
-                    latinText: $0.textLatin,
-                    author: $0.author,
-                    collection: $0.collection,
-                )
-            }
+            .map { QuoteSearchResult(id: $0.id, latinText: $0.textLatin, author: $0.author, collection: $0.collection) }
     }
 
-    /// Display a specific quote selected from search suggestions.
-    func showQuote(withID quoteID: UUID) {
-        guard let match = cachedQuotes.first(where: { $0.id == quoteID }) else { return }
-        Task {
-            await self.updateState(with: match)
-        }
+    func showQuote(withID id: UUID) {
+        self.beginLoad(selection: .focus(id))
     }
 
-    /// Apply updated persisted preferences (e.g. after changes in Settings tab).
     func onPreferencesChanged() {
-        self.state.isLoading = true
-        self.state.errorMessage = nil
-        Task {
-            defer { self.state.isLoading = false }
-            let previousScript = self.state.currentScript
-            let previousCollection = self.state.currentCollection
-            await self.loadPreferences()
-            guard self.state.errorMessage == nil else { return }
-
-            let preferencesChanged =
-                previousScript != self.state.currentScript ||
-                previousCollection != self.state.currentCollection
-
-            if preferencesChanged {
-                await self.loadQuote(using: self.state.currentReadingMode, updateContext: true)
-            }
-        }
+        guard self.acceptsPassiveLoads else { return }
+        self.beginLoad(selection: self.retainedSelection)
     }
 
-    func updateDisplayedRunicText(_ runicText: String) {
-        self.state.runicText = runicText
+    func onLibraryChanged() {
+        guard self.acceptsPassiveLoads else { return }
+        self.beginLoad(selection: self.retainedSelection)
     }
 
-    func updateDisplayedRunicPresentation(_ presentation: ResolvedRunicPresentation) {
-        self.state.runicText = presentation.text
-        self.state.runicWarnings = presentation.warnings
-        self.state.isRunicRenderingAvailable = presentation.isRenderable
-        self.state.savedTranslationArtifact = presentation.savedArtifact
-        self.state.runicPresentationSource = presentation.source
-        self.state.runicEvidenceTier = presentation.evidenceTier
-        self.state.runicPrimarySourceLabel = presentation.primarySourceLabel
-    }
-
-    /// Apply deep-link context from widget and open quote screen in matching state.
     func onOpenQuoteDeepLink(quoteID: UUID?, scriptRaw: String?, modeRaw: String?, collectionRaw: String?) {
-        self.state.isLoading = true
-        Task {
-            await self.loadPreferences()
-            guard self.state.errorMessage == nil else { self.state.isLoading = false; return }
-            if let script = self.parseScript(from: scriptRaw) {
-                self.state.currentScript = script
-                self.state.currentFont = self.preferences.selectedFont.isCompatible(with: script) ? self.preferences.selectedFont : RunicFontConfiguration.recommendedFont(for: script)
-            }
-            if let collection = collectionRaw.flatMap(QuoteCollection.init(rawValue:)) {
-                self.state.currentCollection = collection
-            }
-            let mode = self.parseMode(from: modeRaw) ?? .daily
-            self.state.currentReadingMode = mode
-            if let quoteID {
-                self.onQuoteSaved(quoteID)
-            } else {
-                await self.loadQuote(using: mode, updateContext: true)
-            }
-        }
+        self.presentationScriptOverride = self.parseScript(from: scriptRaw)
+        self.presentationCollectionOverride = collectionRaw.flatMap(QuoteCollection.init(rawValue:))
+        let mode = self.parseMode(from: modeRaw) ?? .daily
+        self.beginLoad(selection: quoteID.map(Selection.focus) ?? self.selection(for: mode), mode: mode)
     }
 
-    // MARK: - Private Methods
-
-    private func loadPreferences() async {
-        do {
-            self.preferences = try self.preferencesRepository.snapshot()
-
-            // Update state with preferences
-            self.state.currentScript = self.preferences.selectedScript
-            self.state.currentFont = self.preferences.selectedFont
-            self.state.currentCollection = self.preferences.selectedCollection
-            self.state.currentTheme = self.preferences.selectedTheme
-            self.syncSavedStateForCurrentQuote()
-        } catch {
-            self.state.errorMessage = "Failed to load preferences: \(error.localizedDescription)"
-        }
-    }
-
-    private func loadQuoteOfTheDay() async {
-        await self.loadQuote(using: .daily, updateContext: false)
-    }
-
-    private func loadRandomQuote() async {
-        await self.loadQuote(using: .random, updateContext: false)
-    }
-
-    private func loadQuote(using mode: WidgetMode, updateContext: Bool) async {
-        self.state.isLoading = true
-        self.state.errorMessage = nil
-        if updateContext {
-            self.state.currentReadingMode = mode
-        }
-
-        do {
-            let allQuotes = try await quoteProvider.allQuotes()
-            self.cachedQuotes = allQuotes
-            self.updateCollectionCovers(using: allQuotes)
-
-            let filteredQuotes = self.quotes(for: self.state.currentCollection, within: allQuotes)
-            guard !filteredQuotes.isEmpty else {
-                throw QuoteViewModelError.emptyCollection(self.state.currentCollection)
-            }
-
-            let quote = self.selectQuote(from: filteredQuotes, mode: mode)
-            await self.updateState(with: quote)
-            self.state.isLoading = false
-        } catch {
-            self.state.errorMessage = error.localizedDescription
-            self.state.isLoading = false
-        }
-    }
-
-    private func updateScript(_ script: RunicScript) async {
-        guard self.persistPreferences([.script(script)]) else {
-            self.state.isLoading = false
-            return
-        }
-        self.state.currentScript = self.preferences.selectedScript
-        self.state.currentFont = self.preferences.selectedFont
-
-        // Reload quote with new script
-        await self.loadQuote(using: self.state.currentReadingMode, updateContext: false)
-    }
-
-    private func updateFont(_ font: RunicFont) async {
-        // Verify compatibility
-        guard font.isCompatible(with: self.state.currentScript) else {
-            self.state.errorMessage = "\(font.displayName) is not compatible with \(self.state.currentScript.displayName)"
-            return
-        }
-
-        // Update preferences
-        guard self.persistPreferences([.font(font)]) else { return }
-
-        // Update state
-        self.state.currentFont = self.preferences.selectedFont
-    }
-
-    private func updateState(with quote: QuoteRecord) async {
-        self.currentQuoteRecordCache = quote
-        self.state.latinText = quote.textLatin
-        self.state.author = quote.author
-        let presentation = await preferredRunicPresentation(for: quote)
-        self.updateDisplayedRunicPresentation(presentation)
-
-        self.state.currentQuoteID = quote.id
-        self.syncSavedStateForCurrentQuote()
-    }
-
-    private func toggleSavedState(for quoteID: UUID) {
-        guard self.persistPreferences([.toggleSavedQuote(quoteID)]) else { return }
-        self.syncSavedStateForCurrentQuote()
-    }
-
-    private func syncSavedStateForCurrentQuote() {
-        guard let quoteID = state.currentQuoteID else {
-            self.state.isCurrentQuoteSaved = false
-            return
-        }
-
-        self.state.isCurrentQuoteSaved = self.preferences.isQuoteSaved(quoteID)
-    }
-
-    /// Return the current quote as a `QuoteRecord`, or `nil` if unavailable.
     func currentQuoteRecord() -> QuoteRecord? {
         self.currentQuoteRecordCache
     }
 
-    /// Hide the current quote and advance to the next one.
     func hideCurrentQuote() {
-        guard let quoteID = state.currentQuoteID else { return }
+        self.archiveCurrentQuote(deleting: false)
+    }
 
-        Task {
-            do {
-                self.currentQuoteRecordCache = try await self.quoteProvider.hideQuote(id: quoteID)
-                self.onNextQuoteTapped()
-            } catch {
-                self.state.errorMessage = error.localizedDescription
+    func deleteCurrentQuote() {
+        self.archiveCurrentQuote(deleting: true)
+    }
+
+    // MARK: - Loading
+
+    private enum Selection {
+        case daily
+        case random
+        case retain(UUID)
+        case focus(UUID)
+    }
+
+    private var retainedSelection: Selection {
+        self.desiredSelection
+    }
+
+    private func selection(for mode: WidgetMode) -> Selection {
+        mode == .daily ? .daily : .random
+    }
+
+    private func beginLoad(selection: Selection, mode: WidgetMode? = nil) {
+        self.desiredSelection = selection
+        if let mode {
+            self.desiredMode = mode
+        }
+        self.loadGeneration += 1
+        let generation = self.loadGeneration
+        self.loadTask?.cancel()
+        do {
+            var preferences = try self.preferencesRepository.snapshot()
+            if let collection = self.presentationCollectionOverride {
+                preferences.selectedCollection = collection
             }
+            let mode = self.desiredMode
+            let script = self.presentationScriptOverride ?? preferences.selectedScript
+            self.state.isLoading = true
+            self.state.errorMessage = nil
+            self.loadTask = Task {
+                await self.load(selection: selection, mode: mode, script: script, preferences: preferences, generation: generation)
+            }
+        } catch {
+            self.state.isLoading = false
+            self.state.errorMessage = error.localizedDescription
         }
     }
 
-    /// Soft-delete the current quote and advance to the next one.
-    func deleteCurrentQuote() {
-        guard let quoteID = state.currentQuoteID else { return }
+    private func load(selection: Selection, mode: WidgetMode, script: RunicScript, preferences: UserPreferencesSnapshot, generation: Int) async {
+        var fetchedQuotes: [QuoteRecord]?
+        do {
+            let allQuotes = try await self.quoteProvider.allQuotes()
+            fetchedQuotes = allQuotes
+            try Task.checkCancellation()
+            var next = self.state
+            next.currentScript = script
+            next.currentFont = preferences.selectedFont.isCompatible(with: script) ? preferences.selectedFont : RunicFontConfiguration.recommendedFont(for: script)
+            next.currentTheme = preferences.selectedTheme
+            next.currentCollection = preferences.selectedCollection
+            next.currentReadingMode = mode
+            let quote = try self.selectedQuote(selection, allQuotes: allQuotes, collection: &next.currentCollection, mode: mode)
+            let presentation = await self.preferredRunicPresentation(for: quote, script: next.currentScript)
+            try Task.checkCancellation()
+            guard generation == self.loadGeneration, !Task.isCancelled else { return }
+            if next.currentCollection != preferences.selectedCollection {
+                self.presentationCollectionOverride = next.currentCollection
+            }
+            self.desiredSelection = .retain(quote.id)
+            self.preferences = preferences
+            self.cachedQuotes = allQuotes
+            self.currentQuoteRecordCache = quote
+            self.state = self.completedState(next, quote: quote, presentation: presentation, preferences: preferences, allQuotes: allQuotes)
+        } catch is CancellationError {
+            // The replacement request owns loading state.
+        } catch {
+            guard generation == self.loadGeneration else { return }
+            var next = self.state
+            next.isLoading = false
+            next.errorMessage = error.localizedDescription
+            if let error = error as? QuoteViewModelError, case .emptyCollection = error {
+                next.currentScript = script
+                next.currentFont = preferences.selectedFont.isCompatible(with: script) ? preferences.selectedFont : RunicFontConfiguration.recommendedFont(for: script)
+                next.currentReadingMode = mode
+                next.isRunicRenderingAvailable = true
+                next.runicPresentationSource = .storedTransliteration
+                self.cachedQuotes = fetchedQuotes ?? []
+                next.collectionCovers = self.collectionCovers(using: self.cachedQuotes, script: script)
+                next.currentCollection = preferences.selectedCollection
+                next.currentTheme = preferences.selectedTheme
+                next.currentQuoteID = nil
+                next.latinText = ""
+                next.runicText = ""
+                next.runicWarnings = []
+                next.runicEvidenceTier = nil
+                next.runicPrimarySourceLabel = nil
+                next.savedTranslationArtifact = nil
+                next.author = ""
+                next.isCurrentQuoteSaved = false
+                self.currentQuoteRecordCache = nil
+            }
+            self.state = next
+        }
+    }
 
+    private func completedState(_ previous: QuoteUiState, quote: QuoteRecord, presentation: ResolvedRunicPresentation, preferences: UserPreferencesSnapshot, allQuotes: [QuoteRecord]) -> QuoteUiState {
+        var next = previous
+        next.latinText = quote.textLatin
+        next.author = quote.author
+        next.runicText = presentation.text
+        next.runicWarnings = presentation.warnings
+        next.isRunicRenderingAvailable = presentation.isRenderable
+        next.savedTranslationArtifact = presentation.savedArtifact
+        next.runicPresentationSource = presentation.source
+        next.runicEvidenceTier = presentation.evidenceTier
+        next.runicPrimarySourceLabel = presentation.primarySourceLabel
+        next.currentQuoteID = quote.id
+        next.isCurrentQuoteSaved = preferences.isQuoteSaved(quote.id)
+        next.collectionCovers = self.collectionCovers(using: allQuotes, script: next.currentScript)
+        next.errorMessage = nil
+        next.isLoading = false
+        return next
+    }
+
+    private func archiveCurrentQuote(deleting: Bool) {
+        guard let id = self.state.currentQuoteID else { return }
         Task {
             do {
-                self.currentQuoteRecordCache = try await self.quoteProvider.softDeleteQuote(id: quoteID)
-                self.onNextQuoteTapped()
-            } catch {
-                self.state.errorMessage = error.localizedDescription
-            }
+                if deleting {
+                    _ = try await self.quoteProvider.softDeleteQuote(id: id, deletedAt: Date())
+                } else {
+                    _ = try await self.quoteProvider.hideQuote(id: id)
+                }
+                if self.state.currentQuoteID == id {
+                    self.onNextQuoteTapped()
+                } else {
+                    self.onLibraryChanged()
+                }
+            } catch { self.state.errorMessage = error.localizedDescription }
         }
     }
 
@@ -403,54 +335,14 @@ final class QuoteViewModel: ObservableObject {
             self.preferences = try self.preferencesRepository.apply(mutations)
             return true
         } catch {
+            self.loadGeneration += 1
+            self.loadTask?.cancel()
+            self.state.isLoading = false
             self.state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
             return false
         }
     }
 
-    private func quotes(for collection: QuoteCollection, within allQuotes: [QuoteRecord]) -> [QuoteRecord] {
-        if collection == .all {
-            return allQuotes
-        }
-
-        return allQuotes.filter(collection.contains)
-    }
-
-    private func selectQuote(from quotes: [QuoteRecord], mode: WidgetMode) -> QuoteRecord {
-        switch mode {
-        case .daily:
-            let index = AppConstants.dailyQuoteIndex(totalQuotes: quotes.count)
-            return quotes[index]
-        case .random:
-            let randomIndex = Int.random(in: 0 ..< quotes.count)
-            return quotes[randomIndex]
-        }
-    }
-
-    func updateCollectionCovers(using allQuotes: [QuoteRecord]) {
-        self.state.collectionCovers = QuoteCollection.allCases.map { collection in
-            let collectionQuotes = self.quotes(for: collection, within: allQuotes)
-
-            guard let firstQuote = collectionQuotes.first else {
-                return QuoteCollectionCover.placeholder(for: collection)
-            }
-
-            let presentation = RunicPresentationResolver.resolve(RunicPresentationInput(quote: firstQuote, script: self.state.currentScript), currentCache: nil)
-            let runicPreview = presentation.isRenderable ? presentation.text : ""
-
-            return QuoteCollectionCover(
-                collection: collection,
-                quoteCount: collectionQuotes.count,
-                runicPreview: runicPreview,
-                latinPreview: firstQuote.textLatin,
-                authorPreview: firstQuote.author,
-            )
-        }
-    }
-
-}
-
-private extension QuoteViewModel {
     private func parseScript(from rawValue: String?) -> RunicScript? {
         guard let rawValue else { return nil }
         let normalized = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -477,6 +369,72 @@ private extension QuoteViewModel {
         }
     }
 
+    private func quotes(for collection: QuoteCollection, within allQuotes: [QuoteRecord]) -> [QuoteRecord] {
+        if collection == .all {
+            return allQuotes
+        }
+
+        return allQuotes.filter(collection.contains)
+    }
+
+    private func selectQuote(from quotes: [QuoteRecord], mode: WidgetMode) -> QuoteRecord {
+        switch mode {
+        case .daily:
+            let index = AppConstants.dailyQuoteIndex(totalQuotes: quotes.count)
+            return quotes[index]
+        case .random:
+            let randomIndex = Int.random(in: 0 ..< quotes.count)
+            return quotes[randomIndex]
+        }
+    }
+
+    private func collectionCovers(using allQuotes: [QuoteRecord], script: RunicScript) -> [QuoteCollectionCover] {
+        QuoteCollection.allCases.map { collection in
+            let collectionQuotes = self.quotes(for: collection, within: allQuotes)
+
+            guard let firstQuote = collectionQuotes.first else {
+                return QuoteCollectionCover.placeholder(for: collection)
+            }
+
+            let presentation = RunicPresentationResolver.resolve(RunicPresentationInput(quote: firstQuote, script: script), currentCache: nil)
+            let runicPreview = presentation.isRenderable ? presentation.text : ""
+
+            return QuoteCollectionCover(
+                collection: collection,
+                quoteCount: collectionQuotes.count,
+                runicPreview: runicPreview,
+                latinPreview: firstQuote.textLatin,
+                authorPreview: firstQuote.author,
+            )
+        }
+    }
+
+}
+
+private extension QuoteViewModel {
+    private func selectedQuote(_ selection: Selection, allQuotes: [QuoteRecord], collection: inout QuoteCollection, mode: WidgetMode) throws -> QuoteRecord {
+        let filtered = self.quotes(for: collection, within: allQuotes)
+        switch selection {
+        case .focus(let id):
+            guard let quote = allQuotes.first(where: { $0.id == id }) else { throw QuoteRepositoryError.quoteNotFound }
+            if !collection.contains(quote) {
+                collection = quote.collection
+            }
+            return quote
+        case .retain(let id):
+            return try filtered.first(where: { $0.id == id }) ?? self.selectNonemptyQuote(from: filtered, mode: mode, collection: collection)
+        case .daily:
+            return try self.selectNonemptyQuote(from: filtered, mode: .daily, collection: collection)
+        case .random:
+            return try self.selectNonemptyQuote(from: filtered, mode: .random, collection: collection)
+        }
+    }
+
+    private func selectNonemptyQuote(from quotes: [QuoteRecord], mode: WidgetMode, collection: QuoteCollection) throws -> QuoteRecord {
+        guard !quotes.isEmpty else { throw QuoteViewModelError.emptyCollection(collection) }
+        return self.selectQuote(from: quotes, mode: mode)
+    }
+
 }
 
 enum QuoteViewModelError: LocalizedError {
@@ -486,29 +444,6 @@ enum QuoteViewModelError: LocalizedError {
         switch self {
         case .emptyCollection(let collection):
             "No quotes available in the \(collection.displayName) collection."
-        }
-    }
-}
-
-extension QuoteViewModel {
-    /// Reload library data while keeping the passage the reader currently has open.
-    func onLibraryChanged() {
-        self.state.isLoading = true
-        self.state.errorMessage = nil
-        Task {
-            defer { self.state.isLoading = false }
-            do {
-                let allQuotes = try await self.quoteProvider.allQuotes()
-                self.cachedQuotes = allQuotes
-                self.updateCollectionCovers(using: allQuotes)
-                if let quote = allQuotes.first(where: { $0.id == self.state.currentQuoteID }) {
-                    await self.updateState(with: quote)
-                } else {
-                    await self.loadQuote(using: self.state.currentReadingMode, updateContext: false)
-                }
-            } catch {
-                self.state.errorMessage = error.localizedDescription
-            }
         }
     }
 }

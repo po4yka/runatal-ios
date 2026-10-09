@@ -45,6 +45,7 @@
 		15620636F712D7DF21043982 /* attested-quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = 5F777F1DE186C172F4F0D819 /* attested-quotes.json */; };
 		15A31188C48CD73821A55F3B /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA5C6D0918CA5DC78C48034 /* FilterChip.swift */; };
 		15B2F28DB9FBB82E3D9005AE /* quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = E74382339680BCDC248E90D2 /* quotes.json */; };
+		15E980D5B3A69EFD9577C2B7 /* QuoteReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F4C6897C66A4C2E2BEB324 /* QuoteReading.swift */; };
 		191A6606A0D2077ECC1D8A81 /* OldNorseGrammarContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D381CFD9DA9B2A57F08D483B /* OldNorseGrammarContractTests.swift */; };
 		19F65364BB12089BD56F1900 /* legacy-quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = 729406B9BE8B742600821A96 /* legacy-quotes.json */; };
 		1C088E7AC2C15936D79C820C /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A760915913A7ACBEF831D3 /* Haptics.swift */; };
@@ -290,6 +291,7 @@
 		C2627DFEEEEE506F9D3D9A34 /* AppThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */; };
 		C31F2FF88A380C28D63E54DC /* HistoricalRuneContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298F22C07F27A2A380014AF3 /* HistoricalRuneContractTests.swift */; };
 		C40CA8AFB1DCE3271435CA97 /* ArchiveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5D2237F9A54CEB21360101 /* ArchiveViewModel.swift */; };
+		C4A9D4CA9E966E6F45AA42DE /* QuoteReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F4C6897C66A4C2E2BEB324 /* QuoteReading.swift */; };
 		C57FA0FE58B955FE314482D7 /* TranslationResultSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F09BA7EB1691227D723C5C /* TranslationResultSectionView.swift */; };
 		C62E741B21EFE0B002211A73 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A760915913A7ACBEF831D3 /* Haptics.swift */; };
 		C63B820E9FB194419641AACC /* QuoteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C8010AE508ED00AC4CC115 /* QuoteViewModel.swift */; };
@@ -336,6 +338,7 @@
 		E5483BFDC37F86981F8FAE99 /* QuoteCatalogUpgrade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44432773198273AF5D770878 /* QuoteCatalogUpgrade.swift */; };
 		E9002ED47A3965A4C4445863 /* ElderFutharkMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46452B8F56C21A463E70BD0 /* ElderFutharkMap.swift */; };
 		E90E0949B71CA237F652FEE0 /* WidgetRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E6EF56A088A486CFE43D21E /* WidgetRefreshCoordinator.swift */; };
+		E91041EA6573E9398D4CDB06 /* QuoteLoadConcurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24701BF29B0DA87AC112C29C /* QuoteLoadConcurrencyTests.swift */; };
 		E946614EC596F835E7E865E4 /* QuoteCardSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572D0655221A0A098CF77B1F /* QuoteCardSectionView.swift */; };
 		E9AC94ABA8BCC7DB3E818E06 /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41027CAA90F9268BB07CFB2 /* TestSupport.swift */; };
 		E9DF49156CB4E5629F6120B6 /* QuoteQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392643A03974647648A5AF59 /* QuoteQueries.swift */; };
@@ -442,6 +445,7 @@
 		218B6C640721AA541EAF002E /* TranslationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationViewModelTests.swift; sourceTree = "<group>"; };
 		220E48A5F3F4006C75D44B77 /* LiquidListScaffold.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidListScaffold.swift; sourceTree = "<group>"; };
 		222CCC44E39C797ED74732FF /* WidgetLibraryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLibraryServiceTests.swift; sourceTree = "<group>"; };
+		24701BF29B0DA87AC112C29C /* QuoteLoadConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteLoadConcurrencyTests.swift; sourceTree = "<group>"; };
 		247674C8F3D61C2595BB626E /* elder_attested_forms.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = elder_attested_forms.json; sourceTree = "<group>"; };
 		254648007D90E0C204E80CCD /* RunicTransliteratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicTransliteratorTests.swift; sourceTree = "<group>"; };
 		255787EA60EEE2303FFA8BBA /* DailyReadingReminder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReadingReminder.swift; sourceTree = "<group>"; };
@@ -666,6 +670,7 @@
 		E4379492DB16FEA7E0ABFB5C /* DatabaseCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseCoordinatorTests.swift; sourceTree = "<group>"; };
 		E51CC4F3CCD165695EB7E483 /* old_norse_lexicon.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = old_norse_lexicon.json; sourceTree = "<group>"; };
 		E60A43B6094C1280E441EF1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E6F4C6897C66A4C2E2BEB324 /* QuoteReading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteReading.swift; sourceTree = "<group>"; };
 		E74382339680BCDC248E90D2 /* quotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = quotes.json; sourceTree = "<group>"; };
 		E8A760915913A7ACBEF831D3 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		E917694A8BB0D5A08FE8CE92 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
@@ -822,6 +827,7 @@
 				D71E09151A93074BEBB26FFA /* .gitkeep */,
 				F516A2CACE7DDDCB2CDFBE8A /* DatabaseCoordinator.swift */,
 				2ED608F00B70B2BC378B5BF3 /* QuoteProvider.swift */,
+				E6F4C6897C66A4C2E2BEB324 /* QuoteReading.swift */,
 				EFDF889421625DED6C4D079F /* TranslationProvider.swift */,
 			);
 			path = Actors;
@@ -1160,6 +1166,7 @@
 				E93A734C2BDE235186F4F711 /* ArchiveViewModelTests.swift */,
 				12545240AA234DE1580376A0 /* CreateEditQuoteViewModelTests.swift */,
 				8A524952BB1F2ECE93805F64 /* DailyReminderViewModelTests.swift */,
+				24701BF29B0DA87AC112C29C /* QuoteLoadConcurrencyTests.swift */,
 				7BAE1EB29EA9A6EA21ADD00E /* QuoteNavigationCoordinatorTests.swift */,
 				867E3D7B78E5CD810F554534 /* QuoteViewModelTests.swift */,
 				2076247B5EBFE04E8F09FD9B /* QuoteViewModelTranslationTests.swift */,
@@ -1715,6 +1722,7 @@
 				446884509E0BD07BBA9329B6 /* QuotePacksView.swift in Sources */,
 				B6A1B05386BB9F0DC118E51E /* QuoteProvider.swift in Sources */,
 				E9DF49156CB4E5629F6120B6 /* QuoteQueries.swift in Sources */,
+				C4A9D4CA9E966E6F45AA42DE /* QuoteReading.swift in Sources */,
 				CBC56A42ECA5A67AE559E02B /* QuoteRepository.swift in Sources */,
 				737D53392AAF3EB91610F759 /* QuoteScriptPickerView.swift in Sources */,
 				08E7C8D8B9D7FAD57BB73468 /* QuoteSearchResultsSectionView.swift in Sources */,
@@ -1839,6 +1847,7 @@
 				C166FC38D249AAB99453B989 /* QuotePackInstaller.swift in Sources */,
 				54C43A3CF875C222426A03F1 /* QuoteProvider.swift in Sources */,
 				2F756F0033B6D8666FE27D4A /* QuoteQueries.swift in Sources */,
+				15E980D5B3A69EFD9577C2B7 /* QuoteReading.swift in Sources */,
 				3469E397AD3AD02541DEB6D0 /* QuoteRepository.swift in Sources */,
 				3D0A9DBD55A4AC2903B045E6 /* QuoteSeedCatalog.swift in Sources */,
 				84C76C8EB42F87063AA36398 /* QuoteSeedReceipt.swift in Sources */,
@@ -1923,6 +1932,7 @@
 				800373DBAA992BA37EC09637 /* QuoteCatalogTests.swift in Sources */,
 				B7F7B71522C3C6F3F379651F /* QuoteCatalogUpgradeTests.swift in Sources */,
 				5C7C726C5D5DBC763345ED96 /* QuoteCollectionTests.swift in Sources */,
+				E91041EA6573E9398D4CDB06 /* QuoteLoadConcurrencyTests.swift in Sources */,
 				9B82FBA512CD488E0EF74887 /* QuoteNavigationCoordinatorTests.swift in Sources */,
 				2E42BD2566940897321AE489 /* QuotePackInstallerTests.swift in Sources */,
 				463F8F431DC9AB1760B5532F /* QuoteProviderTests.swift in Sources */,

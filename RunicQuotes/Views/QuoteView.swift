@@ -108,6 +108,7 @@ struct QuoteView: View {
         self.lifecycleAwareContent
             .onDisappear {
                 self.isRouteConsumerReady = false
+                self.viewModel.onDisappear()
                 self.scriptMorphTask?.cancel()
                 self.scriptMorphTask = nil
                 self.homeAccessoryController.hide()

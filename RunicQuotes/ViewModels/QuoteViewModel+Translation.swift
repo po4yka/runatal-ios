@@ -9,24 +9,14 @@ import Foundation
 
 extension QuoteViewModel {
     func onTranslationCacheUpdated(for quoteID: UUID?) {
-        guard let currentQuoteID = state.currentQuoteID else { return }
-        if let quoteID, quoteID != currentQuoteID {
+        if let current = self.state.currentQuoteID, let quoteID, current != quoteID {
             return
         }
-
-        guard let quote = cachedQuotes.first(where: { $0.id == currentQuoteID }) else {
-            return
-        }
-
-        Task {
-            let presentation = await preferredRunicPresentation(for: quote)
-            updateDisplayedRunicPresentation(presentation)
-            updateCollectionCovers(using: cachedQuotes)
-        }
+        self.onLibraryChanged()
     }
 
-    func preferredRunicPresentation(for quote: QuoteRecord) async -> ResolvedRunicPresentation {
-        let script = self.state.currentScript
+    func preferredRunicPresentation(for quote: QuoteRecord, script: RunicScript? = nil) async -> ResolvedRunicPresentation {
+        let script = script ?? self.state.currentScript
         let cache = try? await self.translationProvider.latestTranslation(for: quote.id, script: script)
         return RunicPresentationResolver.resolve(RunicPresentationInput(quote: quote, script: script), currentCache: cache)
     }
