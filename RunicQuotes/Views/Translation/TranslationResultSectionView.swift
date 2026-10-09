@@ -110,26 +110,22 @@ struct TranslationResultSectionView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            HStack(alignment: .top, spacing: DesignTokens.Spacing.md) {
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                    SectionLabel(title: "Output", palette: self.palette)
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+                SectionLabel(title: "Output", palette: self.palette)
 
-                    Text("Runic result")
-                        .font(DesignTokens.Typography.sectionTitle)
-                        .foregroundStyle(self.palette.textPrimary)
-                }
+                Text("Runic result")
+                    .font(DesignTokens.Typography.sectionTitle)
+                    .foregroundStyle(self.palette.textPrimary)
+            }
 
-                Spacer()
-
-                if let resolutionStatus = state.resolutionStatus {
+            if self.state.resolutionStatus != nil {
+                ViewThatFits(in: .horizontal) {
                     HStack(spacing: DesignTokens.Spacing.xs) {
-                        self.statusBadge(resolutionStatus.displayName)
-                        if let evidenceTier = state.evidenceTier {
-                            self.statusBadge(evidenceTier.displayName)
-                        }
-                        if let supportLevel = state.supportLevel {
-                            self.statusBadge(supportLevel.displayName)
-                        }
+                        self.statusBadges
+                    }
+
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                        self.statusBadges
                     }
                 }
             }
@@ -206,10 +202,24 @@ struct TranslationResultSectionView: View {
         self.state.translationMode == .translate ? "Save Translation" : "Save"
     }
 
+    @ViewBuilder
+    private var statusBadges: some View {
+        if let resolutionStatus = state.resolutionStatus {
+            self.statusBadge(resolutionStatus.displayName)
+        }
+        if let evidenceTier = state.evidenceTier {
+            self.statusBadge(evidenceTier.displayName)
+        }
+        if let supportLevel = state.supportLevel {
+            self.statusBadge(supportLevel.displayName)
+        }
+    }
+
     private func statusBadge(_ title: String) -> some View {
         Text(title)
             .font(DesignTokens.Typography.metadata)
             .foregroundStyle(self.palette.subtleAccentText)
+            .fixedSize(horizontal: true, vertical: false)
             .padding(.horizontal, DesignTokens.Spacing.sm)
             .padding(.vertical, DesignTokens.Spacing.xs)
             .background(

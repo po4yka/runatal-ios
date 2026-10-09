@@ -196,6 +196,8 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         let output = self.findElement(in: app, identifier: "translation_output_text", maxSwipes: 5)
         XCTAssertTrue(output.exists)
         XCTAssertEqual(output.label, "ᚢᛚᚠᚱ ᚢᛅᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ")
+        self.tapElement(output)
+        XCTAssertTrue(output.isHittable)
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Real-Younger-translation-with-evidence"
         attachment.lifetime = .keepAlways
