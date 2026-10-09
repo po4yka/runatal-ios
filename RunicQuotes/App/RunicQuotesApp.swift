@@ -231,14 +231,6 @@ struct MainTabView: View {
             isPresented: self.$searchCoordinator.isPresented,
             prompt: "Quotes, authors, themes...",
         )
-        .tabViewBottomAccessory {
-            if self.selectedTab.supportsBottomAccessory && self.homeAccessoryController.isVisible {
-                HomeBottomAccessoryView {
-                    NotificationCenter.default.post(name: .loadNextQuote, object: nil)
-                }
-                .environmentObject(self.homeAccessoryController)
-            }
-        }
         .onReceive(NotificationCenter.default.publisher(for: .switchToTab)) { notification in
             if let tab = notification.userInfo?["tab"] as? AppTab {
                 self.selectedTab = tab
@@ -275,6 +267,11 @@ struct MainTabView: View {
             switch tab {
             case .home:
                 self.quoteView
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        if self.homeAccessoryController.isVisible {
+                            self.homeAccessory
+                        }
+                    }
             case .collections:
                 CollectionsView()
             case .search:
@@ -285,6 +282,13 @@ struct MainTabView: View {
                 self.settingsView
             }
         }
+    }
+
+    private var homeAccessory: some View {
+        HomeBottomAccessoryView {
+            NotificationCenter.default.post(name: .loadNextQuote, object: nil)
+        }
+        .environmentObject(self.homeAccessoryController)
     }
 }
 

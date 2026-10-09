@@ -82,6 +82,33 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         XCTAssertTrue(nextButton.exists, "Next button should still exist")
     }
 
+    func testHomeAccessoryShowsItsFullContextAndOpensRandomReading() {
+        let app = self.requireApp()
+        self.waitForQuoteCard(in: app)
+        let dock = app.otherElements["home_accessory"]
+        XCTAssertTrue(dock.waitForExistence(timeout: 5))
+        let next = dock.buttons["home_accessory_next_quote"]
+        XCTAssertEqual(next.label, "Next Quote")
+        for field in [dock.staticTexts["home_accessory_collection"], dock.staticTexts["home_accessory_context"], next] {
+            XCTAssertTrue(field.exists)
+            XCTAssertGreaterThan(field.frame.height, 0)
+            XCTAssertTrue(dock.frame.contains(field.frame))
+        }
+        XCTAssertTrue(app.frame.contains(dock.frame))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Actual-Home-reading-dock-full-context"
+        attachment.lifetime = .keepAlways
+        self.add(attachment)
+        self.tapElement(next)
+        self.waitForQuoteCard(in: app)
+        XCTAssertTrue(app.staticTexts["Random"].waitForExistence(timeout: 5))
+        self.openSettings(in: app)
+        XCTAssertFalse(app.otherElements["home_accessory"].exists)
+        self.tapElement(self.tabButton(in: app, identifier: "home_tab", labels: ["Home"]))
+        self.waitForQuoteCard(in: app)
+        XCTAssertTrue(app.otherElements["home_accessory"].waitForExistence(timeout: 5))
+    }
+
     func testSaveButton() {
         // Given: App loaded
         let app = self.requireApp()

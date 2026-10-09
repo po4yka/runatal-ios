@@ -48,10 +48,6 @@ enum AppTab: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    var supportsBottomAccessory: Bool {
-        self == .home
-    }
-
     var accessibilityID: String {
         "\(rawValue)_tab"
     }

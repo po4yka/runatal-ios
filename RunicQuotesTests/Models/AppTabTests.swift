@@ -16,11 +16,4 @@ struct AppTabTests {
         #expect(AppTab.search.role == .search)
         #expect(AppTab.home.role == nil)
     }
-
-    @Test
-    func onlyHomeSupportsBottomAccessory() {
-        #expect(AppTab.home.supportsBottomAccessory)
-        #expect(!AppTab.search.supportsBottomAccessory)
-        #expect(!AppTab.settings.supportsBottomAccessory)
-    }
 }
