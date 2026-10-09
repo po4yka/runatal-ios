@@ -32,6 +32,7 @@ struct QuoteView: View {
     @State private var scriptMorphTask: Task<Void, Never>?
     @State private var showShareView = false
     @State private var showCreateQuote = false
+    @State private var showCreateChoices = false
     @State private var showTranslationView = false
     @State private var showActionsSheet = false
     @State private var showDeleteConfirmation = false
@@ -124,12 +125,7 @@ struct QuoteView: View {
                 QuoteToolbar(
                     currentCollection: self.viewModel.state.currentCollection,
                     palette: self.palette,
-                    createQuote: {
-                        self.showCreateQuote = true
-                    },
-                    openTranslation: {
-                        self.showTranslationView = true
-                    },
+                    openCreateChoices: { self.showCreateChoices = true },
                 )
             }
     }
@@ -163,6 +159,13 @@ struct QuoteView: View {
                 NavigationStack {
                     self.translationViewBuilder.makeView()
                 }
+            }
+            .confirmationDialog("Create quote", isPresented: self.$showCreateChoices, titleVisibility: .visible) {
+                Button(String(localized: "translation.menu.newQuote")) { self.showCreateQuote = true }
+                    .accessibilityIdentifier("quote_create_new_action")
+                Button(String(localized: "translation.menu.translate")) { self.showTranslationView = true }
+                    .accessibilityIdentifier("quote_create_translate_action")
+                Button("Cancel", role: .cancel) {}
             }
             .confirmationDialog(
                 "Current passage",

@@ -11,8 +11,7 @@ import SwiftUI
 struct QuoteToolbar: ToolbarContent {
     let currentCollection: QuoteCollection
     let palette: AppThemePalette
-    let createQuote: () -> Void
-    let openTranslation: () -> Void
+    let openCreateChoices: () -> Void
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
@@ -32,15 +31,7 @@ struct QuoteToolbar: ToolbarContent {
             .foregroundStyle(self.palette.textPrimary)
             .accessibilityIdentifier("quote_notifications_button")
 
-            Menu {
-                Button(String(localized: "translation.menu.newQuote"), systemImage: "plus", action: self.createQuote)
-                    .accessibilityLabel(String(localized: "translation.menu.newQuote"))
-                    .accessibilityIdentifier("quote_create_new_action")
-
-                Button(String(localized: "translation.menu.translate"), systemImage: "character.cursor.ibeam", action: self.openTranslation)
-                    .accessibilityLabel(String(localized: "translation.menu.translate"))
-                    .accessibilityIdentifier("quote_create_translate_action")
-            } label: {
+            Button(action: self.openCreateChoices) {
                 Label("Create quote", systemImage: "plus")
                     .labelStyle(.iconOnly)
                     .symbolRenderingMode(.monochrome)

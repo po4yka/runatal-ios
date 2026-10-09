@@ -139,6 +139,17 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         self.assertTranslationScreenVisible(in: app)
     }
 
+    func testHomeCreateMenuCanOpenTheNewQuoteEditor() {
+        let app = self.requireApp()
+        let create = app.buttons["quote_create_menu"]
+        XCTAssertTrue(create.waitForExistence(timeout: 5))
+        self.tapElement(create)
+        let newQuote = app.buttons["quote_create_new_action"]
+        XCTAssertTrue(newQuote.waitForExistence(timeout: 5))
+        self.tapElement(newQuote)
+        XCTAssertTrue(app.navigationBars["New Quote"].waitForExistence(timeout: 5))
+    }
+
     func testHomeCreateMenuCanOpenTranslationScreen() {
         let app = self.requireApp()
         self.openTranslationFromCreateMenu(app)
