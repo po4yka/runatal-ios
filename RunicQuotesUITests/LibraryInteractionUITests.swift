@@ -139,4 +139,75 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
         attachment.lifetime = .keepAlways
         self.add(attachment)
     }
+
+    func testLongAuthorKeepsTheReadingDockActionInsideTheViewport() {
+        let app = self.requireApp()
+        XCUIDevice.shared.orientation = .portrait
+        self.waitForPortrait(in: app)
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            self.waitForPortrait(in: app)
+        }
+        self.waitForQuoteCard(in: app)
+        self.tapElement(app.buttons["quote_create_menu"])
+        let choices = app.sheets["Create quote"]
+        XCTAssertTrue(choices.waitForExistence(timeout: 5))
+        self.tapElement(choices.buttons["New Quote"])
+        let quote = app.descendants(matching: .any).matching(NSPredicate(format: "placeholderValue == %@", "Enter your quote text...")).element(boundBy: 0)
+        XCTAssertTrue(quote.waitForExistence(timeout: 5))
+        self.tapElement(quote)
+        quote.typeText("A real custom passage for a long attribution.")
+        let author = app.textFields["Required"]
+        self.tapElement(author)
+        let attribution = String(repeating: "Extensive author attribution ", count: 30).trimmingCharacters(in: .whitespaces)
+        author.typeText(attribution)
+        self.tapElement(app.navigationBars["New Quote"].buttons["Save"])
+        let viewQuote = app.buttons["View Quote"]
+        XCTAssertTrue(viewQuote.waitForExistence(timeout: 5))
+        self.tapElement(viewQuote)
+        self.waitForQuoteCard(in: app)
+        let dock = app.otherElements["home_accessory"]
+        XCTAssertTrue(dock.waitForExistence(timeout: 5))
+        XCTAssertTrue(dock.staticTexts["home_accessory_context"].label.contains(attribution))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Actual-reading-dock-with-long-user-attribution"
+        attachment.lifetime = .keepAlways
+        self.add(attachment)
+        XCTAssertTrue(app.frame.contains(dock.frame))
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let landscape = XCTNSPredicateExpectation(predicate: NSPredicate { object, _ in
+            guard let application = object as? XCUIApplication else { return false }
+            return application.frame.width > application.frame.height
+        }, object: app)
+        XCTAssertEqual(XCTWaiter.wait(for: [landscape], timeout: 5), .completed)
+        let landscapeDock = app.otherElements["home_accessory"]
+        XCTAssertTrue(landscapeDock.staticTexts["home_accessory_context"].label.contains(attribution))
+        let landscapeAttachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        landscapeAttachment.name = "Actual-long-attribution-dock-in-landscape"
+        landscapeAttachment.lifetime = .keepAlways
+        self.add(landscapeAttachment)
+        let tabBar = app.tabBars.element(boundBy: 0)
+        XCTAssertTrue(tabBar.waitForExistence(timeout: 5))
+        XCTAssertEqual(app.tabBars.count, 1)
+        let geometry = XCTAttachment(string: "App: \(app.frame); dock: \(landscapeDock.frame); next: \(landscapeDock.buttons["home_accessory_next_quote"].frame); tabBar: \(tabBar.debugDescription)")
+        geometry.name = "Actual-landscape-reading-dock-geometry"
+        geometry.lifetime = .keepAlways
+        self.add(geometry)
+        XCTAssertTrue(app.frame.contains(landscapeDock.frame))
+        XCTAssertLessThanOrEqual(landscapeDock.frame.maxY, tabBar.frame.minY)
+        let next = landscapeDock.buttons["home_accessory_next_quote"]
+        XCTAssertTrue(landscapeDock.frame.contains(next.frame))
+        self.tapElement(next)
+        self.waitForQuoteCard(in: app)
+        XCTAssertTrue(app.staticTexts["Random"].waitForExistence(timeout: 5))
+    }
+
+    private func waitForPortrait(in app: XCUIApplication) {
+        let portrait = XCTNSPredicateExpectation(predicate: NSPredicate { object, _ in
+            guard let application = object as? XCUIApplication else { return false }
+            return application.frame.height > application.frame.width
+        }, object: app)
+        XCTAssertEqual(XCTWaiter.wait(for: [portrait], timeout: 5), .completed)
+    }
+
 }

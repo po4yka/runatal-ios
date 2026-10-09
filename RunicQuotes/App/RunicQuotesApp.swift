@@ -267,11 +267,6 @@ struct MainTabView: View {
             switch tab {
             case .home:
                 self.quoteView
-                    .safeAreaInset(edge: .bottom, spacing: 0) {
-                        if self.homeAccessoryController.isVisible {
-                            self.homeAccessory
-                        }
-                    }
             case .collections:
                 CollectionsView()
             case .search:
@@ -280,6 +275,11 @@ struct MainTabView: View {
                 self.savedView
             case .settings:
                 self.settingsView
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if tab == .home && self.homeAccessoryController.isVisible {
+                self.homeAccessory
             }
         }
     }

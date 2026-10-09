@@ -109,41 +109,6 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         XCTAssertTrue(app.otherElements["home_accessory"].waitForExistence(timeout: 5))
     }
 
-    func testLongAuthorKeepsTheReadingDockActionInsideTheViewport() {
-        let app = self.requireApp()
-        self.waitForQuoteCard(in: app)
-        self.tapElement(app.buttons["quote_create_menu"])
-        let choices = app.sheets["Create quote"]
-        XCTAssertTrue(choices.waitForExistence(timeout: 5))
-        self.tapElement(choices.buttons["New Quote"])
-        let quote = app.descendants(matching: .any).matching(NSPredicate(format: "placeholderValue == %@", "Enter your quote text...")).element(boundBy: 0)
-        XCTAssertTrue(quote.waitForExistence(timeout: 5))
-        self.tapElement(quote)
-        quote.typeText("A real custom passage for a long attribution.")
-        let author = app.textFields["Required"]
-        self.tapElement(author)
-        let attribution = String(repeating: "Extensive author attribution ", count: 30).trimmingCharacters(in: .whitespaces)
-        author.typeText(attribution)
-        self.tapElement(app.navigationBars["New Quote"].buttons["Save"])
-        let viewQuote = app.buttons["View Quote"]
-        XCTAssertTrue(viewQuote.waitForExistence(timeout: 5))
-        self.tapElement(viewQuote)
-        self.waitForQuoteCard(in: app)
-        let dock = app.otherElements["home_accessory"]
-        XCTAssertTrue(dock.waitForExistence(timeout: 5))
-        XCTAssertTrue(dock.staticTexts["home_accessory_context"].label.contains(attribution))
-        let attachment = XCTAttachment(screenshot: app.screenshot())
-        attachment.name = "Actual-reading-dock-with-long-user-attribution"
-        attachment.lifetime = .keepAlways
-        self.add(attachment)
-        XCTAssertTrue(app.frame.contains(dock.frame))
-        let next = dock.buttons["home_accessory_next_quote"]
-        XCTAssertTrue(dock.frame.contains(next.frame))
-        self.tapElement(next)
-        self.waitForQuoteCard(in: app)
-        XCTAssertTrue(app.staticTexts["Random"].waitForExistence(timeout: 5))
-    }
-
     func testSaveButton() {
         // Given: App loaded
         let app = self.requireApp()

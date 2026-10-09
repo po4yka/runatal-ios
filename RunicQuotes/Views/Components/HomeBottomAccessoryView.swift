@@ -11,6 +11,7 @@ struct HomeBottomAccessoryView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @EnvironmentObject private var controller: HomeAccessoryController
 
     let onNextQuote: () -> Void
@@ -28,7 +29,7 @@ struct HomeBottomAccessoryView: View {
             contentPadding: DesignTokens.Spacing.sm,
             interactive: true,
         ) {
-            if self.dynamicTypeSize.isAccessibilitySize {
+            if self.dynamicTypeSize.isAccessibilitySize && !self.isCompactHeight {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     self.context
                     self.nextButton
@@ -51,14 +52,15 @@ struct HomeBottomAccessoryView: View {
             Text(self.controller.collectionName)
                 .font(DesignTokens.Typography.toolbarLabel)
                 .foregroundStyle(self.palette.textPrimary)
-                .lineLimit(self.dynamicTypeSize.isAccessibilitySize ? nil : 1)
+                .lineLimit(self.dynamicTypeSize.isAccessibilitySize && !self.isCompactHeight ? nil : 1)
                 .fixedSize(horizontal: false, vertical: self.dynamicTypeSize.isAccessibilitySize)
                 .accessibilityIdentifier("home_accessory_collection")
+                .accessibilityLabel(self.controller.collectionName)
 
             Text(self.contextText)
                 .font(DesignTokens.Typography.listMeta)
                 .foregroundStyle(self.palette.textTertiary)
-                .lineLimit(self.dynamicTypeSize.isAccessibilitySize ? 3 : 1)
+                .lineLimit(self.dynamicTypeSize.isAccessibilitySize ? (self.isCompactHeight ? 2 : 3) : 1)
                 .fixedSize(horizontal: false, vertical: self.dynamicTypeSize.isAccessibilitySize)
                 .accessibilityIdentifier("home_accessory_context")
                 .accessibilityLabel(self.contextText)
@@ -67,6 +69,10 @@ struct HomeBottomAccessoryView: View {
 
     private var contextText: String {
         "\(self.controller.scriptName) · \(self.controller.caption)"
+    }
+
+    private var isCompactHeight: Bool {
+        self.verticalSizeClass == .compact
     }
 
     private var nextButton: some View {
