@@ -68,6 +68,7 @@
 		25071A27E9B2F9D76C9D108E /* AppThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */; };
 		2559DBF5E8351F90F2AE81DC /* GlassScriptSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D71542EC46EEF7E2614247D /* GlassScriptSelector.swift */; };
 		25D290090E22AA8D645C2A9A /* UserPreferencesMutation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5A81B02734C4B7F9068B1D /* UserPreferencesMutation.swift */; };
+		28BFD81192C0FCF7FF41EB08 /* NativeRunicFontTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F014095440AC21956F4655 /* NativeRunicFontTests.swift */; };
 		29B9E9ADFD6E1AD3077E6053 /* RunicTextBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319E8EBEC664357D97F6BBD2 /* RunicTextBundle.swift */; };
 		2A59105385340183C91A5D40 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D66DF992AD1C9DB6BB78E142 /* LaunchScreen.storyboard */; };
 		2A695DE651B4B834619F0BC7 /* attested-quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = 5F777F1DE186C172F4F0D819 /* attested-quotes.json */; };
@@ -310,6 +311,7 @@
 		C84DE645FB3A1055BDB9AC57 /* TranslationProvenanceDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475C3A20A9545115980B95F5 /* TranslationProvenanceDetailSheet.swift */; };
 		C856887F96D1F6349B499582 /* CollectionCoverCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE7AEE2CBE7819AB53C0C1A /* CollectionCoverCardView.swift */; };
 		C909439083D8E3C938D1044F /* RunicFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7717F484AC75C90A2D3B5A01 /* RunicFont.swift */; };
+		C9545218280B70FFAB31AB4C /* LibraryInteractionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5826C4E1CBF493DCE3A6E18 /* LibraryInteractionUITests.swift */; };
 		C9D795C7D670DD7D92110E1D /* gold_examples.json in Resources */ = {isa = PBXBuildFile; fileRef = 37A2A006B5A63D52873219FC /* gold_examples.json */; };
 		CA3FF83FBE903B1B6FBFDB17 /* ReadingPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED52650A02D09999DFC1036 /* ReadingPreset.swift */; };
 		CA633824CF7132B6B3C33287 /* TranslationAssetMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06533559E0AC832927BEDC9 /* TranslationAssetMetadata.swift */; };
@@ -435,6 +437,7 @@
 		01AD94C514F1E7B6C1729594 /* FeatureBuilders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureBuilders.swift; sourceTree = "<group>"; };
 		01FEF97BAB04EAD97712BBC0 /* RunicScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicScript.swift; sourceTree = "<group>"; };
 		022F340F79C8A7A2FFE5D144 /* RunicQuotesTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RunicQuotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		04F014095440AC21956F4655 /* NativeRunicFontTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeRunicFontTests.swift; sourceTree = "<group>"; };
 		051D10FB26786E9F8A6E5096 /* source_manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = source_manifest.json; sourceTree = "<group>"; };
 		0772DDF200F344D99763EDE5 /* QuotePack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotePack.swift; sourceTree = "<group>"; };
 		07DBFCAF77CEF8E3BD560BA2 /* DailyReminderClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReminderClient.swift; sourceTree = "<group>"; };
@@ -715,6 +718,7 @@
 		F21A681D3B4E8B11052A80AF /* UserPreferencesRepository+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserPreferencesRepository+Environment.swift"; sourceTree = "<group>"; };
 		F41027CAA90F9268BB07CFB2 /* TestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
 		F516A2CACE7DDDCB2CDFBE8A /* DatabaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseCoordinator.swift; sourceTree = "<group>"; };
+		F5826C4E1CBF493DCE3A6E18 /* LibraryInteractionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryInteractionUITests.swift; sourceTree = "<group>"; };
 		F64B11996A162AE53AD615AC /* QuoteQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteQueryTests.swift; sourceTree = "<group>"; };
 		F6B51B2127D3ED6FA3D88F08 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F6D03EF7D4EABE0B70AC7828 /* CreateEditQuoteFeatureComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateEditQuoteFeatureComponent.swift; sourceTree = "<group>"; };
@@ -808,6 +812,7 @@
 				7FF863F02FEC4F03142C0227 /* CoreUtilityTests.swift */,
 				434663C4325AC6EE65B74D17 /* DynamicTypeSupportTests.swift */,
 				D1F010D8ECAAAA5F44CE6156 /* LiquidEffectPolicyTests.swift */,
+				04F014095440AC21956F4655 /* NativeRunicFontTests.swift */,
 				D32A22A0C19424B992CDD9CF /* PhotoLibraryImageSaverTests.swift */,
 				93CD2F22FE89143717AB0712 /* ShareRenderingTests.swift */,
 				FF2DEFB97B1813CAA3B2C9DB /* WidgetRefreshCoordinatorTests.swift */,
@@ -1108,6 +1113,7 @@
 		93B7EFCFD2987EEE92F104A4 /* RunicQuotesUITests */ = {
 			isa = PBXGroup;
 			children = (
+				F5826C4E1CBF493DCE3A6E18 /* LibraryInteractionUITests.swift */,
 				D1025E6D342DEC7D474C2C61 /* RunicQuotesUISmokeTests.swift */,
 				F8DA9E52064AF2BEEFEAB99C /* RunicQuotesUITestCase.swift */,
 				5037407413A7D34EC185279E /* RunicQuotesUITests.swift */,
@@ -1944,6 +1950,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C9545218280B70FFAB31AB4C /* LibraryInteractionUITests.swift in Sources */,
 				8CFC8C5E1929A8A2F656D12F /* RunicQuotesUISmokeTests.swift in Sources */,
 				50F26AB4FE8515945AD34FF0 /* RunicQuotesUITestCase.swift in Sources */,
 				211DDC3DF4D6EA215738AF0A /* RunicQuotesUITests.swift in Sources */,
@@ -1974,6 +1981,7 @@
 				58ED532CC0A1C130875C53BB /* InputLengthBoundaryTests.swift in Sources */,
 				6E9E76F747D0C2560143CAD8 /* LegacyGeneratedRuneMigrationTests.swift in Sources */,
 				52FFC4FA942AB92066DAEA42 /* LiquidEffectPolicyTests.swift in Sources */,
+				28BFD81192C0FCF7FF41EB08 /* NativeRunicFontTests.swift in Sources */,
 				191A6606A0D2077ECC1D8A81 /* OldNorseGrammarContractTests.swift in Sources */,
 				396A3D47B9F051CE09A7471A /* PersistentStoreMigrationTests.swift in Sources */,
 				3C8EF4D0A605A1901C279EB7 /* PhotoLibraryImageSaverTests.swift in Sources */,

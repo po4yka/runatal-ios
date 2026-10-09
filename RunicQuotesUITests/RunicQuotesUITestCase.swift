@@ -120,7 +120,7 @@ class RunicQuotesUITestCase: XCTestCase {
     }
 
     func selectYoungerTranslationScript(in app: XCUIApplication) {
-        let youngerButton = self.scriptSelectorOption(in: app, identifier: "translation_script_selector", index: 1)
+        let youngerButton = self.findElement(in: app, identifier: "script_option_YOUNGER_FUTHARK", maxSwipes: 3)
         XCTAssertTrue(youngerButton.waitForExistence(timeout: 5), "Translation script selector should exist")
         self.tapElement(youngerButton)
     }

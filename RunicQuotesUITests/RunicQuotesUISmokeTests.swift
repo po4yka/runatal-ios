@@ -33,21 +33,22 @@ final class RunicQuotesUISmokeTests: RunicQuotesUITestCase {
         self.waitForQuoteCard(in: app, timeout: 8)
         self.assertNoFallbackBanner(in: app)
 
-        let searchTab = self.tabButton(in: app, identifier: "search_tab", labels: ["Search"])
-        XCTAssertTrue(searchTab.waitForExistence(timeout: 5), "Search tab should exist")
-        self.tapElement(searchTab)
-
-        let searchField = app.searchFields.firstMatch
-        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "Search field should exist")
-        searchField.tap()
-        searchField.typeText(self.legacyQuoteText)
-
-        let migratedQuote = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS[c] %@", self.legacyQuoteText),
-        ).firstMatch
-        XCTAssertTrue(
-            migratedQuote.waitForExistence(timeout: 8),
-            "Migrated legacy quote should be discoverable after launch",
-        )
+        let savedTab = self.tabButton(in: app, identifier: "saved_tab", labels: ["Saved"])
+        XCTAssertTrue(savedTab.waitForExistence(timeout: 5))
+        self.tapElement(savedTab)
+        let legacyIdentity = app.buttons["open_quote_7B5D7832-E0A4-4E76-91F1-D06F3559E3A5"]
+        XCTAssertTrue(legacyIdentity.waitForExistence(timeout: 8), "The original bookmarked UUID must survive migration")
+        self.tapElement(legacyIdentity)
+        self.waitForQuoteCard(in: app)
+        let quote = app.staticTexts["quoteText"]
+        let restored = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", self.legacyQuoteText), object: quote)
+        XCTAssertEqual(XCTWaiter.wait(for: [restored], timeout: 8), .completed)
+        let elder = self.findElement(in: app, identifier: "script_option_ELDER_FUTHARK", maxSwipes: 3)
+        self.tapElement(elder)
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: elder)
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+        let runic = app.descendants(matching: .any)["runic_text"]
+        XCTAssertEqual(runic.value as? String, "ᛚᛖᚷᚨᚲᛁ", "Exact user-owned legacy rune text must survive")
+        self.assertNoFallbackBanner(in: app)
     }
 }

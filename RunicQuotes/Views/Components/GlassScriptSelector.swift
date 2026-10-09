@@ -15,6 +15,7 @@ struct GlassScriptSelector: View {
 
     let cornerRadius: CGFloat
     let spacing: CGFloat
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
@@ -40,13 +41,14 @@ struct GlassScriptSelector: View {
                     isSelected: self.selectedScript == script,
                     cornerRadius: self.cornerRadius,
                 ) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    withAnimation(self.reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7)) {
                         self.selectedScript = script
                     }
                     Haptics.trigger(.scriptSwitch)
                 }
             }
         }
+        .accessibilityElement(children: .contain)
         .padding(4)
         .background {
             LiquidCard(
@@ -96,6 +98,9 @@ private struct ScriptButton: View {
             .padding(.horizontal, 8)
         }
         .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: self.isSelected))
+        .accessibilityLabel(self.script.displayName)
+        .accessibilityValue(self.isSelected ? "Selected" : "Not selected")
+        .accessibilityIdentifier("script_option_\(self.script.translationScriptName)")
     }
 
     private var palette: AppThemePalette {
@@ -143,7 +148,7 @@ struct GlassFontSelector: View {
                     isSelected: self.selectedFont == font,
                     cornerRadius: self.cornerRadius,
                 ) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    withAnimation(self.reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7)) {
                         self.selectedFont = font
                     }
                     Haptics.trigger(.scriptSwitch)

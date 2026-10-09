@@ -328,8 +328,8 @@ jobs:
           disable_search: true
           fail_ci_if_error: false
 
-  ui-smoke:
-    name: UI Smoke
+  ui-validation:
+    name: UI Validation
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     runs-on: xcode-27
     timeout-minutes: 30
@@ -349,7 +349,7 @@ jobs:
         shell: bash
         run: bash scripts/ci/prepare_simulator.sh
 
-      - name: Run UI smoke tests
+      - name: Run UI validation tests
         shell: bash
         run: |
           set -o pipefail
@@ -363,29 +363,28 @@ jobs:
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/${UI_SCHEME}.xcresult" \
-            -only-testing:RunicQuotesUITests/RunicQuotesUISmokeTests \
-            2>&1 | tee "$LOGS_DIR/ui-smoke.log"
+            2>&1 | tee "$LOGS_DIR/ui-validation.log"
 
-      - name: Publish UI smoke summaries
+      - name: Publish UI validation summaries
         run: |
           python3 scripts/ci/xcresult_summary.py \
             "$RESULTS_DIR/${UI_SCHEME}.xcresult" \
-            "UI smoke tests" \
-            > "$REPORTS_DIR/ui-smoke-summary.md"
+            "UI validation tests" \
+            > "$REPORTS_DIR/ui-validation-summary.md"
           python3 scripts/ci/log_audit.py \
-            "$LOGS_DIR/ui-smoke.log" \
-            > "$REPORTS_DIR/ui-smoke-log-audit.md"
+            "$LOGS_DIR/ui-validation.log" \
+            > "$REPORTS_DIR/ui-validation-log-audit.md"
           {
-            cat "$REPORTS_DIR/ui-smoke-summary.md"
+            cat "$REPORTS_DIR/ui-validation-summary.md"
             printf '\n'
-            cat "$REPORTS_DIR/ui-smoke-log-audit.md"
+            cat "$REPORTS_DIR/ui-validation-log-audit.md"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload UI smoke artifacts
+      - name: Upload UI validation artifacts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: ui-smoke-artifacts
+          name: ui-validation-artifacts
           path: |
             ${{ env.RESULTS_DIR }}
             ${{ env.REPORTS_DIR }}

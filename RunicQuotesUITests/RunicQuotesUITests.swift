@@ -10,6 +10,12 @@ import XCTest
 @MainActor
 final class RunicQuotesUITests: RunicQuotesUITestCase {
 
+    override var defaultLaunchEnvironment: [String: String] {
+        var environment = super.defaultLaunchEnvironment
+        environment["UI_TEST_RESET_PERSISTENT_STORE"] = "1"
+        return environment
+    }
+
     // MARK: - Launch Tests
 
     func testAppLaunches() {
@@ -39,29 +45,26 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
 
     func testScriptSelectorExists() {
         let app = self.requireApp()
-        let selector = self.findElement(in: app, identifier: "quote_script_selector", maxSwipes: 1)
-        let options = app.buttons.matching(identifier: "quote_script_selector")
-
-        XCTAssertTrue(selector.waitForExistence(timeout: 5), "Script selector should exist")
-        XCTAssertEqual(selector.label, "Runic script selector", "Selector should expose an accessibility label")
-        XCTAssertNotNil(selector.value as? String, "Selector should expose the current script value")
-        XCTAssertGreaterThanOrEqual(options.count, 3, "Script selector should expose three script options")
+        for script in ["ELDER_FUTHARK", "YOUNGER_FUTHARK", "CIRTH"] {
+            XCTAssertTrue(app.buttons["script_option_\(script)"].waitForExistence(timeout: 5))
+        }
+        XCTAssertEqual(app.buttons["script_option_ELDER_FUTHARK"].value as? String, "Selected")
     }
 
-    func testSwitchingScripts() throws {
+    func testSwitchingScripts() {
         let app = self.requireApp()
-        let options = app.buttons.matching(identifier: "quote_script_selector").allElementsBoundByIndex
-        guard options.count >= 2 else {
-            throw XCTSkip("Quote script options are not exposed individually in the current simulator accessibility tree.")
+        for script in ["YOUNGER_FUTHARK", "CIRTH", "ELDER_FUTHARK"] {
+            let option = self.findElement(in: app, identifier: "script_option_\(script)", maxSwipes: 3)
+            XCTAssertTrue(option.exists)
+            self.tapElement(option)
+            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: option)
+            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+            self.waitForQuoteCard(in: app)
+            let attachment = XCTAttachment(screenshot: app.screenshot())
+            attachment.name = "Home-\(script)-actual-registered-font"
+            attachment.lifetime = .keepAlways
+            self.add(attachment)
         }
-
-        let youngerButton = options[1]
-        XCTAssertTrue(youngerButton.waitForExistence(timeout: 5), "A secondary script option should exist")
-
-        self.tapElement(youngerButton)
-
-        let quoteCard = app.otherElements["quote_card"]
-        XCTAssertTrue(quoteCard.waitForExistence(timeout: 5), "Quote card should remain visible")
     }
 
     func testNextQuoteButton() {
@@ -82,13 +85,10 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         let app = self.requireApp()
         let saveButton = app.buttons["quote_save_button"]
 
-        if saveButton.waitForExistence(timeout: 5) {
-            // When: Tapping save
-            saveButton.tap()
-
-            // Then: Should trigger action
-            XCTAssertTrue(saveButton.exists, "Save button should still exist")
-        }
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+        saveButton.tap()
+        let saved = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label CONTAINS[c] %@", "Saved"), object: saveButton)
+        XCTAssertEqual(XCTWaiter.wait(for: [saved], timeout: 5), .completed)
     }
 
     // MARK: - Settings View Tests
@@ -169,16 +169,53 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         XCTAssertTrue(app.staticTexts["How to read the results"].exists, "Accuracy guidance should exist")
     }
 
-    func testTranslationScreenShowsEnglishOnlyBannerAndEvidenceBadges() throws {
-        throw XCTSkip(
-            "Historical provenance badges are covered by Swift Testing unit suites; this UI assertion is not deterministic under simulator automation.",
-        )
+    func testTranslationScreenShowsEnglishOnlyBannerAndEvidenceBadges() {
+        let app = self.requireApp()
+        self.enterRealYoungerTranslation(in: app)
+        let banner = self.findElement(in: app, identifier: "translation_source_language_banner", maxSwipes: 4)
+        XCTAssertTrue(banner.exists)
+        XCTAssertTrue(banner.label.contains("English"))
+        let badge = self.findElement(in: app, identifier: "translation_evidence_badge", maxSwipes: 4)
+        XCTAssertTrue(badge.exists)
+        XCTAssertEqual(badge.label, "Reconstructed")
+        let output = self.findElement(in: app, identifier: "translation_output_text", maxSwipes: 5)
+        XCTAssertTrue(output.exists)
+        XCTAssertFalse(output.label.isEmpty)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Real-Younger-translation-with-evidence"
+        attachment.lifetime = .keepAlways
+        self.add(attachment)
     }
 
-    func testTranslationScreenCanOpenSourcesSheet() throws {
-        throw XCTSkip(
-            "Primary-source presentation is covered by Swift Testing unit suites; the simulator UI path is intentionally not enforced here.",
-        )
+    func testTranslationScreenCanOpenSourcesSheet() {
+        let app = self.requireApp()
+        self.enterRealYoungerTranslation(in: app)
+        let source = self.findElement(in: app, identifier: "translation_primary_source_label", maxSwipes: 4)
+        XCTAssertTrue(source.exists)
+        XCTAssertFalse(source.label.isEmpty)
+        let sourceLabel = source.label
+        let sources = self.findElement(in: app, identifier: "translation_sources_button", maxSwipes: 4)
+        XCTAssertTrue(sources.exists)
+        self.tapElement(sources)
+        XCTAssertTrue(app.navigationBars["Sources"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts[sourceLabel].waitForExistence(timeout: 5))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Actual-translation-provenance-sheet"
+        attachment.lifetime = .keepAlways
+        self.add(attachment)
+    }
+
+    private func enterRealYoungerTranslation(in app: XCUIApplication) {
+        self.openTranslationFromCreateMenu(app)
+        self.selectYoungerTranslationScript(in: app)
+        let mode = app.segmentedControls.buttons["Translate"]
+        XCTAssertTrue(mode.waitForExistence(timeout: 5))
+        self.tapElement(mode)
+        let input = self.findElement(in: app, identifier: "translation_input_editor", maxSwipes: 3)
+        XCTAssertTrue(input.exists)
+        self.tapElement(input)
+        input.typeText("The wolf hunts at night")
+        app.swipeUp()
     }
 
     // MARK: - Navigation Tests

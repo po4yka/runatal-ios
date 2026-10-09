@@ -40,7 +40,7 @@ enum UITestPersistentStoreConfigurator {
             }
 
             if environment[self.installLegacyStoreKey] == "1" {
-                try self.installLegacyStore(at: storeURL)
+                try self.installLegacyStore(at: storeURL, withLegacyPreferences: true)
             }
         } catch {
             self.logger.error("Failed to prepare UI test store: \(error.localizedDescription, privacy: .public)")

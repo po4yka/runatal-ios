@@ -9,6 +9,7 @@
 import SwiftUI
 import Testing
 
+@MainActor
 @Suite(.tags(.utility))
 struct DynamicTypeSupportTests {
     @Test
