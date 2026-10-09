@@ -199,7 +199,7 @@ struct SavedView: View {
     }
 
     private func removeSavedQuote(_ quote: QuoteRecord) {
-        self.viewModel.toggleSaved(quote.id)
+        guard self.viewModel.toggleSaved(quote.id) else { return }
         self.showFeedback(
             tone: .success,
             title: "Removed from saved",

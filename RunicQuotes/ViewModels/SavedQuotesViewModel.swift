@@ -61,11 +61,14 @@ final class SavedQuotesViewModel: ObservableObject {
     }
 
     /// Toggle the saved state for a quote and reload the list.
-    func toggleSaved(_ quoteID: UUID) {
-        guard self.persistChanges([.removeSavedQuote(quoteID)]) else { return }
+    @discardableResult
+    func toggleSaved(_ quoteID: UUID) -> Bool {
+        guard self.persistChanges([.removeSavedQuote(quoteID)]) else { return false }
+        self.loadGeneration += 1
 
         // Remove the quote from the local list immediately
         self.state.savedQuotes.removeAll { $0.id == quoteID }
+        return true
     }
 
     /// Return copy-ready text for a saved quote.

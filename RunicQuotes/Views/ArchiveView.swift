@@ -12,7 +12,6 @@ import SwiftUI
 /// Displays archived (hidden and soft-deleted) quotes with filter tabs and restore/erase actions.
 struct ArchiveView: View {
     @StateObject private var viewModel: ArchiveViewModel
-    @State private var didInitialize = false
     @State private var restoredToastVisible = false
     @State private var toastDismissTask: Task<Void, Never>?
     @Environment(\.colorScheme) private var colorScheme
@@ -32,6 +31,10 @@ struct ArchiveView: View {
 
     var body: some View {
         LiquidListScaffold(palette: self.palette) {
+            if let error = self.viewModel.state.errorMessage {
+                Section { Text(error).foregroundStyle(self.palette.error).accessibilityIdentifier("archive_error_banner") }
+            }
+
             Section {
                 HeroHeader(
                     eyebrow: "Archive",
@@ -71,9 +74,8 @@ struct ArchiveView: View {
         #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
         #endif
+            .onReceive(NotificationCenter.default.publisher(for: .libraryDidChange).receive(on: RunLoop.main)) { _ in self.viewModel.onAppear() }
             .task {
-                guard !self.didInitialize else { return }
-                self.didInitialize = true
                 self.viewModel.onAppear()
             }
     }
@@ -145,12 +147,13 @@ struct ArchiveView: View {
             },
             footer: {
                 self.actionButtons(for: quote)
+                    .disabled(self.viewModel.state.pendingActionIDs.contains(quote.id))
             },
         )
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             if quote.isDeleted {
                 Button(role: .destructive) {
-                    self.viewModel.eraseQuote(quote.id)
+                    Task { _ = await self.viewModel.eraseQuote(quote.id) }
                 } label: {
                     Label("Erase", systemImage: "trash")
                 }
@@ -182,8 +185,11 @@ struct ArchiveView: View {
     private func actionButtons(for quote: QuoteRecord) -> some View {
         if quote.isDeleted {
             Button {
-                self.viewModel.restoreQuote(quote.id)
-                self.showRestoredToast()
+                Task {
+                    if await self.viewModel.restoreQuote(quote.id) {
+                        self.showRestoredToast()
+                    }
+                }
             } label: {
                 Label("Restore", systemImage: "arrow.uturn.backward")
                     .font(DesignTokens.Typography.controlLabel)
@@ -192,8 +198,11 @@ struct ArchiveView: View {
             .buttonStyle(.plain)
         } else if quote.isHidden {
             Button {
-                self.viewModel.unhideQuote(quote.id)
-                self.showRestoredToast()
+                Task {
+                    if await self.viewModel.unhideQuote(quote.id) {
+                        self.showRestoredToast()
+                    }
+                }
             } label: {
                 Label("Unhide", systemImage: "eye")
                     .font(DesignTokens.Typography.controlLabel)

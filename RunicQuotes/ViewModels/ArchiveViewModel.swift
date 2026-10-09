@@ -41,6 +41,7 @@ final class ArchiveViewModel: ObservableObject {
         var selectedFilter: ArchiveFilter = .all
         var isLoading: Bool = false
         var errorMessage: String?
+        var pendingActionIDs: Set<UUID> = []
     }
 
     @Published private(set) var state = State()
@@ -48,6 +49,7 @@ final class ArchiveViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let quoteProvider: QuoteProvider
+    private var loadGeneration = 0
 
     // MARK: - Computed Properties
 
@@ -93,9 +95,9 @@ final class ArchiveViewModel: ObservableObject {
     func onAppear() {
         self.state.isLoading = true
         self.state.errorMessage = nil
-        Task {
-            await self.loadArchivedQuotes()
-        }
+        self.loadGeneration += 1
+        let generation = self.loadGeneration
+        Task { await self.loadArchivedQuotes(generation: generation) }
     }
 
     /// Switch the active filter tab.
@@ -104,41 +106,49 @@ final class ArchiveViewModel: ObservableObject {
     }
 
     /// Restore a soft-deleted quote back to the main library.
-    func restoreQuote(_ id: UUID) {
-        Task {
-            do {
+    func restoreQuote(_ id: UUID) async -> Bool {
+        await self.performAction(id: id, restore: true)
+    }
+
+    func unhideQuote(_ id: UUID) async -> Bool {
+        await self.restoreQuote(id)
+    }
+
+    func eraseQuote(_ id: UUID) async -> Bool {
+        await self.performAction(id: id, restore: false)
+    }
+
+    private func performAction(id: UUID, restore: Bool) async -> Bool {
+        guard !self.state.pendingActionIDs.contains(id) else { return false }
+        self.state.pendingActionIDs.insert(id)
+        self.state.errorMessage = nil
+        defer { self.state.pendingActionIDs.remove(id) }
+        do {
+            if restore {
                 _ = try await self.quoteProvider.restoreQuote(id: id)
-                await self.loadArchivedQuotes()
-            } catch {
-                self.state.errorMessage = "Failed to restore quote: \(error.localizedDescription)"
-            }
-        }
-    }
-
-    /// Unhide a hidden quote so it reappears in the main feed.
-    func unhideQuote(_ id: UUID) {
-        self.restoreQuote(id)
-    }
-
-    /// Permanently erase a quote from SwiftData.
-    func eraseQuote(_ id: UUID) {
-        Task {
-            do {
+            } else {
                 try await self.quoteProvider.eraseQuote(id: id)
-                await self.loadArchivedQuotes()
-            } catch {
-                self.state.errorMessage = "Failed to erase quote: \(error.localizedDescription)"
             }
+            self.loadGeneration += 1
+            self.state.archivedQuotes.removeAll { $0.id == id }
+            self.state.isLoading = false
+            return true
+        } catch {
+            self.state.errorMessage = "Failed to update archive: \(error.localizedDescription)"
+            return false
         }
     }
 
     // MARK: - Private Methods
 
-    private func loadArchivedQuotes() async {
+    private func loadArchivedQuotes(generation: Int) async {
         do {
-            self.state.archivedQuotes = try await self.quoteProvider.archivedQuotes()
+            let quotes = try await self.quoteProvider.archivedQuotes()
+            guard generation == self.loadGeneration else { return }
+            self.state.archivedQuotes = quotes
             self.state.isLoading = false
         } catch {
+            guard generation == self.loadGeneration else { return }
             self.state.errorMessage = "Failed to load archived quotes: \(error.localizedDescription)"
             self.state.isLoading = false
         }

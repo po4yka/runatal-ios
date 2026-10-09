@@ -38,60 +38,67 @@ struct ArchiveViewModelTests {
     }
 
     @Test
-    func restoreQuoteReloadsArchive() async throws {
-        let quote = TestSupport.makeQuoteRecord(isDeleted: true, deletedAt: .now)
-        let repository = TestQuoteRepository()
-        repository.archivedQuotesValue = [quote]
-        repository.quoteByID[quote.id] = quote
-
-        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
+    func successfulRestoreRemovesArchiveRowAndPreservesPersistedQuoteID() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataQuoteRepository(modelContext: context)
+        let quote = try repository.createQuote(textLatin: "Restored passage", author: "Reader", source: nil, collection: .stoic, storedRunic: nil, translations: [])
+        _ = try repository.softDeleteQuote(id: quote.id, deletedAt: Date())
+        let viewModel = ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: context.container))
         viewModel.onAppear()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.archivedQuotes.map(\.id) == [quote.id])
+        #expect(await viewModel.restoreQuote(quote.id))
+        #expect(viewModel.state.archivedQuotes.isEmpty)
+        let restored = try #require(try repository.quote(id: quote.id))
+        #expect(!restored.isDeleted)
+        #expect(!restored.isHidden)
+        #expect(restored.textLatin == quote.textLatin)
+    }
 
-        viewModel.restoreQuote(quote.id)
+    @Test
+    func successfulUnhideRemovesArchiveRowAndRestoresVisibility() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataQuoteRepository(modelContext: context)
+        let quote = try repository.createQuote(textLatin: "Hidden passage", author: "Reader", source: nil, collection: .stoic, storedRunic: nil, translations: [])
+        _ = try repository.hideQuote(id: quote.id)
+        let viewModel = ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: context.container))
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(await viewModel.unhideQuote(quote.id))
+        #expect(viewModel.state.archivedQuotes.isEmpty)
+        #expect(try repository.allQuotes().map(\.id) == [quote.id])
+    }
 
-        #expect(await TestSupport.eventually {
-            repository.restoredQuoteIDs == [quote.id] && repository.archivedQuotesCallCount >= 2
+    @Test
+    func successfulEraseRemovesArchiveRowAndPersistedQuote() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataQuoteRepository(modelContext: context)
+        let quote = try repository.createQuote(textLatin: "Erased passage", author: "Reader", source: nil, collection: .stoic, storedRunic: nil, translations: [])
+        _ = try repository.softDeleteQuote(id: quote.id, deletedAt: Date())
+        let viewModel = ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: context.container))
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(await viewModel.eraseQuote(quote.id))
+        #expect(viewModel.state.archivedQuotes.isEmpty)
+        #expect(try repository.quote(id: quote.id) == nil)
+    }
+
+    @Test
+    func failedRestoreReturnsFalseKeepsArchivedRecordAndShowsError() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataQuoteRepository(modelContext: context)
+        let quote = try repository.createQuote(textLatin: "Archived passage", author: "Reader", source: nil, collection: .stoic, storedRunic: nil, translations: [])
+        _ = try repository.softDeleteQuote(id: quote.id, deletedAt: Date())
+        let provider = QuoteProvider(modelContainer: context.container, repositoryFactory: { context in
+            SwiftDataQuoteRepository(modelContext: context, commit: { _ in throw CocoaError(.fileWriteUnknown) })
         })
-        #expect(viewModel.state.errorMessage == nil)
-    }
-
-    @Test
-    func unhideQuoteDelegatesToRestore() async throws {
-        let quote = TestSupport.makeQuoteRecord(isHidden: true)
-        let repository = TestQuoteRepository()
-        repository.archivedQuotesValue = [quote]
-        repository.quoteByID[quote.id] = quote
-
-        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
-        viewModel.unhideQuote(quote.id)
-
-        #expect(await TestSupport.eventually { repository.restoredQuoteIDs == [quote.id] })
-    }
-
-    @Test
-    func eraseQuoteReloadsArchive() async throws {
-        let quote = TestSupport.makeQuoteRecord(isDeleted: true, deletedAt: .now)
-        let repository = TestQuoteRepository()
-        repository.archivedQuotesValue = [quote]
-
-        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
-        viewModel.eraseQuote(quote.id)
-
-        #expect(await TestSupport.eventually {
-            repository.erasedQuoteIDs == [quote.id] && repository.archivedQuotesCallCount >= 1
-        })
-    }
-
-    @Test
-    func restoreQuoteSurfacesErrors() async throws {
-        let repository = TestQuoteRepository()
-        repository.restoreError = TestError(message: "restore failed")
-        let viewModel = try ArchiveViewModel(quoteProvider: QuoteProvider(modelContainer: TestSupport.makeModelContainer(), repositoryFactory: { _ in repository }))
-
-        viewModel.restoreQuote(UUID())
-
-        #expect(await TestSupport.eventually { viewModel.state.errorMessage != nil })
-        #expect(viewModel.state.errorMessage == "Failed to restore quote: restore failed")
+        let viewModel = ArchiveViewModel(quoteProvider: provider)
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(await !viewModel.restoreQuote(quote.id))
+        #expect(viewModel.state.archivedQuotes.map(\.id) == [quote.id])
+        #expect(viewModel.state.errorMessage != nil)
+        #expect(viewModel.state.pendingActionIDs.isEmpty)
+        #expect(try repository.quote(id: quote.id)?.isDeleted == true)
     }
 }
