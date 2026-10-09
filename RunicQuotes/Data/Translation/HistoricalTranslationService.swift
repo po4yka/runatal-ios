@@ -115,7 +115,12 @@ final class HistoricalTranslationService: @unchecked Sendable {
             return self.unsupportedLanguageResult(for: normalizedRequest)
         }
 
-        return self.engineFactory.create(request.script).translate(normalizedRequest)
+        let result = self.engineFactory.create(request.script).translate(normalizedRequest)
+        let isAttestedPhrase = result.resolutionStatus == .attested && result.evidenceTier == .attested && result.isAvailable
+        guard request.evidenceCap != .attestedOnly || isAttestedPhrase else {
+            return self.attestationUnavailableResult(for: normalizedRequest, attempted: result)
+        }
+        return result
     }
 
     func translate(
@@ -155,6 +160,30 @@ final class HistoricalTranslationService: @unchecked Sendable {
                 evidenceCap: evidenceCap,
             )
         }
+    }
+
+    private func attestationUnavailableResult(for request: TranslationRequest, attempted: TranslationResult) -> TranslationResult {
+        TranslationResult(
+            sourceText: request.sourceText,
+            script: request.script,
+            fidelity: request.fidelity,
+            derivationKind: attempted.derivationKind,
+            historicalStage: attempted.historicalStage,
+            normalizedForm: "",
+            diplomaticForm: "",
+            glyphOutput: "",
+            requestedVariant: attempted.requestedVariant,
+            resolutionStatus: .unavailable,
+            confidence: 0,
+            notes: ["Attested-only mode requires a cited, attested complete phrase or inscription; lexical and spelling reconstruction cannot satisfy it."],
+            unresolvedTokens: request.sourceText.isEmpty ? [] : [request.sourceText],
+            provenance: attempted.provenance,
+            attestationRefs: [],
+            inputLanguage: attempted.inputLanguage,
+            userFacingWarnings: ["No exact attested phrase is available for this request."],
+            engineVersion: self.engineVersion(for: request.script),
+            datasetVersion: self.datasetVersion,
+        )
     }
 
     private func unsupportedLanguageResult(for request: TranslationRequest) -> TranslationResult {
@@ -209,7 +238,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v7"
+    let engineVersion = "yf-translation-v8"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -397,7 +426,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v7"
+    let engineVersion = "ef-translation-v8"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -527,7 +556,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
 
 private struct EreborCirthTranslationEngine: TranslationEngine {
     let script: RunicScript = .cirth
-    let engineVersion = "cirth-translation-v6"
+    let engineVersion = "cirth-translation-v7"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver

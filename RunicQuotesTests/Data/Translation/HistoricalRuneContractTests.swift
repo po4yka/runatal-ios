@@ -62,4 +62,23 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertEqual(self.service.translate(text: "Wolf", script: .elder).evidenceTier, .reconstructed)
     }
 
+    func testAttestedOnlyAcceptsNamedInscriptionAndRejectsEveryFallback() {
+        let recorded = self.service.translate(text: "Harja", script: .elder, evidenceCap: .attestedOnly)
+        XCTAssertEqual(recorded.glyphOutput, "ᚺᚨᚱᛃᚨ")
+        XCTAssertEqual(recorded.evidenceTier, .attested)
+        for script in RunicScript.allCases {
+            let unknown = self.service.translate(text: "signal", script: script, fidelity: .readable, evidenceCap: .attestedOnly)
+            XCTAssertEqual(unknown.resolutionStatus, .unavailable)
+            XCTAssertTrue(unknown.glyphOutput.isEmpty)
+            XCTAssertEqual(unknown.confidence, 0)
+        }
+        XCTAssertFalse(self.service.translate(text: "you", script: .younger, evidenceCap: .attestedOnly).isAvailable)
+        XCTAssertFalse(self.service.translate(text: "Wolf", script: .elder, evidenceCap: .attestedOnly).isAvailable)
+        let restored = self.service.translate(text: "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.", script: .younger, evidenceCap: .attestedOnly)
+        XCTAssertFalse(restored.isAvailable)
+        let exact = self.service.translate(text: "King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.", script: .younger, evidenceCap: .attestedOnly)
+        XCTAssertTrue(exact.isAvailable)
+        XCTAssertEqual(exact.evidenceTier, .attested)
+    }
+
 }
