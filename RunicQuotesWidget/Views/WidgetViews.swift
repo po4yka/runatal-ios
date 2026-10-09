@@ -17,24 +17,42 @@ struct RunicQuoteWidgetEntryView: View {
 
     var body: some View {
         Group {
-            switch self.widgetFamily {
-            case .systemSmall:
-                SmallWidgetView(entry: self.entry)
-            case .systemMedium:
-                MediumWidgetView(entry: self.entry)
-            case .systemLarge:
-                LargeWidgetView(entry: self.entry)
-            case .accessoryCircular:
-                CircularWidgetView(entry: self.entry)
-            case .accessoryRectangular:
-                RectangularWidgetView(entry: self.entry)
-            case .accessoryInline:
-                InlineWidgetView(entry: self.entry)
-            default:
-                SmallWidgetView(entry: self.entry)
+            if !self.entry.status.isPresentingQuote {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(self.entry.status.title).font(.headline)
+                    Text("Open Runatal to review your library.").font(.caption)
+                }.padding().accessibilityIdentifier("widget_library_status")
+            } else if !self.entry.rendering.isRenderable {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(self.entry.quote?.textLatin ?? "").font(.callout).lineLimit(3)
+                    Text("Saved runic encoding unavailable. Original data is preserved.").font(.caption)
+                }.padding()
+            } else {
+                VStack(spacing: 4) {
+                    switch self.widgetFamily {
+                    case .systemSmall:
+                        SmallWidgetView(entry: self.entry)
+                    case .systemMedium:
+                        MediumWidgetView(entry: self.entry)
+                    case .systemLarge:
+                        LargeWidgetView(entry: self.entry)
+                    case .accessoryCircular:
+                        CircularWidgetView(entry: self.entry)
+                    case .accessoryRectangular:
+                        RectangularWidgetView(entry: self.entry)
+                    case .accessoryInline:
+                        InlineWidgetView(entry: self.entry)
+                    default:
+                        SmallWidgetView(entry: self.entry)
+                    }
+                    Text(self.entry.rendering.source.shareDisclosureTitle).font(.caption2).lineLimit(1)
+                    if !self.entry.rendering.warnings.isEmpty {
+                        Text("See the saved output disclosure in Runatal.").font(.caption2).lineLimit(2)
+                    }
+                }
             }
         }
-        .widgetURL(DeepLink.openQuote(script: self.entry.script, mode: self.entry.widgetMode).url)
+        .widgetURL(self.entry.status == .quote ? DeepLink.openQuote(script: self.entry.script, mode: self.entry.widgetMode).url : DeepLink.openApp.url)
     }
 }
 

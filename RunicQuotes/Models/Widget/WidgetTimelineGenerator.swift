@@ -8,15 +8,55 @@
 import Foundation
 
 struct WidgetDisplayConfiguration: Equatable {
+    var collection: QuoteCollection?
+    let script: RunicScript?
+    let widgetMode: WidgetMode?
+    let widgetStyle: WidgetStyle?
+    let showsDecorativeGlyphs: Bool?
+
+    func resolved(using preferences: UserPreferencesSnapshot) -> EffectiveWidgetConfiguration {
+        EffectiveWidgetConfiguration(
+            collection: self.collection ?? preferences.selectedCollection,
+            script: self.script ?? preferences.selectedScript,
+            widgetMode: self.widgetMode ?? preferences.widgetMode,
+            widgetStyle: self.widgetStyle ?? preferences.widgetStyle,
+            showsDecorativeGlyphs: self.showsDecorativeGlyphs ?? preferences.widgetDecorativeGlyphsEnabled,
+        )
+    }
+}
+
+struct EffectiveWidgetConfiguration: Equatable {
+    let collection: QuoteCollection
     let script: RunicScript
     let widgetMode: WidgetMode
     let widgetStyle: WidgetStyle
-    let showsRuneText: Bool
+    let showsDecorativeGlyphs: Bool
+}
+
+enum WidgetEntryStatus: String, Equatable, Sendable {
+    case quote
+    case preview
+    case emptyLibrary
+    case unavailable
+
+    var isPresentingQuote: Bool {
+        self == .quote || self == .preview
+    }
+
+    var title: String {
+        switch self {
+        case .quote, .preview: "Runatal"
+        case .emptyLibrary: "No passages in this collection"
+        case .unavailable: "Library temporarily unavailable"
+        }
+    }
 }
 
 struct WidgetTimelineEntryData: Equatable {
+    var status: WidgetEntryStatus = .quote
+    var collection: QuoteCollection = .all
     let date: Date
-    let quote: QuoteData
+    let quote: QuoteData?
     let script: RunicScript
     let font: RunicFont
     let theme: AppTheme
@@ -37,8 +77,8 @@ struct WidgetTimelineData: Equatable {
 
 protocol WidgetTimelineServicing: Sendable {
     func loadPreferences() throws -> UserPreferencesSnapshot
-    func quoteOfTheDay(for script: RunicScript, date: Date) async throws -> QuoteData
-    func randomQuote(for script: RunicScript) async throws -> QuoteData
+    func quoteOfTheDay(for script: RunicScript, collection: QuoteCollection, date: Date) async throws -> QuoteData
+    func randomQuote(for script: RunicScript, collection: QuoteCollection) async throws -> QuoteData
 }
 
 struct WidgetTimelineGenerator {
@@ -59,10 +99,12 @@ struct WidgetTimelineGenerator {
     ) async throws -> WidgetTimelineData {
         let currentDate = self.now()
         let preferences = try service.loadPreferences()
+        let configuration = configuration.resolved(using: preferences)
         let currentQuote = try await resolveQuote(
             service: service,
             mode: configuration.widgetMode,
             script: configuration.script,
+            collection: configuration.collection,
             date: currentDate,
         )
 
@@ -71,6 +113,7 @@ struct WidgetTimelineGenerator {
             service: service,
             mode: configuration.widgetMode,
             script: configuration.script,
+            collection: configuration.collection,
             date: nextUpdate,
         )
 
@@ -93,13 +136,14 @@ struct WidgetTimelineGenerator {
         )
     }
 
-    func fallbackTimeline(at date: Date? = nil) -> WidgetTimelineData {
+    func fallbackTimeline(at date: Date? = nil, status: WidgetEntryStatus = .unavailable) -> WidgetTimelineData {
         let currentDate = date ?? self.now()
         return WidgetTimelineData(
             entries: [
                 WidgetTimelineEntryData(
+                    status: status,
                     date: currentDate,
-                    quote: .sample,
+                    quote: nil,
                     script: .elder,
                     font: .noto,
                     theme: .obsidian,
@@ -125,13 +169,14 @@ struct WidgetTimelineGenerator {
         service: any WidgetTimelineServicing,
         mode: WidgetMode,
         script: RunicScript,
+        collection: QuoteCollection,
         date: Date,
     ) async throws -> QuoteData {
         switch mode {
         case .daily:
-            try await service.quoteOfTheDay(for: script, date: date)
+            try await service.quoteOfTheDay(for: script, collection: collection, date: date)
         case .random:
-            try await service.randomQuote(for: script)
+            try await service.randomQuote(for: script, collection: collection)
         }
     }
 
@@ -139,9 +184,10 @@ struct WidgetTimelineGenerator {
         date: Date,
         quote: QuoteData,
         preferences: UserPreferencesSnapshot,
-        configuration: WidgetDisplayConfiguration,
+        configuration: EffectiveWidgetConfiguration,
     ) -> WidgetTimelineEntryData {
         WidgetTimelineEntryData(
+            collection: configuration.collection,
             date: date,
             quote: quote,
             script: configuration.script,
@@ -149,7 +195,7 @@ struct WidgetTimelineGenerator {
             theme: preferences.selectedTheme,
             widgetMode: configuration.widgetMode,
             widgetStyle: configuration.widgetStyle,
-            showsDecorativeGlyphs: configuration.showsRuneText,
+            showsDecorativeGlyphs: configuration.showsDecorativeGlyphs,
         )
     }
 }

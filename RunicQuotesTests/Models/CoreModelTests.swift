@@ -125,6 +125,7 @@ struct QuoteDataTests {
     @Test
     func runicTextFallsBackToLatinWhenMissing() {
         let data = QuoteData(
+            id: UUID(),
             textLatin: "Fortune favors the bold",
             author: "Virgil",
             runicElder: nil,
@@ -132,9 +133,9 @@ struct QuoteDataTests {
             runicCirth: nil,
         )
 
-        #expect(data.runicText(for: .elder) == data.textLatin)
-        #expect(data.runicText(for: .younger) == "younger")
-        #expect(data.runicText(for: .cirth) == data.textLatin)
+        #expect(data.runicRendering(for: .elder).text == RunicTransliterator.transliterate(data.textLatin, to: .elder).glyphOutput)
+        #expect(data.runicRendering(for: .younger).text == "younger")
+        #expect(data.runicRendering(for: .cirth).text == RunicTransliterator.transliterate(data.textLatin, to: .cirth).glyphOutput)
     }
 
     @Test

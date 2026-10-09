@@ -14,7 +14,9 @@ struct RunicQuoteEntry: TimelineEntry {
     let date: Date
 
     /// The quote to display
-    let quote: QuoteData
+    let quote: QuoteData?
+    let status: WidgetEntryStatus
+    let collection: QuoteCollection
 
     /// Selected runic script
     let script: RunicScript
@@ -38,6 +40,7 @@ struct RunicQuoteEntry: TimelineEntry {
     static func placeholder() -> RunicQuoteEntry {
         RunicQuoteEntry(
             snapshot: WidgetTimelineEntryData(
+                status: .preview,
                 date: Date(),
                 quote: .sample,
                 script: .elder,
@@ -51,6 +54,8 @@ struct RunicQuoteEntry: TimelineEntry {
     }
 
     init(snapshot: WidgetTimelineEntryData) {
+        self.status = snapshot.status
+        self.collection = snapshot.collection
         self.date = snapshot.date
         self.quote = snapshot.quote
         self.script = snapshot.script

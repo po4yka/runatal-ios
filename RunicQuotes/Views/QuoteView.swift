@@ -256,7 +256,7 @@ struct QuoteView: View {
                 meta: [
                     self.viewModel.state.currentCollection.displayName,
                     self.viewModel.state.currentScript.displayName,
-                    self.viewModel.state.currentWidgetMode.displayName,
+                    self.viewModel.state.currentReadingMode.displayName,
                 ],
                 palette: self.palette,
             )

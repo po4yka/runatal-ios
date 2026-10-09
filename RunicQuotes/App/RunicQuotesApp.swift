@@ -75,6 +75,7 @@ struct RunicQuotesApp: App {
             }
         }
 
+        _ = self.rootComponent.widgetRefreshCoordinator
         self.featureDiscoveryController.configureForLaunch(processInfo: .processInfo)
     }
 

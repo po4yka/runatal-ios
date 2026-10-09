@@ -34,6 +34,28 @@ struct DeepLinkTests {
 @Suite(.serialized, .tags(.widget))
 struct WidgetTimelineGeneratorTests {
     @Test
+    func appDefaultsAndExplicitOverridesResolveIndependently() {
+        var preferences = UserPreferencesSnapshot()
+        preferences.selectedScript = .cirth
+        preferences.selectedCollection = .stoic
+        preferences.widgetMode = .random
+        preferences.widgetStyle = .translationFirst
+        preferences.widgetDecorativeGlyphsEnabled = false
+        let defaults = WidgetDisplayConfiguration(collection: nil, script: nil, widgetMode: nil, widgetStyle: nil, showsDecorativeGlyphs: nil).resolved(using: preferences)
+        #expect(defaults.script == .cirth)
+        #expect(defaults.collection == .stoic)
+        #expect(defaults.widgetMode == .random)
+        #expect(defaults.widgetStyle == .translationFirst)
+        #expect(!defaults.showsDecorativeGlyphs)
+        let explicit = WidgetDisplayConfiguration(collection: .tolkien, script: .elder, widgetMode: .daily, widgetStyle: .runeFirst, showsDecorativeGlyphs: true).resolved(using: preferences)
+        #expect(explicit.script == .elder)
+        #expect(explicit.collection == .tolkien)
+        #expect(explicit.widgetMode == .daily)
+        #expect(explicit.widgetStyle == .runeFirst)
+        #expect(explicit.showsDecorativeGlyphs)
+    }
+
+    @Test
     func dailyModeBuildsCurrentAndNextMidnightEntries() async throws {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = try #require(TimeZone(secondsFromGMT: 0))
@@ -53,14 +75,14 @@ struct WidgetTimelineGeneratorTests {
                 script: .elder,
                 widgetMode: .daily,
                 widgetStyle: .runeFirst,
-                showsRuneText: true,
+                showsDecorativeGlyphs: true,
             ),
             service: service,
         )
 
         #expect(timeline.entries.count == 2)
-        #expect(timeline.entries[0].quote.textLatin == "Today")
-        #expect(timeline.entries[1].quote.textLatin == "Tomorrow")
+        #expect(timeline.entries[0].quote?.textLatin == "Today")
+        #expect(timeline.entries[1].quote?.textLatin == "Tomorrow")
         #expect(timeline.entries[0].font == .babelstone)
         #expect(timeline.entries[0].theme == .nordicDawn)
         #expect(timeline.entries[1].date == calendar.startOfDay(for: now.addingTimeInterval(AppConstants.secondsPerDay)))
@@ -84,13 +106,13 @@ struct WidgetTimelineGeneratorTests {
                 script: .younger,
                 widgetMode: .random,
                 widgetStyle: .translationFirst,
-                showsRuneText: false,
+                showsDecorativeGlyphs: false,
             ),
             service: service,
         )
 
-        #expect(timeline.entries[0].quote.textLatin == "First")
-        #expect(timeline.entries[1].quote.textLatin == "Second")
+        #expect(timeline.entries[0].quote?.textLatin == "First")
+        #expect(timeline.entries[1].quote?.textLatin == "Second")
         #expect(timeline.entries[1].date == now.addingTimeInterval(AppConstants.secondsPerHour))
         #expect(timeline.entries[0].showsDecorativeGlyphs == false)
         #expect(service.randomQuoteCallCount == 2)
@@ -98,13 +120,13 @@ struct WidgetTimelineGeneratorTests {
     }
 
     @Test
-    func fallbackTimelineUsesPlaceholderAndHourlyRetry() {
+    func fallbackTimelineShowsUnavailableStateAndHourlyRetry() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let generator = WidgetTimelineGenerator(now: { now })
         let timeline = generator.fallbackTimeline()
 
         #expect(timeline.entries.count == 1)
-        #expect(timeline.entries[0].quote == .sample)
+        #expect(timeline.entries[0].quote == nil && timeline.entries[0].status == .unavailable)
         #expect(timeline.entries[0].widgetMode == .daily)
 
         if case .after(let retryDate) = timeline.reloadPolicy {
@@ -127,12 +149,12 @@ private final class TestWidgetTimelineService: WidgetTimelineServicing, @uncheck
         self.preferences
     }
 
-    func quoteOfTheDay(for script: RunicScript, date: Date) async throws -> QuoteData {
+    func quoteOfTheDay(for script: RunicScript, collection: QuoteCollection, date: Date) async throws -> QuoteData {
         self.dailyQuoteRequests.append(date)
         return self.dailyQuotes.removeFirst()
     }
 
-    func randomQuote(for script: RunicScript) async throws -> QuoteData {
+    func randomQuote(for script: RunicScript, collection: QuoteCollection) async throws -> QuoteData {
         self.randomQuoteCallCount += 1
         return self.randomQuotes.removeFirst()
     }

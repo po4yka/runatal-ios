@@ -45,6 +45,7 @@ struct QuoteTimelineProviderTests {
     func deepLinkAndQuoteDataSupportWidgetRoutingAndFallback() throws {
         let parsed = try #require(DeepLink.from(url: DeepLink.openQuote(script: .elder, mode: .daily).url))
         let quote = QuoteData(
+            id: UUID(),
             textLatin: "Fortune favors the bold.",
             author: "Virgil",
             runicElder: "ᚠᛟᚱᛏᚢᚾᛖ",
@@ -53,7 +54,7 @@ struct QuoteTimelineProviderTests {
         )
 
         #expect(parsed == .openQuote(script: .elder, mode: .daily))
-        #expect(quote.runicText(for: .elder) == "ᚠᛟᚱᛏᚢᚾᛖ")
-        #expect(quote.runicText(for: .younger) == quote.textLatin)
+        #expect(quote.runicRendering(for: .elder).text == "ᚠᛟᚱᛏᚢᚾᛖ")
+        #expect(quote.runicRendering(for: .younger).text == RunicTransliterator.transliterate(quote.textLatin, to: .younger).glyphOutput)
     }
 }

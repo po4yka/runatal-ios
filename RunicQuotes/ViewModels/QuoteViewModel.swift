@@ -27,7 +27,7 @@ struct QuoteUiState {
     var isCurrentQuoteSaved: Bool = false
     var currentScript: RunicScript = .elder
     var currentFont: RunicFont = .noto
-    var currentWidgetMode: WidgetMode = .daily
+    var currentReadingMode: WidgetMode = .daily
     var currentCollection: QuoteCollection = .all
     var currentTheme: AppTheme = .obsidian
     var collectionCovers: [QuoteCollectionCover] = QuoteCollection.allCases.map {
@@ -145,7 +145,7 @@ final class QuoteViewModel: ObservableObject {
         self.state.isLoading = true
 
         Task {
-            await self.loadQuote(using: self.state.currentWidgetMode, updateContext: false)
+            await self.loadQuote(using: self.state.currentReadingMode, updateContext: false)
         }
     }
 
@@ -213,18 +213,16 @@ final class QuoteViewModel: ObservableObject {
         Task {
             defer { self.state.isLoading = false }
             let previousScript = self.state.currentScript
-            let previousMode = self.state.currentWidgetMode
             let previousCollection = self.state.currentCollection
             await self.loadPreferences()
             guard self.state.errorMessage == nil else { return }
 
             let preferencesChanged =
                 previousScript != self.state.currentScript ||
-                previousMode != self.state.currentWidgetMode ||
                 previousCollection != self.state.currentCollection
 
             if preferencesChanged {
-                await self.loadQuote(using: self.state.currentWidgetMode, updateContext: true)
+                await self.loadQuote(using: self.state.currentReadingMode, updateContext: true)
             }
         }
     }
@@ -256,16 +254,13 @@ final class QuoteViewModel: ObservableObject {
             if let script {
                 mutations.append(.script(script))
             }
-            if let mode {
-                mutations.append(.widgetMode(mode))
-            }
             guard self.persistPreferences(mutations) else {
                 self.state.isLoading = false
                 return
             }
             self.state.currentScript = self.preferences.selectedScript
             self.state.currentFont = self.preferences.selectedFont
-            await self.loadQuote(using: mode ?? self.state.currentWidgetMode, updateContext: true)
+            await self.loadQuote(using: mode ?? self.state.currentReadingMode, updateContext: true)
         }
     }
 
@@ -278,7 +273,6 @@ final class QuoteViewModel: ObservableObject {
             // Update state with preferences
             self.state.currentScript = self.preferences.selectedScript
             self.state.currentFont = self.preferences.selectedFont
-            self.state.currentWidgetMode = self.preferences.widgetMode
             self.state.currentCollection = self.preferences.selectedCollection
             self.state.currentTheme = self.preferences.selectedTheme
             self.syncSavedStateForCurrentQuote()
@@ -299,7 +293,7 @@ final class QuoteViewModel: ObservableObject {
         self.state.isLoading = true
         self.state.errorMessage = nil
         if updateContext {
-            self.state.currentWidgetMode = mode
+            self.state.currentReadingMode = mode
         }
 
         do {
@@ -330,7 +324,7 @@ final class QuoteViewModel: ObservableObject {
         self.state.currentFont = self.preferences.selectedFont
 
         // Reload quote with new script
-        await self.loadQuote(using: self.state.currentWidgetMode, updateContext: false)
+        await self.loadQuote(using: self.state.currentReadingMode, updateContext: false)
     }
 
     private func updateFont(_ font: RunicFont) async {
@@ -511,7 +505,7 @@ extension QuoteViewModel {
                 if let quote = allQuotes.first(where: { $0.id == self.state.currentQuoteID }) {
                     await self.updateState(with: quote)
                 } else {
-                    await self.loadQuote(using: self.state.currentWidgetMode, updateContext: false)
+                    await self.loadQuote(using: self.state.currentReadingMode, updateContext: false)
                 }
             } catch {
                 self.state.errorMessage = error.localizedDescription

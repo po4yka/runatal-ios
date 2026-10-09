@@ -28,7 +28,7 @@ struct CircularWidgetView: View {
                 .bold()
                 .lineLimit(1)
         }
-        .accessibilityLabel("Runic quote: \(self.entry.quote.textLatin)")
+        .accessibilityLabel("Runic quote: \(self.entry.quote?.textLatin ?? self.entry.status.title)")
     }
 }
 
@@ -196,7 +196,7 @@ extension RunicQuoteEntry {
     }
 
     var widgetAccessibilityLabel: String {
-        "\(quote.textLatin), by \(quote.author)"
+        self.quote.map { "\($0.textLatin), by \($0.author). \(self.rendering.source.shareDisclosureTitle)" } ?? self.status.title
     }
 }
 
@@ -210,16 +210,20 @@ extension RunicQuoteEntry {
         }
     }
 
+    var rendering: ResolvedRunicPresentation {
+        self.quote?.runicRendering(for: self.script) ?? ResolvedRunicPresentation(isRenderable: false, text: "", source: .liveTransliteration, evidenceTier: nil, primarySourceLabel: nil)
+    }
+
     func compactRunic(maxCharacters: Int) -> String {
-        quote.runicText(for: script).widgetCompact(maxCharacters: maxCharacters)
+        (self.rendering.isRenderable ? self.rendering.text : "").widgetCompact(maxCharacters: maxCharacters)
     }
 
     func compactLatin(maxCharacters: Int) -> String {
-        quote.textLatin.widgetCompact(maxCharacters: maxCharacters)
+        (quote?.textLatin ?? "").widgetCompact(maxCharacters: maxCharacters)
     }
 
     func compactAuthor(maxCharacters: Int) -> String {
-        quote.author.widgetCompact(maxCharacters: maxCharacters)
+        (quote?.author ?? "").widgetCompact(maxCharacters: maxCharacters)
     }
 }
 

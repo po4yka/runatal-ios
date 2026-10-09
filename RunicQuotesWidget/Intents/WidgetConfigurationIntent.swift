@@ -12,6 +12,7 @@ import WidgetKit
 
 /// Runic script selection for widget configuration
 enum ScriptOption: String, AppEnum {
+    case appDefault
     case elder
     case younger
     case cirth
@@ -22,14 +23,16 @@ enum ScriptOption: String, AppEnum {
 
     static var caseDisplayRepresentations: [ScriptOption: DisplayRepresentation] {
         [
+            .appDefault: "App Settings",
             .elder: "Elder Futhark",
             .younger: "Younger Futhark",
             .cirth: "Cirth",
         ]
     }
 
-    var toRunicScript: RunicScript {
+    var toRunicScript: RunicScript? {
         switch self {
+        case .appDefault: nil
         case .elder: .elder
         case .younger: .younger
         case .cirth: .cirth
@@ -47,6 +50,7 @@ enum ScriptOption: String, AppEnum {
 
 /// Widget mode selection for widget configuration
 enum ModeOption: String, AppEnum {
+    case appDefault
     case daily
     case random
 
@@ -56,13 +60,15 @@ enum ModeOption: String, AppEnum {
 
     static var caseDisplayRepresentations: [ModeOption: DisplayRepresentation] {
         [
+            .appDefault: "App Settings",
             .daily: "Daily Quote",
             .random: "Random Quote",
         ]
     }
 
-    var toWidgetMode: WidgetMode {
+    var toWidgetMode: WidgetMode? {
         switch self {
+        case .appDefault: nil
         case .daily: .daily
         case .random: .random
         }
@@ -78,6 +84,7 @@ enum ModeOption: String, AppEnum {
 
 /// Widget style selection for widget configuration
 enum StyleOption: String, AppEnum {
+    case appDefault
     case runeFirst
     case translationFirst
 
@@ -87,13 +94,15 @@ enum StyleOption: String, AppEnum {
 
     static var caseDisplayRepresentations: [StyleOption: DisplayRepresentation] {
         [
+            .appDefault: "App Settings",
             .runeFirst: "Rune First",
             .translationFirst: "Translation First",
         ]
     }
 
-    var toWidgetStyle: WidgetStyle {
+    var toWidgetStyle: WidgetStyle? {
         switch self {
+        case .appDefault: nil
         case .runeFirst: .runeFirst
         case .translationFirst: .translationFirst
         }
@@ -107,6 +116,24 @@ enum StyleOption: String, AppEnum {
     }
 }
 
+enum DecorationOption: String, AppEnum {
+    case appDefault
+    case enabled
+    case disabled
+
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Decorative Glyphs"
+    static let caseDisplayRepresentations: [DecorationOption: DisplayRepresentation] = [
+        .appDefault: "App Settings", .enabled: "Enabled", .disabled: "Disabled",
+    ]
+    var value: Bool? {
+        switch self {
+        case .appDefault: nil
+        case .enabled: true
+        case .disabled: false
+        }
+    }
+}
+
 // MARK: - Widget Configuration Intent
 
 /// Configuration intent for the Runic Quote widget
@@ -116,15 +143,40 @@ struct RunicQuoteConfigurationIntent: WidgetConfigurationIntent {
         "Choose how your runic quote widget looks and behaves."
     }
 
-    @Parameter(title: "Script", default: .elder)
+    @Parameter(title: "Collection", default: .appDefault)
+    var collection: CollectionOption
+
+    @Parameter(title: "Script", default: .appDefault)
     var script: ScriptOption
 
-    @Parameter(title: "Mode", default: .daily)
+    @Parameter(title: "Mode", default: .appDefault)
     var mode: ModeOption
 
-    @Parameter(title: "Style", default: .runeFirst)
+    @Parameter(title: "Style", default: .appDefault)
     var style: StyleOption
 
-    @Parameter(title: "Show Rune Text", default: true)
-    var showRuneText: Bool
+    @Parameter(title: "Decorative Glyphs", default: .appDefault)
+    var decorativeGlyphs: DecorationOption
+}
+
+enum CollectionOption: String, AppEnum {
+    case appDefault
+    case all
+    case motivation
+    case stoic
+    case tolkien
+
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Collection"
+    static let caseDisplayRepresentations: [CollectionOption: DisplayRepresentation] = [
+        .appDefault: "App default", .all: "All", .motivation: "Motivation", .stoic: "Stoic", .tolkien: "Tolkien",
+    ]
+    var value: QuoteCollection? {
+        switch self {
+        case .appDefault: nil
+        case .all: .all
+        case .motivation: .motivation
+        case .stoic: .stoic
+        case .tolkien: .tolkien
+        }
+    }
 }

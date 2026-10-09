@@ -9,80 +9,90 @@ import Foundation
 
 /// Simplified quote data shared by the app, package tests, and widget extension.
 struct QuoteData: Codable, Equatable {
+    let id: UUID
     let textLatin: String
     let author: String
     let runicElder: String?
     let runicYounger: String?
     let runicCirth: String?
+    let cirthEncodingRaw: String?
+    var presentation: ResolvedRunicPresentation?
+    var presentationScript: RunicScript?
+    var savedMetadata: Data?
 
-    func runicText(for script: RunicScript) -> String {
-        switch script {
-        case .elder:
-            self.runicElder ?? self.textLatin
-        case .younger:
-            self.runicYounger ?? self.textLatin
-        case .cirth:
-            self.runicCirth ?? self.textLatin
+    func runicRendering(for script: RunicScript) -> ResolvedRunicPresentation {
+        if self.presentationScript == script, let presentation = self.presentation {
+            return presentation
         }
+        let stored: String? = switch script {
+        case .elder: self.runicElder
+        case .younger: self.runicYounger
+        case .cirth: self.runicCirth
+        }
+        return RunicPresentationResolver.resolve(RunicPresentationInput(textLatin: self.textLatin, storedText: stored, script: script, cirthEncoding: self.cirthEncodingRaw, savedMetadata: self.savedMetadata), currentCache: nil)
     }
 
     init(from quote: Quote) {
+        self.id = quote.id
         self.textLatin = quote.textLatin
         self.author = quote.author
         self.runicElder = quote.runicElder
         self.runicYounger = quote.runicYounger
         self.runicCirth = quote.runicCirth
+        self.cirthEncodingRaw = quote.cirthEncodingRaw
     }
 
-    init(from quote: QuoteRecord) {
+    init(from quote: QuoteRecord, presentation: ResolvedRunicPresentation? = nil, script: RunicScript? = nil) {
+        self.presentation = presentation
+        self.presentationScript = script
+        self.savedMetadata = presentation == nil ? quote.storedTranslationMetadataData : nil
+        self.id = quote.id
         self.textLatin = quote.textLatin
         self.author = quote.author
         self.runicElder = quote.runicElder
         self.runicYounger = quote.runicYounger
         self.runicCirth = quote.runicCirth
+        self.cirthEncodingRaw = quote.cirthEncodingRaw
     }
 
     init(
+        id: UUID,
         textLatin: String,
         author: String,
         runicElder: String?,
         runicYounger: String?,
         runicCirth: String?,
+        cirthEncodingRaw: String? = nil,
     ) {
+        self.id = id
         self.textLatin = textLatin
         self.author = author
         self.runicElder = runicElder
         self.runicYounger = runicYounger
         self.runicCirth = runicCirth
+        self.cirthEncodingRaw = cirthEncodingRaw
     }
 
     static var sample: QuoteData {
-        QuoteData(
-            textLatin: "Not all those who wander are lost.",
-            author: "J.R.R. Tolkien",
-            runicElder: "ᚾᛟᛏ ᚨᛚᛚ ᚦᛟᛋᛖ ᚹᚺᛟ ᚹᚨᚾᛞᛖᚱ ᚨᚱᛖ ᛚᛟᛋᛏ",
-            runicYounger: "ᚾᚨᛏ ᚨᛚᛚ ᚦᚨᛋᚨ ᚹᚺᚨ ᚹᚨᚾᛞᚨᚱ ᚨᚱᚨ ᛚᚨᛋᛏ",
-            runicCirth: RunicTransliterator.transliterate("Not all those who wander are lost.", to: .cirth).glyphOutput,
-        )
+        self.makeSample(id: 1, text: "Not all those who wander are lost.", author: "J.R.R. Tolkien")
     }
 
     static var samples: [QuoteData] {
         [
-            sample,
-            QuoteData(
-                textLatin: "Fortune favors the bold.",
-                author: "Virgil",
-                runicElder: "ᚠᛟᚱᛏᚢᚾᛖ ᚠᚨᚡᛟᚱᛋ ᚦᛖ ᛒᛟᛚᛞ",
-                runicYounger: "ᚠᚨᚱᛏᚢᚾᚨ ᚠᚨᚡᚨᚱᛋ ᚦᚨ ᛒᚨᛚᛞ",
-                runicCirth: RunicTransliterator.transliterate("Fortune favors the bold.", to: .cirth).glyphOutput,
-            ),
-            QuoteData(
-                textLatin: "The only way out is through.",
-                author: "Robert Frost",
-                runicElder: "ᚦᛖ ᛟᚾᛚᚤ ᚹᚨᚤ ᛟᚢᛏ ᛁᛋ ᚦᚱᛟᚢᚷᚺ",
-                runicYounger: "ᚦᚨ ᚨᚾᛚᛁ ᚹᚨᛁ ᚨᚢᛏ ᛁᛋ ᚦᚱᚨᚢᚷᚺ",
-                runicCirth: RunicTransliterator.transliterate("The only way out is through.", to: .cirth).glyphOutput,
-            ),
+            self.sample,
+            self.makeSample(id: 2, text: "Fortune favors the bold.", author: "Virgil"),
+            self.makeSample(id: 3, text: "The only way out is through.", author: "Robert Frost"),
         ]
+    }
+
+    private static func makeSample(id: UInt8, text: String, author: String) -> QuoteData {
+        QuoteData(
+            id: UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, id)),
+            textLatin: text,
+            author: author,
+            runicElder: RunicTransliterator.transliterate(text, to: .elder).glyphOutput,
+            runicYounger: RunicTransliterator.transliterate(text, to: .younger).glyphOutput,
+            runicCirth: RunicTransliterator.transliterate(text, to: .cirth).glyphOutput,
+        )
     }
 }

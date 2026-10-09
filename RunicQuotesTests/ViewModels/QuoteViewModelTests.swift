@@ -180,11 +180,11 @@ struct QuoteViewModelTests {
 
         #expect(await TestSupport.eventually {
             viewModel.state.currentScript == .younger &&
-                viewModel.state.currentWidgetMode == .random &&
+                viewModel.state.currentReadingMode == .random &&
                 !viewModel.state.isLoading
         })
         #expect(viewModel.state.currentScript == .younger)
-        #expect(viewModel.state.currentWidgetMode == .random)
+        #expect(viewModel.state.currentReadingMode == .random)
         #expect(!viewModel.state.latinText.isEmpty)
     }
 
@@ -284,6 +284,20 @@ struct QuoteViewModelTests {
         viewModel.onPreferencesChanged()
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
         #expect(viewModel.state.errorMessage?.contains("Preference read failed") == true)
+    }
+
+    @Test
+    func widgetModePreferenceDoesNotChangeHomePassageOrItsReadingMode() async throws {
+        let (viewModel, context) = try self.makeViewModelWithContext()
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        let id = viewModel.state.currentQuoteID
+        let mode = viewModel.state.currentReadingMode
+        try SwiftDataUserPreferencesRepository(modelContext: context).apply([.widgetMode(.random)])
+        viewModel.onPreferencesChanged()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.currentQuoteID == id)
+        #expect(viewModel.state.currentReadingMode == mode)
     }
 
     private func makeViewModel(seedData: Bool = true) throws -> QuoteViewModel {

@@ -32,16 +32,21 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
 
     /// Provide a snapshot entry for widget preview
     func snapshot(for configuration: RunicQuoteConfigurationIntent, in context: Context) async -> RunicQuoteEntry {
-        RunicQuoteEntry.placeholder()
+        if context.isPreview {
+            return RunicQuoteEntry.placeholder()
+        }
+        return await self.timeline(for: configuration, in: context).entries.first
+            ?? RunicQuoteEntry(snapshot: self.generator.fallbackTimeline().entries[0])
     }
 
     /// Provide timeline entries for the widget
     func timeline(for configuration: RunicQuoteConfigurationIntent, in context: Context) async -> Timeline<RunicQuoteEntry> {
         let displayConfiguration = WidgetDisplayConfiguration(
+            collection: configuration.collection.value,
             script: configuration.script.toRunicScript,
             widgetMode: configuration.mode.toWidgetMode,
             widgetStyle: configuration.style.toWidgetStyle,
-            showsRuneText: configuration.showRuneText,
+            showsDecorativeGlyphs: configuration.decorativeGlyphs.value,
         )
 
         do {
@@ -56,7 +61,12 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
             )
         } catch {
             Self.logger.error("Widget timeline error: \(error.localizedDescription)")
-            let timelineData = self.generator.fallbackTimeline()
+            let status: WidgetEntryStatus = if let quoteError = error as? QuoteRepositoryError, case .noQuotesAvailable = quoteError {
+                .emptyLibrary
+            } else {
+                .unavailable
+            }
+            let timelineData = self.generator.fallbackTimeline(status: status)
             return Timeline(
                 entries: timelineData.entries.map(RunicQuoteEntry.init(snapshot:)),
                 policy: self.timelinePolicy(for: timelineData.reloadPolicy),

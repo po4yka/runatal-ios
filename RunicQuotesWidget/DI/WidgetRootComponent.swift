@@ -16,9 +16,9 @@ final class WidgetRootComponent: BootstrapComponent {
         super.init()
     }
 
-    var timelineService: WidgetTimelineService {
+    var timelineService: WidgetLibraryService {
         shared {
-            WidgetTimelineService(modelContainer: self.modelContainer)
+            WidgetLibraryService(modelContainer: self.modelContainer)
         }
     }
 }

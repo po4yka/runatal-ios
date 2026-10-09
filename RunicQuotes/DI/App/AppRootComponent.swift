@@ -18,6 +18,10 @@ final class AppRootComponent: BootstrapComponent {
         super.init()
     }
 
+    var widgetRefreshCoordinator: WidgetRefreshCoordinator {
+        shared { WidgetRefreshCoordinator(reloader: SystemWidgetReloader()) }
+    }
+
     var preferencesRepository: SwiftDataUserPreferencesRepository {
         let modelContext = self.modelContainer.mainContext
         return shared {
