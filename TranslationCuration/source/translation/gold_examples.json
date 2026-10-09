@@ -135,7 +135,8 @@
             ]
           }
         ],
-        "inventory": "APPROVED_RECONSTRUCTION"
+        "inventory": "APPROVED_RECONSTRUCTION",
+        "unresolvedTokens": []
       },
       {
         "script": "ELDER_FUTHARK",
@@ -228,7 +229,8 @@
             ]
           }
         ],
-        "inventory": "READABLE_PARAPHRASE"
+        "inventory": "READABLE_PARAPHRASE",
+        "unresolvedTokens": []
       },
       {
         "script": "CIRTH",
@@ -361,7 +363,8 @@
             ]
           }
         ],
-        "inventory": "APPROVED_RECONSTRUCTION"
+        "inventory": "APPROVED_RECONSTRUCTION",
+        "unresolvedTokens": []
       }
     ]
   }

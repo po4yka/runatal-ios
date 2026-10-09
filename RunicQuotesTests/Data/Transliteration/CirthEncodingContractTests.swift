@@ -28,11 +28,14 @@ final class CirthEncodingContractTests: XCTestCase {
         quote.runicCirth = "xçjñ"
         quote.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
         let original = HistoricalTranslationService().translate(text: "x", script: .cirth)
+        XCTAssertTrue(original.isAvailable, "The bundled historical dataset must load before testing artifact migration")
         var payload = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode([original])) as? [[String: Any]])
         payload[0]["glyphOutput"] = "xçjñ"
         payload[0]["engineVersion"] = "cirth-translation-v7"
         var tokens = try XCTUnwrap(payload[0]["tokenBreakdown"] as? [[String: Any]])
-        tokens[0]["glyphToken"] = "x"
+        var firstToken = try XCTUnwrap(tokens.first, "A real available Cirth result must expose its token trace")
+        firstToken["glyphToken"] = "x"
+        tokens[0] = firstToken
         payload[0]["tokenBreakdown"] = tokens
         quote.storedTranslationMetadataData = try JSONSerialization.data(withJSONObject: payload)
         LegacyCirthEncodingMigration.upgrade(quote)
