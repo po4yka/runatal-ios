@@ -18,6 +18,18 @@ final class AppRootComponent: BootstrapComponent {
         super.init()
     }
 
+    var dailyReminderViewModel: DailyReminderViewModel {
+        shared { DailyReminderViewModel(client: SystemDailyReminderClient(), preferencesRepository: self.preferencesRepository) }
+    }
+
+    var dailyReminderNotificationDelegate: DailyReminderNotificationDelegate {
+        shared {
+            DailyReminderNotificationDelegate {
+                NotificationCenter.default.post(name: .switchToQuoteTab, object: nil, userInfo: ["mode": WidgetMode.daily.rawValue])
+            }
+        }
+    }
+
     var widgetRefreshCoordinator: WidgetRefreshCoordinator {
         shared { WidgetRefreshCoordinator(reloader: SystemWidgetReloader()) }
     }

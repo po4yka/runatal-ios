@@ -7,7 +7,6 @@
 
 import os
 import SwiftUI
-import UserNotifications
 
 /// Five-step onboarding flow: Splash -> Intro -> Atmosphere -> Notifications -> Ready.
 struct OnboardingView: View {
@@ -35,7 +34,7 @@ struct OnboardingView: View {
     @State private var currentPage: Page = .splash
     @State private var selectedScript: RunicScript?
     @State private var navigationDirection: NavigationDirection = .forward
-    @State private var notificationsEnabled = false
+    @EnvironmentObject private var dailyReminderViewModel: DailyReminderViewModel
 
     let onComplete: () -> Void
 
@@ -262,10 +261,11 @@ struct OnboardingView: View {
             contentPadding: DesignTokens.Spacing.xl,
         ) {
             VStack(spacing: DesignTokens.Spacing.xl) {
+                DailyReminderView(viewModel: self.dailyReminderViewModel)
                 HeroHeader(
                     eyebrow: "Cadence",
-                    title: "Receive a daily rune",
-                    subtitle: "Let one line arrive on its own rhythm instead of asking you to remember.",
+                    title: "A daily reading reminder",
+                    subtitle: "Choose a time to be reminded to open today’s passage.",
                     meta: ["Optional", "Can be changed later"],
                     palette: self.palette,
                     alignment: .center,
@@ -278,10 +278,10 @@ struct OnboardingView: View {
                             .foregroundStyle(self.palette.accent)
 
                         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                            Text("Daily Rune")
+                            Text("Daily reading reminder")
                                 .font(.headline)
                                 .foregroundStyle(self.palette.textPrimary)
-                            Text("Your morning wisdom awaits")
+                            Text("Open the app to read today’s passage")
                                 .font(.subheadline)
                                 .foregroundStyle(self.palette.textSecondary)
                         }
@@ -313,7 +313,7 @@ struct OnboardingView: View {
                     eyebrow: "Begin",
                     title: "Ready to read",
                     subtitle: "Your defaults are set. Step into the library and let the first passage arrive.",
-                    meta: [self.notificationsEnabled ? "Notifications on" : "Notifications optional"],
+                    meta: [self.dailyReminderViewModel.state.isEnabled ? "Notifications on" : "Notifications optional"],
                     palette: self.palette,
                     alignment: .center,
                 )
@@ -356,11 +356,9 @@ struct OnboardingView: View {
 
     private func requestNotifications() {
         Task {
-            let granted = await (try? UNUserNotificationCenter.current().requestAuthorization(
-                options: [.alert, .badge, .sound],
-            )) ?? false
-            self.notificationsEnabled = granted
-            self.moveForward()
+            if await self.dailyReminderViewModel.setEnabled(true) {
+                self.moveForward()
+            }
         }
     }
 
@@ -386,4 +384,5 @@ struct OnboardingView: View {
     OnboardingView(onComplete: {})
         .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
         .environment(\.userPreferencesRepository, PreviewUserPreferencesRepository.shared)
+        .environmentObject(DailyReminderViewModel.preview())
 }

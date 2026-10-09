@@ -8,6 +8,7 @@
 import os
 import SwiftData
 import SwiftUI
+import UserNotifications
 
 @main
 @MainActor
@@ -75,6 +76,7 @@ struct RunicQuotesApp: App {
             }
         }
 
+        UNUserNotificationCenter.current().delegate = self.rootComponent.dailyReminderNotificationDelegate
         _ = self.rootComponent.widgetRefreshCoordinator
         self.featureDiscoveryController.configureForLaunch(processInfo: .processInfo)
     }
@@ -117,6 +119,7 @@ struct RunicQuotesApp: App {
             .environment(\.userPreferencesRepository, self.rootComponent.preferencesRepository)
             .environment(\.runicTheme, self.selectedTheme)
             .environmentObject(self.featureDiscoveryController)
+            .environmentObject(self.rootComponent.dailyReminderViewModel)
             .animation(DesignTokens.Motion.themeTransition, value: self.selectedThemeRaw)
             .task {
                 if self.shouldSkipOnboarding {

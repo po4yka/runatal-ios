@@ -10,6 +10,7 @@ import SwiftUI
 
 /// Settings and preferences view
 struct SettingsView: View {
+    @EnvironmentObject private var dailyReminderViewModel: DailyReminderViewModel
     @StateObject private var viewModel: SettingsViewModel
     @State private var didInitialize = false
     @State private var showReplayAlert = false
@@ -75,6 +76,8 @@ struct SettingsView: View {
                         reduceMotion: self.reduceMotion,
                     )
                 }
+
+                Section { DailyReminderView(viewModel: self.dailyReminderViewModel) }
 
                 Section {
                     SettingsNavigationLinksSectionView(palette: self.palette)
@@ -145,6 +148,7 @@ private enum SettingsViewPreviewFactory {
     )
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
     .environmentObject(FeatureDiscoveryController.preview())
+    .environmentObject(DailyReminderViewModel.preview())
 }
 
 #Preview("With Data") {
@@ -159,4 +163,5 @@ private enum SettingsViewPreviewFactory {
     )
     .modelContainer(SettingsViewPreviewFactory.container())
     .environmentObject(FeatureDiscoveryController.preview())
+    .environmentObject(DailyReminderViewModel.preview())
 }

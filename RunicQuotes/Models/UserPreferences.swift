@@ -51,6 +51,24 @@ final class UserPreferences {
     /// Comma-separated list of installed quote pack IDs.
     var installedPackIDsRaw: String?
 
+    var dailyReminderEnabledRaw: Bool?
+    var dailyReminderHourRaw: Int?
+    var dailyReminderMinuteRaw: Int?
+
+    var dailyReminderEnabled: Bool {
+        get { self.dailyReminderEnabledRaw ?? false }
+        set { self.dailyReminderEnabledRaw = newValue; self.lastUpdated = Date() }
+    }
+
+    var dailyReminderTime: DailyReminderTime {
+        get { (try? DailyReminderTime(hour: self.dailyReminderHourRaw ?? 9, minute: self.dailyReminderMinuteRaw ?? 0)) ?? .morning }
+        set {
+            self.dailyReminderHourRaw = newValue.hour
+            self.dailyReminderMinuteRaw = newValue.minute
+            self.lastUpdated = Date()
+        }
+    }
+
     /// Last updated timestamp
     var lastUpdated: Date
 

@@ -19,6 +19,7 @@ enum UserPreferencesMutation: Sendable {
     case preset(ReadingPreset)
     case toggleSavedQuote(UUID)
     case removeSavedQuote(UUID)
+    case dailyReminder(enabled: Bool, time: DailyReminderTime)
     case resetReadingSettings
 
     func apply(to preferences: inout UserPreferencesSnapshot) throws {
@@ -51,6 +52,9 @@ enum UserPreferencesMutation: Sendable {
             preferences.toggleSavedQuote(id)
         case .removeSavedQuote(let id):
             preferences.savedQuoteIDs.remove(id)
+        case .dailyReminder(let enabled, let time):
+            preferences.dailyReminderEnabled = enabled
+            preferences.dailyReminderTime = time
         case .resetReadingSettings:
             preferences.selectedScript = .elder
             preferences.selectedFont = .noto

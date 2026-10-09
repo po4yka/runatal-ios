@@ -19,6 +19,8 @@ struct UserPreferencesSnapshot {
     var lastUsedPreset: ReadingPreset?
     var savedQuoteIDs: Set<UUID> = []
     var installedPackIDs: Set<String> = []
+    var dailyReminderEnabled = false
+    var dailyReminderTime = DailyReminderTime.morning
 
     init() {}
 
@@ -33,6 +35,8 @@ struct UserPreferencesSnapshot {
         self.lastUsedPreset = preferences.lastUsedPreset
         self.savedQuoteIDs = preferences.savedQuoteIDs
         self.installedPackIDs = preferences.installedPackIDs
+        self.dailyReminderEnabled = preferences.dailyReminderEnabled
+        self.dailyReminderTime = preferences.dailyReminderTime
     }
 
     func isQuoteSaved(_ id: UUID) -> Bool {
@@ -118,6 +122,8 @@ final class SwiftDataUserPreferencesRepository: UserPreferencesRepository, @unch
         if preferences.installedPackIDs != snapshot.installedPackIDs {
             preferences.installedPackIDs = snapshot.installedPackIDs
         }
+        preferences.dailyReminderEnabled = snapshot.dailyReminderEnabled
+        preferences.dailyReminderTime = snapshot.dailyReminderTime
         try context.save()
         if !mutations.isEmpty {
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)

@@ -22,5 +22,6 @@ extension AppRootComponent {
     func makeOnboardingView(onComplete: @escaping () -> Void) -> some View {
         OnboardingView(onComplete: onComplete)
             .environment(\.userPreferencesRepository, preferencesRepository)
+            .environmentObject(dailyReminderViewModel)
     }
 }
