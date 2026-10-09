@@ -181,6 +181,10 @@ jobs:
       - name: Create report directories
         run: mkdir -p "$DERIVED_DATA_PATH" "$RESULTS_DIR" "$REPORTS_DIR" "$LOGS_DIR"
 
+      - name: Prepare dedicated iOS Simulator
+        shell: bash
+        run: bash scripts/ci/prepare_simulator.sh
+
       - name: Build app
         shell: bash
         run: |
@@ -189,6 +193,9 @@ jobs:
             -project "$PROJECT_PATH" \
             -scheme "$APP_SCHEME" \
             -destination "$DESTINATION" \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            -jobs 4 \
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/RunicQuotesBuild.xcresult" \
@@ -202,6 +209,9 @@ jobs:
             -project "$PROJECT_PATH" \
             -scheme "$CORE_SCHEME" \
             -destination "$DESTINATION" \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            -jobs 4 \
             -configuration Debug \
             -enableCodeCoverage YES \
             -derivedDataPath "$DERIVED_DATA_PATH" \
@@ -250,6 +260,9 @@ jobs:
             -project "$PROJECT_PATH" \
             -scheme "$WIDGET_SCHEME" \
             -destination "$DESTINATION" \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            -jobs 4 \
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/${WIDGET_SCHEME}.xcresult" \
@@ -263,6 +276,9 @@ jobs:
             -project "$PROJECT_PATH" \
             -scheme "$APP_SCHEME" \
             -destination "$DESTINATION" \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            -jobs 4 \
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/RunicQuotesAnalyze.xcresult" \
@@ -329,6 +345,10 @@ jobs:
       - name: Create report directories
         run: mkdir -p "$DERIVED_DATA_PATH" "$RESULTS_DIR" "$REPORTS_DIR" "$LOGS_DIR"
 
+      - name: Prepare dedicated iOS Simulator
+        shell: bash
+        run: bash scripts/ci/prepare_simulator.sh
+
       - name: Run UI smoke tests
         shell: bash
         run: |
@@ -337,6 +357,9 @@ jobs:
             -project "$PROJECT_PATH" \
             -scheme "$UI_SCHEME" \
             -destination "$DESTINATION" \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            -jobs 4 \
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -resultBundlePath "$RESULTS_DIR/${UI_SCHEME}.xcresult" \
