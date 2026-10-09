@@ -62,32 +62,65 @@ struct UserPreferencesSnapshot {
 
 protocol UserPreferencesRepository: Sendable {
     func snapshot() throws -> UserPreferencesSnapshot
-    func save(_ snapshot: UserPreferencesSnapshot) throws
+    @discardableResult
+    func apply(_ mutations: [UserPreferencesMutation]) throws -> UserPreferencesSnapshot
 }
 
 final class SwiftDataUserPreferencesRepository: UserPreferencesRepository, @unchecked Sendable {
-    private let modelContext: ModelContext
+    private let modelContainer: ModelContainer
 
     init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+        self.modelContainer = modelContext.container
     }
 
     func snapshot() throws -> UserPreferencesSnapshot {
-        try UserPreferencesSnapshot(from: UserPreferences.getOrCreate(in: self.modelContext))
+        let context = ModelContext(self.modelContainer)
+        guard let preferences = try context.fetch(FetchDescriptor<UserPreferences>()).first else {
+            return UserPreferencesSnapshot()
+        }
+        return UserPreferencesSnapshot(from: preferences)
     }
 
-    func save(_ snapshot: UserPreferencesSnapshot) throws {
-        let preferences = try UserPreferences.getOrCreate(in: self.modelContext)
-        preferences.selectedScript = snapshot.selectedScript
-        preferences.selectedFont = snapshot.selectedFont
-        preferences.widgetMode = snapshot.widgetMode
-        preferences.selectedCollection = snapshot.selectedCollection
-        preferences.widgetStyle = snapshot.widgetStyle
-        preferences.widgetDecorativeGlyphsEnabled = snapshot.widgetDecorativeGlyphsEnabled
-        preferences.selectedTheme = snapshot.selectedTheme
-        preferences.lastUsedPreset = snapshot.lastUsedPreset
-        preferences.savedQuoteIDs = snapshot.savedQuoteIDs
-        preferences.installedPackIDs = snapshot.installedPackIDs
-        try self.modelContext.save()
+    @discardableResult
+    func apply(_ mutations: [UserPreferencesMutation]) throws -> UserPreferencesSnapshot {
+        let context = ModelContext(self.modelContainer)
+        context.autosaveEnabled = false
+        let preferences = try UserPreferences.getOrCreate(in: context)
+        var snapshot = UserPreferencesSnapshot(from: preferences)
+        for mutation in mutations {
+            try mutation.apply(to: &snapshot)
+        }
+        if preferences.selectedScript != snapshot.selectedScript {
+            preferences.selectedScript = snapshot.selectedScript
+        }
+        if preferences.selectedFont != snapshot.selectedFont {
+            preferences.selectedFont = snapshot.selectedFont
+        }
+        if preferences.widgetMode != snapshot.widgetMode {
+            preferences.widgetMode = snapshot.widgetMode
+        }
+        if preferences.selectedCollection != snapshot.selectedCollection {
+            preferences.selectedCollection = snapshot.selectedCollection
+        }
+        if preferences.widgetStyle != snapshot.widgetStyle {
+            preferences.widgetStyle = snapshot.widgetStyle
+        }
+        if preferences.widgetDecorativeGlyphsEnabled != snapshot.widgetDecorativeGlyphsEnabled {
+            preferences.widgetDecorativeGlyphsEnabled = snapshot.widgetDecorativeGlyphsEnabled
+        }
+        if preferences.selectedTheme != snapshot.selectedTheme {
+            preferences.selectedTheme = snapshot.selectedTheme
+        }
+        if preferences.lastUsedPreset != snapshot.lastUsedPreset {
+            preferences.lastUsedPreset = snapshot.lastUsedPreset
+        }
+        if preferences.savedQuoteIDs != snapshot.savedQuoteIDs {
+            preferences.savedQuoteIDs = snapshot.savedQuoteIDs
+        }
+        if preferences.installedPackIDs != snapshot.installedPackIDs {
+            preferences.installedPackIDs = snapshot.installedPackIDs
+        }
+        try context.save()
+        return snapshot
     }
 }

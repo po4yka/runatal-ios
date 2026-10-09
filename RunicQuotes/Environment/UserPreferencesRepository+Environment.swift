@@ -22,7 +22,12 @@ private final class InMemoryUserPreferencesRepository: UserPreferencesRepository
         self.snapshotValue
     }
 
-    func save(_ snapshot: UserPreferencesSnapshot) throws {
+    func apply(_ mutations: [UserPreferencesMutation]) throws -> UserPreferencesSnapshot {
+        var snapshot = self.snapshotValue
+        for mutation in mutations {
+            try mutation.apply(to: &snapshot)
+        }
         self.snapshotValue = snapshot
+        return snapshot
     }
 }

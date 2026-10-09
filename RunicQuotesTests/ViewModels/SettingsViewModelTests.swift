@@ -5,6 +5,7 @@
 //  Created by Claude on 13.02.26.
 //
 
+import Foundation
 @testable import RunicQuotes
 import SwiftData
 import Testing
@@ -66,6 +67,22 @@ struct SettingsViewModelTests {
         #expect(viewModel.state.selectedTheme == .obsidian)
         #expect(viewModel.state.widgetMode == .daily)
         #expect(viewModel.isAtDefaults)
+    }
+
+    @Test
+    func themeChangePreservesLibraryChangesMadeAfterSettingsLoaded() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataUserPreferencesRepository(modelContext: context)
+        let viewModel = SettingsViewModel(preferencesRepository: repository)
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        let quoteID = UUID()
+        try repository.apply([.toggleSavedQuote(quoteID), .installPack("havamal")])
+        viewModel.updateTheme(.nordicDawn)
+        let snapshot = try repository.snapshot()
+        #expect(snapshot.savedQuoteIDs == [quoteID])
+        #expect(snapshot.installedPackIDs == ["havamal"])
+        #expect(snapshot.selectedTheme == .nordicDawn)
     }
 
     private func makeViewModel() throws -> (SettingsViewModel, ModelContext) {

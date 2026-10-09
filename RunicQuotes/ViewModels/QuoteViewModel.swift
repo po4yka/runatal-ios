@@ -165,9 +165,8 @@ final class QuoteViewModel: ObservableObject {
     func onCollectionChanged(_ collection: QuoteCollection) {
         guard self.state.currentCollection != collection else { return }
 
-        self.preferences.selectedCollection = collection
-        self.state.currentCollection = collection
-        self.persistPreferences()
+        guard self.persistPreferences([.collection(collection)]) else { return }
+        self.state.currentCollection = self.preferences.selectedCollection
         self.state.isLoading = true
 
         Task {
@@ -253,16 +252,19 @@ final class QuoteViewModel: ObservableObject {
         Task {
             await self.loadPreferences()
 
+            var mutations: [UserPreferencesMutation] = []
             if let script {
-                self.applyScriptPreference(script)
+                mutations.append(.script(script))
             }
-
             if let mode {
-                self.state.currentWidgetMode = mode
-                self.preferences.widgetMode = mode
+                mutations.append(.widgetMode(mode))
             }
-
-            self.persistPreferences()
+            guard self.persistPreferences(mutations) else {
+                self.state.isLoading = false
+                return
+            }
+            self.state.currentScript = self.preferences.selectedScript
+            self.state.currentFont = self.preferences.selectedFont
             await self.loadQuote(using: mode ?? self.state.currentWidgetMode, updateContext: true)
         }
     }
@@ -320,8 +322,12 @@ final class QuoteViewModel: ObservableObject {
     }
 
     private func updateScript(_ script: RunicScript) async {
-        self.applyScriptPreference(script)
-        self.persistPreferences()
+        guard self.persistPreferences([.script(script)]) else {
+            self.state.isLoading = false
+            return
+        }
+        self.state.currentScript = self.preferences.selectedScript
+        self.state.currentFont = self.preferences.selectedFont
 
         // Reload quote with new script
         await self.loadQuote(using: self.state.currentWidgetMode, updateContext: false)
@@ -335,11 +341,10 @@ final class QuoteViewModel: ObservableObject {
         }
 
         // Update preferences
-        self.preferences.selectedFont = font
-        self.persistPreferences()
+        guard self.persistPreferences([.font(font)]) else { return }
 
         // Update state
-        self.state.currentFont = font
+        self.state.currentFont = self.preferences.selectedFont
     }
 
     private func updateState(with quote: QuoteRecord) async {
@@ -353,20 +358,9 @@ final class QuoteViewModel: ObservableObject {
         self.syncSavedStateForCurrentQuote()
     }
 
-    private func applyScriptPreference(_ script: RunicScript) {
-        self.preferences.selectedScript = script
-        self.state.currentScript = script
-
-        if !self.state.currentFont.isCompatible(with: script) {
-            let recommendedFont = RunicFontConfiguration.recommendedFont(for: script)
-            self.state.currentFont = recommendedFont
-            self.preferences.selectedFont = recommendedFont
-        }
-    }
-
     private func toggleSavedState(for quoteID: UUID) {
-        self.state.isCurrentQuoteSaved = self.preferences.toggleSavedQuote(quoteID)
-        self.persistPreferences()
+        guard self.persistPreferences([.toggleSavedQuote(quoteID)]) else { return }
+        self.syncSavedStateForCurrentQuote()
     }
 
     private func syncSavedStateForCurrentQuote() {
@@ -411,11 +405,13 @@ final class QuoteViewModel: ObservableObject {
         }
     }
 
-    private func persistPreferences() {
+    private func persistPreferences(_ mutations: [UserPreferencesMutation]) -> Bool {
         do {
-            try self.preferencesRepository.save(self.preferences)
+            self.preferences = try self.preferencesRepository.apply(mutations)
+            return true
         } catch {
             self.state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
+            return false
         }
     }
 

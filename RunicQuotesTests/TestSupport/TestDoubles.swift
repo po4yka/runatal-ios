@@ -39,14 +39,19 @@ final class TestPreferencesRepository: UserPreferencesRepository, @unchecked Sen
         }
     }
 
-    func save(_ snapshot: UserPreferencesSnapshot) throws {
+    func apply(_ mutations: [UserPreferencesMutation]) throws -> UserPreferencesSnapshot {
+        var snapshot = try self.snapshot()
+        for mutation in mutations {
+            try mutation.apply(to: &snapshot)
+        }
         self.lock.withLock {
             self.saveCalls.append(snapshot)
         }
 
         switch self.saveResult {
         case .success:
-            return
+            self.snapshotResult = .success(snapshot)
+            return snapshot
         case .failure(let error):
             throw error
         }

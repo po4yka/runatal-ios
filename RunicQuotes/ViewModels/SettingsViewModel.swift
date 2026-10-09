@@ -103,7 +103,7 @@ final class SettingsViewModel: ObservableObject {
             self.state.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
         }
 
-        self.savePreferences()
+        self.savePreferences([.script(script)])
     }
 
     /// Update the selected font
@@ -114,31 +114,31 @@ final class SettingsViewModel: ObservableObject {
         }
 
         self.state.selectedFont = font
-        self.savePreferences()
+        self.savePreferences([.font(font)])
     }
 
     /// Update widget mode
     func updateWidgetMode(_ mode: WidgetMode) {
         self.state.widgetMode = mode
-        self.savePreferences()
+        self.savePreferences([.widgetMode(mode)])
     }
 
     /// Update widget visual style.
     func updateWidgetStyle(_ style: WidgetStyle) {
         self.state.widgetStyle = style
-        self.savePreferences()
+        self.savePreferences([.widgetStyle(style)])
     }
 
     /// Toggle decorative glyph identity elements in widgets.
     func updateWidgetDecorativeGlyphsEnabled(_ isEnabled: Bool) {
         self.state.widgetDecorativeGlyphsEnabled = isEnabled
-        self.savePreferences()
+        self.savePreferences([.decorativeGlyphs(isEnabled)])
     }
 
     /// Update visual theme
     func updateTheme(_ theme: AppTheme) {
         self.state.selectedTheme = theme
-        self.savePreferences()
+        self.savePreferences([.theme(theme)])
     }
 
     /// Apply a curated script/font preset.
@@ -147,7 +147,7 @@ final class SettingsViewModel: ObservableObject {
         self.state.selectedFont = preset.font
         self.state.lastUsedPreset = preset
         self.state.errorMessage = nil
-        self.savePreferences()
+        self.savePreferences([.preset(preset)])
     }
 
     /// Restore the most recently used preset.
@@ -165,7 +165,7 @@ final class SettingsViewModel: ObservableObject {
         self.state.widgetStyle = .runeFirst
         self.state.widgetDecorativeGlyphsEnabled = true
         self.state.errorMessage = nil
-        self.savePreferences()
+        self.savePreferences([.resetReadingSettings])
     }
 
     /// Preview text for a specific preset card.
@@ -201,17 +201,16 @@ final class SettingsViewModel: ObservableObject {
         }
     }
 
-    private func savePreferences() {
-        self.preferences.selectedScript = self.state.selectedScript
-        self.preferences.selectedFont = self.state.selectedFont
-        self.preferences.widgetMode = self.state.widgetMode
-        self.preferences.widgetStyle = self.state.widgetStyle
-        self.preferences.widgetDecorativeGlyphsEnabled = self.state.widgetDecorativeGlyphsEnabled
-        self.preferences.selectedTheme = self.state.selectedTheme
-        self.preferences.lastUsedPreset = self.state.lastUsedPreset
-
+    private func savePreferences(_ mutations: [UserPreferencesMutation]) {
         do {
-            try self.preferencesRepository.save(self.preferences)
+            self.preferences = try self.preferencesRepository.apply(mutations)
+            self.state.selectedScript = self.preferences.selectedScript
+            self.state.selectedFont = self.preferences.selectedFont
+            self.state.widgetMode = self.preferences.widgetMode
+            self.state.widgetStyle = self.preferences.widgetStyle
+            self.state.widgetDecorativeGlyphsEnabled = self.preferences.widgetDecorativeGlyphsEnabled
+            self.state.selectedTheme = self.preferences.selectedTheme
+            self.state.lastUsedPreset = self.preferences.lastUsedPreset
             UserDefaults.standard.set(
                 self.state.selectedTheme.rawValue,
                 forKey: AppConstants.selectedThemeStorageKey,

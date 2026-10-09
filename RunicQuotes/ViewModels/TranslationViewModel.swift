@@ -137,9 +137,10 @@ final class TranslationViewModel: ObservableObject {
         if !self.state.selectedFont.isCompatible(with: script) {
             self.state.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
         }
-        self.preferences.selectedScript = script
-        self.preferences.selectedFont = self.state.selectedFont
-        self.persistPreferences()
+        if !self.persistPreferences([.script(script)]) {
+            self.state.selectedScript = self.preferences.selectedScript
+        }
+        self.state.selectedFont = self.preferences.selectedFont
         self.rebuildPresentation()
     }
 
@@ -249,11 +250,13 @@ final class TranslationViewModel: ObservableObject {
         }
     }
 
-    private func persistPreferences() {
+    private func persistPreferences(_ mutations: [UserPreferencesMutation]) -> Bool {
         do {
-            try self.preferencesRepository.save(self.preferences)
+            self.preferences = try self.preferencesRepository.apply(mutations)
+            return true
         } catch {
             self.state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
+            return false
         }
     }
 

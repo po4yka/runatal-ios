@@ -59,8 +59,7 @@ final class SavedQuotesViewModel: ObservableObject {
 
     /// Toggle the saved state for a quote and reload the list.
     func toggleSaved(_ quoteID: UUID) {
-        self.preferences.toggleSavedQuote(quoteID)
-        self.persistChanges()
+        guard self.persistChanges([.removeSavedQuote(quoteID)]) else { return }
 
         // Remove the quote from the local list immediately
         self.state.savedQuotes.removeAll { $0.id == quoteID }
@@ -88,11 +87,13 @@ final class SavedQuotesViewModel: ObservableObject {
         }
     }
 
-    private func persistChanges() {
+    private func persistChanges(_ mutations: [UserPreferencesMutation]) -> Bool {
         do {
-            try self.preferencesRepository.save(self.preferences)
+            self.preferences = try self.preferencesRepository.apply(mutations)
+            return true
         } catch {
             self.state.errorMessage = "Failed to save changes: \(error.localizedDescription)"
+            return false
         }
     }
 }

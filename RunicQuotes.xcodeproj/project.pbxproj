@@ -46,6 +46,7 @@
 		23A0874AE79D7FFECEA0F6E2 /* QuoteTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3995C194091E379986B7FA /* QuoteTimelineProvider.swift */; };
 		25071A27E9B2F9D76C9D108E /* AppThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */; };
 		2559DBF5E8351F90F2AE81DC /* GlassScriptSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D71542EC46EEF7E2614247D /* GlassScriptSelector.swift */; };
+		25D290090E22AA8D645C2A9A /* UserPreferencesMutation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5A81B02734C4B7F9068B1D /* UserPreferencesMutation.swift */; };
 		29B9E9ADFD6E1AD3077E6053 /* RunicTextBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319E8EBEC664357D97F6BBD2 /* RunicTextBundle.swift */; };
 		2A59105385340183C91A5D40 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D66DF992AD1C9DB6BB78E142 /* LaunchScreen.storyboard */; };
 		2B548269E6367A5C8619ACCF /* DatabaseCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4379492DB16FEA7E0ABFB5C /* DatabaseCoordinatorTests.swift */; };
@@ -125,6 +126,7 @@
 		72F093FA4BE11469509B80EB /* CirthAngerthas.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2904EB09440EF9C5DE602EBB /* CirthAngerthas.ttf */; };
 		730EB1B3FCAC91086FB7CE28 /* RunicQuotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBEFFAC55FDA3C9150DBDF3 /* RunicQuotesApp.swift */; };
 		737D53392AAF3EB91610F759 /* QuoteScriptPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1883665CA5BA1E15545EA78D /* QuoteScriptPickerView.swift */; };
+		73955CEC8752D264A8CDADBB /* UserPreferencesMutation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5A81B02734C4B7F9068B1D /* UserPreferencesMutation.swift */; };
 		773561F4E9631603F60CDA2A /* TranslationDatasetValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667D0D688E11DD0BE8E2C00D /* TranslationDatasetValidationTests.swift */; };
 		784AEE7E4F062A14985A6785 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 818A0D3DD3717E173D7F3879 /* SearchViewModel.swift */; };
 		787B4FDD3611E1B5931A0068 /* younger_phrase_templates.json in Resources */ = {isa = PBXBuildFile; fileRef = 8361DF9EB2E970107F3D328F /* younger_phrase_templates.json */; };
@@ -459,6 +461,7 @@
 		A806762B687FFB8DB3FCB63A /* AppSearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSearchCoordinator.swift; sourceTree = "<group>"; };
 		A8076C70E5718AF839EC2382 /* SettingsAppearanceSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAppearanceSectionView.swift; sourceTree = "<group>"; };
 		A91E88DEBF8F0E645E31973E /* TranslationComposerSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationComposerSectionView.swift; sourceTree = "<group>"; };
+		AB5A81B02734C4B7F9068B1D /* UserPreferencesMutation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesMutation.swift; sourceTree = "<group>"; };
 		AC557E77DECE377392EBADFB /* grammar_rules.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = grammar_rules.json; sourceTree = "<group>"; };
 		AF4E39481FE5CC535021F03E /* RunicTransliterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicTransliterator.swift; sourceTree = "<group>"; };
 		B0185373B369090B54886138 /* HistoricalTranslationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalTranslationServiceTests.swift; sourceTree = "<group>"; };
@@ -1029,6 +1032,7 @@
 				655944F273A98C8FDC199AF3 /* TranslationBackfillState.swift */,
 				C376223F7739359825DF2503 /* TranslationRecord.swift */,
 				CA53EDE9F12376E5252378D4 /* UserPreferences.swift */,
+				AB5A81B02734C4B7F9068B1D /* UserPreferencesMutation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1500,6 +1504,7 @@
 				F0F9FA6A0279128481025A4A /* TranslationViewModel.swift in Sources */,
 				5CBF6EA63D8D81A8E77FE8C4 /* UITestPersistentStoreConfigurator.swift in Sources */,
 				5A5F6272C576B4A932A2262E /* UserPreferences.swift in Sources */,
+				25D290090E22AA8D645C2A9A /* UserPreferencesMutation.swift in Sources */,
 				F9A658D0BEC463911F823FD7 /* UserPreferencesRepository+Environment.swift in Sources */,
 				B19A3677BB8557D60D2EF285 /* UserPreferencesRepository.swift in Sources */,
 				46B0A4AAD899F99EF0303A1D /* WidgetMode.swift in Sources */,
@@ -1559,6 +1564,7 @@
 				5A4A56624D286640BECC1719 /* TranslationRepository.swift in Sources */,
 				BEAA590B865B927CBFBDA170 /* UITestPersistentStoreConfigurator.swift in Sources */,
 				50A9927028BEBA261290684D /* UserPreferences.swift in Sources */,
+				73955CEC8752D264A8CDADBB /* UserPreferencesMutation.swift in Sources */,
 				0B76614961E8C2A68C51FC03 /* UserPreferencesRepository.swift in Sources */,
 				007446E2A0F3E3DFE32AEFD2 /* WidgetAccessoryViews.swift in Sources */,
 				F527A1196C8D9C4B5F3D484A /* WidgetConfigurationIntent.swift in Sources */,

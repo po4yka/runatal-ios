@@ -9,7 +9,6 @@ import os
 import SwiftUI
 import UserNotifications
 
-// swiftlint:disable type_body_length
 /// Five-step onboarding flow: Splash -> Intro -> Atmosphere -> Notifications -> Ready.
 struct OnboardingView: View {
 
@@ -372,12 +371,7 @@ struct OnboardingView: View {
     private func savePreferencesAndFinish() {
         do {
             let script = self.selectedScript ?? .elder
-            var preferences = try preferencesRepository.snapshot()
-            preferences.selectedScript = script
-            if !preferences.selectedFont.isCompatible(with: script) {
-                preferences.selectedFont = RunicFontConfiguration.recommendedFont(for: script)
-            }
-            try self.preferencesRepository.save(preferences)
+            try self.preferencesRepository.apply([.script(script)])
             NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
             Self.logger.error("Failed to save onboarding preferences: \(error.localizedDescription)")
@@ -394,5 +388,3 @@ struct OnboardingView: View {
         .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
         .environment(\.userPreferencesRepository, PreviewUserPreferencesRepository.shared)
 }
-
-// swiftlint:enable type_body_length

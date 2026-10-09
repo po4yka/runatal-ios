@@ -240,9 +240,7 @@ struct QuotePackDetailView: View {
 
     private func installPack() {
         do {
-            var preferences = try preferencesRepository.snapshot()
-            _ = preferences.installPack(self.pack.id)
-            try self.preferencesRepository.save(preferences)
+            try self.preferencesRepository.apply([.installPack(self.pack.id)])
             self.isInstalled = true
             withAnimation(.easeInOut(duration: 0.4)) {
                 self.showSuccess = true
