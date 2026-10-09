@@ -23,6 +23,8 @@ enum UITestPersistentStoreConfigurator {
         return id
     }
 
+    static let legacyArchivedQuoteID = UUID(uuid: (0x7B, 0x5D, 0x78, 0x32, 0xE0, 0xA4, 0x4E, 0x76, 0x91, 0xF1, 0xD0, 0x6F, 0x35, 0x59, 0xE3, 0xA6))
+
     static let legacyQuoteText = "Legacy store quote survives migration."
 
     static func prepareIfNeeded(processInfo: ProcessInfo = .processInfo) {
@@ -79,8 +81,8 @@ enum UITestPersistentStoreConfigurator {
         }
     }
 
-    private static func installLegacyStore(at storeURL: URL) throws {
-        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: legacyModel())
+    static func installLegacyStore(at storeURL: URL, withLegacyPreferences: Bool = false) throws {
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: legacyModel(includePreferences: withLegacyPreferences))
         let options: [AnyHashable: Any] = [
             NSSQLitePragmasOption: ["journal_mode": "DELETE"],
         ]
@@ -108,11 +110,15 @@ enum UITestPersistentStoreConfigurator {
         quote.setValue(false, forKey: "isDeleted")
         quote.setValue(nil, forKey: "deletedAt")
 
+        if withLegacyPreferences {
+            self.insertLegacyArchivedQuote(in: context)
+            self.insertLegacyPreferences(in: context)
+        }
         try context.save()
         try coordinator.remove(store)
     }
 
-    private static func legacyModel() -> NSManagedObjectModel {
+    private static func legacyModel(includePreferences: Bool) -> NSManagedObjectModel {
         let quote = NSEntityDescription()
         quote.name = "Quote"
         quote.managedObjectClassName = "NSManagedObject"
@@ -134,8 +140,61 @@ enum UITestPersistentStoreConfigurator {
         quote.uniquenessConstraints = [["id"]]
 
         let model = NSManagedObjectModel()
-        model.entities = [quote]
+        model.entities = includePreferences ? [quote, self.legacyPreferencesEntity()] : [quote]
         return model
+    }
+
+    private static func legacyPreferencesEntity() -> NSEntityDescription {
+        let preferences = NSEntityDescription()
+        preferences.name = "UserPreferences"
+        preferences.managedObjectClassName = "NSManagedObject"
+        preferences.properties = [
+            self.attribute(named: "id", type: .UUIDAttributeType, isOptional: false),
+            self.attribute(named: "selectedScriptRaw", type: .stringAttributeType, isOptional: false),
+            self.attribute(named: "selectedFontRaw", type: .stringAttributeType, isOptional: false),
+            self.attribute(named: "widgetModeRaw", type: .stringAttributeType, isOptional: false),
+            self.attribute(named: "selectedCollectionRaw", type: .stringAttributeType, isOptional: true),
+            self.attribute(named: "widgetStyleRaw", type: .stringAttributeType, isOptional: true),
+            self.attribute(named: "widgetDecorativeGlyphsEnabledRaw", type: .booleanAttributeType, isOptional: true),
+            self.attribute(named: "selectedThemeRaw", type: .stringAttributeType, isOptional: false),
+            self.attribute(named: "lastUsedPresetRaw", type: .stringAttributeType, isOptional: true),
+            self.attribute(named: "savedQuoteIDsRaw", type: .stringAttributeType, isOptional: true),
+            self.attribute(named: "installedPackIDsRaw", type: .stringAttributeType, isOptional: true),
+            self.attribute(named: "lastUpdated", type: .dateAttributeType, isOptional: false),
+        ]
+        preferences.uniquenessConstraints = [["id"]]
+        return preferences
+    }
+
+    private static func insertLegacyArchivedQuote(in context: NSManagedObjectContext) {
+        let quote = NSEntityDescription.insertNewObject(forEntityName: "Quote", into: context)
+        quote.setValue(self.legacyArchivedQuoteID, forKey: "id")
+        quote.setValue("Legacy trash remains archived.", forKey: "textLatin")
+        quote.setValue("Codex", forKey: "author")
+        quote.setValue("Stoic", forKey: "collectionRaw")
+        quote.setValue("legacy-trash", forKey: "runicCirth")
+        quote.setValue(Date(timeIntervalSince1970: 1_700_000_000), forKey: "createdAt")
+        quote.setValue(false, forKey: "isUserGenerated")
+        quote.setValue(false, forKey: "isHidden")
+        quote.setValue(true, forKey: "isDeleted")
+        quote.setValue(Date(timeIntervalSince1970: 1_700_000_000), forKey: "deletedAt")
+    }
+
+    private static func insertLegacyPreferences(in context: NSManagedObjectContext) {
+        for (index, theme) in [AppTheme.obsidian, AppTheme.nordicDawn].enumerated() {
+            let preferences = NSEntityDescription.insertNewObject(forEntityName: "UserPreferences", into: context)
+            preferences.setValue(UUID(), forKey: "id")
+            preferences.setValue(RunicScript.younger.rawValue, forKey: "selectedScriptRaw")
+            preferences.setValue(RunicFont.babelstone.rawValue, forKey: "selectedFontRaw")
+            preferences.setValue(WidgetMode.random.rawValue, forKey: "widgetModeRaw")
+            preferences.setValue(QuoteCollection.stoic.rawValue, forKey: "selectedCollectionRaw")
+            preferences.setValue(WidgetStyle.translationFirst.rawValue, forKey: "widgetStyleRaw")
+            preferences.setValue(false, forKey: "widgetDecorativeGlyphsEnabledRaw")
+            preferences.setValue(theme.rawValue, forKey: "selectedThemeRaw")
+            preferences.setValue(index == 0 ? self.legacyQuoteID.uuidString : self.legacyArchivedQuoteID.uuidString, forKey: "savedQuoteIDsRaw")
+            preferences.setValue(index == 0 ? "havamal" : "meditations", forKey: "installedPackIDsRaw")
+            preferences.setValue(Date(timeIntervalSince1970: 1_700_000_000 + Double(index)), forKey: "lastUpdated")
+        }
     }
 
     private static func attribute(
