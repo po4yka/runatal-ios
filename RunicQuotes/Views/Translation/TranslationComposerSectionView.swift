@@ -117,7 +117,7 @@ struct TranslationComposerSectionView: View {
 
                     ZStack(alignment: .topLeading) {
                         if self.state.inputText.isEmpty {
-                            Text("Enter up to 280 characters to explore a direct transliteration or a historically constrained rendering.")
+                            Text("Enter up to \(AppConstants.maxQuoteLength) characters to explore a direct transliteration or a historically constrained rendering.")
                                 .font(DesignTokens.Typography.callout)
                                 .foregroundStyle(self.palette.textTertiary)
                                 .padding(.top, DesignTokens.Spacing.sm)

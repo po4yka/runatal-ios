@@ -268,6 +268,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         storedRunic: RunicTextBundle? = nil,
         translations: [TranslationResult] = [],
     ) throws -> QuoteRecord {
+        try QuoteInputValidation.validate(text: textLatin, author: author, collection: collection)
         let record = try self.transaction { context in
             let quote = Quote(textLatin: textLatin, author: author, collection: collection, isUserGenerated: true)
             quote.source = source
@@ -295,6 +296,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         collection: QuoteCollection,
         storedRunic: RunicTextBundle? = nil,
     ) throws -> QuoteRecord {
+        try QuoteInputValidation.validate(text: textLatin, author: author, collection: collection)
         let record = try self.transaction { context in
             let quote = try self.requireQuote(id: id, in: context)
             let textChanged = quote.textLatin != textLatin
@@ -418,7 +420,6 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         guard let quote = try self.fetchQuote(id: id, in: context) else { throw QuoteRepositoryError.quoteNotFound }
         return quote
     }
-
 }
 
 // MARK: - Errors
@@ -495,5 +496,4 @@ private extension SwiftDataQuoteRepository {
             try self.commit(context)
         }
     }
-
 }

@@ -52,9 +52,10 @@ enum CreateEditMode {
 struct QuoteFormValidation {
     var quoteTextError: String?
     var authorError: String?
+    var collectionError: String?
 
     var isValid: Bool {
-        self.quoteTextError == nil && self.authorError == nil
+        self.quoteTextError == nil && self.authorError == nil && self.collectionError == nil
     }
 }
 
@@ -92,7 +93,9 @@ final class CreateEditQuoteViewModel: ObservableObject {
 
     func updateQuoteText(_ text: String) {
         self.state.quoteText = text
-        if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if text.count > AppConstants.maxQuoteLength {
+            self.validation.quoteTextError = QuoteInputError.textTooLong.localizedDescription
+        } else if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             self.validation.quoteTextError = nil
         }
         self.updateRunicPreview()
@@ -111,6 +114,7 @@ final class CreateEditQuoteViewModel: ObservableObject {
 
     func updateCollection(_ collection: QuoteCollection) {
         self.state.collection = collection
+        self.validation.collectionError = collection == .all ? QuoteInputError.invalidCollection.localizedDescription : nil
     }
 
     // MARK: - Validation
@@ -122,6 +126,12 @@ final class CreateEditQuoteViewModel: ObservableObject {
             newValidation.quoteTextError = "Quote text is required"
         }
 
+        if self.state.quoteText.count > AppConstants.maxQuoteLength {
+            newValidation.quoteTextError = QuoteInputError.textTooLong.localizedDescription
+        }
+        if self.state.collection == .all {
+            newValidation.collectionError = QuoteInputError.invalidCollection.localizedDescription
+        }
         if self.state.author.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             newValidation.authorError = "Author name is required"
         }
@@ -200,7 +210,7 @@ final class CreateEditQuoteViewModel: ObservableObject {
 
     private func updateRunicPreview() {
         let text = self.state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else {
+        guard !text.isEmpty, self.state.quoteText.count <= AppConstants.maxQuoteLength else {
             self.state.runicPreview = ""
             self.state.transliterationWarnings = []
             return

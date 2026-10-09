@@ -11,7 +11,7 @@ import os
 import SwiftData
 import SwiftUI
 
-private let translationMaxInputLength = 280
+private let translationMaxInputLength = AppConstants.maxQuoteLength
 
 struct TranslationUiState {
     var inputText: String = ""
@@ -49,7 +49,7 @@ struct TranslationUiState {
     }
 
     var canSave: Bool {
-        guard !self.isInputEmpty, !self.outputText.isEmpty, !self.isSaving else { return false }
+        guard !self.isInputEmpty, self.inputText.count <= translationMaxInputLength, !self.outputText.isEmpty, !self.isSaving else { return false }
         return self.translationMode == .transliterate || (self.resolutionStatus != nil && self.resolutionStatus != .unavailable)
     }
 
@@ -115,7 +115,7 @@ final class TranslationViewModel: ObservableObject {
     }
 
     func updateInputText(_ text: String) {
-        self.state.inputText = String(text.prefix(translationMaxInputLength))
+        self.state.inputText = text
         self.state.errorMessage = nil
         self.state.successMessage = nil
         self.rebuildPresentation()
@@ -181,6 +181,10 @@ final class TranslationViewModel: ObservableObject {
 
     func saveToLibrary() {
         let input = self.state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard self.state.inputText.count <= translationMaxInputLength else {
+            self.state.errorMessage = QuoteInputError.textTooLong.localizedDescription
+            return
+        }
         guard !input.isEmpty else {
             self.state.errorMessage = "Enter a phrase to save."
             return
@@ -254,7 +258,8 @@ final class TranslationViewModel: ObservableObject {
 
     private func rebuildPresentation() {
         let input = self.state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !input.isEmpty else {
+        guard !input.isEmpty, self.state.inputText.count <= translationMaxInputLength else {
+            self.state.errorMessage = self.state.inputText.count > translationMaxInputLength ? QuoteInputError.textTooLong.localizedDescription : self.state.errorMessage
             self.state.outputText = ""
             self.state.normalizedForm = nil
             self.state.diplomaticForm = nil

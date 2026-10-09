@@ -185,6 +185,9 @@ struct CreateEditQuoteView: View {
                         .foregroundStyle(palette.textSecondary)
 
                     self.collectionChips(palette: palette)
+                    if let message = self.viewModel.validation.collectionError {
+                        Text(message).font(.caption).foregroundStyle(palette.error)
+                    }
                 }
             }
         }
