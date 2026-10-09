@@ -27,7 +27,7 @@ struct ReadingAppearanceControllerTests {
         let model = ReadingAppearanceController(repository: preferences, quotes: QuoteProvider(modelContainer: context.container), translations: TranslationProvider(modelContainer: context.container))
         #expect(await TestSupport.eventually { model.script == .younger && model.presentation(for: quote).text == result.glyphOutput })
         #expect(model.font.isCompatible(with: .younger))
-        let edited = try quotes.updateQuote(id: quote.id, textLatin: text, author: "Reader", source: nil, collection: .stoic, storedRunic: RunicTextBundle(elder: nil, younger: "EXACT SAVED OUTPUT", cirth: nil))
+        let edited = try quotes.updateQuote(id: quote.id, textLatin: "An edited source passage", author: "Reader", source: nil, collection: .stoic, storedRunic: RunicTextBundle(elder: nil, younger: "EXACT SAVED OUTPUT", cirth: nil))
         // The new record invalidates the cached presentation immediately, before its event reload.
         #expect(model.presentation(for: edited).text == "EXACT SAVED OUTPUT")
         #expect(model.presentation(for: edited).source == .savedRunicText)
