@@ -30,7 +30,7 @@ struct RunicPresentationTests {
     }
 
     @Test
-    func assessmentForAnotherScriptDoesNotMaskGeneratedOutputOrCurrentCache() {
+    func assessmentForAnotherScriptDoesNotMaskGeneratedOutputOrCurrentCache() throws {
         let service = HistoricalTranslationService()
         let text = "The wolf hunts at night"
         let cirth = service.translate(text: text, script: .cirth, fidelity: .strict)
