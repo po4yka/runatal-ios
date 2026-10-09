@@ -89,6 +89,15 @@
       "license": "Project-owned",
       "licenseNote": "Project-authored deterministic fallback and support logic.",
       "url": "https://github.com/po4yka/runatal-ios"
+    },
+    {
+      "id": "runes_scholarly_database",
+      "name": "RuneS inscription database",
+      "role": "Named inscription sequence and editorial reading verification",
+      "work": "RuneS research database, Göttingen Academy of Sciences and Humanities",
+      "license": "CC-BY-SA-4.0",
+      "licenseNote": "Derived segmented readings cite the specific RuneS entry and signum; RuneS origin-data notices also identify Rundata under ODbL.",
+      "url": "https://www.runesdb.de/"
     }
   ]
 }

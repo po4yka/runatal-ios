@@ -18,7 +18,9 @@
           "resolutionStatus": "RECONSTRUCTED",
           "evidenceTier": "RECONSTRUCTED",
           "supportLevel": "SUPPORTED",
-          "attestationRefs": ["yf_ref_wolf_night"],
+          "attestationRefs": [
+            "yf_ref_wolf_night"
+          ],
           "warningFragments": []
         },
         {
@@ -30,7 +32,9 @@
           "resolutionStatus": "RECONSTRUCTED",
           "evidenceTier": "RECONSTRUCTED",
           "supportLevel": "SUPPORTED",
-          "attestationRefs": ["ef_ref_wolf_night"],
+          "attestationRefs": [
+            "ef_ref_wolf_night"
+          ],
           "warningFragments": []
         }
       ]
@@ -53,7 +57,9 @@
           "resolutionStatus": "RECONSTRUCTED",
           "evidenceTier": "RECONSTRUCTED",
           "supportLevel": "SUPPORTED",
-          "attestationRefs": ["yf_ref_king_mountain"],
+          "attestationRefs": [
+            "yf_ref_king_mountain"
+          ],
           "warningFragments": []
         }
       ]
@@ -72,10 +78,12 @@
           "normalizedForm": "wulfaz",
           "diplomaticForm": "wulfaz",
           "glyphOutput": "ᚹᚢᛚᚠᚨᛉ",
-          "resolutionStatus": "ATTESTED",
-          "evidenceTier": "ATTESTED",
+          "resolutionStatus": "RECONSTRUCTED",
+          "evidenceTier": "RECONSTRUCTED",
           "supportLevel": "SUPPORTED",
-          "attestationRefs": ["ef_ref_wulfaz"],
+          "attestationRefs": [
+            "ef_ref_wulfaz"
+          ],
           "warningFragments": []
         }
       ]
@@ -101,6 +109,110 @@
           "warningFragments": [
             "English input only"
           ]
+        }
+      ]
+    },
+    {
+      "id": "elder_gallehus_dr12-source-benchmark",
+      "category": "named_inscription",
+      "sourceText": "I, Hlewagastiz Holtijaz, made the horn.",
+      "notes": [
+        "DR 12 / KJ 43 / SJy 60",
+        "https://www.runesdb.de/en/find/28"
+      ],
+      "expectations": [
+        {
+          "script": "ELDER_FUTHARK",
+          "fidelity": "STRICT",
+          "requestedVariant": null,
+          "normalizedForm": "ek hlewagastiz holtijaz horna tawido",
+          "diplomaticForm": "ek hlewagastiz holtijaz horna tawido",
+          "glyphOutput": "ᛖᚲ ᚺᛚᛖᚹᚨᚷᚨᛊᛏᛁᛉ ᚺᛟᛚᛏᛁᛃᚨᛉ ᚺᛟᚱᚾᚨ ᛏᚨᚹᛁᛞᛟ",
+          "resolutionStatus": "ATTESTED",
+          "evidenceTier": "ATTESTED",
+          "supportLevel": "SUPPORTED",
+          "attestationRefs": [
+            "elder_gallehus_dr12-reference"
+          ],
+          "warningFragments": []
+        }
+      ]
+    },
+    {
+      "id": "elder_vimose_dr207-source-benchmark",
+      "category": "named_inscription",
+      "sourceText": "Harja",
+      "notes": [
+        "DR 207 / KJ 26 / Fyn 19",
+        "https://www.runesdb.de/en/find/20"
+      ],
+      "expectations": [
+        {
+          "script": "ELDER_FUTHARK",
+          "fidelity": "STRICT",
+          "requestedVariant": null,
+          "normalizedForm": "harja",
+          "diplomaticForm": "harja",
+          "glyphOutput": "ᚺᚨᚱᛃᚨ",
+          "resolutionStatus": "ATTESTED",
+          "evidenceTier": "ATTESTED",
+          "supportLevel": "SUPPORTED",
+          "attestationRefs": [
+            "elder_vimose_dr207-reference"
+          ],
+          "warningFragments": []
+        }
+      ]
+    },
+    {
+      "id": "younger_jelling_dr41-source-benchmark",
+      "category": "named_inscription",
+      "sourceText": "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.",
+      "notes": [
+        "DR 41 / SJy 10",
+        "https://www.runesdb.de/en/find/1158"
+      ],
+      "expectations": [
+        {
+          "script": "YOUNGER_FUTHARK",
+          "fidelity": "STRICT",
+          "requestedVariant": "LONG_BRANCH",
+          "normalizedForm": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but",
+          "diplomaticForm": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but",
+          "glyphOutput": "ᚴᚢᚱᛘᛦ ᚴᚢᚾᚢᚴᛦ ᚴᛅᚱᚦᛁ ᚴᚢᛒᛚ ᚦᚢᛋᛁ ᛅᚠᛏ ᚦᚢᚱᚢᛁ ᚴᚢᚾᚢ ᛋᛁᚾᛅ ᛏᛅᚾᛘᛅᚱᚴᛅᛦ ᛒᚢᛏ",
+          "resolutionStatus": "RECONSTRUCTED",
+          "evidenceTier": "RECONSTRUCTED",
+          "supportLevel": "SUPPORTED",
+          "attestationRefs": [
+            "younger_jelling_dr41-reference"
+          ],
+          "warningFragments": []
+        }
+      ]
+    },
+    {
+      "id": "younger_jelling_dr42-source-benchmark",
+      "category": "named_inscription",
+      "sourceText": "King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.",
+      "notes": [
+        "DR 42 / SJy 11",
+        "https://www.runesdb.de/en/find/1159"
+      ],
+      "expectations": [
+        {
+          "script": "YOUNGER_FUTHARK",
+          "fidelity": "STRICT",
+          "requestedVariant": "LONG_BRANCH",
+          "normalizedForm": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina",
+          "diplomaticForm": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina",
+          "glyphOutput": "ᚼᛅᚱᛅᛚᛏᚱ ᚴᚢᚾᚢᚴᛦ ᛒᛅᚦ ᚴᛅᚢᚱᚢᛅ ᚴᚢᛒᛚ ᚦᛅᚢᛋᛁ ᛅᚠᛏ ᚴᚢᚱᛘ ᚠᛅᚦᚢᚱ ᛋᛁᚾ ᛅᚢᚴ ᛅᚠᛏ ᚦᚬᚢᚱᚢᛁ ᛘᚢᚦᚢᚱ ᛋᛁᚾᛅ",
+          "resolutionStatus": "ATTESTED",
+          "evidenceTier": "ATTESTED",
+          "supportLevel": "SUPPORTED",
+          "attestationRefs": [
+            "younger_jelling_dr42-reference"
+          ],
+          "warningFragments": []
         }
       ]
     }

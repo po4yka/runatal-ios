@@ -44,4 +44,22 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertEqual(result.glyphOutput, "ᚢᛚᚠᚱ 👩‍💻")
     }
 
+    func testNamedInscriptionTemplatesExposeRealAttestationAndReferences() {
+        let horn = self.service.translate(text: "I, Hlewagastiz Holtijaz, made the horn.", script: .elder)
+        XCTAssertEqual(horn.glyphOutput, "ᛖᚲ ᚺᛚᛖᚹᚨᚷᚨᛊᛏᛁᛉ ᚺᛟᛚᛏᛁᛃᚨᛉ ᚺᛟᚱᚾᚨ ᛏᚨᚹᛁᛞᛟ")
+        XCTAssertEqual(horn.evidenceTier, .attested)
+        XCTAssertEqual(horn.attestationRefs, ["elder_gallehus_dr12-reference"])
+        let name = self.service.translate(text: "Harja", script: .elder)
+        XCTAssertEqual(name.glyphOutput, "ᚺᚨᚱᛃᚨ")
+        XCTAssertEqual(name.evidenceTier, .attested)
+        let restored = self.service.translate(text: "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.", script: .younger)
+        XCTAssertTrue(restored.isAvailable)
+        XCTAssertEqual(restored.evidenceTier, .reconstructed)
+        let recorded = self.service.translate(text: "King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.", script: .younger)
+        XCTAssertTrue(recorded.isAvailable)
+        XCTAssertEqual(recorded.evidenceTier, .attested)
+        XCTAssertEqual(recorded.attestationRefs, ["younger_jelling_dr42-reference"])
+        XCTAssertEqual(self.service.translate(text: "Wolf", script: .elder).evidenceTier, .reconstructed)
+    }
+
 }

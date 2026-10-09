@@ -17,7 +17,7 @@ struct TranslationDatasetValidationTests {
     func datasetManifestDeclaresSourceOfTruthPackage() {
         let manifest = self.provider.datasetManifest()
 
-        #expect(manifest.version == "2026.10-runes-r1")
+        #expect(manifest.version == "2026.10-runes-i5")
         #expect(manifest.sourceOfTruthPackage == "TranslationCuration/translation-curation-v1")
     }
 

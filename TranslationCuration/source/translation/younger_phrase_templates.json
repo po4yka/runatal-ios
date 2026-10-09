@@ -59,5 +59,77 @@
         ]
       }
     ]
+  },
+  {
+    "id": "younger_jelling_dr41",
+    "script": "YOUNGER_FUTHARK",
+    "fidelity": "STRICT",
+    "derivationKind": "PHRASE_TEMPLATE",
+    "historicalStage": "OLD_NORSE",
+    "sourceText": "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.",
+    "normalizedForm": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but",
+    "diplomaticForm": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but",
+    "resolutionStatus": "RECONSTRUCTED",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "sourceWork": "RuneS: Jelling stone1",
+    "licenseNote": "Derived segmented transliteration and literal English rendering from the named RuneS inscription entry;retain original signum,URL,authoring institution,and license.",
+    "regressionId": "younger_jelling_dr41-strict-v1",
+    "notes": [
+      "The monument and textual formula are attested.",
+      "The source marks letters in k(a)(r)þi and a(f)(t) as uncertain; this readable restoration is reconstructed, not attested-only output.",
+      "Normalized form here is an editorial segmented runic transliteration, not a reconstructed standardized West Old Norse orthography.",
+      "Glyphs use standard display forms; the textual sequence is cited, not a facsimile of the original object."
+    ],
+    "referenceIds": [
+      "younger_jelling_dr41-reference"
+    ],
+    "tokenBreakdown": [
+      {
+        "sourceToken": "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.",
+        "normalizedToken": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but",
+        "diplomaticToken": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but",
+        "resolutionStatus": "RECONSTRUCTED",
+        "referenceIds": [
+          "younger_jelling_dr41-reference"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "younger_jelling_dr42",
+    "script": "YOUNGER_FUTHARK",
+    "fidelity": "STRICT",
+    "derivationKind": "PHRASE_TEMPLATE",
+    "historicalStage": "OLD_NORSE",
+    "sourceText": "King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.",
+    "normalizedForm": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina",
+    "diplomaticForm": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina",
+    "resolutionStatus": "ATTESTED",
+    "attestationStatus": "ATTESTED",
+    "inventory": "ATTESTED_FORMULA",
+    "sourceWork": "RuneS: Jelling stone2,sideA,firstclause",
+    "licenseNote": "Derived segmented transliteration and literal English rendering from the named RuneS inscription entry;retain original signum,URL,authoring institution,and license.",
+    "regressionId": "younger_jelling_dr42-strict-v1",
+    "notes": [
+      "English wording is a literal rendering of the clearly recorded first memorial clause.",
+      "The excerpt ends before the later clause containing uncertain letters on sideC.",
+      "Normalized form here is an editorial segmented runic transliteration, not a reconstructed standardized West Old Norse orthography.",
+      "Glyphs use standard display forms; the textual sequence is cited, not a facsimile of the original object."
+    ],
+    "referenceIds": [
+      "younger_jelling_dr42-reference"
+    ],
+    "tokenBreakdown": [
+      {
+        "sourceToken": "King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.",
+        "normalizedToken": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina",
+        "diplomaticToken": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina",
+        "resolutionStatus": "ATTESTED",
+        "referenceIds": [
+          "younger_jelling_dr42-reference"
+        ]
+      }
+    ]
   }
 ]

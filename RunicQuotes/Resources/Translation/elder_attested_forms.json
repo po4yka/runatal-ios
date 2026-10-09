@@ -8,14 +8,14 @@
     "sourceText": "Wolf",
     "normalizedForm": "wulfaz",
     "diplomaticForm": "wulfaz",
-    "resolutionStatus": "ATTESTED",
-    "attestationStatus": "ATTESTED",
-    "inventory": "ATTESTED_FORMULA",
-    "sourceWork": "SRD short-form inventory",
-    "licenseNote": "Reference-only runic formula guidance.",
+    "resolutionStatus": "RECONSTRUCTED",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "sourceWork": "Runatal constrained lexical reconstruction",
+    "licenseNote": "Project-authored proposed spelling; no exact inscription attestation verified.",
     "regressionId": "ef_wolf_template",
     "notes": [
-      "Matched a curated short Elder Futhark formula for 'wolf'."
+      "A proposed reconstructed lexical spelling, not an attested inscription."
     ],
     "referenceIds": [
       "ef_ref_wulfaz"
@@ -25,7 +25,7 @@
         "sourceToken": "wolf",
         "normalizedToken": "wulfaz",
         "diplomaticToken": "wulfaz",
-        "resolutionStatus": "ATTESTED",
+        "resolutionStatus": "RECONSTRUCTED",
         "referenceIds": [
           "ef_ref_wulfaz"
         ]
@@ -41,14 +41,14 @@
     "sourceText": "The king",
     "normalizedForm": "kuningaz",
     "diplomaticForm": "kuningaz",
-    "resolutionStatus": "ATTESTED",
-    "attestationStatus": "ATTESTED",
-    "inventory": "ATTESTED_FORMULA",
-    "sourceWork": "SRD short-form inventory",
-    "licenseNote": "Reference-only runic formula guidance.",
+    "resolutionStatus": "RECONSTRUCTED",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "sourceWork": "Runatal constrained lexical reconstruction",
+    "licenseNote": "Project-authored proposed spelling; no exact inscription attestation verified.",
     "regressionId": "ef_king_template",
     "notes": [
-      "Matched a curated short Elder Futhark formula for 'the king'."
+      "A proposed reconstructed lexical spelling, not an attested inscription."
     ],
     "referenceIds": [
       "ef_ref_kuningaz"
@@ -58,9 +58,80 @@
         "sourceToken": "king",
         "normalizedToken": "kuningaz",
         "diplomaticToken": "kuningaz",
-        "resolutionStatus": "ATTESTED",
+        "resolutionStatus": "RECONSTRUCTED",
         "referenceIds": [
           "ef_ref_kuningaz"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "elder_gallehus_dr12",
+    "script": "ELDER_FUTHARK",
+    "fidelity": "STRICT",
+    "derivationKind": "PHRASE_TEMPLATE",
+    "historicalStage": "PROTO_NORSE",
+    "sourceText": "I, Hlewagastiz Holtijaz, made the horn.",
+    "normalizedForm": "ek hlewagastiz holtijaz horna tawido",
+    "diplomaticForm": "ek hlewagastiz holtijaz horna tawido",
+    "resolutionStatus": "ATTESTED",
+    "attestationStatus": "ATTESTED",
+    "inventory": "ATTESTED_FORMULA",
+    "sourceWork": "RuneS: Gallehus, gold horn B",
+    "licenseNote": "Derived segmented transliteration and literal English rendering from the named RuneS inscription entry;retain original signum,URL,authoring institution,and license.",
+    "regressionId": "elder_gallehus_dr12-strict-v1",
+    "notes": [
+      "English wording is a literal rendering of the recorded inscription.",
+      "The destroyed original survives through historical drawings; standard Unicode glyphs are an editorial display, not a facsimile.",
+      "Holtijaz is retained as the recorded name/byname; its disputed etymological expansion is not asserted.",
+      "Glyphs use standard display forms; the textual sequence is cited, not a facsimile of the original object."
+    ],
+    "referenceIds": [
+      "elder_gallehus_dr12-reference"
+    ],
+    "tokenBreakdown": [
+      {
+        "sourceToken": "I, Hlewagastiz Holtijaz, made the horn.",
+        "normalizedToken": "ek hlewagastiz holtijaz horna tawido",
+        "diplomaticToken": "ek hlewagastiz holtijaz horna tawido",
+        "resolutionStatus": "ATTESTED",
+        "referenceIds": [
+          "elder_gallehus_dr12-reference"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "elder_vimose_dr207",
+    "script": "ELDER_FUTHARK",
+    "fidelity": "STRICT",
+    "derivationKind": "PHRASE_TEMPLATE",
+    "historicalStage": "PROTO_NORSE",
+    "sourceText": "Harja",
+    "normalizedForm": "harja",
+    "diplomaticForm": "harja",
+    "resolutionStatus": "ATTESTED",
+    "attestationStatus": "ATTESTED",
+    "inventory": "ATTESTED_FORMULA",
+    "sourceWork": "RuneS: Vimose comb",
+    "licenseNote": "Derived segmented transliteration and literal English rendering from the named RuneS inscription entry;retain original signum,URL,authoring institution,and license.",
+    "regressionId": "elder_vimose_dr207-strict-v1",
+    "notes": [
+      "This is the recorded personal-name short form, not a general English-to-Proto-Norse sentence translation.",
+      "The literal name is retained without choosing the debated name etymology.",
+      "Glyphs use standard display forms; the textual sequence is cited, not a facsimile of the original object."
+    ],
+    "referenceIds": [
+      "elder_vimose_dr207-reference"
+    ],
+    "tokenBreakdown": [
+      {
+        "sourceToken": "Harja",
+        "normalizedToken": "harja",
+        "diplomaticToken": "harja",
+        "resolutionStatus": "ATTESTED",
+        "referenceIds": [
+          "elder_vimose_dr207-reference"
         ]
       }
     ]

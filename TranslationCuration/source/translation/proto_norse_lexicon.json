@@ -5,8 +5,14 @@
     "form": "wulfaz",
     "partOfSpeech": "noun",
     "strictEligible": true,
-    "sourceId": "srd",
-    "citations": ["Curated runic-era reconstruction"]
+    "sourceId": "internal_heuristics",
+    "citations": [
+      "Proposed lexical form; exact inscription attestation not verified"
+    ],
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "sourceWork": "Runatal constrained lexical reconstruction",
+    "licenseNote": "Project-authored proposed spelling, not corpus attestation."
   },
   {
     "id": "pn_kuningaz",
@@ -14,8 +20,14 @@
     "form": "kuningaz",
     "partOfSpeech": "noun",
     "strictEligible": true,
-    "sourceId": "srd",
-    "citations": ["Curated runic-era reconstruction"]
+    "sourceId": "internal_heuristics",
+    "citations": [
+      "Proposed lexical form; exact inscription attestation not verified"
+    ],
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "sourceWork": "Runatal constrained lexical reconstruction",
+    "licenseNote": "Project-authored proposed spelling, not corpus attestation."
   },
   {
     "id": "pn_waithi",
@@ -24,7 +36,9 @@
     "partOfSpeech": "verb",
     "strictEligible": false,
     "sourceId": "internal_heuristics",
-    "citations": ["Approximation"]
+    "citations": [
+      "Approximation"
+    ]
   },
   {
     "id": "pn_nahts",
@@ -33,7 +47,9 @@
     "partOfSpeech": "noun",
     "strictEligible": false,
     "sourceId": "internal_heuristics",
-    "citations": ["Approximation"]
+    "citations": [
+      "Approximation"
+    ]
   },
   {
     "id": "pn_berga",
@@ -42,7 +58,9 @@
     "partOfSpeech": "noun",
     "strictEligible": false,
     "sourceId": "internal_heuristics",
-    "citations": ["Approximation"]
+    "citations": [
+      "Approximation"
+    ]
   },
   {
     "id": "pn_ferdi",
@@ -51,7 +69,9 @@
     "partOfSpeech": "noun",
     "strictEligible": false,
     "sourceId": "internal_heuristics",
-    "citations": ["Approximation"]
+    "citations": [
+      "Approximation"
+    ]
   },
   {
     "id": "pn_werka",
@@ -60,7 +80,9 @@
     "partOfSpeech": "noun",
     "strictEligible": false,
     "sourceId": "internal_heuristics",
-    "citations": ["Approximation"]
+    "citations": [
+      "Approximation"
+    ]
   },
   {
     "id": "pn_isti",
@@ -69,7 +91,9 @@
     "partOfSpeech": "verb",
     "strictEligible": false,
     "sourceId": "internal_heuristics",
-    "citations": ["Approximation"]
+    "citations": [
+      "Approximation"
+    ]
   },
   {
     "id": "pn_eki",
@@ -86,7 +110,9 @@
     "historicalStage": "PROTO_NORSE",
     "licenseNote": "Project-authored conservative readable approximation.",
     "regressionId": "pn_not_readable",
-    "citations": ["Approximation"]
+    "citations": [
+      "Approximation"
+    ]
   },
   {
     "id": "pn_haidra",
@@ -103,6 +129,8 @@
     "historicalStage": "PROTO_NORSE",
     "licenseNote": "Project-authored readable approximation.",
     "regressionId": "pn_honor_readable",
-    "citations": ["Approximation"]
+    "citations": [
+      "Approximation"
+    ]
   }
 ]

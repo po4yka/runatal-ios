@@ -25,15 +25,15 @@
   },
   {
     "id": "ef_ref_wulfaz",
-    "sourceId": "srd",
-    "label": "Wulfaz attested-form reference",
-    "detail": "Curated short Elder Futhark formula for 'wolf'.",
-    "sourceWork": "Scandinavian Runic-text Database",
-    "attestationStatus": "ATTESTED",
+    "sourceId": "internal_heuristics",
+    "label": "Runatal reconstructed lexical spelling",
+    "detail": "Hypothetical lexical reconstruction; an exact inscription attestation has not been verified.",
+    "sourceWork": "Runatal constrained lexical reconstruction",
+    "attestationStatus": "RECONSTRUCTED",
     "historicalStage": "PROTO_NORSE",
-    "licenseNote": "Reference-only corpus comparison.",
+    "licenseNote": "Project-authored reconstruction, not a quoted inscription.",
     "regressionId": "ef_ref_wulfaz",
-    "url": "https://www.runesdb.eu/en/"
+    "url": "https://github.com/po4yka/runatal-ios"
   },
   {
     "id": "ef_ref_wolf_night",
@@ -49,15 +49,15 @@
   },
   {
     "id": "ef_ref_kuningaz",
-    "sourceId": "srd",
-    "label": "Kuningaz attested-form reference",
-    "detail": "Curated short Elder Futhark formula for 'the king'.",
-    "sourceWork": "Scandinavian Runic-text Database",
-    "attestationStatus": "ATTESTED",
+    "sourceId": "internal_heuristics",
+    "label": "Runatal reconstructed lexical spelling",
+    "detail": "Hypothetical lexical reconstruction; an exact inscription attestation has not been verified.",
+    "sourceWork": "Runatal constrained lexical reconstruction",
+    "attestationStatus": "RECONSTRUCTED",
     "historicalStage": "PROTO_NORSE",
-    "licenseNote": "Reference-only corpus comparison.",
+    "licenseNote": "Project-authored reconstruction, not a quoted inscription.",
     "regressionId": "ef_ref_kuningaz",
-    "url": "https://www.runesdb.eu/en/"
+    "url": "https://github.com/po4yka/runatal-ios"
   },
   {
     "id": "cirth_ref_wolf_night",
@@ -82,5 +82,53 @@
     "licenseNote": "Reference-only transcription guidance.",
     "regressionId": "cirth_ref_under_mountain",
     "url": "https://tolkiengateway.net/wiki/Angerthas_Erebor"
+  },
+  {
+    "id": "elder_gallehus_dr12-reference",
+    "sourceId": "runes_scholarly_database",
+    "label": "RuneS: Gallehus, gold horn B (DR 12 / KJ 43 / SJy 60)",
+    "detail": "DR 12 / KJ 43 / SJy 60; c.400CE. English wording is a literal rendering of the recorded inscription.",
+    "url": "https://www.runesdb.de/en/find/28",
+    "sourceWork": "RuneS: Gallehus, gold horn B",
+    "attestationStatus": "ATTESTED",
+    "historicalStage": "PROTO_NORSE",
+    "licenseNote": "Derived segmented transliteration and literal English rendering from the named RuneS inscription entry;retain original signum,URL,authoring institution,and license.",
+    "regressionId": "elder_gallehus_dr12-strict-v1"
+  },
+  {
+    "id": "elder_vimose_dr207-reference",
+    "sourceId": "runes_scholarly_database",
+    "label": "RuneS: Vimose comb (DR 207 / KJ 26 / Fyn 19)",
+    "detail": "DR 207 / KJ 26 / Fyn 19; 140-160CE. This is the recorded personal-name short form, not a general English-to-Proto-Norse sentence translation.",
+    "url": "https://www.runesdb.de/en/find/20",
+    "sourceWork": "RuneS: Vimose comb",
+    "attestationStatus": "ATTESTED",
+    "historicalStage": "PROTO_NORSE",
+    "licenseNote": "Derived segmented transliteration and literal English rendering from the named RuneS inscription entry;retain original signum,URL,authoring institution,and license.",
+    "regressionId": "elder_vimose_dr207-strict-v1"
+  },
+  {
+    "id": "younger_jelling_dr41-reference",
+    "sourceId": "runes_scholarly_database",
+    "label": "RuneS: Jelling stone1 (DR 41 / SJy 10)",
+    "detail": "DR 41 / SJy 10; 940-955CE. The monument and textual formula are attested.",
+    "url": "https://www.runesdb.de/en/find/1158",
+    "sourceWork": "RuneS: Jelling stone1",
+    "attestationStatus": "RECONSTRUCTED",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Derived segmented transliteration and literal English rendering from the named RuneS inscription entry;retain original signum,URL,authoring institution,and license.",
+    "regressionId": "younger_jelling_dr41-strict-v1"
+  },
+  {
+    "id": "younger_jelling_dr42-reference",
+    "sourceId": "runes_scholarly_database",
+    "label": "RuneS: Jelling stone2,sideA,firstclause (DR 42 / SJy 11)",
+    "detail": "DR 42 / SJy 11; c.965-970CE. English wording is a literal rendering of the clearly recorded first memorial clause.",
+    "url": "https://www.runesdb.de/en/find/1159",
+    "sourceWork": "RuneS: Jelling stone2,sideA,firstclause",
+    "attestationStatus": "ATTESTED",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Derived segmented transliteration and literal English rendering from the named RuneS inscription entry;retain original signum,URL,authoring institution,and license.",
+    "regressionId": "younger_jelling_dr42-strict-v1"
   }
 ]
