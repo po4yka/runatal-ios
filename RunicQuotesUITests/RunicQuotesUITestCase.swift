@@ -225,12 +225,9 @@ class RunicQuotesUITestCase: XCTestCase {
     }
 
     func tapElement(_ element: XCUIElement) {
-        if element.isHittable {
-            element.tap()
-            return
-        }
-
-        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        // Native tap resolves a hit point and scrolls an offscreen element into view.
+        // A coordinate fallback can hit the keyboard or a different visible control.
+        element.tap()
     }
 
     func translationLink(in app: XCUIApplication) -> XCUIElement {
