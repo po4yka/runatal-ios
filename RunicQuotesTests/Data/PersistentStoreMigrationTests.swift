@@ -40,7 +40,7 @@ struct PersistentStoreMigrationTests {
         #expect(snapshot.installedPackIDs == ["havamal", "meditations"])
         let quotes = SwiftDataQuoteRepository(modelContext: context)
         try quotes.seedIfNeeded()
-        let after = try #require(quotes.quote(id: before.id))
+        let after = try #require(try quotes.quote(id: before.id))
         #expect(after.textLatin == before.textLatin)
         #expect(after.runicCirth == "legacy")
         #expect(!after.isHidden && !after.isDeleted)
