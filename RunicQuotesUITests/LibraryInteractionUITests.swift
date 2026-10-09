@@ -111,10 +111,7 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
         XCTAssertTrue(reference.exists)
         self.tapElement(reference)
         XCTAssertTrue(app.navigationBars["Rune Reference"].waitForExistence(timeout: 5))
-        let cirth = self.findElement(in: app, identifier: "script_option_CIRTH", maxSwipes: 3)
-        self.tapElement(cirth)
-        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: cirth)
-        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+        self.selectScriptButton(in: app, script: "CIRTH")
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Certh 1")).firstMatch.exists)
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Actual-Cirth-numbered-reference-catalog"
@@ -124,16 +121,7 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
 
     func testCirthShareUsesActualFontAndDisclosesCopyRequirements() {
         let app = self.requireApp()
-        self.waitForQuoteCard(in: app)
-        let options = app.buttons.matching(identifier: "script_option_CIRTH")
-        XCTAssertEqual(options.count, 1)
-        self.tapElement(options.element(boundBy: 0))
-        self.waitForQuoteCard(in: app)
-        let refreshedOptions = app.buttons.matching(identifier: "script_option_CIRTH")
-        XCTAssertEqual(refreshedOptions.count, 1)
-        let cirth = refreshedOptions.element(boundBy: 0)
-        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: cirth)
-        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+        self.selectHomeScript(in: app, script: "CIRTH")
         let selectorAttachment = XCTAttachment(screenshot: app.screenshot())
         selectorAttachment.name = "Actual-Home-script-selector-with-Cirth"
         selectorAttachment.lifetime = .keepAlways

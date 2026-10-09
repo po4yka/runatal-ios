@@ -122,9 +122,29 @@ class RunicQuotesUITestCase: XCTestCase {
     }
 
     func selectYoungerTranslationScript(in app: XCUIApplication) {
-        let youngerButton = self.findElement(in: app, identifier: "script_option_YOUNGER_FUTHARK", maxSwipes: 3)
-        XCTAssertTrue(youngerButton.waitForExistence(timeout: 5), "Translation script selector should exist")
-        self.tapElement(youngerButton)
+        self.selectScriptButton(in: app.otherElements["translation_script_selector"], script: "YOUNGER_FUTHARK")
+    }
+
+    func selectHomeScript(in app: XCUIApplication, script: String) {
+        self.waitForQuoteCard(in: app)
+        self.selectScriptButton(in: app.otherElements["quote_script_selector"], script: script) {
+            self.waitForQuoteCard(in: app)
+        }
+    }
+
+    func selectScriptButton(in container: XCUIElement, script: String, afterTap: () -> Void = {}) {
+        let identifier = "script_option_\(script)"
+        let options = container.buttons.matching(identifier: identifier)
+        XCTAssertTrue(options.element(boundBy: 0).waitForExistence(timeout: 5), "Native script button should exist")
+        XCTAssertEqual(options.count, 1)
+        self.tapElement(options.element(boundBy: 0))
+        afterTap()
+        let refreshedOptions = container.buttons.matching(identifier: identifier)
+        XCTAssertEqual(refreshedOptions.count, 1)
+        let selected = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", "Selected"), object: refreshedOptions.element(boundBy: 0),
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
     }
 
     func openSettings(in app: XCUIApplication) {

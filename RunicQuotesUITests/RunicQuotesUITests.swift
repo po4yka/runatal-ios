@@ -45,8 +45,10 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
 
     func testScriptSelectorExists() {
         let app = self.requireApp()
+        self.waitForQuoteCard(in: app)
         for script in ["ELDER_FUTHARK", "YOUNGER_FUTHARK", "CIRTH"] {
             XCTAssertTrue(app.buttons["script_option_\(script)"].waitForExistence(timeout: 5))
+            XCTAssertEqual(app.buttons.matching(identifier: "script_option_\(script)").count, 1)
         }
         XCTAssertEqual(app.buttons["script_option_ELDER_FUTHARK"].value as? String, "Selected")
     }
@@ -54,12 +56,7 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
     func testSwitchingScripts() {
         let app = self.requireApp()
         for script in ["YOUNGER_FUTHARK", "CIRTH", "ELDER_FUTHARK"] {
-            let option = self.findElement(in: app, identifier: "script_option_\(script)", maxSwipes: 3)
-            XCTAssertTrue(option.exists)
-            self.tapElement(option)
-            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: option)
-            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
-            self.waitForQuoteCard(in: app)
+            self.selectHomeScript(in: app, script: script)
             let attachment = XCTAttachment(screenshot: app.screenshot())
             attachment.name = "Home-\(script)-actual-registered-font"
             attachment.lifetime = .keepAlways

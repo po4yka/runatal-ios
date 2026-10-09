@@ -43,10 +43,7 @@ final class RunicQuotesUISmokeTests: RunicQuotesUITestCase {
         let quote = app.staticTexts["quoteText"]
         let restored = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", self.legacyQuoteText), object: quote)
         XCTAssertEqual(XCTWaiter.wait(for: [restored], timeout: 8), .completed)
-        let elder = self.findElement(in: app, identifier: "script_option_ELDER_FUTHARK", maxSwipes: 3)
-        self.tapElement(elder)
-        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: elder)
-        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+        self.selectHomeScript(in: app, script: "ELDER_FUTHARK")
         let runic = app.descendants(matching: .any)["runic_text"]
         XCTAssertEqual(runic.value as? String, "ᛚᛖᚷᚨᚲᛁ", "Exact user-owned legacy rune text must survive")
         self.assertNoFallbackBanner(in: app)
