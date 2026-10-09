@@ -84,6 +84,9 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         descriptor.fetchLimit = 1
 
         if let existing = try context.fetch(descriptor).first {
+            existing.derivationKindRaw = result.derivationKind.rawValue
+            existing.historicalStageRaw = result.historicalStage.rawValue
+            existing.createdAt = result.createdAt
             existing.normalizedForm = result.normalizedForm
             existing.diplomaticForm = result.diplomaticForm
             existing.glyphOutput = result.glyphOutput
