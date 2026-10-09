@@ -39,27 +39,27 @@ struct RunicQuotesApp: App {
         registerProviderFactories()
         UITestPersistentStoreConfigurator.prepareIfNeeded()
         let featureDiscoveryController = FeatureDiscoveryController()
-        self.featureDiscoveryController = featureDiscoveryController
-
+        let initializedContainer: ModelContainer
+        let fallbackMessage: String?
         do {
-            let container = try ModelContainerHelper.createMainContainer()
-            self.modelContainer = container
-            self.rootComponent = AppRootComponent(modelContainer: container)
-
+            initializedContainer = try ModelContainerHelper.createMainContainer()
+            fallbackMessage = nil
         } catch {
             Self.logger.critical("Failed to create ModelContainer: \(error.localizedDescription)")
-
-            // Fallback to in-memory container
             Self.logger.info("Attempting to create fallback in-memory container")
-            let placeholderContainer = ModelContainerHelper.createPlaceholderContainer()
-            self.modelContainer = placeholderContainer
-            self.rootComponent = AppRootComponent(modelContainer: placeholderContainer)
-            self.databaseErrorMessage = "Using temporary database. Data will not be saved."
-            self.showDatabaseError = true
-
+            initializedContainer = ModelContainerHelper.createPlaceholderContainer()
+            fallbackMessage = "Using temporary database. Data will not be saved."
         }
 
-        _bootstrapViewModel = StateObject(wrappedValue: self.rootComponent.bootstrapViewModel)
+        let initializedRoot = AppRootComponent(modelContainer: initializedContainer)
+        self.modelContainer = initializedContainer
+        self.rootComponent = initializedRoot
+        self.featureDiscoveryController = featureDiscoveryController
+        _bootstrapViewModel = StateObject(wrappedValue: initializedRoot.bootstrapViewModel)
+        if let fallbackMessage {
+            self.databaseErrorMessage = fallbackMessage
+            self.showDatabaseError = true
+        }
         UNUserNotificationCenter.current().delegate = self.rootComponent.dailyReminderNotificationDelegate
         _ = self.rootComponent.widgetRefreshCoordinator
         self.featureDiscoveryController.configureForLaunch(processInfo: .processInfo)
