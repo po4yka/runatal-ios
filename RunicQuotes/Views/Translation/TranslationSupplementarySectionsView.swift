@@ -215,7 +215,7 @@ struct TranslationSupplementarySectionsView: View {
                     .font(DesignTokens.Typography.sectionTitle)
                     .foregroundStyle(self.palette.textPrimary)
 
-                ForEach(self.state.tokenBreakdown.enumerated(), id: \.element.id) { index, token in
+                ForEach(self.state.tokenBreakdown.enumerated(), id: \.offset) { index, token in
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                         HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
                             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {

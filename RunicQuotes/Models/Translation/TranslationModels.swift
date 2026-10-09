@@ -300,7 +300,7 @@ struct TranslationProvenanceEntry: Codable, Hashable {
 }
 
 /// Per-token translation trace for educational UI and persistence.
-struct TranslationTokenBreakdown: Codable, Hashable, Identifiable {
+struct TranslationTokenBreakdown: Codable, Hashable {
     let sourceToken: String
     let normalizedToken: String
     let diplomaticToken: String
@@ -308,9 +308,6 @@ struct TranslationTokenBreakdown: Codable, Hashable, Identifiable {
     let resolutionStatus: TranslationResolutionStatus
     let provenance: [TranslationProvenanceEntry]
 
-    var id: String {
-        "\(self.sourceToken)|\(self.normalizedToken)|\(self.diplomaticToken)|\(self.glyphToken)"
-    }
 }
 
 /// Input for a historical translation engine.

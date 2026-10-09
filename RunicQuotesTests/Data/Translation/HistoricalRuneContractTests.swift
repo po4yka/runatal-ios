@@ -142,4 +142,13 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertEqual(preserved.evidenceTier, .approximate)
     }
 
+    func testRepeatedWordBreakdownPreservesEveryOrderedOccurrence() throws {
+        let result = self.service.translate(text: "wolf wolf wolf", script: .younger)
+        XCTAssertEqual(result.tokenBreakdown.count, 3)
+        XCTAssertEqual(result.tokenBreakdown.map(\.sourceToken), ["wolf", "wolf", "wolf"])
+        XCTAssertEqual(result.glyphOutput, "ᚢᛚᚠᚱ ᚢᛚᚠᚱ ᚢᛚᚠᚱ")
+        let stored = try JSONDecoder().decode(TranslationResult.self, from: JSONEncoder().encode(result))
+        XCTAssertEqual(stored.tokenBreakdown, result.tokenBreakdown)
+    }
+
 }
