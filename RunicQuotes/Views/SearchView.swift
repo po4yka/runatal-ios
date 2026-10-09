@@ -10,6 +10,8 @@ import TipKit
 
 /// Search quotes by text, author, or collection with chip filters and result cards.
 struct SearchView: View {
+    @EnvironmentObject private var appearance: ReadingAppearanceController
+    @EnvironmentObject private var navigationCoordinator: QuoteNavigationCoordinator
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @EnvironmentObject private var searchCoordinator: AppSearchCoordinator
@@ -209,7 +211,9 @@ struct SearchView: View {
     private func quoteResultRow(_ quote: QuoteRecord) -> some View {
         QuoteListRow(
             palette: self.palette,
-            runicSnippet: quote.runicElder ?? "",
+            presentation: self.appearance.presentation(for: quote),
+            script: self.appearance.script,
+            font: self.appearance.font,
             quoteText: quote.textLatin,
             author: quote.author,
             metadata: [],
@@ -225,7 +229,10 @@ struct SearchView: View {
                     }
             },
             footer: {
-                EmptyView()
+                Button("Open passage", systemImage: "book") {
+                    self.navigationCoordinator.openQuote(id: quote.id, script: nil, mode: nil, collection: nil)
+                }
+                .accessibilityIdentifier("open_quote_\(quote.id.uuidString)")
             },
         )
     }
@@ -297,4 +304,6 @@ private struct FlowLayout: Layout {
     }
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
     .environmentObject(FeatureDiscoveryController.preview())
+    .environmentObject(ReadingAppearanceController.preview())
+    .environmentObject(QuoteNavigationCoordinator.preview())
 }

@@ -27,6 +27,7 @@ struct OnboardingView: View {
 
     // MARK: - Environment & State
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @Environment(\.userPreferencesRepository) private var preferencesRepository
@@ -214,7 +215,7 @@ struct OnboardingView: View {
                     palette: self.palette,
                 ) { newSelection in
                     Haptics.trigger(.scriptSwitch)
-                    withAnimation(AnimationPresets.smoothEase) {
+                    withAnimation(self.reduceMotion ? nil : AnimationPresets.smoothEase) {
                         self.selectedScript = newSelection
                     }
                 }
@@ -228,7 +229,7 @@ struct OnboardingView: View {
                     palette: self.palette,
                 ) { newSelection in
                     Haptics.trigger(.scriptSwitch)
-                    withAnimation(AnimationPresets.smoothEase) {
+                    withAnimation(self.reduceMotion ? nil : AnimationPresets.smoothEase) {
                         self.selectedScript = newSelection
                     }
                 }
@@ -242,7 +243,7 @@ struct OnboardingView: View {
                     palette: self.palette,
                 ) { newSelection in
                     Haptics.trigger(.scriptSwitch)
-                    withAnimation(AnimationPresets.smoothEase) {
+                    withAnimation(self.reduceMotion ? nil : AnimationPresets.smoothEase) {
                         self.selectedScript = newSelection
                     }
                 }
@@ -338,7 +339,7 @@ struct OnboardingView: View {
     private func moveForward() {
         guard let next = Page(rawValue: currentPage.rawValue + 1) else { return }
         self.navigationDirection = .forward
-        withAnimation(AnimationPresets.smoothEase) {
+        withAnimation(self.reduceMotion ? nil : AnimationPresets.smoothEase) {
             self.currentPage = next
         }
     }
@@ -347,7 +348,7 @@ struct OnboardingView: View {
         guard let previous = Page(rawValue: currentPage.rawValue - 1),
               previous != .splash else { return }
         self.navigationDirection = .backward
-        withAnimation(AnimationPresets.smoothEase) {
+        withAnimation(self.reduceMotion ? nil : AnimationPresets.smoothEase) {
             self.currentPage = previous
         }
     }

@@ -90,7 +90,7 @@ struct InlineWidgetView: View {
                 .truncationMode(.tail)
                 .accessibilityLabel(self.entry.widgetAccessibilityLabel)
         } else {
-            (Text("\(self.entry.compactLatin(maxCharacters: 20)) \u{00B7} ") + Text(self.entry.decorativeGlyph).font(.custom(self.entry.widgetFontName, size: 12)))
+            Text("\(self.entry.compactLatin(maxCharacters: 20)) \u{00B7} \(Text(self.entry.decorativeGlyph).font(.custom(self.entry.widgetFontName, size: 12)))")
                 .font(.caption)
                 .lineLimit(1)
                 .truncationMode(.tail)

@@ -80,6 +80,17 @@ final class TestTranslationRepository: TranslationRepository, @unchecked Sendabl
         }
     }
 
+    func latestTranslations(for quoteIDs: [UUID], script: RunicScript) throws -> [UUID: TranslationResult] {
+        if let latestTranslationError {
+            throw latestTranslationError
+        }
+        return self.lock.withLock {
+            Dictionary(uniqueKeysWithValues: quoteIDs.compactMap { id in
+                self.latestTranslationResults[id]?[script].map { (id, $0) }
+            })
+        }
+    }
+
     func cache(result: TranslationResult, for quoteID: UUID, sourceText: String) throws {
         if let cacheError {
             throw cacheError

@@ -11,6 +11,7 @@ import SwiftData
 
 protocol TranslationRepository: Sendable {
     func latestTranslation(for quoteID: UUID, script: RunicScript) throws -> TranslationResult?
+    func latestTranslations(for quoteIDs: [UUID], script: RunicScript) throws -> [UUID: TranslationResult]
     func cache(result: TranslationResult, for quoteID: UUID, sourceText: String) throws
     func cache(results: [TranslationResult], for quoteID: UUID, sourceText: String) throws
     func deleteTranslations(for quoteID: UUID) throws
@@ -37,31 +38,41 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
     }
 
     func latestTranslation(for quoteID: UUID, script: RunicScript) throws -> TranslationResult? {
-        let modelContext = self.makeContext()
-        var quoteDescriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
-        quoteDescriptor.fetchLimit = 1
-        guard let quote = try modelContext.fetch(quoteDescriptor).first, !quote.isSoftDeleted else { return nil }
-        let sourceText = quote.textLatin
+        try self.latestTranslations(for: [quoteID], script: script)[quoteID]
+    }
+
+    func latestTranslations(for quoteIDs: [UUID], script: RunicScript) throws -> [UUID: TranslationResult] {
+        guard !quoteIDs.isEmpty else { return [:] }
+        let context = self.makeContext()
+        let quotes = try context.fetch(FetchDescriptor<Quote>(predicate: #Predicate { quoteIDs.contains($0.id) && !$0.isSoftDeleted }))
+        let byID = Dictionary(uniqueKeysWithValues: quotes.map { ($0.id, $0) })
+        let scriptRaw = script.rawValue
         let engineVersion = self.translationService.engineVersion(for: script)
         let datasetVersion = self.translationService.datasetVersion
-        var descriptor = FetchDescriptor<TranslationRecord>(
-            predicate: #Predicate {
-                $0.quoteID == quoteID && $0.scriptRaw == script.rawValue
-                    && $0.sourceText == sourceText && $0.engineVersion == engineVersion && $0.datasetVersion == datasetVersion
-            },
-            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)],
-        )
-        descriptor.fetchLimit = 1
-        guard let record = try modelContext.fetch(descriptor).first else {
-            return nil
+        let records = try context.fetch(FetchDescriptor<TranslationRecord>(predicate: #Predicate {
+            quoteIDs.contains($0.quoteID) && $0.scriptRaw == scriptRaw && $0.engineVersion == engineVersion && $0.datasetVersion == datasetVersion
+        }, sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]))
+        var results: [UUID: TranslationResult] = [:]
+        var repairedIDs: Set<UUID> = []
+        for record in records {
+            guard results[record.quoteID] == nil, !repairedIDs.contains(record.quoteID),
+                  let quote = byID[record.quoteID], record.sourceText == quote.textLatin else { continue }
+            do {
+                results[record.quoteID] = try record.decodedResult()
+            } catch is DecodingError {
+                results[record.quoteID] = try self.recoverInvalidRecord(record, in: context)
+                repairedIDs.insert(record.quoteID)
+            } catch is TranslationRecordError {
+                results[record.quoteID] = try self.recoverInvalidRecord(record, in: context)
+                repairedIDs.insert(record.quoteID)
+            }
         }
-        do {
-            return try record.decodedResult()
-        } catch is DecodingError {
-            return try self.recoverInvalidRecord(record, in: modelContext)
-        } catch is TranslationRecordError {
-            return try self.recoverInvalidRecord(record, in: modelContext)
+        if context.hasChanges {
+            try context.save()
+            let info: [AnyHashable: Any]? = repairedIDs.count == 1 ? ["quoteID": repairedIDs.first as Any] : nil
+            NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: info)
         }
+        return results
     }
 
     private func recoverInvalidRecord(_ record: TranslationRecord, in context: ModelContext) throws -> TranslationResult? {
@@ -85,8 +96,6 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
                 }
             }
         }
-        try context.save()
-        NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": quoteID])
         return regenerated
     }
 

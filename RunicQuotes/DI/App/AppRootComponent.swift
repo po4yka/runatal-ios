@@ -22,6 +22,10 @@ final class AppRootComponent: BootstrapComponent {
         shared { AppBootstrapViewModel(database: self.databaseCoordinator) }
     }
 
+    var readingAppearanceController: ReadingAppearanceController {
+        shared { ReadingAppearanceController(repository: self.preferencesRepository, quotes: self.quoteProvider, translations: self.translationProvider) }
+    }
+
     var navigationCoordinator: QuoteNavigationCoordinator {
         shared { QuoteNavigationCoordinator() }
     }

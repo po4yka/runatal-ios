@@ -73,7 +73,7 @@ struct ResolvedRunicPresentation: Codable, Hashable, Sendable {
     let primarySourceLabel: String?
 }
 
-struct RunicPresentationInput: Sendable {
+struct RunicPresentationInput: Equatable, Sendable {
     let textLatin: String
     let storedText: String?
     let script: RunicScript

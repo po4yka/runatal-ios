@@ -30,6 +30,10 @@ actor TranslationProvider {
         try self.repository.latestTranslation(for: quoteID, script: script)
     }
 
+    func latestTranslations(for quoteIDs: [UUID], script: RunicScript) throws -> [UUID: TranslationResult] {
+        try self.repository.latestTranslations(for: quoteIDs, script: script)
+    }
+
     func cache(result: TranslationResult, for quoteID: UUID, sourceText: String) throws {
         try self.repository.cache(result: result, for: quoteID, sourceText: sourceText)
     }

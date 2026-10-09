@@ -27,6 +27,8 @@ struct QuoteView: View {
     @State private var didInitialize = false
     @State private var isRouteConsumerReady = false
     @State private var isScriptMorphing = false
+    @State private var showQuoteSource = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var scriptMorphTask: Task<Void, Never>?
     @State private var showShareView = false
     @State private var showCreateQuote = false
@@ -293,6 +295,15 @@ struct QuoteView: View {
                 },
             )
             SavedAssessmentSourcesButton(artifact: self.viewModel.state.savedTranslationArtifact)
+            if let source = self.viewModel.state.quoteSource, !source.isEmpty {
+                Button("Passage source", systemImage: "book.closed") { self.showQuoteSource = true }
+                    .accessibilityIdentifier("quote_source_button")
+                    .sheet(isPresented: self.$showQuoteSource) { QuoteSourceSheet(source: source) }
+            }
+            if self.viewModel.state.currentScript == .cirth {
+                Text("Cirth uses private-use characters. Copied text needs a compatible font; image sharing preserves its appearance.")
+                    .font(.caption)
+            }
         }
     }
 
@@ -384,9 +395,10 @@ struct QuoteView: View {
 
     private func startScriptMorphTransition() {
         self.scriptMorphTask?.cancel()
+        guard !self.reduceMotion else { self.isScriptMorphing = false; return }
         self.scriptMorphTask = Task { @MainActor in
             withAnimation(.easeOut(duration: 0.08)) {
-                self.isScriptMorphing = true
+                self.isScriptMorphing = !self.reduceMotion
             }
 
             try? await Task.sleep(for: .milliseconds(90))

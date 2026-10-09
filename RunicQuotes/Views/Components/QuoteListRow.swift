@@ -9,7 +9,9 @@ import SwiftUI
 
 struct QuoteListRow<Badge: View, Footer: View>: View {
     let palette: AppThemePalette
-    let runicSnippet: String
+    let presentation: ResolvedRunicPresentation
+    let script: RunicScript
+    let font: RunicFont
     let quoteText: String
     let author: String
     let metadata: [String]
@@ -18,7 +20,9 @@ struct QuoteListRow<Badge: View, Footer: View>: View {
 
     init(
         palette: AppThemePalette,
-        runicSnippet: String,
+        presentation: ResolvedRunicPresentation,
+        script: RunicScript,
+        font: RunicFont,
         quoteText: String,
         author: String,
         metadata: [String] = [],
@@ -26,7 +30,9 @@ struct QuoteListRow<Badge: View, Footer: View>: View {
         @ViewBuilder footer: () -> Footer,
     ) {
         self.palette = palette
-        self.runicSnippet = runicSnippet
+        self.presentation = presentation
+        self.script = script
+        self.font = font
         self.quoteText = quoteText
         self.author = author
         self.metadata = metadata
@@ -38,14 +44,22 @@ struct QuoteListRow<Badge: View, Footer: View>: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             HStack(alignment: .top, spacing: DesignTokens.Spacing.md) {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                    if !self.runicSnippet.isEmpty {
-                        Text(self.runicSnippet)
-                            .font(.system(.footnote, design: .serif).weight(.medium))
+                    if self.presentation.isRenderable, !self.presentation.text.isEmpty {
+                        Text(self.presentation.text)
+                            .runicTextStyle(script: self.script, font: self.font, style: .caption, minSize: 12, maxSize: 16)
                             .foregroundStyle(self.palette.runeText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
 
+                    Text(self.presentation.source.shareDisclosureTitle)
+                        .font(.caption)
+                        .foregroundStyle(self.palette.textSecondary)
+                    if !self.presentation.warnings.isEmpty {
+                        Text(self.presentation.warnings.joined(separator: " "))
+                            .font(.caption)
+                            .foregroundStyle(self.palette.textSecondary)
+                    }
                     Text("“\(self.quoteText)”")
                         .font(DesignTokens.Typography.supportingBody)
                         .foregroundStyle(self.palette.textPrimary)

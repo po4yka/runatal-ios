@@ -14,6 +14,8 @@ struct SavedView: View {
     @State private var feedbackTitle = ""
     @State private var feedbackMessage = ""
     @State private var feedbackTask: Task<Void, Never>?
+    @EnvironmentObject private var appearance: ReadingAppearanceController
+    @EnvironmentObject private var navigationCoordinator: QuoteNavigationCoordinator
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
@@ -128,7 +130,9 @@ struct SavedView: View {
     private func savedQuoteRow(_ quote: QuoteRecord) -> some View {
         QuoteListRow(
             palette: self.palette,
-            runicSnippet: quote.runicElder ?? "",
+            presentation: self.appearance.presentation(for: quote),
+            script: self.appearance.script,
+            font: self.appearance.font,
             quoteText: quote.textLatin,
             author: quote.author,
             metadata: [],
@@ -136,6 +140,10 @@ struct SavedView: View {
                 self.collectionBadge(for: quote)
             },
             footer: {
+                Button("Open passage", systemImage: "book") {
+                    self.navigationCoordinator.openQuote(id: quote.id, script: nil, mode: nil, collection: nil)
+                }
+                .accessibilityIdentifier("open_quote_\(quote.id.uuidString)")
                 Button {
                     self.removeSavedQuote(quote)
                 } label: {
@@ -232,4 +240,6 @@ struct SavedView: View {
         SavedView(viewModel: SavedQuotesViewModel.preview())
     }
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
+    .environmentObject(ReadingAppearanceController.preview())
+    .environmentObject(QuoteNavigationCoordinator.preview())
 }

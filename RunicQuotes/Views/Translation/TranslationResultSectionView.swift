@@ -62,6 +62,10 @@ struct TranslationResultSectionView: View {
                             .accessibilityIdentifier("translation_output_text")
                     }
 
+                    if self.state.selectedScript == .cirth {
+                        Text("Cirth uses private-use characters. Copied text needs a compatible font; image sharing preserves its appearance.")
+                            .font(.caption)
+                    }
                     if let errorMessage = state.errorMessage {
                         Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
                             .font(DesignTokens.Typography.metadata)

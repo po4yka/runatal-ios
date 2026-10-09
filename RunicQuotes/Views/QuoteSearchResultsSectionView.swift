@@ -9,6 +9,7 @@ import SwiftUI
 
 /// Inline quote search results shown on the home screen.
 struct QuoteSearchResultsSectionView: View {
+    @EnvironmentObject private var appearance: ReadingAppearanceController
     let currentCollection: QuoteCollection
     let results: [QuoteSearchResult]
     let palette: AppThemePalette
@@ -40,7 +41,9 @@ struct QuoteSearchResultsSectionView: View {
                             } label: {
                                 QuoteListRow(
                                     palette: self.palette,
-                                    runicSnippet: "",
+                                    presentation: self.appearance.presentation(for: result.quote),
+                                    script: self.appearance.script,
+                                    font: self.appearance.font,
                                     quoteText: result.latinText,
                                     author: result.author,
                                     metadata: [self.currentCollection.displayName],

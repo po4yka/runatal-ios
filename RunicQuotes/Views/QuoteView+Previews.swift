@@ -39,6 +39,8 @@ private enum QuoteViewPreviewFactory {
         },
     )
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
+    .environmentObject(ReadingAppearanceController.preview())
+    .environmentObject(QuoteNavigationCoordinator.preview())
     .environmentObject(FeatureDiscoveryController.preview())
     .environmentObject(QuoteNavigationCoordinator.preview())
 }

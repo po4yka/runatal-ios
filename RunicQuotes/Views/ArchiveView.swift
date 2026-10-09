@@ -14,6 +14,8 @@ struct ArchiveView: View {
     @StateObject private var viewModel: ArchiveViewModel
     @State private var restoredToastVisible = false
     @State private var toastDismissTask: Task<Void, Never>?
+    @EnvironmentObject private var appearance: ReadingAppearanceController
+    @EnvironmentObject private var navigationCoordinator: QuoteNavigationCoordinator
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
@@ -138,7 +140,9 @@ struct ArchiveView: View {
     private func archiveQuoteRow(_ quote: QuoteRecord) -> some View {
         QuoteListRow(
             palette: self.palette,
-            runicSnippet: quote.runicElder ?? "",
+            presentation: self.appearance.presentation(for: quote),
+            script: self.appearance.script,
+            font: self.appearance.font,
             quoteText: quote.textLatin,
             author: quote.author,
             metadata: [quote.collection.displayName],
@@ -272,4 +276,6 @@ struct ArchiveView: View {
         ArchiveView(viewModel: ArchiveViewModel.preview())
     }
     .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
+    .environmentObject(ReadingAppearanceController.preview())
+    .environmentObject(QuoteNavigationCoordinator.preview())
 }

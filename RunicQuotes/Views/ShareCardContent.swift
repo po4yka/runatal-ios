@@ -89,7 +89,7 @@ struct ShareCardContent: View {
 
             // Quote text
             Text("\u{201C}\(self.latinText)\u{201D}")
-                .font(.custom(RunicFontConfiguration.serifFontName, size: 15, relativeTo: .body))
+                .font(.system(.body, design: .serif))
                 .foregroundStyle(self.cardPalette.textPrimary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)

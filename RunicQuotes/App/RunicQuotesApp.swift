@@ -122,6 +122,7 @@ struct RunicQuotesApp: App {
             .environmentObject(self.featureDiscoveryController)
             .environmentObject(self.rootComponent.dailyReminderViewModel)
             .environmentObject(self.rootComponent.navigationCoordinator)
+            .environmentObject(self.rootComponent.readingAppearanceController)
             .animation(DesignTokens.Motion.themeTransition, value: self.selectedThemeRaw)
             .task { await self.bootstrapViewModel.prepare() }
             .onChange(of: self.hasCompletedOnboarding) { _, hasCompletedOnboarding in

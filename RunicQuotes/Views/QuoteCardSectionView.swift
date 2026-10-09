@@ -75,9 +75,9 @@ struct QuoteCardSectionView: View {
                 .blur(radius: self.isScriptMorphing ? 7 : 0)
                 .scaleEffect(self.isScriptMorphing ? 0.98 : 1.0)
                 .contentTransition(.opacity)
-                .accessibilityLabel("Runic text")
-                .accessibilityValue(self.runicText)
-                .accessibilityHint("The quote displayed in \(self.script.rawValue)")
+                .accessibilityLabel(self.isRunicRenderingAvailable ? "Runic text" : "Runic rendering unavailable")
+                .accessibilityValue(self.isRunicRenderingAvailable ? self.runicText : self.warnings.joined(separator: " "))
+                .accessibilityHint(self.isRunicRenderingAvailable ? "The quote displayed in \(self.script.rawValue)" : "The original passage appears below")
 
                 Rectangle()
                     .fill(

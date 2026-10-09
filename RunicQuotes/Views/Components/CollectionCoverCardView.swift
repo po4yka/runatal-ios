@@ -15,6 +15,7 @@ struct CollectionCoverCardView: View {
     let palette: AppThemePalette
     let onSelect: (QuoteCollection) -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
@@ -48,13 +49,16 @@ struct CollectionCoverCardView: View {
                 y: self.isSelected ? 8 : 4,
             )
             .scaleEffect(self.isSelected ? 1 : 0.985)
-            .animation(DesignTokens.Motion.reveal, value: self.isSelected)
+            .animation(self.reduceMotion ? nil : DesignTokens.Motion.reveal, value: self.isSelected)
     }
 
     private var cardContent: some View {
         VStack(alignment: .leading, spacing: 9) {
             self.collectionMetadata
             self.runicPreview
+            Text(self.cover.presentationSource.shareDisclosureTitle)
+                .font(.caption2)
+                .foregroundStyle(self.palette.textSecondary)
             self.latinPreview
             self.collectionTitle
             self.collectionSubtitle

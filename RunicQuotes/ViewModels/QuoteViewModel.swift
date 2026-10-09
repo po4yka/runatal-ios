@@ -21,6 +21,7 @@ struct QuoteUiState {
     var runicPrimarySourceLabel: String?
     var latinText: String = ""
     var author: String = ""
+    var quoteSource: String?
     var currentQuoteID: UUID?
     var isCurrentQuoteSaved: Bool = false
     var currentScript: RunicScript = .elder
@@ -29,7 +30,7 @@ struct QuoteUiState {
     var currentCollection: QuoteCollection = .all
     var currentTheme: AppTheme = .obsidian
     var collectionCovers: [QuoteCollectionCover] = QuoteCollection.allCases.map {
-        QuoteCollectionCover.placeholder(for: $0)
+        QuoteCollectionCover.placeholder(for: $0, script: .elder)
     }
 
     var isLoading: Bool = true
@@ -43,28 +44,42 @@ struct QuoteCollectionCover: Identifiable {
     let runicPreview: String
     let latinPreview: String
     let authorPreview: String
+    let presentationSource: RunicPresentationSource
 
     var id: String {
         self.collection.rawValue
     }
 
-    static func placeholder(for collection: QuoteCollection) -> QuoteCollectionCover {
+    static func placeholder(for collection: QuoteCollection, script: RunicScript) -> QuoteCollectionCover {
         QuoteCollectionCover(
             collection: collection,
             quoteCount: 0,
-            runicPreview: collection.heroRunicText,
+            runicPreview: RunicTransliterator.transliterate(collection.heroLatinText, to: script).glyphOutput,
             latinPreview: collection.heroLatinText,
             authorPreview: collection.displayName,
+            presentationSource: .liveTransliteration,
         )
     }
 }
 
 /// Search suggestion item for quote discovery.
 struct QuoteSearchResult: Identifiable {
-    let id: UUID
-    let latinText: String
-    let author: String
-    let collection: QuoteCollection
+    let quote: QuoteRecord
+    var id: UUID {
+        self.quote.id
+    }
+
+    var latinText: String {
+        self.quote.textLatin
+    }
+
+    var author: String {
+        self.quote.author
+    }
+
+    var collection: QuoteCollection {
+        self.quote.collection
+    }
 }
 
 /// ViewModel for the main quote display screen
@@ -158,7 +173,7 @@ final class QuoteViewModel: ObservableObject {
         return self.quotes(for: self.state.currentCollection, within: self.cachedQuotes)
             .filter { $0.textLatin.localizedStandardContains(query) || $0.author.localizedStandardContains(query) }
             .prefix(8)
-            .map { QuoteSearchResult(id: $0.id, latinText: $0.textLatin, author: $0.author, collection: $0.collection) }
+            .map { QuoteSearchResult(quote: $0) }
     }
 
     func showQuote(withID id: UUID) {
@@ -286,6 +301,7 @@ final class QuoteViewModel: ObservableObject {
                 next.runicPrimarySourceLabel = nil
                 next.savedTranslationArtifact = nil
                 next.author = ""
+                next.quoteSource = nil
                 next.isCurrentQuoteSaved = false
                 self.currentQuoteRecordCache = nil
             }
@@ -297,6 +313,7 @@ final class QuoteViewModel: ObservableObject {
         var next = previous
         next.latinText = quote.textLatin
         next.author = quote.author
+        next.quoteSource = quote.source
         next.runicText = presentation.text
         next.runicWarnings = presentation.warnings
         next.isRunicRenderingAvailable = presentation.isRenderable
@@ -393,7 +410,7 @@ final class QuoteViewModel: ObservableObject {
             let collectionQuotes = self.quotes(for: collection, within: allQuotes)
 
             guard let firstQuote = collectionQuotes.first else {
-                return QuoteCollectionCover.placeholder(for: collection)
+                return QuoteCollectionCover.placeholder(for: collection, script: script)
             }
 
             let presentation = RunicPresentationResolver.resolve(RunicPresentationInput(quote: firstQuote, script: script), currentCache: nil)
@@ -405,6 +422,7 @@ final class QuoteViewModel: ObservableObject {
                 runicPreview: runicPreview,
                 latinPreview: firstQuote.textLatin,
                 authorPreview: firstQuote.author,
+                presentationSource: presentation.source,
             )
         }
     }
