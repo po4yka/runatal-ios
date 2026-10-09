@@ -191,7 +191,8 @@ struct WidgetTimelineGenerator {
             date: date,
             quote: quote,
             script: configuration.script,
-            font: preferences.selectedFont,
+            font: preferences.selectedFont.isCompatible(with: configuration.script)
+                ? preferences.selectedFont : RunicFontConfiguration.recommendedFont(for: configuration.script),
             theme: preferences.selectedTheme,
             widgetMode: configuration.widgetMode,
             widgetStyle: configuration.widgetStyle,

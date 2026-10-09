@@ -120,6 +120,17 @@ struct WidgetTimelineGeneratorTests {
     }
 
     @Test
+    func incompatibleGlobalFontUsesTheWidgetScriptsCompatibleFont() async throws {
+        let service = TestWidgetTimelineService()
+        service.preferences.selectedFont = .cirth
+        let timeline = try await WidgetTimelineGenerator().generateTimeline(
+            for: WidgetDisplayConfiguration(collection: .all, script: .elder, widgetMode: .daily, widgetStyle: .runeFirst, showsDecorativeGlyphs: nil),
+            service: service,
+        )
+        #expect(timeline.entries.allSatisfy { $0.font == .noto && $0.font.isCompatible(with: $0.script) })
+    }
+
+    @Test
     func fallbackTimelineShowsUnavailableStateAndHourlyRetry() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let generator = WidgetTimelineGenerator(now: { now })
