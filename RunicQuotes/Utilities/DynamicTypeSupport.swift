@@ -37,22 +37,21 @@ struct RunicDynamicTypeModifier: ViewModifier {
     let minSize: CGFloat
     let maxSize: CGFloat
 
-    @Environment(\.dynamicTypeSize) var dynamicTypeSize
-
     func body(content: Content) -> some View {
         content
             .font(
                 .custom(
                     RunicFontConfiguration.fontName(for: self.script, font: self.font),
-                    size: self.scaledSize,
+                    size: self.basePointSize,
                     relativeTo: self.textStyle,
                 ),
             )
-            .minimumScaleFactor(0.5)
             .lineLimit(nil)
     }
 
-    private var scaledSize: CGFloat {
+    /// Bounds apply to the unscaled design size. SwiftUI scales once for the text style,
+    /// including accessibility sizes, and multiline layout remains unrestricted.
+    var basePointSize: CGFloat {
         // Determine base size from text style.
         let baseSize: CGFloat = switch self.textStyle {
         case .largeTitle:
@@ -81,48 +80,7 @@ struct RunicDynamicTypeModifier: ViewModifier {
             17
         }
 
-        // Scale based on dynamic type size
-        let scaleFactor = self.dynamicTypeSize.scaleFactor
-        let scaled = baseSize * scaleFactor
-
-        // Clamp to min/max range
-        return min(max(scaled, self.minSize), self.maxSize)
-    }
-}
-
-// MARK: - Dynamic Type Size Extension
-
-extension DynamicTypeSize {
-    /// Scale factor relative to default (.large)
-    var scaleFactor: CGFloat {
-        switch self {
-        case .xSmall:
-            return 0.8
-        case .small:
-            return 0.9
-        case .medium:
-            return 0.95
-        case .large:
-            return 1.0
-        case .xLarge:
-            return 1.1
-        case .xxLarge:
-            return 1.2
-        case .xxxLarge:
-            return 1.3
-        case .accessibility1:
-            return 1.5
-        case .accessibility2:
-            return 1.7
-        case .accessibility3:
-            return 2.0
-        case .accessibility4:
-            return 2.3
-        case .accessibility5:
-            return 2.6
-        @unknown default:
-            return 1.0
-        }
+        return min(max(baseSize, self.minSize), self.maxSize)
     }
 }
 
