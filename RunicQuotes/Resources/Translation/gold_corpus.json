@@ -128,16 +128,18 @@
           "script": "ELDER_FUTHARK",
           "fidelity": "STRICT",
           "requestedVariant": null,
-          "normalizedForm": "ek hlewagastiz holtijaz horna tawido",
-          "diplomaticForm": "ek hlewagastiz holtijaz horna tawido",
-          "glyphOutput": "ᛖᚲ ᚺᛚᛖᚹᚨᚷᚨᛊᛏᛁᛉ ᚺᛟᛚᛏᛁᛃᚨᛉ ᚺᛟᚱᚾᚨ ᛏᚨᚹᛁᛞᛟ",
+          "normalizedForm": "ek hlewagastiz holtijaz horna tawido.",
+          "diplomaticForm": "ek hlewagastiz holtijaz horna tawido.",
+          "glyphOutput": "ᛖᚲ ᚺᛚᛖᚹᚨᚷᚨᛊᛏᛁᛉ ᚺᛟᛚᛏᛁᛃᚨᛉ ᚺᛟᚱᚾᚨ ᛏᚨᚹᛁᛞᛟ.",
           "resolutionStatus": "ATTESTED",
           "evidenceTier": "ATTESTED",
           "supportLevel": "SUPPORTED",
           "attestationRefs": [
             "elder_gallehus_dr12-reference"
           ],
-          "warningFragments": [],
+          "warningFragments": [
+            "Terminal punctuation is modern input punctuation; evidence applies to the phrase content."
+          ],
           "regressionId": "elder_gallehus_dr12-source-benchmark-elder_futhark"
         }
       ]
@@ -182,16 +184,18 @@
           "script": "YOUNGER_FUTHARK",
           "fidelity": "STRICT",
           "requestedVariant": "LONG_BRANCH",
-          "normalizedForm": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but",
-          "diplomaticForm": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but",
-          "glyphOutput": "ᚴᚢᚱᛘᛦ ᚴᚢᚾᚢᚴᛦ ᚴᛅᚱᚦᛁ ᚴᚢᛒᛚ ᚦᚢᛋᛁ ᛅᚠᛏ ᚦᚢᚱᚢᛁ ᚴᚢᚾᚢ ᛋᛁᚾᛅ ᛏᛅᚾᛘᛅᚱᚴᛅᛦ ᛒᚢᛏ",
+          "normalizedForm": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but.",
+          "diplomaticForm": "kurmʀ kunukʀ karþi kubl þusi aft þurui kunu sina tanmarkaʀ but.",
+          "glyphOutput": "ᚴᚢᚱᛘᛦ ᚴᚢᚾᚢᚴᛦ ᚴᛅᚱᚦᛁ ᚴᚢᛒᛚ ᚦᚢᛋᛁ ᛅᚠᛏ ᚦᚢᚱᚢᛁ ᚴᚢᚾᚢ ᛋᛁᚾᛅ ᛏᛅᚾᛘᛅᚱᚴᛅᛦ ᛒᚢᛏ.",
           "resolutionStatus": "RECONSTRUCTED",
           "evidenceTier": "RECONSTRUCTED",
           "supportLevel": "SUPPORTED",
           "attestationRefs": [
             "younger_jelling_dr41-reference"
           ],
-          "warningFragments": [],
+          "warningFragments": [
+            "Terminal punctuation is modern input punctuation; evidence applies to the phrase content."
+          ],
           "regressionId": "younger_jelling_dr41-source-benchmark-younger_futhark"
         }
       ]
@@ -209,16 +213,18 @@
           "script": "YOUNGER_FUTHARK",
           "fidelity": "STRICT",
           "requestedVariant": "LONG_BRANCH",
-          "normalizedForm": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina",
-          "diplomaticForm": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina",
-          "glyphOutput": "ᚼᛅᚱᛅᛚᛏᚱ ᚴᚢᚾᚢᚴᛦ ᛒᛅᚦ ᚴᛅᚢᚱᚢᛅ ᚴᚢᛒᛚ ᚦᛅᚢᛋᛁ ᛅᚠᛏ ᚴᚢᚱᛘ ᚠᛅᚦᚢᚱ ᛋᛁᚾ ᛅᚢᚴ ᛅᚠᛏ ᚦᚬᚢᚱᚢᛁ ᛘᚢᚦᚢᚱ ᛋᛁᚾᛅ",
+          "normalizedForm": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina.",
+          "diplomaticForm": "haraltr kunukʀ baþ kaurua kubl þausi aft kurm faþur sin auk aft þąurui muþur sina.",
+          "glyphOutput": "ᚼᛅᚱᛅᛚᛏᚱ ᚴᚢᚾᚢᚴᛦ ᛒᛅᚦ ᚴᛅᚢᚱᚢᛅ ᚴᚢᛒᛚ ᚦᛅᚢᛋᛁ ᛅᚠᛏ ᚴᚢᚱᛘ ᚠᛅᚦᚢᚱ ᛋᛁᚾ ᛅᚢᚴ ᛅᚠᛏ ᚦᚬᚢᚱᚢᛁ ᛘᚢᚦᚢᚱ ᛋᛁᚾᛅ.",
           "resolutionStatus": "ATTESTED",
           "evidenceTier": "ATTESTED",
           "supportLevel": "SUPPORTED",
           "attestationRefs": [
             "younger_jelling_dr42-reference"
           ],
-          "warningFragments": [],
+          "warningFragments": [
+            "Terminal punctuation is modern input punctuation; evidence applies to the phrase content."
+          ],
           "regressionId": "younger_jelling_dr42-source-benchmark-younger_futhark"
         }
       ]

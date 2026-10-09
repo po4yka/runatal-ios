@@ -48,7 +48,8 @@ final class HistoricalRuneContractTests: XCTestCase {
 
     func testNamedInscriptionTemplatesExposeRealAttestationAndReferences() {
         let horn = self.service.translate(text: "I, Hlewagastiz Holtijaz, made the horn.", script: .elder)
-        XCTAssertEqual(horn.glyphOutput, "ᛖᚲ ᚺᛚᛖᚹᚨᚷᚨᛊᛏᛁᛉ ᚺᛟᛚᛏᛁᛃᚨᛉ ᚺᛟᚱᚾᚨ ᛏᚨᚹᛁᛞᛟ")
+        XCTAssertEqual(horn.glyphOutput, "ᛖᚲ ᚺᛚᛖᚹᚨᚷᚨᛊᛏᛁᛉ ᚺᛟᛚᛏᛁᛃᚨᛉ ᚺᛟᚱᚾᚨ ᛏᚨᚹᛁᛞᛟ.")
+        XCTAssertEqual(horn.sourceText, "I, Hlewagastiz Holtijaz, made the horn.")
         XCTAssertEqual(horn.evidenceTier, .attested)
         XCTAssertEqual(horn.attestationRefs, ["elder_gallehus_dr12-reference"])
         let name = self.service.translate(text: "Harja", script: .elder)
@@ -56,11 +57,22 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertEqual(name.evidenceTier, .attested)
         let restored = self.service.translate(text: "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.", script: .younger)
         XCTAssertTrue(restored.isAvailable)
+        XCTAssertEqual(restored.glyphOutput, "ᚴᚢᚱᛘᛦ ᚴᚢᚾᚢᚴᛦ ᚴᛅᚱᚦᛁ ᚴᚢᛒᛚ ᚦᚢᛋᛁ ᛅᚠᛏ ᚦᚢᚱᚢᛁ ᚴᚢᚾᚢ ᛋᛁᚾᛅ ᛏᛅᚾᛘᛅᚱᚴᛅᛦ ᛒᚢᛏ.")
+        XCTAssertEqual(restored.sourceText, "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.")
         XCTAssertEqual(restored.evidenceTier, .reconstructed)
         let recorded = self.service.translate(text: "King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.", script: .younger)
         XCTAssertTrue(recorded.isAvailable)
+        XCTAssertEqual(recorded.glyphOutput, "ᚼᛅᚱᛅᛚᛏᚱ ᚴᚢᚾᚢᚴᛦ ᛒᛅᚦ ᚴᛅᚢᚱᚢᛅ ᚴᚢᛒᛚ ᚦᛅᚢᛋᛁ ᛅᚠᛏ ᚴᚢᚱᛘ ᚠᛅᚦᚢᚱ ᛋᛁᚾ ᛅᚢᚴ ᛅᚠᛏ ᚦᚬᚢᚱᚢᛁ ᛘᚢᚦᚢᚱ ᛋᛁᚾᛅ.")
+        XCTAssertEqual(recorded.sourceText, "King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.")
         XCTAssertEqual(recorded.evidenceTier, .attested)
         XCTAssertEqual(recorded.attestationRefs, ["younger_jelling_dr42-reference"])
+        for result in [horn, restored, recorded] {
+            XCTAssertTrue(result.userFacingWarnings.contains("Terminal punctuation is modern input punctuation; evidence applies to the phrase content."))
+            XCTAssertEqual(result.tokenBreakdown.last?.sourceToken, ".")
+            XCTAssertEqual(result.tokenBreakdown.last?.glyphToken, ".")
+            XCTAssertEqual(result.tokenBreakdown.last?.resolutionStatus, .reconstructed)
+            XCTAssertTrue(result.tokenBreakdown.last?.provenance.isEmpty == true, "Modern punctuation has no inscription provenance")
+        }
         XCTAssertEqual(self.service.translate(text: "Wolf", script: .elder).evidenceTier, .reconstructed)
     }
 
