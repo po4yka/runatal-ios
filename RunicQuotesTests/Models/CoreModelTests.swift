@@ -64,15 +64,14 @@ struct UserPreferencesSnapshotTests {
     }
 
     @Test
-    func installPackTracksMembership() {
+    func installedPackMembershipReflectsPersistedState() {
         var snapshot = UserPreferencesSnapshot()
-        #expect(!snapshot.isPackInstalled("stoic-pack"))
-        let firstInstall = snapshot.installPack("stoic-pack")
-        #expect(firstInstall)
-        #expect(snapshot.isPackInstalled("stoic-pack"))
-        let secondInstall = snapshot.installPack("stoic-pack")
-        #expect(secondInstall == false)
+        #expect(!snapshot.isPackInstalled("havamal"))
+        snapshot.installedPackIDs = ["havamal"]
+        #expect(snapshot.isPackInstalled("havamal"))
+        #expect(!snapshot.isPackInstalled("meditations"))
     }
+
 }
 
 @Suite(.tags(.model))

@@ -14,6 +14,7 @@ struct CollectionsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @EnvironmentObject private var featureDiscoveryController: FeatureDiscoveryController
+    @State private var packCount = 0
     @Query(filter: #Predicate<Quote> { !$0.isSoftDeleted && !$0.isHidden })
     private var quotes: [Quote]
 
@@ -30,7 +31,7 @@ struct CollectionsView: View {
                     eyebrow: "Collections",
                     title: "Curated Shelves",
                     subtitle: "Browse by tone, then continue reading on Home.",
-                    meta: ["\(self.quotes.count) visible quotes", "\(QuotePack.catalog.count) quote packs"],
+                    meta: ["\(self.quotes.count) visible quotes", "\(self.packCount) quote packs"],
                     palette: self.palette,
                 )
                 .listRowInsets(EdgeInsets(
@@ -67,6 +68,7 @@ struct CollectionsView: View {
             }
         }
         .navigationTitle("Collections")
+        .task { self.packCount = (try? QuotePack.loadCatalog().count) ?? 0 }
         .navigationDestination(for: String.self) { destination in
             if destination == "quotePacks" {
                 QuotePacksView()
@@ -138,7 +140,7 @@ struct CollectionsView: View {
                 title: "Collectible Volumes",
                 subtitle: "Curated additions that extend the library without changing the reading rhythm.",
                 supporting: "Quote Packs now sit beside the main shelves instead of apart from them.",
-                meta: ["\(QuotePack.catalog.count) packs"],
+                meta: ["\(self.packCount) packs"],
                 leading: {
                     Text("ᚠ")
                         .font(.system(size: 30, weight: .medium, design: .serif))

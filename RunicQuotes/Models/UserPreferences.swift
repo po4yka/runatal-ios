@@ -239,17 +239,6 @@ final class UserPreferences {
         self.installedPackIDs.contains(packID)
     }
 
-    /// Mark a pack as installed. Returns `true` if it was newly installed.
-    @discardableResult
-    func installPack(_ packID: String) -> Bool {
-        var ids = self.installedPackIDs
-        let inserted = ids.insert(packID).inserted
-        if inserted {
-            self.installedPackIDs = ids
-        }
-        return inserted
-    }
-
     /// Get or create the singleton preferences instance
     /// - Parameter context: The model context to use
     /// - Returns: The user preferences instance

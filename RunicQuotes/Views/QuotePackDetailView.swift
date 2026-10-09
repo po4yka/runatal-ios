@@ -14,9 +14,11 @@ struct QuotePackDetailView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
     @Environment(\.userPreferencesRepository) private var preferencesRepository
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showSuccess = false
     @State private var isInstalled = false
+    @State private var addedQuoteCount = 0
     @State private var errorMessage: String?
 
     private var palette: AppThemePalette {
@@ -177,6 +179,7 @@ struct QuotePackDetailView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: true))
+                .accessibilityIdentifier("install_pack_\(self.pack.id)")
             }
         }
         .padding(.horizontal, DesignTokens.Spacing.md)
@@ -207,7 +210,7 @@ struct QuotePackDetailView: View {
                             .font(DesignTokens.Typography.pageTitle)
                             .foregroundStyle(self.palette.textPrimary)
 
-                        Text("\(self.pack.quoteCount) quotes from \(self.pack.title) are now in your collection.")
+                        Text("Added \(self.addedQuoteCount) new quotes from \(self.pack.title). Previously removed quotes stay removed.")
                             .font(DesignTokens.Typography.supportingBody)
                             .foregroundStyle(self.palette.textSecondary)
                             .multilineTextAlignment(.center)
@@ -234,13 +237,13 @@ struct QuotePackDetailView: View {
             let preferences = try preferencesRepository.snapshot()
             self.isInstalled = preferences.isPackInstalled(self.pack.id)
         } catch {
-            self.isInstalled = false
+            self.errorMessage = error.localizedDescription
         }
     }
 
     private func installPack() {
         do {
-            try self.preferencesRepository.apply([.installPack(self.pack.id)])
+            self.addedQuoteCount = try QuotePackInstaller(modelContext: self.modelContext).install(packID: self.pack.id)
             self.isInstalled = true
             withAnimation(.easeInOut(duration: 0.4)) {
                 self.showSuccess = true

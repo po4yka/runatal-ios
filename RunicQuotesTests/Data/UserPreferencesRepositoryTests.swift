@@ -29,13 +29,16 @@ struct UserPreferencesRepositoryTests {
         snapshot.savedQuoteIDs = [UUID(), UUID()]
         snapshot.installedPackIDs = ["stoic-pack", "tolkien-pack"]
 
+        let preferences = UserPreferences()
+        preferences.installedPackIDs = snapshot.installedPackIDs
+        context.insert(preferences)
+        try context.save()
         try repository.apply([
             .script(snapshot.selectedScript), .font(snapshot.selectedFont), .widgetMode(snapshot.widgetMode),
             .collection(snapshot.selectedCollection), .widgetStyle(snapshot.widgetStyle),
             .decorativeGlyphs(snapshot.widgetDecorativeGlyphsEnabled), .theme(snapshot.selectedTheme),
             .preset(.cirthLore),
-        ] + snapshot.savedQuoteIDs.map(UserPreferencesMutation.toggleSavedQuote)
-            + snapshot.installedPackIDs.map(UserPreferencesMutation.installPack))
+        ] + snapshot.savedQuoteIDs.map(UserPreferencesMutation.toggleSavedQuote))
         let restored = try repository.snapshot()
 
         #expect(restored.selectedScript == .cirth)
@@ -56,7 +59,8 @@ struct UserPreferencesRepositoryTests {
         let repository = SwiftDataUserPreferencesRepository(modelContext: context)
         let quoteID = UUID()
         _ = try repository.snapshot()
-        try repository.apply([.toggleSavedQuote(quoteID), .installPack("havamal"), .collection(.stoic)])
+        try QuotePackInstaller(modelContext: context).install(packID: "havamal")
+        try repository.apply([.toggleSavedQuote(quoteID), .collection(.stoic)])
         let result = try repository.apply([.theme(.nordicDawn)])
         #expect(result.savedQuoteIDs == [quoteID])
         #expect(result.installedPackIDs == ["havamal"])

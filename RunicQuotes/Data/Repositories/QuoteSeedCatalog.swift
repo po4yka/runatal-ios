@@ -17,11 +17,19 @@ struct QuoteCatalogEntry: Codable, Sendable {
 
 enum QuoteSeedCatalog {
     static func load() throws -> [QuoteCatalogEntry] {
-        try self.loadResource("quotes")
+        try self.validatedEntries("quotes")
     }
 
     static func legacyIdentities() throws -> [QuoteCatalogEntry] {
-        try self.loadResource("legacy-quotes")
+        try self.validatedEntries("legacy-quotes")
+    }
+
+    private static func validatedEntries(_ name: String) throws -> [QuoteCatalogEntry] {
+        let entries: [QuoteCatalogEntry] = try self.loadResource(name)
+        guard Set(entries.map(\.id)).count == entries.count, entries.allSatisfy({ !$0.id.isEmpty }) else {
+            throw QuoteRepositoryError.invalidSeedData
+        }
+        return entries
     }
 
     static func identity(textLatin: String, author: String) -> String {
@@ -34,15 +42,12 @@ enum QuoteSeedCatalog {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static func loadResource(_ name: String) throws -> [QuoteCatalogEntry] {
+    static func loadResource<T: Decodable>(_ name: String) throws -> T {
         guard let url = self.resourceURL(name) else { throw QuoteRepositoryError.seedDataNotFound }
-        let entries: [QuoteCatalogEntry]
+        let entries: T
         do {
-            entries = try JSONDecoder().decode([QuoteCatalogEntry].self, from: Data(contentsOf: url))
+            entries = try JSONDecoder().decode(T.self, from: Data(contentsOf: url))
         } catch {
-            throw QuoteRepositoryError.invalidSeedData
-        }
-        guard Set(entries.map(\.id)).count == entries.count, entries.allSatisfy({ !$0.id.isEmpty }) else {
             throw QuoteRepositoryError.invalidSeedData
         }
         return entries

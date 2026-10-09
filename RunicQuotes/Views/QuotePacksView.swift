@@ -11,6 +11,8 @@ import SwiftUI
 struct QuotePacksView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
+    @State private var packs: [QuotePack] = []
+    @State private var errorMessage: String?
     @State private var searchText = ""
     @State private var selectedPack: QuotePack?
 
@@ -19,9 +21,9 @@ struct QuotePacksView: View {
     }
 
     private var filteredPacks: [QuotePack] {
-        guard !self.searchText.isEmpty else { return QuotePack.catalog }
+        guard !self.searchText.isEmpty else { return self.packs }
         let query = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return QuotePack.catalog.filter {
+        return self.packs.filter {
             $0.title.localizedStandardContains(query) ||
                 $0.subtitle.localizedStandardContains(query)
         }
@@ -48,7 +50,9 @@ struct QuotePacksView: View {
             }
 
             Section {
-                if self.filteredPacks.isEmpty {
+                if let errorMessage {
+                    FeedbackBanner(palette: self.palette, tone: .error, title: "Couldn’t Load Packs", message: errorMessage)
+                } else if self.filteredPacks.isEmpty {
                     EditorialEmptyState(
                         palette: self.palette,
                         icon: "books.vertical",
@@ -63,6 +67,13 @@ struct QuotePacksView: View {
         }
         .searchable(text: self.$searchText, prompt: "Search packs")
         .navigationTitle("Quote Packs")
+        .task {
+            do {
+                self.packs = try QuotePack.loadCatalog()
+            } catch {
+                self.errorMessage = error.localizedDescription
+            }
+        }
         .navigationDestination(item: self.$selectedPack) { pack in
             QuotePackDetailView(pack: pack)
         }

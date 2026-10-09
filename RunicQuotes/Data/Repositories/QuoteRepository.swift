@@ -174,6 +174,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             if legacyLibrary {
                 try self.adoptLegacyLibrary(quotes: quotes, in: context)
             }
+            try QuotePackInstaller.stageLegacyInstalls(in: context)
             let knownIDs = try Set(context.fetch(FetchDescriptor<QuoteSeedReceipt>()).map(\.seedID))
             for entry in catalog where !knownIDs.contains(entry.id) {
                 let quote = Quote(textLatin: entry.textLatin, author: entry.author, collection: entry.collection)
@@ -467,7 +468,7 @@ enum QuoteRepositoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .seedDataNotFound:
-            "Could not find seed data file (quotes.json)"
+            "Could not find the bundled quote catalog."
         case .noQuotesAvailable:
             "No quotes available in the database"
         case .invalidSeedData:

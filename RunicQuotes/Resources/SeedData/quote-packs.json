@@ -1,0 +1,1167 @@
+[
+  {
+    "id": "havamal",
+    "title": "Hávamál Selections",
+    "subtitle": "Sayings of the High One",
+    "description": "Ancient Norse wisdom poems attributed to Odin, offering guidance on survival, knowledge, and the values of the Viking age.",
+    "runicGlyph": "ᚺ",
+    "quotes": [
+      {
+        "id": "havamal-bellows-1923-stanza-001",
+        "textLatin": "Within the gates ere a man shall go, (Full warily let him watch,) Full long let him look about him; For little he knows where a foe may lurk, And sit in the seats within.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 1 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.1"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-002",
+        "textLatin": "Hail to the giver! a guest has come; Where shall the stranger sit? Swift shall he be who with swords shall try The proof of his might to make.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 2 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-003",
+        "textLatin": "Fire he needs who with frozen knees Has come from the cold without; Food and clothes must the farer have, The man from the mountains come.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 3 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-004",
+        "textLatin": "Water and towels and welcoming speech Should he find who comes to the feast; If renown he would get, and again be greeted, Wisely and well must he act.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 4 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-005",
+        "textLatin": "Wits must he have who wanders wide, But all is easy at home; At the witless man the wise shall wink When among such men he sits.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 5 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-006",
+        "textLatin": "A man shall not boast of his keenness of mind, But keep it close in his breast; To the silent and wise does ill come seldom When he goes as guest to a house; (For a faster friend one never finds Than wisdom tried and true.)",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 6 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.6"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-007",
+        "textLatin": "The knowing guest who goes to the feast, In silent attention sits; With his ears he hears, with his eyes he watches, Thus wary are wise men all.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 7 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-008",
+        "textLatin": "Happy the one who wins for himself Favor and praises fair; Less safe by far is the wisdom found That is hid in another’s heart.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 8 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-009",
+        "textLatin": "Happy the man who has while he lives Wisdom and praise as well, For evil counsel a man full oft Has from another’s heart.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 9 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-010",
+        "textLatin": "A better burden may no man bear For wanderings wide than wisdom; It is better than wealth on unknown ways, And in grief a refuge it gives.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 10 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-015",
+        "textLatin": "The son of a king shall be silent and wise, And bold in battle as well; Bravely and gladly a man shall go, Till the day of his death is come.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 15 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-016",
+        "textLatin": "The sluggard believes he shall live forever, If the fight he faces not; But age shall not grant him the gift of peace, Though spears may spare his life.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 16 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-018",
+        "textLatin": "He alone is aware who has wandered wide, And far abroad has fared, How great a mind is guided by him That wealth of wisdom has.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 18 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-019",
+        "textLatin": "Shun not the mead, but drink in measure; Speak to the point or be still; For rudeness none shall rightly blame thee If soon thy bed thou seekest.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 19 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-022",
+        "textLatin": "A paltry man and poor of mind At all things ever mocks; For never he knows, what he ought to know, That he is not free from faults.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 22 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-023",
+        "textLatin": "The witless man is awake all night, Thinking of many things; Care-worn he is when the morning comes, And his woe is just as it was.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 23 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-027",
+        "textLatin": "A witless man, when he meets with men, Had best in silence abide; For no one shall find that nothing he knows, If his mouth is not open too much. (But a man knows not, if nothing he knows, When his mouth has been open too much.)",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 27 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.27"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-028",
+        "textLatin": "Wise shall he seem who well can question, And also answer well; Nought is concealed that men may say Among the sons of men.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 28 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-029",
+        "textLatin": "Often he speaks who never is still With words that win no faith; The babbling tongue, if a bridle it find not, Oft for itself sings ill.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 29 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-034",
+        "textLatin": "Crooked and far is the road to a foe, Though his house on the highway be; But wide and straight is the way to a friend, Though far away he fare.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 34 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-035",
+        "textLatin": "Forth shall one go, nor stay as a guest In a single spot forever; Love becomes loathing if long one sits By the hearth in another’s home.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 35 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-036",
+        "textLatin": "Better a house, though a hut it be, A man is master at home; A pair of goats and a patched-up roof Are better far than begging.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 36 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.36"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-038",
+        "textLatin": "Away from his arms in the open field A man should fare not a foot; For never he knows when the need for a spear Shall arise on the distant road.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 38 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-041",
+        "textLatin": "Friends shall gladden each other with arms and garments, As each for himself can see; Gift-givers’ friendships are longest found, If fair their fates may be.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 41 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.41"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-042",
+        "textLatin": "To his friend a man a friend shall prove, And gifts with gifts requite; But men shall mocking with mockery answer, And fraud with falsehood meet.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 42 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-043",
+        "textLatin": "To his friend a man a friend shall prove, To him and the friend of his friend; But never a man shall friendship make With one of his foeman’s friends.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 43 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-044",
+        "textLatin": "If a friend thou hast whom thou fully wilt trust, And good from him wouldst get, Thy thoughts with his mingle, and gifts shalt thou make, And fare to find him oft.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 44 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-047",
+        "textLatin": "Young was I once, and wandered alone, And nought of the road I knew; Rich did I feel when a comrade I found, For man is man’s delight.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 47 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-050",
+        "textLatin": "On the hillside drear the fir-tree dies, All bootless its needles and bark; It is like a man whom no one loves,— Why should his life be long?",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 50 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-052",
+        "textLatin": "No great thing needs a man to give, Oft little will purchase praise; With half a loaf and a half-filled cup A friend full fast I made.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 52 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-076",
+        "textLatin": "Among Fitjung’s sons saw I well-stocked folds,— Now bear they the beggar’s staff; Wealth is as swift as a winking eye, Of friends the falsest it is.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 76 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.76"
+      },
+      {
+        "id": "havamal-bellows-1923-stanza-077",
+        "textLatin": "Cattle die, and kinsmen die, And so one dies one’s self; But a noble name will never die, If good renown one gets.",
+        "author": "Hávamál",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, stanza 77 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
+      }
+    ]
+  },
+  {
+    "id": "meditations",
+    "title": "Meditations",
+    "subtitle": "Marcus Aurelius",
+    "description": "Personal reflections by the Roman Emperor on Stoic philosophy, self-discipline, and the nature of virtue.",
+    "runicGlyph": "ᛗ",
+    "quotes": [
+      {
+        "id": "meditations-casaubon-1634-book-02-section-i-excerpt-01",
+        "textLatin": "Remember how long thou hast already put off these things, and how often a certain day and hour as it were, having been set unto thee by the gods, thou hast neglected it.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 2, section I · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-02-section-iv-excerpt-02",
+        "textLatin": "Give thyself leisure to learn some good thing, and cease roving and wandering to and fro.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 2, section IV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-02-section-ix-excerpt-03",
+        "textLatin": "Consider how quickly all things are dissolved and resolved: the bodies and substances themselves, into the matter and substance of the world: and their memories into the general age and time of the world.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 2, section IX · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-03-section-v-excerpt-05",
+        "textLatin": "Do nothing against thy will, nor contrary to the community, nor without due examination, nor with reluctancy.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 3, section V · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-03-section-v-excerpt-06",
+        "textLatin": "Be neither a great talker, nor a great undertaker.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 3, section V · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-03-section-vii-excerpt-07",
+        "textLatin": "Do thou therefore I say absolutely and freely make choice of that which is best, and stick unto it.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 3, section VII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-04-section-ii-excerpt-08",
+        "textLatin": "Let nothing be done rashly, and at random, but all things according to the most exact and perfect rules of art.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 4, section II · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-04-section-vii-excerpt-10",
+        "textLatin": "Let opinion be taken away, and no man will think himself wronged.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 4, section VII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-04-section-xxxix-excerpt-12",
+        "textLatin": "Let it be thy perpetual meditation, how many physicians who once looked so grim, and so theatrically shrunk their brows upon their patients, are dead and gone themselves.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 4, section XXXIX · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-04-section-xl-excerpt-13",
+        "textLatin": "Thou must be like a promontory of the sea, against which though the waves beat continually, yet it both itself stands, and about it are those swelling waves stilled and quieted.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 4, section XL · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-04-section-xliii-excerpt-15",
+        "textLatin": "Let thy course ever be the most compendious way.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 4, section XLIII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-05-section-iii-excerpt-16",
+        "textLatin": "Think thyself fit and worthy to speak, or to do anything that is according to nature, and let not the reproach, or report of some that may ensue upon it, ever deter thee.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 5, section III · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-05-section-viii-excerpt-19",
+        "textLatin": "Let the fulfilling and accomplishment of those things which the common nature hath determined, be unto thee as thy health.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 5, section VIII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-05-section-x-excerpt-20",
+        "textLatin": "Thou must comfort thyself in the expectation of thy natural dissolution, and in the meantime not grieve at the delay; but rest contented in those two things.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 5, section X · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-05-section-xiv-excerpt-21",
+        "textLatin": "Nothing must be thought to belong to a man, which doth not belong unto him as he is a man.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 5, section XIV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-05-section-xxii-excerpt-23",
+        "textLatin": "Let thy reasonable faculty, work upon his reasonable faculty; show him his fault, admonish him.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 5, section XXII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-05-section-xxv-excerpt-24",
+        "textLatin": "Remember withal through how many things thou hast already passed, and how many thou hast been able to endure; so that now the legend of thy life is full, and thy charge is accomplished.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 5, section XXV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-06-section-iii-excerpt-26",
+        "textLatin": "Look in, let not either the proper quality, or the true worth of anything pass thee, before thou hast fully apprehended it.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 6, section III · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-06-section-v-excerpt-27",
+        "textLatin": "The best kind of revenge is, not to become like unto them.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 6, section V · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-06-section-vi-excerpt-28",
+        "textLatin": "Let this be thy only joy, and thy only comfort, from one sociable kind action without intermission to pass unto another, God being ever in thy mind.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 6, section VI · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-06-section-xlv-excerpt-33",
+        "textLatin": "Let us do our best endeavours to persuade them; but however, if reason and justice lead thee to it, do it, though they be never so much against it.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 6, section XLV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-06-section-xlvii-excerpt-34",
+        "textLatin": "It is in thy power absolutely to exclude all manner of conceit and opinion, as concerning this matter; and by the same means, to exclude all grief and sorrow from thy soul.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 6, section XLVII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-06-section-liii-excerpt-35",
+        "textLatin": "No man can hinder thee to live as thy nature doth require.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 6, section LIII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-06-section-liii-excerpt-36",
+        "textLatin": "Nothing can happen unto thee, but what the common good of nature doth require.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 6, section LIII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-ii-excerpt-38",
+        "textLatin": "It is in my power concerning this thing that is happened, what soever it be, to conceit that which is right and true.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section II · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-v-excerpt-40",
+        "textLatin": "Be not therefore ashamed, whensoever thou must use the help of others.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section V · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-vi-excerpt-41",
+        "textLatin": "Let not things future trouble thee.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section VI · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-xxi-excerpt-43",
+        "textLatin": "Let thy mind penetrate both into the effects, and into the causes.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section XXI · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-xxxi-excerpt-46",
+        "textLatin": "Look within; within is the fountain of all good.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section XXXI · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-xxxii-excerpt-47",
+        "textLatin": "Thou must use thyself also to keep thy body fixed and steady; free from all loose fluctuant either motion, or posture.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section XXXII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-xxxiv-excerpt-48",
+        "textLatin": "Thou must continually ponder and consider with thyself, what manner of men they be, and for their minds and understandings what is their present estate, whose good word and testimony thou dost desire.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section XXXIV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-xliii-excerpt-50",
+        "textLatin": "No man useth to be weary of that which is beneficial unto him.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section XLIII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-07-section-xliii-excerpt-51",
+        "textLatin": "Be not weary then of doing that which is beneficial unto thee, whilst it is so unto others.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section XLIII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-08-section-xxxiv-excerpt-53",
+        "textLatin": "Let not the general representation unto thyself of the wretchedness of this our mortal life, trouble thee.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 8, section XXXIV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-08-section-xxxiv-excerpt-54",
+        "textLatin": "Let not thy mind wander up and down, and heap together in her thoughts the many troubles and grievous calamities which thou art as subject unto as any other.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 8, section XXXIV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-08-section-xxxix-excerpt-56",
+        "textLatin": "It is not fire, nor iron; nor the power of a tyrant nor the power of a slandering tongue; nor anything else that can penetrate into her.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 8, section XXXIX · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-08-section-xlv-excerpt-57",
+        "textLatin": "Nothing can happen unto thee, which is not incidental unto thee, as thou art a man.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 8, section XLV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-08-section-xlv-excerpt-58",
+        "textLatin": "Let it not grieve thee then, if it be not thy fault that the thing is not performed.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 8, section XLV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-09-section-iii-excerpt-60",
+        "textLatin": "Thou must not in matter of death carry thyself scornfully, but as one that is well pleased with it, as being one of those things that nature hath appointed.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 9, section III · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-09-section-vii-excerpt-61",
+        "textLatin": "Do they what they can, nature doth prevail.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 9, section VII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-09-section-xxv-excerpt-63",
+        "textLatin": "Thou shalt see, that there is no such occasion why it should trouble thee, what such as they are think of thee.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 9, section XXV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-09-section-xxviii-excerpt-64",
+        "textLatin": "Do what thy nature doth now require.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 9, section XXVIII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-09-section-xlii-excerpt-66",
+        "textLatin": "It is common to all trades and professions to mind and intend that only, which now they are about, and the instrument whereby they work.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 9, section XLII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-10-section-vi-excerpt-68",
+        "textLatin": "Let this then be thy first ground, that thou art part of that universe, which is governed by nature.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 10, section VI · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-10-section-xxxiii-excerpt-73",
+        "textLatin": "Let it not be in any man's power, to say truly of thee, that thou art not truly simple, or sincere and open, or not good.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 10, section XXXIII · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-11-section-ix-excerpt-76",
+        "textLatin": "It is not possible that any nature should be inferior unto art, since that all arts imitate nature.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 11, section IX · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-12-section-xv-excerpt-78",
+        "textLatin": "It is high time for thee, to understand that there is somewhat in thee, better and more divine than either thy passions, or thy sensual appetites and affections.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 12, section XV · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      },
+      {
+        "id": "meditations-casaubon-1634-book-12-section-xvi-excerpt-79",
+        "textLatin": "Remember that all is but opinion, and all opinion depends of the mind.",
+        "author": "Marcus Aurelius",
+        "collection": "Stoic",
+        "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 12, section XVI · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
+      }
+    ]
+  },
+  {
+    "id": "poetic-edda",
+    "title": "Poetic Edda",
+    "subtitle": "Norse cosmology & myth",
+    "description": "The primary source of Norse mythology, containing poems about the creation of the world, the gods, and Ragnarok.",
+    "runicGlyph": "ᛈ",
+    "quotes": [
+      {
+        "id": "poetic-edda-bellows-1923-stanza-001",
+        "textLatin": "Hearing I ask from the holy races, From Heimdall’s sons, both high and low; Thou wilt, Valfather, that well I relate Old tales I remember of men long ago.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 1 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.1"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-003",
+        "textLatin": "Of old was the age when Ymir lived; Sea nor cool waves nor sand there were; Earth had not been, nor heaven above, But a yawning gap, and grass nowhere.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 3 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.3"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-004",
+        "textLatin": "Then Bur’s sons lifted the level land, Mithgarth the mighty there they made; The sun from the south warmed the stones of earth, And green was the ground with growing leeks.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 4 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.4"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-005",
+        "textLatin": "The sun, the sister of the moon, from the south Her right hand cast over heaven’s rim; No knowledge she had where her home should be, The moon knew not what might was his, The stars knew not where their stations were.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 5 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.5"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-006",
+        "textLatin": "Then sought the gods their assembly-seats, The holy ones, and council held; Names then gave they to noon and twilight, Morning they named, and the waning moon, Night and evening, the years to number.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 6 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.6"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-009",
+        "textLatin": "Then sought the gods their assembly-seats, The holy ones, and council held, To find who should raise the race of dwarfs Out of Brimir’s blood and the legs of Blain.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 9 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.9"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-017",
+        "textLatin": "Then from the throng did three come forth, From the home of the gods, the mighty and gracious; Two without fate on the land they found, Ask and Embla, empty of might.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 17 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.17"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-018",
+        "textLatin": "Soul they had not, sense they had not, Heat nor motion, nor goodly hue; Soul gave Othin, sense gave Hönir, Heat gave Lothur and goodly hue.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 18 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.18"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-019",
+        "textLatin": "An ash I know, Yggdrasil its name, With water white is the great tree wet; Thence come the dews that fall in the dales, Green by Urth’s well does it ever grow.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 19 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.19"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-020",
+        "textLatin": "Thence come the maidens mighty in wisdom, Three from the dwelling down ’neath the tree; Urth is one named, Verthandi the next,— On the wood they scored,— and Skuld the third. Laws they made there, and life allotted To the sons of men, and set their fates.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 20 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.20"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-021",
+        "textLatin": "The war I remember, the first in the world, When the gods with spears had smitten Gollveig, And in the hall of Hor had burned her,— Three times burned, and three times born, Oft and again, yet ever she lives.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 21 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.21"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-022",
+        "textLatin": "Heith they named her who sought their home, The wide-seeing witch, in magic wise; Minds she bewitched that were moved by her magic, To evil women a joy she was.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 22 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.22"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-024",
+        "textLatin": "Then sought the gods their assembly-seats, The holy ones, and council held, Whether the gods should tribute give, Or to all alike should worship belong.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 24 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.1"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-027",
+        "textLatin": "I know of the horn of Heimdall, hidden Under the high-reaching holy tree; On it there pours from Valfather’s pledge A mighty stream: would you know yet more?",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 27 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.27"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-028",
+        "textLatin": "Alone I sat when the Old One sought me, The terror of gods, and gazed in mine eyes: “What hast thou to ask? why comest thou hither? Othin, I know where thine eye is hidden.”",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 28 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.28"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-029",
+        "textLatin": "I know where Othin’s eye is hidden, Deep in the wide-famed well of Mimir; Mead from the pledge of Othin each morn Does Mimir drink: would you know yet more?",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 29 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.29"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-030",
+        "textLatin": "Necklaces had I and rings from Heerfather, Wise was my speech and my magic wisdom; . . . . . . . . . . Widely I saw over all the worlds.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 30 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.30"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-032",
+        "textLatin": "I saw for Baldr, the bleeding god, The son of Othin, his destiny set: Famous and fair in the lofty fields, Full grown in strength the mistletoe stood.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 32 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.32"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-035",
+        "textLatin": "One did I see in the wet woods bound, A lover of ill, and to Loki like; By his side does Sigyn sit, nor is glad To see her mate: would you know yet more?",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 35 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.35"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-038",
+        "textLatin": "A hall I saw, far from the sun, On Nastrond it stands, and the doors face north; Venom drops through the smoke-vent down, For around the walls do serpents wind.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 38 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.38"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-039",
+        "textLatin": "I saw there wading through rivers wild Treacherous men and murderers too, And workers of ill with the wives of men; There Nithhogg sucked the blood of the slain, And the wolf tore men; would you know yet more?",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 39 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.39"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-044",
+        "textLatin": "Now Garm howls loud before Gnipahellir, The fetters will burst, and the wolf run free; Much do I know, and more can see Of the fate of the gods, the mighty in fight.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 44 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.44"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-045",
+        "textLatin": "Brothers shall fight and fell each other, And sisters’ sons shall kinship stain; Hard is it on earth, with mighty whoredom; Axe-time, sword-time, shields are sundered, Wind-time, wolf-time, ere the world falls; Nor ever shall men each other spare.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 45 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.45"
+      },
+      {
+        "id": "poetic-edda-bellows-1923-stanza-059",
+        "textLatin": "Now do I see the earth anew Rise all green from the waves again; The cataracts fall, and the eagle flies, And fish he catches beneath the cliffs.",
+        "author": "Völuspá",
+        "collection": "Motivation",
+        "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Völuspá, stanza 59 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.1.59"
+      }
+    ]
+  },
+  {
+    "id": "stoic-letters",
+    "title": "Stoic Letters",
+    "subtitle": "Seneca to Lucilius",
+    "description": "Moral letters from the Stoic philosopher Seneca to his friend Lucilius, covering wealth, time, friendship, and virtue.",
+    "runicGlyph": "ᛋ",
+    "quotes": [
+      {
+        "id": "stoic-letters-lodge-1614-letter-001-excerpt-01",
+        "textLatin": "Whilest life is deferred it fleeteth.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 1 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-001-excerpt-02",
+        "textLatin": "All other things, my Lucilius, are forren to vs: time onely is our owne.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 1 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-001-excerpt-03",
+        "textLatin": "Nature hath put vs in possession of this fraile and fleeting thing, from which we may be expelled by any man.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 1 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-002-excerpt-03",
+        "textLatin": "He is no where, that is euery where.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 2 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-002-excerpt-08",
+        "textLatin": "The tree prospereth not that is transported from one place to another.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 2 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-003-excerpt-00",
+        "textLatin": "After the friendship is contracted, then ought wee to trust; before it bee formed we ought to iudge.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 3 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-003-excerpt-03",
+        "textLatin": "It behoueth thee to temper these things together, and to chuse certaine intermissions which are proper to action and repast.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 3 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-003-excerpt-04",
+        "textLatin": "Deliberate with nature, and she will tell thee, that she made both the day and the night.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 3 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-004-excerpt-03",
+        "textLatin": "Fashion therefore vnto thy selfe a pleasant life, by forsaking sollicitude that may befall thee for the loue of the same.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 4 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-004-excerpt-04",
+        "textLatin": "Take thee courage and assurance against those things that are subiect to the same necessitie as thou art, euen those that are most mightie.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 4 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-004-excerpt-08",
+        "textLatin": "Trust not ouermuch vnto this calme.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 4 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-005-excerpt-02",
+        "textLatin": "Philosophie promiseth this first of all, common sense, humanitie, and entercourse and societie, from which we shall become separated by this dissimilitude of profession.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 5 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-005-excerpt-04",
+        "textLatin": "It behoueth vs that our life be balanced betwixt good and publike maners.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 5 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-005-excerpt-08",
+        "textLatin": "That man is great and generous, who vseth earthen platters like siluer vessell, and no lesse is hee that vseth siluer vessell as earthen platters.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 5 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-006-excerpt-03",
+        "textLatin": "If wisedome it selfe were giuen me vpon condition to conceale it, and not to publish it, I would refuse the same.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 6 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-006-excerpt-04",
+        "textLatin": "The possession of no benefit is contenting without a companion.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 6 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-006-excerpt-06",
+        "textLatin": "And againe, because the way of precepts is long, where that of example is more short, and far more fruitful.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 6 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-013-excerpt-01",
+        "textLatin": "The wrestler cannot enter lists with an vndaunted courage, who hath neuer beene sharpely encountred and beaten.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 13 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-013-excerpt-03",
+        "textLatin": "Somethings therefore doe more afflict vs then they ought, some before they ought, othersome torment vs when they should not at all.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 13 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-013-excerpt-06",
+        "textLatin": "We shall see what shall happen hereafter, to day thou hast no neede to complain.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 13 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-016-excerpt-02",
+        "textLatin": "We must perseuer, and by continuall diligence adde strength, till that which is now only a good will, may become an habituall good minde.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 16 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-016-excerpt-06",
+        "textLatin": "Beleeue not thy selfe so suddenly and so easily.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 16 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-016-excerpt-07",
+        "textLatin": "Philosophie no vulgar craft, neyther is it for ostentation: it consisteth not in wordes but in deedes.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 16 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-018-excerpt-00",
+        "textLatin": "For a man may celebrate a festiuall day without drunkennesse.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 18 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-018-excerpt-01",
+        "textLatin": "Let vs therefore prepare our selues to all casualties, lest fortune surprise vs vnprouided.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 18 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-018-excerpt-02",
+        "textLatin": "Let vs make pouertie familiar vnto vs: we shall be more assuredly rich, if we know that it is no grieuous matter to be poore.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 18 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-023-excerpt-01",
+        "textLatin": "Doe not ioy in vaine things.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 23 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-023-excerpt-03",
+        "textLatin": "Doe this aboue all things, my Lucilius, learne to reioyce.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 23 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-023-excerpt-06",
+        "textLatin": "The minde ought to be resolute and confident, and lifted vp aboue all things.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 23 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-023-excerpt-07",
+        "textLatin": "Trust me, true ioy is a seuere thing.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 23 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-028-excerpt-07",
+        "textLatin": "I am not borne for one corner.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 28 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-028-excerpt-08",
+        "textLatin": "The whole world is my countrie.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 28 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-033-excerpt-01",
+        "textLatin": "No man admireth one tree, when as all the wood is growne to the same height.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 33 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-034-excerpt-03",
+        "textLatin": "The greater part of good, is to desire to become good.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 34 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-034-excerpt-04",
+        "textLatin": "I mean a perfect and absolute man, whom no force or necessitie can prouoke to doe euill.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 34 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      },
+      {
+        "id": "stoic-letters-lodge-1614-letter-034-excerpt-05",
+        "textLatin": "His minde is estranged from the right way, whose acts are discordant.",
+        "author": "Seneca",
+        "collection": "Stoic",
+        "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 34 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
+      }
+    ]
+  },
+  {
+    "id": "prose-edda",
+    "title": "Prose Edda",
+    "subtitle": "Snorri Sturluson",
+    "description": "A medieval handbook of Norse mythology and poetics, compiled by the Icelandic scholar Snorri Sturluson.",
+    "runicGlyph": "ᛈ",
+    "quotes": [
+      {
+        "id": "prose-edda-anderson-1879-gylfe_vii-section-15-excerpt-00",
+        "textLatin": "Har answered: That is by the ash Ygdrasil. There the gods meet in council every day.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter VII, section 15 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_VII"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_vii-section-15-excerpt-01",
+        "textLatin": "Alfather once came there and asked for a drink from the well, but he did not get it before he left one of his eyes as a pledge.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter VII, section 15 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_VII"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_vii-section-15-excerpt-02",
+        "textLatin": "The third root of the ash is in heaven, and beneath it is the most sacred fountain of Urd.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter VII, section 15 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_VII"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_vii-section-16-excerpt-04",
+        "textLatin": "The dew which falls on the earth from this tree men call honey-fall, and it is the food of bees.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter VII, section 16 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_VII"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_vii-section-16-excerpt-05",
+        "textLatin": "Two birds are fed in Urd’s fountain; they are called swans, and they are the parents of the race of swans.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter VII, section 16 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_VII"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_viii-section-20-excerpt-07",
+        "textLatin": "Odin is called Alfather, for he is the father of all the gods; he is also called Valfather, for all who fall in fight are his chosen sons.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter VIII, section 20 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_VIII"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_viii-section-21-excerpt-08",
+        "textLatin": "Thor has two goats, by name Tangnjost and Tangrisner, and a chariot, wherein he drives.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter VIII, section 21 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_VIII"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_viii-section-24-excerpt-09",
+        "textLatin": "Frey is the most famous of the asas. He rules over rain and sunshine, and over the fruits of the earth. It is good to call on him for harvests and peace.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter VIII, section 24 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_VIII"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_ix-section-33-excerpt-10",
+        "textLatin": "Loke is fair and beautiful of face, but evil in disposition, and very fickle-minded.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter IX, section 33 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_IX"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_ix-section-35-excerpt-11",
+        "textLatin": "The wolf was fostered by the asas at home, and Tyr was the only one who had the courage to go to him and give him food.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter IX, section 35 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_IX"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xiv-section-46-excerpt-21",
+        "textLatin": "Thor held his hammer by the handle, ready to defend himself.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XIV, section 46 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XIV"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xiv-section-47-excerpt-26",
+        "textLatin": "Loke had eaten all the flesh off from the bones, but Loge had consumed both the flesh and the bones, and the trough too.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XIV, section 47 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XIV"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xv-section-50-excerpt-38",
+        "textLatin": "Odin took this misfortune most to heart, since he best comprehended how great a loss and injury the fall of Balder was to the asas.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XV, section 50 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XV"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xv-section-51-excerpt-40",
+        "textLatin": "Thor stood by and hallowed the pile with Mjolner.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XV, section 51 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XV"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xv-section-51-excerpt-41",
+        "textLatin": "Frey came riding in his chariot drawn by the boar called Gullinburste or Slidrugtanne.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XV, section 51 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XV"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xv-section-51-excerpt-42",
+        "textLatin": "Heimdal rode his steed Gulltop, and Freyja drove her cats.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XV, section 51 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XV"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xv-section-51-excerpt-43",
+        "textLatin": "Odin laid on the funeral-pile his gold ring, Draupner, which had the property of producing, every ninth night, eight gold rings of equal weight.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XV, section 51 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XV"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xvi-section-56-excerpt-56",
+        "textLatin": "Thor gets great renown by slaying the Midgard-serpent, but retreats only nine paces when he falls to the earth dead, poisoned by the venom that the serpent blows on him.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XVI, section 56 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XVI"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xvi-section-56-excerpt-57",
+        "textLatin": "The wolf swallows Odin, and thus causes his death; but Vidar immediately turns and rushes at the wolf, placing one foot on his nether jaw.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XVI, section 56 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XVI"
+      },
+      {
+        "id": "prose-edda-anderson-1879-gylfe_xvi-section-56-excerpt-58",
+        "textLatin": "Loke fights with Heimdal, and they kill each other.",
+        "author": "Snorri Sturluson",
+        "collection": "Motivation",
+        "source": "The Younger Edda / Gylfaginning · Rasmus Björn Anderson, 1879 · Gylfaginning chapter XVI, section 56 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/18947/18947-h/18947-h.htm#gylfe_XVI"
+      }
+    ]
+  }
+]

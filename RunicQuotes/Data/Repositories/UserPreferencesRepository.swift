@@ -54,10 +54,6 @@ struct UserPreferencesSnapshot {
         self.installedPackIDs.contains(id)
     }
 
-    @discardableResult
-    mutating func installPack(_ id: String) -> Bool {
-        self.installedPackIDs.insert(id).inserted
-    }
 }
 
 protocol UserPreferencesRepository: Sendable {

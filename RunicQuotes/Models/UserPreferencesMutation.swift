@@ -19,7 +19,6 @@ enum UserPreferencesMutation: Sendable {
     case preset(ReadingPreset)
     case toggleSavedQuote(UUID)
     case removeSavedQuote(UUID)
-    case installPack(String)
     case resetReadingSettings
 
     func apply(to preferences: inout UserPreferencesSnapshot) throws {
@@ -52,8 +51,6 @@ enum UserPreferencesMutation: Sendable {
             preferences.toggleSavedQuote(id)
         case .removeSavedQuote(let id):
             preferences.savedQuoteIDs.remove(id)
-        case .installPack(let id):
-            preferences.installPack(id)
         case .resetReadingSettings:
             preferences.selectedScript = .elder
             preferences.selectedFont = .noto

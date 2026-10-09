@@ -69,8 +69,10 @@
 		2C66E92E3BBE29756A155BCF /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3923750024819D8496CAE6BD /* AppConstants.swift */; };
 		2C7F2E1735E7B3C5D9DD5FD2 /* CreateEditQuoteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A6FD9924A5EC1F4091D017 /* CreateEditQuoteViewModel.swift */; };
 		2DEDA57AE81BEB74809E5E2B /* WidgetMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EBB6B11964F6BFB456D402 /* WidgetMode.swift */; };
+		2E42BD2566940897321AE489 /* QuotePackInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49A947CDA00A5801EF9779F /* QuotePackInstallerTests.swift */; };
 		2F756F0033B6D8666FE27D4A /* QuoteQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392643A03974647648A5AF59 /* QuoteQueries.swift */; };
 		2F919D1D86E9E9DB98EFCBF7 /* YoungerFutharkMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936E5F0180B59B59CC6F6882 /* YoungerFutharkMap.swift */; };
+		308FE8DA8BA54A235745AF9F /* QuotePackInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB7429440AC24120F509384 /* QuotePackInstaller.swift */; };
 		30C43824B3C4D07474C7B1D7 /* LegacyGeneratedRuneMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5F833D37E6EBCBB4D49C75 /* LegacyGeneratedRuneMigration.swift */; };
 		3103C56F8C3ECA08FA121C44 /* RunicTextBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319E8EBEC664357D97F6BBD2 /* RunicTextBundle.swift */; };
 		31A0890B597116EE6FA80383 /* FeatureDiscoveryControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1CA06C8B192D4EE0294B86A /* FeatureDiscoveryControllerTests.swift */; };
@@ -114,6 +116,7 @@
 		4BB9C55E8A5EE0DE5306230A /* SectionLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D404D9BD57501C2E4B9ECA1F /* SectionLabel.swift */; };
 		4BED12EEE533D2A528DB6194 /* InsetCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46014FFE77253BD0A7DEA98C /* InsetCard.swift */; };
 		4DF70599A0A21C753F0C1473 /* QuoteCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF971F9C0D5DF5108CFC3A02 /* QuoteCollection.swift */; };
+		4FF8FF03ACA97805B3BDD731 /* quote-packs.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EEC4B0F05DF5286795C8AAA /* quote-packs.json */; };
 		50A9927028BEBA261290684D /* UserPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA53EDE9F12376E5252378D4 /* UserPreferences.swift */; };
 		50F26AB4FE8515945AD34FF0 /* RunicQuotesUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8DA9E52064AF2BEEFEAB99C /* RunicQuotesUITestCase.swift */; };
 		52FFC4FA942AB92066DAEA42 /* LiquidEffectPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F010D8ECAAAA5F44CE6156 /* LiquidEffectPolicyTests.swift */; };
@@ -167,6 +170,7 @@
 		7BEA39CA07995B21E739BD68 /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF06D889D3A3AC61D89E477 /* WidgetViews.swift */; };
 		7D1A20FD7FE1F1637A4C30F1 /* RunatalCirth-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 17C99FAFF512BE3F9CF18CE3 /* RunatalCirth-OFL.txt */; };
 		7D322F8FB61E85BDBABC9664 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDFAB852621B8BDD54F7F279 /* GlassCard.swift */; };
+		7D6B970F4392C31BE31A9AA7 /* quote-packs.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EEC4B0F05DF5286795C8AAA /* quote-packs.json */; };
 		7ECB9E52845F3A7A44C06792 /* CollectionShelfRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95DA5226EBC82E1F360D3919 /* CollectionShelfRow.swift */; };
 		800373DBAA992BA37EC09637 /* QuoteCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618EFF4F43CEF6C744D1B9E5 /* QuoteCatalogTests.swift */; };
 		804EC8C73A8B78699841AEEA /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824C528D8EA4F2613FB657E3 /* Quote.swift */; };
@@ -254,6 +258,7 @@
 		BEF827A9526728FD01EEA94E /* QuotePack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0772DDF200F344D99763EDE5 /* QuotePack.swift */; };
 		BFA3440146957A813BF2AD28 /* TranslationCacheFreshnessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDEB57C90E6E3440A2977FD /* TranslationCacheFreshnessTests.swift */; };
 		C1364C06B4D1106BB9FC5F42 /* QuoteViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867E3D7B78E5CD810F554534 /* QuoteViewModelTests.swift */; };
+		C166FC38D249AAB99453B989 /* QuotePackInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB7429440AC24120F509384 /* QuotePackInstaller.swift */; };
 		C1D1104F7D68F07C2993C2BB /* RuneReferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A31FDDC9898A40F38E16018 /* RuneReferenceView.swift */; };
 		C2627DFEEEEE506F9D3D9A34 /* AppThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */; };
 		C31F2FF88A380C28D63E54DC /* HistoricalRuneContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298F22C07F27A2A380014AF3 /* HistoricalRuneContractTests.swift */; };
@@ -409,6 +414,7 @@
 		38980B4EAD1BBDBBCB4701A0 /* RunicTransliterationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicTransliterationResult.swift; sourceTree = "<group>"; };
 		3923750024819D8496CAE6BD /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		392643A03974647648A5AF59 /* QuoteQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteQueries.swift; sourceTree = "<group>"; };
+		3BB7429440AC24120F509384 /* QuotePackInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotePackInstaller.swift; sourceTree = "<group>"; };
 		3C48323FE7858260A2730206 /* TranslationFeatureComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationFeatureComponent.swift; sourceTree = "<group>"; };
 		3D5F833D37E6EBCBB4D49C75 /* LegacyGeneratedRuneMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyGeneratedRuneMigration.swift; sourceTree = "<group>"; };
 		3D7904E55EADC86121CD39BA /* QuoteLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteLoadingView.swift; sourceTree = "<group>"; };
@@ -514,11 +520,13 @@
 		9D71542EC46EEF7E2614247D /* GlassScriptSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassScriptSelector.swift; sourceTree = "<group>"; };
 		9E08E04E07E7F3BE7D741792 /* QuoteProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteProviderTests.swift; sourceTree = "<group>"; };
 		9ED52650A02D09999DFC1036 /* ReadingPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPreset.swift; sourceTree = "<group>"; };
+		9EEC4B0F05DF5286795C8AAA /* quote-packs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "quote-packs.json"; sourceTree = "<group>"; };
 		9F5004752BD44EF50356B845 /* TranslationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationViewModel.swift; sourceTree = "<group>"; };
 		9FE8A9062F55C7A234061E61 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
 		A0BB7D802EEB2CDA2B2D6D3B /* QuoteCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteCardView.swift; sourceTree = "<group>"; };
 		A12F8044DB7C3C929720833B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A21A6613E5DAD980260C7750 /* SearchViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModelTests.swift; sourceTree = "<group>"; };
+		A49A947CDA00A5801EF9779F /* QuotePackInstallerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotePackInstallerTests.swift; sourceTree = "<group>"; };
 		A570CDFABD36722169A07171 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		A6BC5C798B86BDC40880E7C1 /* fallback_templates.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = fallback_templates.json; sourceTree = "<group>"; };
 		A76EFAECFC35447080D15746 /* LiquidProminentButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidProminentButtonStyle.swift; sourceTree = "<group>"; };
@@ -767,6 +775,7 @@
 				B0185373B369090B54886138 /* HistoricalTranslationServiceTests.swift */,
 				1C00C2B061A2AA7E98F85E9B /* PersistentStoreMigrationTests.swift */,
 				618EFF4F43CEF6C744D1B9E5 /* QuoteCatalogTests.swift */,
+				A49A947CDA00A5801EF9779F /* QuotePackInstallerTests.swift */,
 				9E08E04E07E7F3BE7D741792 /* QuoteProviderTests.swift */,
 				F64B11996A162AE53AD615AC /* QuoteQueryTests.swift */,
 				61645924446BB1A7C083EE28 /* QuoteRepositoryPerformanceTests.swift */,
@@ -915,6 +924,7 @@
 			isa = PBXGroup;
 			children = (
 				5A30AC65989A34A7C009B61D /* .gitkeep */,
+				3BB7429440AC24120F509384 /* QuotePackInstaller.swift */,
 				392643A03974647648A5AF59 /* QuoteQueries.swift */,
 				C086E6B5E1D77DDAAA16CD5B /* QuoteRepository.swift */,
 				DAE1A2EF70BCF97615EB30A8 /* QuoteSeedCatalog.swift */,
@@ -986,6 +996,7 @@
 			children = (
 				F0C6AAD3297BCB76481D7FC5 /* .gitkeep */,
 				729406B9BE8B742600821A96 /* legacy-quotes.json */,
+				9EEC4B0F05DF5286795C8AAA /* quote-packs.json */,
 				E74382339680BCDC248E90D2 /* quotes.json */,
 			);
 			path = SeedData;
@@ -1467,6 +1478,7 @@
 				F726AEC03C9DEC3561428775 /* old_norse_lexicon.json in Resources */,
 				8D80C2B3919482D906777FBE /* paradigm_tables.json in Resources */,
 				F2F96DA58EB4327D69938392 /* proto_norse_lexicon.json in Resources */,
+				7D6B970F4392C31BE31A9AA7 /* quote-packs.json in Resources */,
 				15B2F28DB9FBB82E3D9005AE /* quotes.json in Resources */,
 				0DE6AE8E7C8537F7F26494A8 /* runic_corpus_refs.json in Resources */,
 				086FDA1E9927DBD46404558E /* source_manifest.json in Resources */,
@@ -1497,6 +1509,7 @@
 				D4F0291867195E0A728E80D3 /* old_norse_lexicon.json in Resources */,
 				1F95CFB7FB7BF62AC3455905 /* paradigm_tables.json in Resources */,
 				0A38C3D20E4A5E5DD642E1E6 /* proto_norse_lexicon.json in Resources */,
+				4FF8FF03ACA97805B3BDD731 /* quote-packs.json in Resources */,
 				90BE1FBC6EC509A80DAEE439 /* quotes.json in Resources */,
 				6400E875C402A12BD919BEE0 /* runic_corpus_refs.json in Resources */,
 				D764DE51930A043E392F8A39 /* source_manifest.json in Resources */,
@@ -1582,6 +1595,7 @@
 				3EEAE10E546F54BEF2061736 /* QuoteLoadingView.swift in Sources */,
 				BEF827A9526728FD01EEA94E /* QuotePack.swift in Sources */,
 				2C5F2FA7A4357D95ECB849E9 /* QuotePackDetailView.swift in Sources */,
+				308FE8DA8BA54A235745AF9F /* QuotePackInstaller.swift in Sources */,
 				446884509E0BD07BBA9329B6 /* QuotePacksView.swift in Sources */,
 				B6A1B05386BB9F0DC118E51E /* QuoteProvider.swift in Sources */,
 				E9DF49156CB4E5629F6120B6 /* QuoteQueries.swift in Sources */,
@@ -1692,6 +1706,7 @@
 				AED3D2265B6E697390FF2B3B /* QuoteCollection.swift in Sources */,
 				026A7A4F6C030E8CDD47AC0B /* QuoteData.swift in Sources */,
 				4081D6939D2720E2E478005E /* QuotePack.swift in Sources */,
+				C166FC38D249AAB99453B989 /* QuotePackInstaller.swift in Sources */,
 				54C43A3CF875C222426A03F1 /* QuoteProvider.swift in Sources */,
 				2F756F0033B6D8666FE27D4A /* QuoteQueries.swift in Sources */,
 				3469E397AD3AD02541DEB6D0 /* QuoteRepository.swift in Sources */,
@@ -1766,6 +1781,7 @@
 				3C8EF4D0A605A1901C279EB7 /* PhotoLibraryImageSaverTests.swift in Sources */,
 				800373DBAA992BA37EC09637 /* QuoteCatalogTests.swift in Sources */,
 				5C7C726C5D5DBC763345ED96 /* QuoteCollectionTests.swift in Sources */,
+				2E42BD2566940897321AE489 /* QuotePackInstallerTests.swift in Sources */,
 				463F8F431DC9AB1760B5532F /* QuoteProviderTests.swift in Sources */,
 				E2D1F130EF3626BC88DF029A /* QuoteQueryTests.swift in Sources */,
 				8F7B5043CDA9AEDD8DB0F391 /* QuoteRepositoryPerformanceTests.swift in Sources */,
