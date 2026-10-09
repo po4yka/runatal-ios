@@ -118,7 +118,7 @@
         "historicalStage": "PROTO_NORSE",
         "normalizedForm": "wulfaz waiþiþi nahts",
         "diplomaticForm": "wulfaz waiþiþi nahts",
-        "glyphOutput": "ᚹᚢᛚᚠᚨᛉ ᚹᚨᛁᚦᛁᚦᛁ ᚾᚨᚻᛏᛊ",
+        "glyphOutput": "ᚹᚢᛚᚠᚨᛉ ᚹᚨᛁᚦᛁᚦᛁ ᚾᚨᚺᛏᛊ",
         "resolutionStatus": "RECONSTRUCTED",
         "supportLevel": "SUPPORTED",
         "evidenceTier": "RECONSTRUCTED",
@@ -173,7 +173,7 @@
             "sourceToken": "night",
             "normalizedToken": "nahts",
             "diplomaticToken": "nahts",
-            "glyphToken": "ᚾᚨᚻᛏᛊ",
+            "glyphToken": "ᚾᚨᚺᛏᛊ",
             "resolutionStatus": "RECONSTRUCTED",
             "provenance": [
               {

@@ -184,7 +184,8 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
                 context.insert(quote)
                 context.insert(QuoteSeedReceipt(seedID: entry.id, quoteID: quote.id))
             }
-            self.migrateLegacyCirthIfNeeded(for: quotes)
+            quotes.forEach { LegacyGeneratedRuneMigration.upgradeElder($0, render: self.transliterator.transliterate) }
+            LegacyGeneratedRuneMigration.upgradeOriginalCirth(quotes, render: self.transliterator.transliterate)
             for preference in preferences {
                 preference.catalogIdentityVersion = "v1"
             }
@@ -444,22 +445,6 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         if needsSave {
             try self.commit(context)
         }
-    }
-
-    /// Repair only unversioned records emitted by the original U+E000–U+E02A mapping.
-    /// Explicitly encoded output and Unicode punctuation must never trigger this migration.
-    private func migrateLegacyCirthIfNeeded(for quotes: [Quote]) {
-        let legacyQuotes = quotes.filter { quote in
-            guard quote.cirthEncodingRaw == nil, let cirth = quote.runicCirth else { return false }
-            return cirth.unicodeScalars.contains { (0xE000 ... 0xE02A).contains($0.value) }
-        }
-        guard !legacyQuotes.isEmpty else { return }
-
-        for quote in legacyQuotes {
-            quote.runicCirth = self.transliterator.transliterate(quote.textLatin, to: .cirth)
-            quote.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
-        }
-        self.logger.info("Migrated legacy Cirth encoding for \(legacyQuotes.count) quotes")
     }
 
 }

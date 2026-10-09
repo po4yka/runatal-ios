@@ -38,6 +38,9 @@ final class Quote {
     /// Precomputed Cirth transliteration (optional, computed on demand if nil)
     var runicCirth: String?
 
+    /// Completed version of the generated-rune data migration; custom strings are never recomputed.
+    var runicTransliterationVersion: Int?
+
     /// Explicit font encoding for Cirth; nil identifies records predating encoding metadata.
     var cirthEncodingRaw: String?
 
@@ -89,6 +92,7 @@ final class Quote {
         self.runicElder = nil
         self.runicYounger = nil
         self.runicCirth = nil
+        self.runicTransliterationVersion = 1
         self.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
     }
 

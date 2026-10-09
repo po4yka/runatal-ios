@@ -22,7 +22,7 @@ struct HistoricalTranslationServiceTests {
 
         #expect(result.derivationKind == .goldExample)
         #expect(result.historicalStage == .oldNorse)
-        #expect(result.datasetVersion == "2026.03-curated-v3")
+        #expect(result.datasetVersion == "2026.10-runes-r1")
         #expect(result.glyphOutput.contains("ᚢᛚᚠᚱ"))
         #expect(result.provenance.contains { $0.referenceID == "yf_ref_wolf_night" })
     }
