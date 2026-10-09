@@ -17,7 +17,7 @@ The app uses a pragmatic layered structure:
 
 - MVVM for screen orchestration
 - Repository protocols backed by SwiftData implementations
-- ModelActor-owned contexts and model executors for serialized persistence; UI repositories use the main context
+- ModelActor-owned executors for serialized access; repositories use dedicated mutation contexts so rollback never discards unrelated UI work
 - Needle for dependency injection
 - XcodeGen for project generation
 
@@ -34,7 +34,10 @@ Important runtime boundaries:
 
 - Seed quotes are bundled locally in `RunicQuotes/Resources/SeedData/`.
 - The home quote flow reads from SwiftData and renders transliterated or structured runic output depending on availability.
-- Editing a quote can invalidate cached structured translations when the Latin source changes.
+- Metadata-only edits preserve exact saved output and its assessment. Changed Latin sources invalidate derived cache.
+- Seed/import migration and expiry purge finish before Home mounts; launch routes wait for that barrier. Versioned backfill then runs in bounded batches.
+- Home publishes complete generation-checked state; Saved/Search refresh after real writes and open exact quote IDs.
+- Shared rune presentation preserves permanent/custom artifacts before current approved cache, with explicit recorded-evidence, stage, unsupported-character and encoding disclosures. Original passage source and translation provenance have separate sheets.
 
 ### Historical translation
 
@@ -49,7 +52,15 @@ The provider strictly loads all 14 assets into an immutable snapshot; a malforme
 
 - Widgets read from the shared App Group SwiftData container.
 - Widget configuration is handled by `RunicQuoteConfigurationIntent`.
-- Widget presentation remains transliteration-first even though the shared schema includes translation cache models.
+- App defaults and independent widget overrides cover collection, script, mode, style and decorations; effective fonts are compatible.
+- Widgets use the shared rune presentation policy, explicit live empty/error entries and preview-only samples. Daily refresh follows local calendar midnight, and successful writes request reloads.
+- Widget links open the displayed UUID with temporary context, preserving app preferences.
+
+### Daily reading reminder
+
+- Settings and onboarding control an actual repeating local calendar notification with persisted time and on/off state.
+- Authorization, scheduling and persistence failures are visible; disabling cancels only the owned request.
+- Reminder taps wait for bootstrap and open the current daily quote with current reading preferences.
 
 ## Repository Map
 

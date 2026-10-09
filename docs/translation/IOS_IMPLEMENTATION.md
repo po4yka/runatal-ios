@@ -23,20 +23,31 @@ This document describes the current iOS translation contracts, including the sou
 - `SwiftDataTranslationRepository` stores structured results in: - `TranslationRecord` - `TranslationBackfillState`
 - `TranslationProvider` mirrors the existing quote actor pattern for serialized cache access.
 
-## Persistence behavior
+## Persistence and input behavior
 
-- Quote creation and editing now accept an optional `RunicTextBundle` override.
-- Standard quote flows still persist transliterations.
-- Translation-screen saves persist the generated runic outputs exactly.
-- When a quote’s Latin text changes, cached structured translations for that quote are deleted.
+- Quote creation commits the quote, exact stored output and structured result records in one dedicated mutation context.
+- Metadata-only edits retain exact glyphs and permanent assessment metadata. Changing the Latin source clears derived caches and replaces generated fields.
+- Cache approval requires the actual quote source and current engine/dataset versions; batched lookups share that policy.
+- Public repository/editor input is limited to 10,000 characters with nonblank text/author and an assignable collection. Studio keeps its 280-character limit. Oversized paste remains intact with a visible error and cannot be saved as a truncated prefix.
+- Curated templates, gold examples and Cirth phrases permit only modern terminal `.`, `!` and `?` to vary in phrase matching. Source text and symbols are retained; punctuation has no borrowed inscription provenance and receives an explicit warning.
 
-## Home and share behavior
+## Library and share presentation
 
-- Home prefers the latest cached structured translation for the selected script.
-- If no structured translation exists, Home falls back to the stored quote field.
-- If the stored quote field is empty, Home falls back to on-demand transliteration.
-- Share inherits this automatically because it uses the current Home presentation state.
-- Both Home and Share now disclose whether the runic text is a structured historical translation or a transliteration fallback.
+- The shared resolver prefers valid permanent saved assessments, then exact custom or opaque saved glyphs, then current approved cache, then stored/generated modern transcription.
+- Recorded saved evidence remains inspectable with its original versions and sources; it is not represented as a fresh assessment.
+- Historical, modern English spelling and mixed result stages have distinct disclosure. Unsupported-character warnings accompany the actual displayed output.
+- Saved/Search/Archive use the current selected script and compatible font, with one batched cache lookup over a coherent visible/archived library snapshot. Saved/Search open the actual quote UUID.
+- Home commits each complete presentation atomically and discards cancelled or superseded actor responses.
+- The original passage source is exposed separately from translation provenance. Explicit HTTP(S) links require a user tap.
+- Share uses the same resolved output, wraps full rune text and source disclosures, and includes all output in the text fallback. Rune and source text use readable contrast; system serif body and rune fonts respect Dynamic Type without double scaling. Cirth copying discloses its private-use compatible-font requirement.
+
+## Widget and reminder behavior
+
+- Widget intent defaults follow app preferences; explicit per-widget overrides include collection/script/mode/style/decorations. Effective fonts match the script.
+- Live widget content follows the shared presentation resolver. Empty and unavailable libraries produce explicit status entries; samples appear only in preview/placeholder paths.
+- Daily refresh uses the next local calendar midnight. Successful preference/library writes request widget reloads with bounded coalescing.
+- Widget taps route to the displayed quote UUID in temporary context; they do not persist widget overrides into app preferences.
+- A persistent daily reading reminder schedules an actual owned repeating `UNCalendarNotificationTrigger`. Enabled state follows successful authorization, scheduling and preference persistence; errors and recovery are visible. Off removes only the owned request. Reminder taps open the current daily quote using current preferences after bootstrap.
 
 ## Quality and support surfaces
 
@@ -48,11 +59,13 @@ This document describes the current iOS translation contracts, including the sou
 - `gold_corpus.json` stores stable benchmark cases for exact-match regression checks.
 - `TranslationDatasetValidationTests` validates source metadata, stable ids, inventories, and attestation refs.
 - `TranslationQualityRegressionTests` compares normalized, diplomatic, glyph, support, and evidence output against the benchmark corpus.
+- Native UIKit/CoreText tests require registered fonts and complete Elder, both Younger variants and Cirth glyph coverage. Native share tests attach six genuine 320-point exports. `RunicQuotesUICI` executes the complete UI target, including positive provenance, migration identity, bookmark events, real pack installation and reminder interactions; it has no skipped/focused cases.
 
 ## Startup backfill
 
-- After seed and purge work completes, the app runs a utility-priority translation backfill.
-- Backfill uses the already-loaded immutable dataset snapshot; selection and versioned progress are managed by `TranslationBackfillWorker`.
+- A startup barrier awaits seed/import migration and throwing expiry purge before Home becomes available. Failure presents retry; incoming routes are retained until the consumer is ready.
+- After that barrier, the app runs a utility-priority translation backfill and refreshes the visible quote on successful cache events.
+- Backfill uses the already-loaded immutable dataset snapshot; `TranslationBackfillWorker` commits bounded 32-row batches with per-quote source/version signatures, cancellation and resumable progress.
 - Cirth is intentionally skipped during startup backfill to match the rollout plan.
 
 ## Direct and Cirth rendering contracts

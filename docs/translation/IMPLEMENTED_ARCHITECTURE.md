@@ -87,14 +87,16 @@ The engines do not use one generic fallback path. They use precedence rules:
 
 The historical semantic track supports declared English input and rejects detected unsupported scripts. Detection is conservative rather than general natural-language identification. The complete grapheme tokenizer preserves negation, smart-apostrophe contractions, numbers, and symbols. Unknown modern spelling is labeled `MODERN_ENGLISH` or `MIXED_HISTORICAL_AND_MODERN`, rather than being presented as an ancient language. Old Norse paraphrases cannot enter the Proto-Norse inventory.
 
+Curated phrase identity permits terminal `.`, `!` and `?` to vary without dropping internal punctuation or extra words. The exact input and terminal symbols remain in the result layers. A separate literal token and warning identify modern punctuation; inscription evidence applies to the phrase content and does not attest those symbols.
+
 ## Persistence
 
 Structured translation output is stored in SwiftData:
 
 - `translation_records` cached translation results keyed by quote, script, fidelity, variant, engine version, and dataset version
-- `translation_backfill_state` resumable one-time backfill progress
+- `translation_backfill_state` bounded, resumable versioned maintenance progress
 
-`TranslationRepository` owns cache lookup, persistence, lazy generation, and backfill behavior.
+`TranslationRepository` approves cache results only when the current quote source, engine and dataset versions match. Single and batched lookups use the same approval policy; malformed derived records are regenerated in a dedicated transaction. Quote creation commits the quote and structured records together. Metadata-only edits preserve exact saved glyphs and their original assessment; a changed Latin source invalidates derived translations. Backfill processes at most 32 rows per transaction, records per-quote source/version completion, yields between batches, and revisits new or changed quotes.
 
 ## UI surfaces
 
@@ -114,19 +116,23 @@ The translation screen can display:
 - token breakdown
 - unavailable explanation
 
-Home and Share also disclose whether the currently visible runic text is:
+Home, Share, Saved, Search, Archive and live widgets use `RunicPresentationResolver`. Its precedence is a valid permanent saved result, exact custom or opaque saved glyphs, current approved structured cache, then stored/generated modern transcription. A saved assessment retains its original engine, dataset, evidence and provenance; it is labeled recorded evidence rather than current approval. Corrupt saved metadata and unsupported Cirth encodings preserve the user's bytes with a visible warning; unsupported font encodings are not rendered as valid rune text.
 
-- a structured historical translation
-- a stored transliteration fallback
-- a live transliteration generated on demand
+Structured results distinguish historical translation, modern English transcription and mixed adaptation. Direct unresolved-character warnings survive library saves and sharing. Original passage attribution opens a separate source sheet with explicit HTTP(S) links, distinct from historical translation evidence. Share cards wrap all rune lines and source disclosures; Cirth copy guidance explains the compatible-font requirement and image export preserves appearance. Rune fonts use one system text-style scaling pass, with unrestricted multiline accessibility sizes.
 
-Quote and share surfaces can prefer cached structured translations when available and otherwise fall back to stored transliteration output.
+## Library startup, widgets and reminders
+
+Seed/import migration and expiry purge finish before Home mounts. Failure exposes retry; launch URLs remain queued until the library and Home consumer are ready. Versioned backfill then runs at utility priority and successful cache events refresh the visible presentation. Home cancels superseded requests and publishes quote identity, text, script, font and evidence together.
+
+Widget intent fields default to the current app preferences and can override collection, script, mode, style and decoration independently. Fonts are normalized for the effective script. Live empty/error entries disclose their state; gallery samples remain preview-only. Daily entries refresh at the next local calendar midnight, including DST transitions. Widget links carry the exact quote UUID and temporary display context without rewriting global reading preferences. Successful library and preference writes trigger bounded widget reload coalescing.
+
+The daily reading reminder stores its on/off state and local time, requests notification authorization, and adds an owned repeating calendar request before reporting enabled. It uses honest generic reminder copy, not a stale preselected quotation. Disabling removes only that request; permission, scheduling and persistence failures remain visible with recovery of the previous schedule. A retained notification delegate completes callbacks and routes a tap to the current daily passage using preferences read after startup.
 
 ## Accuracy policy
 
 `STRICT` uses explicitly eligible inventories and cited lexical forms. Missing lexical support or an ineligible unverified formula returns `UNAVAILABLE`. A lexical gloss for unsupported sentence grammar may remain visible, but it is labeled partial/approximate with warnings and does not claim supported complete translation.
 
-Strict generated glyph output and every glyph trace also pass a service-boundary inventory check: Elder 24 graphs, the selected Younger 16-graph variant, or the licensed Cirth CSUR core. Only declared literal source numbers/symbols can accompany these graphs. A valid JSON record with a bad lemma or Latin gold glyph yields a typed unavailable result, never visible strict output.
+Strict and attested-only generated glyph output and every glyph trace also pass a service-boundary inventory check: Elder 24 graphs, the selected Younger 16-graph variant, or the licensed Cirth CSUR core. Only declared literal source numbers/symbols can accompany these graphs. A valid JSON record with a bad lemma or Latin gold glyph yields a typed unavailable result, never visible strict output.
 
 Strict results require provenance. `attestedOnly` additionally requires a complete attested phrase at the final service boundary; capitalized names, lexical composition, and readable fallbacks cannot bypass this cap. Confidence is a deterministic support heuristic, not a calibrated scholarly probability.
 
