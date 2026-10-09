@@ -114,7 +114,7 @@ struct RuneReferenceView: View {
         ) {
             VStack(spacing: DesignTokens.Spacing.xxs) {
                 Text(rune.glyph)
-                    .font(.system(size: 32))
+                    .font(.custom(RunicFontConfiguration.fontName(for: rune.script, font: .noto), size: 32))
                     .foregroundStyle(self.palette.runeText)
                     .frame(height: 40)
 

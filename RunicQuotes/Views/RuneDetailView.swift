@@ -86,7 +86,7 @@ struct RuneDetailView: View {
                         .frame(width: 96, height: 96)
 
                     Text(self.rune.glyph)
-                        .font(.system(size: 46))
+                        .font(.custom(RunicFontConfiguration.fontName(for: self.rune.script, font: .noto), size: 46))
                         .foregroundStyle(self.palette.runeText)
                 }
 
