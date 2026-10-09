@@ -33,7 +33,7 @@ struct QuoteCatalogUpgradeTests {
         try translations.cache(result: service.translate(text: original.textLatin, script: .cirth), for: quote.id, sourceText: original.textLatin)
         let repository = SwiftDataQuoteRepository(modelContext: context)
         try repository.seedIfNeeded()
-        let persisted = try #require(repository.quote(id: quote.id))
+        let persisted = try #require(try repository.quote(id: quote.id))
         #expect(persisted.textLatin == replacement.textLatin)
         #expect(persisted.author == replacement.author)
         #expect(persisted.source == replacement.source)
