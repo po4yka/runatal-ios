@@ -131,6 +131,51 @@ final class StrictTranslationDatasetTests: XCTestCase {
         XCTAssertEqual(service.translate(text: "wolf 2 👩‍💻", script: .younger).glyphOutput, "ᚢᛚᚠᚱ 2 👩‍💻")
     }
 
+    func testAttestedOnlyReadableAndDecorativeRequestsRejectLatinGoldGlyphs() throws {
+        let directory = try self.copyDataset()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appendingPathComponent("gold_examples.json")
+        let original = try Data(contentsOf: url)
+        for fidelity in [TranslationFidelity.readable, .decorative] {
+            let examples = try XCTUnwrap(JSONSerialization.jsonObject(with: original, options: [.mutableContainers]) as? NSMutableArray)
+            let example = try XCTUnwrap(examples.firstObject as? NSMutableDictionary)
+            let results = try XCTUnwrap(example["results"] as? NSMutableArray)
+            let result = try XCTUnwrap(results.firstObject as? NSMutableDictionary)
+            result["fidelity"] = fidelity.rawValue
+            result["glyphOutput"] = "LATIN"
+            result["resolutionStatus"] = "ATTESTED"
+            result["evidenceTier"] = "ATTESTED"
+            try JSONSerialization.data(withJSONObject: examples).write(to: url)
+            _ = try AssetTranslationDatasetProvider(resourceDirectory: directory)
+            let output = HistoricalTranslationService(resourceDirectory: directory).translate(
+                text: "The wolf hunts at night", script: .younger, fidelity: fidelity, evidenceCap: .attestedOnly,
+            )
+            XCTAssertEqual(output.resolutionStatus, .unavailable)
+            XCTAssertTrue(output.glyphOutput.isEmpty)
+            XCTAssertTrue(output.userFacingWarnings.contains { $0.contains("unsupported rune glyphs") })
+        }
+    }
+
+    func testAttestedOnlyRetainsThreeNamedInscriptionsAcrossEveryFidelity() {
+        let service = HistoricalTranslationService()
+        let examples: [(String, RunicScript)] = [
+            ("I, Hlewagastiz Holtijaz, made the horn.", .elder),
+            ("Harja", .elder),
+            ("King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.", .younger),
+        ]
+        for fidelity in TranslationFidelity.allCases {
+            for (text, script) in examples {
+                let result = service.translate(text: text, script: script, fidelity: fidelity, evidenceCap: .attestedOnly)
+                XCTAssertTrue(result.isAvailable, text)
+                XCTAssertEqual(result.evidenceTier, .attested)
+            }
+            XCTAssertFalse(service.translate(
+                text: "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.",
+                script: .younger, fidelity: fidelity, evidenceCap: .attestedOnly,
+            ).isAvailable)
+        }
+    }
+
     private func copyDataset() throws -> URL {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

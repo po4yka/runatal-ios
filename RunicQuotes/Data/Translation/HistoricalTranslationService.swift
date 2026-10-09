@@ -145,7 +145,7 @@ final class HistoricalTranslationService: Sendable {
             return self.datasetUnavailableResult(for: normalizedRequest)
         }
         let result = engineFactory.create(request.script).translate(normalizedRequest)
-        if request.fidelity == .strict, result.isAvailable {
+        if request.fidelity == .strict || request.evidenceCap == .attestedOnly, result.isAvailable {
             let unsupported = HistoricalGlyphInventory.unsupportedGlyphs(in: result, request: normalizedRequest)
             if !unsupported.isEmpty {
                 return self.invalidGlyphResult(for: normalizedRequest, attempted: result, unsupported: unsupported)
