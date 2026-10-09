@@ -100,9 +100,11 @@ struct ShareQuoteView: View {
             VStack(spacing: 0) {
                 Spacer()
 
-                // Card preview
-                self.shareCardView
-                    .padding(.horizontal, DesignTokens.Spacing.xxxl)
+                // Full multiline cards remain scrollable in the preview.
+                ScrollView {
+                    self.shareCardView
+                        .padding(.horizontal, DesignTokens.Spacing.xxxl)
+                }
 
                 Spacer()
 
@@ -306,6 +308,18 @@ struct ShareQuoteView: View {
         )
     }
 
+    private var textSharePayload: String {
+        var lines = [self.runicText, self.script.displayName, "\"\(self.latinText)\"", "— \(self.author)", self.presentationSource.shareDisclosureTitle]
+        if let tier = self.evidenceTier {
+            lines.append(self.presentationSource.evidenceLabel(tier))
+        }
+        if let source = self.primarySourceLabel {
+            lines.append(source)
+        }
+        lines.append(contentsOf: self.warnings)
+        return lines.joined(separator: "\n")
+    }
+
     @MainActor
     private func shareAsImage() {
         #if canImport(UIKit)
@@ -313,7 +327,7 @@ struct ShareQuoteView: View {
             if let image = renderShareImage() {
                 self.shareItems = [image]
             } else {
-                self.shareItems = ["\"\(self.latinText)\"\n-- \(self.author)"]
+                self.shareItems = [self.textSharePayload]
             }
             self.isShareSheetPresented = true
         #endif

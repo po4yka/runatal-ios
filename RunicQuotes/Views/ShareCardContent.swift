@@ -68,7 +68,7 @@ struct ShareCardContent: View {
             }
             .foregroundStyle(self.cardPalette.textSecondary.opacity(0.5))
             .multilineTextAlignment(.center)
-            .lineLimit(1)
+            .fixedSize(horizontal: false, vertical: true)
             .tracking(1.12)
             .padding(.horizontal, DesignTokens.Spacing.xl)
 

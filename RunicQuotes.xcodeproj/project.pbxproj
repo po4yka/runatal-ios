@@ -69,6 +69,7 @@
 		2B548269E6367A5C8619ACCF /* DatabaseCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4379492DB16FEA7E0ABFB5C /* DatabaseCoordinatorTests.swift */; };
 		2B64BFAC73A3696D99C968BD /* RunatalCirth-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 17C99FAFF512BE3F9CF18CE3 /* RunatalCirth-OFL.txt */; };
 		2B726218E57D082A3D6DA7F3 /* ArchiveFeatureComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 427F1607A68A0BA8D068B429 /* ArchiveFeatureComponent.swift */; };
+		2BBC9BE57BB18BC0882B6621 /* ShareRenderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CD2F22FE89143717AB0712 /* ShareRenderingTests.swift */; };
 		2C5F2FA7A4357D95ECB849E9 /* QuotePackDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB6A796B83587330B9AB2C0 /* QuotePackDetailView.swift */; };
 		2C66E92E3BBE29756A155BCF /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3923750024819D8496CAE6BD /* AppConstants.swift */; };
 		2C7F2E1735E7B3C5D9DD5FD2 /* CreateEditQuoteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A6FD9924A5EC1F4091D017 /* CreateEditQuoteViewModel.swift */; };
@@ -557,6 +558,7 @@
 		927908F9119D131D5B0AFA82 /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 		92D16C456AAA0FFAC10CFBEF /* RunicTips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicTips.swift; sourceTree = "<group>"; };
 		936E5F0180B59B59CC6F6882 /* YoungerFutharkMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YoungerFutharkMap.swift; sourceTree = "<group>"; };
+		93CD2F22FE89143717AB0712 /* ShareRenderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareRenderingTests.swift; sourceTree = "<group>"; };
 		95DA5226EBC82E1F360D3919 /* CollectionShelfRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionShelfRow.swift; sourceTree = "<group>"; };
 		97901C0182B80CACC32A10D7 /* BabelStoneRunic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = BabelStoneRunic.ttf; sourceTree = "<group>"; };
 		98119BA01894E39C96FDF095 /* AttestedQuoteCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttestedQuoteCatalogTests.swift; sourceTree = "<group>"; };
@@ -752,6 +754,7 @@
 				7FF863F02FEC4F03142C0227 /* CoreUtilityTests.swift */,
 				D1F010D8ECAAAA5F44CE6156 /* LiquidEffectPolicyTests.swift */,
 				D32A22A0C19424B992CDD9CF /* PhotoLibraryImageSaverTests.swift */,
+				93CD2F22FE89143717AB0712 /* ShareRenderingTests.swift */,
 				FF2DEFB97B1813CAA3B2C9DB /* WidgetRefreshCoordinatorTests.swift */,
 			);
 			path = Utilities;
@@ -1892,6 +1895,7 @@
 				9E7DCB6E38D65E70CD9E2AAB /* SavedQuotesViewModelTests.swift in Sources */,
 				3390DC464B9F027BA3D6CE9B /* SearchViewModelTests.swift in Sources */,
 				34363C10AA37E64A010147E3 /* SettingsViewModelTests.swift in Sources */,
+				2BBC9BE57BB18BC0882B6621 /* ShareRenderingTests.swift in Sources */,
 				DE19FB8EE2017881B7F61BA6 /* StrictTranslationDatasetTests.swift in Sources */,
 				F359519A49A5F1D87F0FE028 /* TestDoubles.swift in Sources */,
 				E9AC94ABA8BCC7DB3E818E06 /* TestSupport.swift in Sources */,
