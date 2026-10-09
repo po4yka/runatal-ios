@@ -48,16 +48,16 @@ struct OldNorseSentenceGrammar {
         var plan = OldNorseGrammarPlan()
         let words = tokens.indices.filter { tokens[$0].isWord }
         guard let firstWord = words.first, let lastWord = words.last else { return plan }
-        if tokens.indices.contains(where: { $0 > firstWord && $0 < lastWord && !tokens[$0].isWord }) {
-            plan.warnings.append("Internal punctuation or literal symbols separate unsupported sentence constructions; output is a lexical approximation.")
-            return plan
-        }
+        let hasInternalPunctuation = tokens.indices.contains { $0 > firstWord && $0 < lastWord && !tokens[$0].isWord }
         let verbs = words.filter { tokens[$0].entry?.partOfSpeech == "verb" }
-        guard verbs.count <= 1 else {
-            plan.warnings = ["Multiple clauses and auxiliary constructions are outside the supported grammar; output is a lexical approximation."]
-            return plan
+        if hasInternalPunctuation {
+            plan.warnings.append("Internal punctuation or literal symbols separate unsupported sentence constructions; output is a lexical approximation.")
+        }
+        if verbs.count > 1 {
+            plan.warnings.append("Multiple clauses and auxiliary constructions are outside the supported grammar; output is a lexical approximation.")
         }
         guard let verb = verbs.first else {
+            guard !hasInternalPunctuation else { return plan }
             if words.count == 1, tokens[words[0]].entry?.partOfSpeech != "noun" {
                 return plan
             }
@@ -65,6 +65,7 @@ struct OldNorseSentenceGrammar {
             return plan
         }
         let subjectWords = words.filter { $0 < verb }
+        guard !tokens.indices.contains(where: { $0 > firstWord && $0 < verb && !tokens[$0].isWord }) else { return plan }
         guard !subjectWords.isEmpty else {
             if words.count != 1 {
                 plan.warnings.append("Imperatives and omitted subjects are outside the supported sentence grammar.")
@@ -85,6 +86,9 @@ struct OldNorseSentenceGrammar {
         } else {
             plan.warnings.append("No cited finite verb form matches the subject person, number, and English tense.")
         }
+        // The initial finite form has a cited local subject even when later
+        // clauses cannot be composed. Never carry case government across them.
+        guard !hasInternalPunctuation, verbs.count == 1 else { return plan }
         let tail = words.filter { $0 > verb }
         self.resolveTail(tail, verb: entry, agreement: agreement, tokens: tokens, plan: &plan)
         return plan

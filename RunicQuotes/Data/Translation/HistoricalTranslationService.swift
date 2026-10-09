@@ -238,7 +238,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v14"
+    let engineVersion = "yf-translation-v15"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog

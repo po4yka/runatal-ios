@@ -74,4 +74,16 @@ final class OldNorseGrammarContractTests: XCTestCase {
         XCTAssertEqual(result.glyphOutput, "ᚠᛁᚢᛚ")
         XCTAssertEqual(result.supportLevel, .supported)
     }
+
+    func testInitialFiniteAgreementSurvivesUnsupportedLaterClausesWithoutCrossCase() {
+        for input in ["He has a wolf and hunts", "He has a wolf. He hunts"] {
+            let result = self.service.translate(text: input, script: .younger, fidelity: .readable)
+            XCTAssertEqual(result.supportLevel, .partial)
+            XCTAssertEqual(result.evidenceTier, .approximate)
+            XCTAssertTrue(result.tokenBreakdown.contains { $0.sourceToken == "has" && $0.normalizedToken == "hefir" })
+            XCTAssertTrue(result.tokenBreakdown.contains { $0.sourceToken == "wolf" && $0.normalizedToken == "úlfr" })
+            XCTAssertFalse(result.userFacingWarnings.isEmpty)
+        }
+    }
+
 }
