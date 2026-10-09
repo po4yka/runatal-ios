@@ -31,3 +31,11 @@ enum QuoteInputError: LocalizedError {
         }
     }
 }
+
+enum TranslationInputError: LocalizedError {
+    case textTooLong
+
+    var errorDescription: String? {
+        "Translation input must be at most \(AppConstants.maxTranslationInputLength) characters. Your text has been preserved."
+    }
+}

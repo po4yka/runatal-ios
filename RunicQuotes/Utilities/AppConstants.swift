@@ -42,6 +42,7 @@ enum AppConstants {
 
     /// Maximum length for quote text (for performance)
     static let maxQuoteLength = 10000
+    static let maxTranslationInputLength = 280
 
     /// Bundle identifier
     static let bundleIdentifier = "com.po4yka.runicquotes"

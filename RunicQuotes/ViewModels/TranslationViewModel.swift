@@ -11,7 +11,7 @@ import os
 import SwiftData
 import SwiftUI
 
-private let translationMaxInputLength = AppConstants.maxQuoteLength
+private let translationMaxInputLength = AppConstants.maxTranslationInputLength
 
 struct TranslationUiState {
     var inputText: String = ""
@@ -182,7 +182,7 @@ final class TranslationViewModel: ObservableObject {
     func saveToLibrary() {
         let input = self.state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard self.state.inputText.count <= translationMaxInputLength else {
-            self.state.errorMessage = QuoteInputError.textTooLong.localizedDescription
+            self.state.errorMessage = TranslationInputError.textTooLong.localizedDescription
             return
         }
         guard !input.isEmpty else {
@@ -259,7 +259,7 @@ final class TranslationViewModel: ObservableObject {
     private func rebuildPresentation() {
         let input = self.state.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !input.isEmpty, self.state.inputText.count <= translationMaxInputLength else {
-            self.state.errorMessage = self.state.inputText.count > translationMaxInputLength ? QuoteInputError.textTooLong.localizedDescription : self.state.errorMessage
+            self.state.errorMessage = self.state.inputText.count > translationMaxInputLength ? TranslationInputError.textTooLong.localizedDescription : self.state.errorMessage
             self.state.outputText = ""
             self.state.normalizedForm = nil
             self.state.diplomaticForm = nil
