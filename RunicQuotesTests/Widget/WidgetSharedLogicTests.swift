@@ -131,6 +131,21 @@ struct WidgetTimelineGeneratorTests {
     }
 
     @Test
+    func dailyRefreshUsesNextLocalMidnightAcrossShortAndLongDSTDays() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(identifier: "America/New_York"))
+        let generator = WidgetTimelineGenerator(calendar: calendar)
+        for (month, day, hours) in [(3, 8, 23), (11, 1, 25)] {
+            let midnight = try #require(calendar.date(from: DateComponents(year: 2026, month: month, day: day)))
+            let next = generator.nextUpdateDate(after: midnight, mode: .daily)
+            #expect(next > midnight)
+            #expect(next.timeIntervalSince(midnight) == Double(hours) * 3600)
+            #expect(calendar.component(.hour, from: next) == 0)
+            #expect(calendar.component(.day, from: next) == day + 1)
+        }
+    }
+
+    @Test
     func fallbackTimelineShowsUnavailableStateAndHourlyRetry() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let generator = WidgetTimelineGenerator(now: { now })

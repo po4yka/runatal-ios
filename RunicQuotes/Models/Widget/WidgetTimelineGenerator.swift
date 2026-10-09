@@ -159,7 +159,8 @@ struct WidgetTimelineGenerator {
     func nextUpdateDate(after date: Date, mode: WidgetMode) -> Date {
         switch mode {
         case .daily:
-            self.calendar.startOfDay(for: date.addingTimeInterval(AppConstants.secondsPerDay))
+            self.calendar.date(byAdding: .day, value: 1, to: self.calendar.startOfDay(for: date))
+                ?? date.addingTimeInterval(AppConstants.secondsPerDay)
         case .random:
             date.addingTimeInterval(AppConstants.secondsPerHour)
         }
