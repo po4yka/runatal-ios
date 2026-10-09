@@ -23,8 +23,8 @@ The app uses a pragmatic layered structure:
 
 Important runtime boundaries:
 
-- `RunicTransliterator` Direct Latin-to-rune transliteration.
-- `HistoricalTranslationService` Offline structured translation and Cirth transcription.
+- `RunicTransliterator` Modern spelling transcription returning glyphs plus unresolved-character warnings.
+- `HistoricalTranslationService` Offline structured translation with cited bounded grammar, whole-phrase evidence caps, and Erebor transcription.
 - `QuoteRepository` / `TranslationRepository` Persistence and cache orchestration.
 - `QuoteProvider` / `TranslationProvider` Actor-backed serialized access.
 
@@ -42,6 +42,8 @@ Important runtime boundaries:
 - Runtime mirrors are bundled in `RunicQuotes/Resources/Translation/`.
 - Translation is strictly offline and currently supports English input only.
 - Results carry provenance, support/evidence state, normalized/diplomatic layers, and unresolved-token diagnostics.
+
+The provider strictly loads all 14 assets into an immutable snapshot; a malformed dataset yields an explicit unavailable historical result while direct transcription still works. Genuine RuneS inscription rows provide positive historical coverage; ordinary modern quotes and installed packs do not imply strict ancient-language support. Cirth uses a licensed renamed CSUR font subset, and reference content separates historical reconstruction, medieval poem traditions, fictional mode facts, and modern interpretation. See `docs/translation/IMPLEMENTED_ARCHITECTURE.md` for grammar, encoding, source scope, and versioned migration contracts.
 
 ### Widgets
 

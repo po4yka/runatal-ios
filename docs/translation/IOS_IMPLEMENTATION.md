@@ -1,6 +1,6 @@
 # iOS Translation Implementation
 
-This document describes the iOS translation feature added in March 2026.
+This document describes the current iOS translation contracts, including the source and rune corrections introduced in October 2026.
 
 ## Scope
 
@@ -11,15 +11,15 @@ This document describes the iOS translation feature added in March 2026.
 
 - Curated JSON is maintained in `TranslationCuration/source/translation/`.
 - Runtime mirrors are exported into `RunicQuotes/Resources/Translation/`.
-- The iOS runtime loads the same manifest, lexicon, phrase-template, corpus-reference, gold-corpus, and Erebor-table files as Android when the mirrored dataset is exported there.
+- The 14-file schema has mandatory evidence metadata, explicit gold inventory eligibility, and stage-separated paraphrases. External consumers of older exports must update their decoders; glyph mapping and resource parity cannot be assumed from copying JSON alone.
 - SwiftPM also processes the translation resource directory so `swift build` and `swift test` exercise the same offline dataset.
 
 ## Runtime architecture
 
 - `HistoricalTranslationService` ports the Android precedence rules for: - Younger Futhark historical translation - Elder Futhark constrained reconstruction - Erebor/Cirth transcription
-- The service now performs an explicit English-input analysis stage before token resolution.
-- Unsupported non-English input is rejected with guidance instead of silently fabricating approximate output.
-- `AssetTranslationDatasetProvider` backs the service with bundled JSON and caches decoded payloads in memory.
+- English analysis feeds cited finite verb and case/agreement rules in `OldNorseSentenceGrammar`. Supported positive forms include `ek em`, `hann hefir úlf`, `ek veiði mikinn úlf`, and `hann er í miklu fjalli`; unsupported grammar remains an explicitly marked partial approximation.
+- Declared English is the supported semantic input. Unsupported scripts are rejected; the detector is not general natural-language identification. Complete grapheme tokenization retains smart contractions, negation, digits, and literal symbols.
+- `AssetTranslationDatasetProvider` is an eager immutable `Sendable` snapshot. Construction throws before a partial store escapes; strict field decoding and cross-reference validation reject malformed metadata. The service exposes a typed unavailable historical result on load failure while modern transcription remains available.
 - `SwiftDataTranslationRepository` stores structured results in: - `TranslationRecord` - `TranslationBackfillState`
 - `TranslationProvider` mirrors the existing quote actor pattern for serialized cache access.
 
@@ -52,12 +52,22 @@ This document describes the iOS translation feature added in March 2026.
 ## Startup backfill
 
 - After seed and purge work completes, the app runs a utility-priority translation backfill.
-- Backfill warms the dataset provider, scans all non-deleted quotes, and caches strict Elder and Younger results when available.
+- Backfill uses the already-loaded immutable dataset snapshot; selection and versioned progress are managed by `TranslationBackfillWorker`.
 - Cirth is intentionally skipped during startup backfill to match the rollout plan.
 
-## Cirth rendering adaptation
+## Direct and Cirth rendering contracts
 
-- Android stores Erebor glyph strings with a different glyph mapping strategy.
-- iOS does not reuse those raw glyph strings directly.
-- Instead, iOS rerenders Cirth output from the diplomatic layer using the existing `CirthAngerthas.ttf` Latin-substitution font mapping.
-- This preserves logical parity with Android while staying compatible with the current Angerthas font bundled in the iOS app.
+- Direct transcription returns `RunicTransliterationResult`; callers store `.glyphOutput` and expose unresolved-character warnings.
+- Canonical Elder and Younger glyph inventories replace mixed historical glyph variants in direct output.
+- Cirth glyph strings use the proposed CSUR private-use encoding, rendered with `RunatalCirth-Regular.ttf`. The derived subset retains the original Kurinto copyright/OFL and uses a new font name to respect the reserved name. Both app and widget bundle/register the font and retain its license; hidden resource placeholders are excluded from copy phases.
+- The historical Cirth renderer maps complete diplomatic segments to actual Erebor graph identities, preserving segment boundaries. It does not strip separators and accidentally reinterpret adjacent letters as a digraph.
+- `CirthGraph` supplies shared verified certh numbers, graph shapes, and mode notes for live modern transcription and the reference catalog. Source [Appendix E table](https://mirrors.mit.edu/CTAN/fonts/cirth/cirth.pdf) and [CSUR registry](https://www.evertype.com/standards/csur/cirth.html) support those assignments, not project-authored example sentences.
+- Old saved/custom Latin-slot Cirth migrates shape by shape; the old `x` is two graphs `k+s`. Permanent historical layers and old engine receipts survive. Exact generated outputs can be refreshed after a frozen old-engine match. Unknown custom PUA and corrupt permanent metadata are preserved.
+
+## Evidence and source boundaries
+
+- `attestedOnly` is checked against the final complete phrase; fallback and lexical paths cannot pass with unverified attestation labels.
+- The four genuine inscription catalog rows provide positive named historical coverage. DR 41 is an explicit restored reconstruction, not an intact attested sequence.
+- Old Norse paraphrases are stage-scoped. Modern English preservation and mixed output disclose that meaning has not been historically translated.
+- Reference cards classify reconstructed names, medieval poem traditions, and fictional Cirth separately. Modern reflection prompts are clearly project-authored; each glyph has source links with scope.
+- `StrictTranslationDatasetTests` exercises missing required metadata in all 14 resource families, invalid statuses/confidence, dangling provenance, graceful corrupt-dataset behavior, and retained positive inscription coverage. Grammar and Cirth contract tests assert independent source-derived positive outputs; synthetic educational examples do not borrow institutional quotation authority.
