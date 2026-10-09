@@ -127,6 +127,7 @@ struct GlassFontSelector: View {
     let availableFonts: [RunicFont]
 
     let cornerRadius: CGFloat
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
 
