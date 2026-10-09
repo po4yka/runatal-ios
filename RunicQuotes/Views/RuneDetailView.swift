@@ -103,7 +103,7 @@ struct RuneDetailView: View {
                 self.infoColumn(label: "Aett", value: aett)
             }
 
-            self.infoColumn(label: "Unicode", value: self.unicodeLabel)
+            self.infoColumn(label: self.rune.script == .cirth ? "Private use" : "Unicode", value: self.unicodeLabel)
 
             self.infoColumn(label: "Position", value: self.position)
         }
@@ -134,49 +134,34 @@ struct RuneDetailView: View {
             shadowRadius: 0,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                SectionLabel(title: "About", palette: self.palette)
-                Text(self.runeDescription)
+                SectionLabel(title: "Historical reference", palette: self.palette)
+                Text(self.rune.nameEvidence.displayName)
+                    .font(DesignTokens.Typography.controlLabel)
+                    .foregroundStyle(self.palette.textSecondary)
+                Text(self.rune.historicalNote)
                     .font(DesignTokens.Typography.supportingBody)
                     .foregroundStyle(self.palette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                ForEach(self.rune.referenceSources) { source in
+                    if let url = URL(string: source.url) {
+                        Link(source.title, destination: url)
+                            .font(DesignTokens.Typography.supportingBody)
+                    }
+                }
+                if let reflection = self.rune.modernReflection {
+                    SectionLabel(title: "Modern reflection", palette: self.palette)
+                    Text("Contemporary prompts written by Runatal; not attested ancient divination meanings.")
+                        .font(DesignTokens.Typography.listMeta)
+                        .foregroundStyle(self.palette.textTertiary)
+                    Text(reflection)
+                        .font(DesignTokens.Typography.supportingBody)
+                        .foregroundStyle(self.palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
     }
 
-    /// Description text for each rune.
-    private var runeDescription: String {
-        Self.descriptions[self.rune.id] ?? "\(self.rune.name) is a rune of the \(self.rune.script.displayName) alphabet representing \"\(self.rune.meaning)\" with the phonetic value /\(self.rune.sound)/."
-    }
-
-    // MARK: - Rune Descriptions
-
-    private static let descriptions: [String: String] = [
-        // Elder Futhark
-        "elder-fehu": "Fehu represents wealth, prosperity, and abundance. In the ancient Norse tradition, cattle were a primary measure of wealth, making this rune deeply connected to material fortune and the energy needed to attain and maintain it.",
-        "elder-uruz": "Uruz embodies the raw, untamed power of the aurochs, the wild ox of ancient Europe. It represents physical strength, endurance, and the primal creative force that drives transformation.",
-        "elder-thurisaz": "Thurisaz is the rune of the giants and of Thor's hammer. It represents reactive force, defense, and the power of chaos that can be directed for protection or destruction.",
-        "elder-ansuz": "Ansuz represents divine inspiration, communication, and the breath of Odin. It is the rune of wisdom, poetry, and the power of words to shape reality.",
-        "elder-raidho": "Raidho is the rune of the journey, both physical and spiritual. It represents right action, cosmic order, and the rhythmic movement that underlies all of existence.",
-        "elder-kenaz": "Kenaz is the torch that illuminates the darkness. It represents knowledge, creativity, and the transformative power of controlled fire in craft and art.",
-        "elder-gebo": "Gebo is the rune of gifts and sacred exchange. It represents generosity, partnership, and the balance of giving and receiving that maintains relationships.",
-        "elder-wunjo": "Wunjo embodies joy, harmony, and fulfillment. It represents the bliss that comes from alignment with one's true nature and fellowship with others.",
-        "elder-hagalaz": "Hagalaz is the rune of hail and disruption. It represents the uncontrollable forces of nature that break down the old to make way for new growth.",
-        "elder-naudiz": "Naudiz represents need, constraint, and the friction of resistance. It teaches that necessity is the mother of invention and that hardship forges strength.",
-        "elder-isa": "Isa is the rune of ice and stillness. It represents a period of waiting, concentration, and the crystalline clarity that comes from absolute focus.",
-        "elder-jera": "Jera is the rune of the year and harvest. It represents the natural cycle of cause and effect, patience, and the rewards that come from sustained effort.",
-        "elder-eihwaz": "Eihwaz is the rune of the yew tree, the axis between worlds. It represents endurance, the connection between life and death, and spiritual resilience.",
-        "elder-perthro": "Perthro is the rune of mystery, fate, and the unknown. It represents the well of destiny, chance, and the hidden forces that shape outcomes.",
-        "elder-algiz": "Algiz is the rune of protection and the divine connection. It represents the instinct for self-preservation and the bridge between humanity and the gods.",
-        "elder-sowilo": "Sowilo is the rune of the sun and victory. It represents wholeness, life force, and the guiding light that leads to success and self-realization.",
-        "elder-tiwaz": "Tiwaz is the rune of the god Tyr, embodying honor, justice, and self-sacrifice. It represents the warrior spirit guided by duty and moral courage.",
-        "elder-berkano": "Berkano is the rune of the birch tree and new beginnings. It represents birth, growth, fertility, and the nurturing energy of renewal.",
-        "elder-ehwaz": "Ehwaz is the rune of the horse and trusted partnership. It represents loyalty, teamwork, and the harmonious bond between rider and steed.",
-        "elder-mannaz": "Mannaz is the rune of humankind and shared intelligence. It represents the self, social bonds, and the collective wisdom of human experience.",
-        "elder-laguz": "Laguz is the rune of water and the flow of life. It represents intuition, the subconscious, and the power of going with the current.",
-        "elder-ingwaz": "Ingwaz is the rune of the god Ing and internal growth. It represents gestation, potential energy, and the seed of transformation held within.",
-        "elder-dagaz": "Dagaz is the rune of day and breakthrough. It represents the dawn, radical transformation, and the moment of clarity when darkness gives way to light.",
-        "elder-othala": "Othala is the rune of heritage and ancestral property. It represents homeland, inheritance, and the spiritual legacy passed down through generations.",
-    ]
 }
 
 // MARK: - Preview
