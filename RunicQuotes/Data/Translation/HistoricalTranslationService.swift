@@ -238,7 +238,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v9"
+    let engineVersion = "yf-translation-v10"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -1413,9 +1413,14 @@ private struct TranslationTokenResolution {
     }
 }
 
+private enum EnglishVerbTense {
+    case present
+    case past
+}
+
 private struct MorphologyHints {
     let isPlural: Bool
-    let isPast: Bool
+    let tense: EnglishVerbTense
     let isThirdPersonSingular: Bool
 }
 
@@ -1449,7 +1454,7 @@ private struct OldNorseMorphologyStage {
 
     private func inflectVerb(entry: OldNorseLexiconEntry, hints: MorphologyHints) -> String {
         let paradigm = entry.paradigmID.flatMap { self.lexiconLookup.paradigmTables().verbParadigms[$0] }
-        let pastForm: String? = if hints.isPast {
+        let pastForm: String? = if hints.tense == .past {
             entry.past3sg ?? paradigm.map { entry.lemma.replacingOccurrences(of: "a$", with: "", options: .regularExpression) + $0.thirdPersonPastSuffix }
         } else {
             nil
@@ -2002,11 +2007,13 @@ private extension ParsedEnglishToken {
         )
     }
 
+    private static let irregularPastForms = Set(["was", "were", "had", "did"])
+
     func toMorphologyHints() -> MorphologyHints {
         let raw = self.rawLowercased
         return MorphologyHints(
             isPlural: raw.hasSuffix("s") && !raw.hasSuffix("'s"),
-            isPast: raw.hasSuffix("ed"),
+            tense: raw.hasSuffix("ed") || Self.irregularPastForms.contains(raw) ? .past : .present,
             isThirdPersonSingular: raw.hasSuffix("s") && !raw.hasSuffix("ss"),
         )
     }

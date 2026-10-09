@@ -95,4 +95,15 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertTrue(unknownName.notes.contains { $0.contains("uncatalogued proper name") })
     }
 
+    func testIrregularPastCopulaKeepsItsTenseThroughLemmaNormalization() {
+        let present = self.service.translate(text: "He is", script: .younger)
+        let past = self.service.translate(text: "He was", script: .younger)
+        XCTAssertEqual(present.normalizedForm, "hann er")
+        XCTAssertEqual(past.normalizedForm, "hann var")
+        XCTAssertEqual(past.glyphOutput, "ᚼᛅᚾ ᚢᛅᚱ")
+        XCTAssertEqual(past.resolutionStatus, .reconstructed)
+        XCTAssertTrue(past.isAvailable)
+        XCTAssertNotEqual(past.glyphOutput, present.glyphOutput)
+    }
+
 }
