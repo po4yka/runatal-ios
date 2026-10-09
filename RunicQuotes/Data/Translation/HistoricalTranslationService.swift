@@ -298,7 +298,7 @@ private struct TranslationEngineFactory: Sendable {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v17"
+    let engineVersion = "yf-translation-v18"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -508,7 +508,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v12"
+    let engineVersion = "ef-translation-v13"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -640,7 +640,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
 
 private struct EreborCirthTranslationEngine: TranslationEngine {
     let script: RunicScript = .cirth
-    let engineVersion = "cirth-translation-v10"
+    let engineVersion = "cirth-translation-v11"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -1088,7 +1088,7 @@ private struct TranslationGoldExampleResolver {
 
     func resolve(request: TranslationRequest, engineVersion: String) -> TranslationResult? {
         guard let example = runicCorpusStore.goldExamples().first(where: {
-            $0.sourceText.normalizePhraseKey() == request.sourceText.normalizePhraseKey()
+            PhraseMatchInput($0.sourceText).key == PhraseMatchInput(request.sourceText).key
         }) else {
             return nil
         }
@@ -1167,7 +1167,7 @@ private struct TranslationGoldExampleResolver {
             userFacingWarnings: result.userFacingWarnings,
             engineVersion: engineVersion,
             datasetVersion: self.runicCorpusStore.datasetManifest().version,
-        )
+        ).preservingTerminalPunctuation(from: request.sourceText)
     }
 }
 
@@ -1409,7 +1409,7 @@ private struct RunicPhraseTemplateResolver {
     ) -> HistoricalPhraseTemplateEntry? {
         let candidates = templates.filter {
             $0.script == request.script.translationScriptName &&
-                $0.sourceText.normalizePhraseKey() == request.sourceText.normalizePhraseKey()
+                PhraseMatchInput($0.sourceText).key == PhraseMatchInput(request.sourceText).key
         }
         let eligibleCandidates = candidates.filter {
             request.evidenceCap != .attestedOnly || $0.attestationStatus == .attested
@@ -1484,7 +1484,7 @@ private struct RunicPhraseTemplateResolver {
             inputLanguage: request.sourceLanguage,
             engineVersion: engineVersion,
             datasetVersion: datasetVersion,
-        )
+        ).preservingTerminalPunctuation(from: request.sourceText)
     }
 }
 
@@ -1775,7 +1775,7 @@ private struct CirthOrthographyStage {
 
     func resolvePhrase(request: TranslationRequest) -> TranslationResult? {
         guard let mapping = ereborStore.ereborTables().phraseMappings.first(where: {
-            $0.sourceText.normalizePhraseKey() == request.sourceText.normalizePhraseKey()
+            PhraseMatchInput($0.sourceText).key == PhraseMatchInput(request.sourceText).key
         }) else {
             return nil
         }
@@ -1811,7 +1811,7 @@ private struct CirthOrthographyStage {
             inputLanguage: request.sourceLanguage,
             engineVersion: "cirth-phrase-v4",
             datasetVersion: self.ereborStore.datasetManifest().version,
-        )
+        ).preservingTerminalPunctuation(from: request.sourceText)
     }
 
     func renderToken(token: String, fidelity: TranslationFidelity) -> CirthOrthographyOutput {
@@ -2068,12 +2068,6 @@ private extension Array {
 }
 
 private extension String {
-    func normalizePhraseKey() -> String {
-        lowercased()
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-    }
-
     var nilIfEmpty: String? {
         isEmpty ? nil : self
     }
