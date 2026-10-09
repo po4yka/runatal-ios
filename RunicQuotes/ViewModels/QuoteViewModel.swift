@@ -159,7 +159,6 @@ final class QuoteViewModel: ObservableObject {
                 guard let quote = quotes.first(where: { $0.id == id }) else { throw QuoteRepositoryError.quoteNotFound }
                 self.cachedQuotes = quotes
                 if !self.state.currentCollection.contains(quote) {
-                    guard self.persistPreferences([.collection(quote.collection)]) else { return }
                     self.state.currentCollection = quote.collection
                 }
                 self.updateCollectionCovers(using: quotes)
@@ -242,25 +241,25 @@ final class QuoteViewModel: ObservableObject {
     }
 
     /// Apply deep-link context from widget and open quote screen in matching state.
-    func onOpenQuoteDeepLink(scriptRaw: String?, modeRaw: String?) {
-        let script = self.parseScript(from: scriptRaw)
-        let mode = self.parseMode(from: modeRaw)
+    func onOpenQuoteDeepLink(quoteID: UUID?, scriptRaw: String?, modeRaw: String?, collectionRaw: String?) {
         self.state.isLoading = true
-
         Task {
             await self.loadPreferences()
-
-            var mutations: [UserPreferencesMutation] = []
-            if let script {
-                mutations.append(.script(script))
+            guard self.state.errorMessage == nil else { self.state.isLoading = false; return }
+            if let script = self.parseScript(from: scriptRaw) {
+                self.state.currentScript = script
+                self.state.currentFont = self.preferences.selectedFont.isCompatible(with: script) ? self.preferences.selectedFont : RunicFontConfiguration.recommendedFont(for: script)
             }
-            guard self.persistPreferences(mutations) else {
-                self.state.isLoading = false
-                return
+            if let collection = collectionRaw.flatMap(QuoteCollection.init(rawValue:)) {
+                self.state.currentCollection = collection
             }
-            self.state.currentScript = self.preferences.selectedScript
-            self.state.currentFont = self.preferences.selectedFont
-            await self.loadQuote(using: mode ?? self.state.currentReadingMode, updateContext: true)
+            let mode = self.parseMode(from: modeRaw) ?? .daily
+            self.state.currentReadingMode = mode
+            if let quoteID {
+                self.onQuoteSaved(quoteID)
+            } else {
+                await self.loadQuote(using: mode, updateContext: true)
+            }
         }
     }
 

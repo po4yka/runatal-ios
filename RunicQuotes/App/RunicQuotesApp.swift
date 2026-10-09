@@ -163,19 +163,21 @@ struct RunicQuotesApp: App {
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
 
         switch host {
-        case "quote":
-            // Open quote tab and apply optional script/widget mode context.
+        case "quote", "daily":
             let script = components?.queryItems?.first(where: { $0.name == "script" })?.value ?? ""
-            let mode = components?.queryItems?.first(where: { $0.name == "mode" })?.value ?? ""
-
-            NotificationCenter.default.post(
-                name: .switchToQuoteTab,
-                object: nil,
-                userInfo: [
-                    "script": script,
-                    "mode": mode,
-                ],
-            )
+            let mode = host == "daily" ? WidgetMode.daily.rawValue : components?.queryItems?.first(where: { $0.name == "mode" })?.value ?? ""
+            let id = components?.queryItems?.first(where: { $0.name == "id" })?.value.flatMap(UUID.init(uuidString:))
+            if host == "quote", id == nil {
+                return
+            }
+            var context: [AnyHashable: Any] = ["script": script, "mode": mode]
+            if let id {
+                context["quoteID"] = id
+            }
+            if let collection = components?.queryItems?.first(where: { $0.name == "collection" })?.value {
+                context["collection"] = collection
+            }
+            NotificationCenter.default.post(name: .switchToQuoteTab, object: nil, userInfo: context)
         case "settings":
             // Open settings tab
             NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)

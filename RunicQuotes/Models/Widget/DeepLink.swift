@@ -10,7 +10,8 @@ import Foundation
 /// Deep link URLs shared between the widget and the app.
 enum DeepLink: Equatable {
     case openApp
-    case openQuote(script: RunicScript, mode: WidgetMode)
+    case openQuote(id: UUID, script: RunicScript, mode: WidgetMode, collection: QuoteCollection)
+    case openDailyQuote(script: RunicScript?)
     case openSettings
     case nextQuote
 
@@ -22,18 +23,28 @@ enum DeepLink: Equatable {
             }
             return url
 
-        case .openQuote(let script, let mode):
+        case .openQuote(let id, let script, let mode, let collection):
             var components = URLComponents()
             components.scheme = AppConstants.urlScheme
             components.host = "quote"
             components.queryItems = [
+                URLQueryItem(name: "id", value: id.uuidString),
                 URLQueryItem(name: "script", value: script.rawValue),
                 URLQueryItem(name: "mode", value: mode.rawValue),
+                URLQueryItem(name: "collection", value: collection.rawValue),
             ]
 
             guard let url = components.url else {
                 preconditionFailure("Failed to construct quote deep link")
             }
+            return url
+
+        case .openDailyQuote(let script):
+            var components = URLComponents()
+            components.scheme = AppConstants.urlScheme
+            components.host = "daily"
+            components.queryItems = script.map { [URLQueryItem(name: "script", value: $0.rawValue)] }
+            guard let url = components.url else { preconditionFailure("Invalid daily quote URL") }
             return url
 
         case .openSettings:
@@ -60,15 +71,26 @@ enum DeepLink: Equatable {
         switch url.host {
         case "quote":
             guard
+                let idRaw = components?.queryItems?.first(where: { $0.name == "id" })?.value,
+                let id = UUID(uuidString: idRaw),
                 let scriptRaw = components?.queryItems?.first(where: { $0.name == "script" })?.value,
                 let script = RunicScript(rawValue: scriptRaw)
             else {
-                return .openApp
+                return nil
             }
 
             let modeRaw = components?.queryItems?.first(where: { $0.name == "mode" })?.value
             let mode = WidgetMode(rawValue: modeRaw ?? "") ?? .daily
-            return .openQuote(script: script, mode: mode)
+            let collectionRaw = components?.queryItems?.first(where: { $0.name == "collection" })?.value
+            guard let collection = collectionRaw.flatMap(QuoteCollection.init(rawValue:)) else { return nil }
+            return .openQuote(id: id, script: script, mode: mode, collection: collection)
+
+        case "daily":
+            let raw = components?.queryItems?.first(where: { $0.name == "script" })?.value
+            if let raw, RunicScript(rawValue: raw) == nil {
+                return nil
+            }
+            return .openDailyQuote(script: raw.flatMap(RunicScript.init(rawValue:)))
 
         case "settings":
             return .openSettings

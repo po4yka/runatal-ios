@@ -52,7 +52,7 @@ struct RunicQuoteWidgetEntryView: View {
                 }
             }
         }
-        .widgetURL(self.entry.status == .quote ? DeepLink.openQuote(script: self.entry.script, mode: self.entry.widgetMode).url : DeepLink.openApp.url)
+        .widgetURL(self.entry.quote.map { self.entry.status == .quote ? DeepLink.openQuote(id: $0.id, script: self.entry.script, mode: self.entry.widgetMode, collection: self.entry.collection).url : DeepLink.openApp.url } ?? DeepLink.openApp.url)
     }
 }
 

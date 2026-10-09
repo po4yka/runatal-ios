@@ -13,10 +13,11 @@ import Testing
 struct DeepLinkTests {
     @Test
     func openQuoteRoundTripsThroughURL() throws {
-        let deepLink = DeepLink.openQuote(script: .younger, mode: .random)
+        let id = UUID()
+        let deepLink = DeepLink.openQuote(id: id, script: .younger, mode: .random, collection: .stoic)
         let parsed = try #require(DeepLink.from(url: deepLink.url))
 
-        #expect(parsed == .openQuote(script: .younger, mode: .random))
+        #expect(parsed == .openQuote(id: id, script: .younger, mode: .random, collection: .stoic))
     }
 
     @Test

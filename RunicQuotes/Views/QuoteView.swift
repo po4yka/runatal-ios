@@ -81,7 +81,7 @@ struct QuoteView: View {
             .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { notification in
                 let scriptRaw = notification.userInfo?["script"] as? String
                 let modeRaw = notification.userInfo?["mode"] as? String
-                self.viewModel.onOpenQuoteDeepLink(scriptRaw: scriptRaw, modeRaw: modeRaw)
+                self.viewModel.onOpenQuoteDeepLink(quoteID: notification.userInfo?["quoteID"] as? UUID, scriptRaw: scriptRaw, modeRaw: modeRaw, collectionRaw: notification.userInfo?["collection"] as? String)
             }
             .onReceive(NotificationCenter.default.publisher(for: .loadNextQuote)) { _ in
                 self.handleNextQuoteTriggered()

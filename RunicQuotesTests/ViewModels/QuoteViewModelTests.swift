@@ -174,8 +174,10 @@ struct QuoteViewModelTests {
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
 
         viewModel.onOpenQuoteDeepLink(
+            quoteID: nil,
             scriptRaw: RunicScript.younger.rawValue,
             modeRaw: WidgetMode.random.rawValue,
+            collectionRaw: nil,
         )
 
         #expect(await TestSupport.eventually {
@@ -298,6 +300,24 @@ struct QuoteViewModelTests {
         #expect(await TestSupport.eventually { !viewModel.state.isLoading })
         #expect(viewModel.state.currentQuoteID == id)
         #expect(viewModel.state.currentReadingMode == mode)
+    }
+
+    @Test
+    func widgetIdentityAndTemporaryContextDoNotOverwriteGlobalPreferences() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataQuoteRepository(modelContext: context)
+        let first = try repository.createQuote(textLatin: "First passage", author: "Reader", source: nil, collection: .stoic, storedRunic: nil, translations: [])
+        _ = try repository.createQuote(textLatin: "Another passage", author: "Reader", source: nil, collection: .motivation, storedRunic: nil, translations: [])
+        let preferences = SwiftDataUserPreferencesRepository(modelContext: context)
+        let model = QuoteViewModel(quoteProvider: QuoteProvider(modelContainer: context.container), translationProvider: TranslationProvider(modelContainer: context.container), preferencesRepository: preferences)
+        model.onOpenQuoteDeepLink(quoteID: first.id, scriptRaw: RunicScript.cirth.rawValue, modeRaw: WidgetMode.random.rawValue, collectionRaw: QuoteCollection.stoic.rawValue)
+        #expect(await TestSupport.eventually { !model.state.isLoading })
+        #expect(model.state.currentQuoteID == first.id)
+        #expect(model.state.currentScript == .cirth)
+        #expect(model.state.currentFont.isCompatible(with: .cirth))
+        #expect(try preferences.snapshot().selectedScript == .elder)
+        #expect(try preferences.snapshot().selectedCollection == .all)
+        #expect(try preferences.snapshot().widgetMode == .daily)
     }
 
     private func makeViewModel(seedData: Bool = true) throws -> QuoteViewModel {
