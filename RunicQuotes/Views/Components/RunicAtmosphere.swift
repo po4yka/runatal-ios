@@ -86,12 +86,12 @@ struct RunicAtmosphere: View {
         .allowsHitTesting(false)
     }
 
-    private static func glyphCharacters(for script: RunicScript) -> [String] {
+    static func glyphCharacters(for script: RunicScript) -> [String] {
         switch script {
         case .elder:
-            ["\u{16A0}", "\u{16B1}", "\u{16A6}", "\u{16B7}", "\u{16C1}", "\u{16BE}", "\u{16C7}", "\u{16AB}"]
+            ["\u{16A0}", "\u{16B1}", "\u{16A6}", "\u{16B7}", "\u{16C1}", "\u{16BE}", "\u{16C7}", "\u{16A8}"]
         case .younger:
-            ["\u{16A0}", "\u{16A2}", "\u{16A6}", "\u{16B1}", "\u{16B4}", "\u{16B7}", "\u{16C1}", "\u{16C8}"]
+            ["\u{16A0}", "\u{16A2}", "\u{16A6}", "\u{16B1}", "\u{16B4}", "\u{16BC}", "\u{16C1}", "\u{16CB}"]
         case .cirth:
             ["\u{E080}", "\u{E089}", "\u{E08B}", "\u{E091}", "\u{E095}", "\u{E09E}", "\u{E0B1}", "\u{E0B9}"]
         }

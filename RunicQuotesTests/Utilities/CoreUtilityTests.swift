@@ -55,3 +55,16 @@ struct StringSearchTests {
         #expect(!"Fortune favors the bold".matchesSearchQuery("tolkien"))
     }
 }
+
+@MainActor
+@Suite(.tags(.utility))
+struct AtmosphericGlyphInventoryTests {
+    @Test
+    func decorationsBelongToTheSelectedApprovedRuneInventory() {
+        for script in RunicScript.allCases {
+            let glyphs = RunicAtmosphere.glyphCharacters(for: script).joined()
+            #expect(!glyphs.isEmpty)
+            #expect(HistoricalGlyphInventory.unsupportedGlyphs(in: glyphs, sourceText: "", script: script, variant: .longBranch).isEmpty)
+        }
+    }
+}
