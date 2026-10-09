@@ -222,6 +222,7 @@ enum HistoricalStage: String, Codable, CaseIterable, Identifiable {
     case protoNorse = "PROTO_NORSE"
     case ereborEnglish = "EREBOR_ENGLISH"
     case modernEnglish = "MODERN_ENGLISH"
+    case mixed = "MIXED_HISTORICAL_AND_MODERN"
 
     var id: String {
         rawValue
@@ -237,6 +238,8 @@ enum HistoricalStage: String, Codable, CaseIterable, Identifiable {
             "Erebor English"
         case .modernEnglish:
             "Modern English"
+        case .mixed:
+            "Historical forms and modern spelling"
         }
     }
 }

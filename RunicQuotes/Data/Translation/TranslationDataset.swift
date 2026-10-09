@@ -335,12 +335,12 @@ struct NameAdaptationsData: Codable {
 
 struct FallbackTemplatesData: Codable {
     let synonyms: [String: String]
-    let paraphrases: [String: String]
+    let paraphrasesByStage: [String: [String: String]]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.synonyms = try container.decodeIfPresent([String: String].self, forKey: .synonyms) ?? [:]
-        self.paraphrases = try container.decodeIfPresent([String: String].self, forKey: .paraphrases) ?? [:]
+        self.paraphrasesByStage = try container.decode([String: [String: String]].self, forKey: .paraphrasesByStage)
     }
 }
 

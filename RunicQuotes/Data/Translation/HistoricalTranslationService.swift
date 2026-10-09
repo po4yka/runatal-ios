@@ -238,7 +238,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v12"
+    let engineVersion = "yf-translation-v13"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -334,6 +334,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
         var provenance: [TranslationProvenanceEntry] = []
         var notes: [String] = []
         var resolutionStatus: TranslationResolutionStatus = .reconstructed
+        var historicalStage: HistoricalStage = .oldNorse
 
         let normalized: String
         if let pronoun = lexiconLookup.grammarRules().pronounMap[token.normalized] {
@@ -372,6 +373,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
             normalized = morphology.form
         } else if token.isProperNameCandidate, request.fidelity != .strict {
             resolutionStatus = .approximated
+            historicalStage = .modernEnglish
             notes.append("Preserved an uncatalogued proper name phonetically.")
             provenance.append(
                 self.lexiconLookup.provenanceFor(
@@ -380,7 +382,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
                 ),
             )
             normalized = token.normalized
-        } else if request.fidelity != .strict, let paraphrase = lexiconLookup.fallbackParaphrase(token.normalized) {
+        } else if request.fidelity != .strict, let paraphrase = lexiconLookup.fallbackParaphrase(token.normalized, stage: .oldNorse) {
             resolutionStatus = .approximated
             notes.append("Used descriptive paraphrase for '\(token.raw)'.")
             provenance.append(
@@ -392,6 +394,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
             normalized = paraphrase
         } else if request.fidelity != .strict {
             resolutionStatus = .approximated
+            historicalStage = .modernEnglish
             notes.append(
                 request.fidelity == .decorative
                     ? "Decorative mode preserved '\(token.raw)' phonetically."
@@ -429,13 +432,14 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
             resolutionStatus: resolutionStatus,
             notes: Array(Set(notes)),
             provenance: provenance.uniquedBy(\.stableID),
+            historicalStage: historicalStage,
         )
     }
 }
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v9"
+    let engineVersion = "ef-translation-v10"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -515,6 +519,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
                 resolutionStatus: output.resolutionStatus,
                 notes: output.notes,
                 provenance: output.provenance,
+                historicalStage: output.historicalStage,
             )
         }
 
@@ -1201,8 +1206,8 @@ private struct HistoricalLexiconLookup {
         self.lexiconStore.nameAdaptations().names[token]
     }
 
-    func fallbackParaphrase(_ token: String) -> String? {
-        self.lexiconStore.fallbackTemplates().paraphrases[token]
+    func fallbackParaphrase(_ token: String, stage: HistoricalStage) -> String? {
+        self.lexiconStore.fallbackTemplates().paraphrasesByStage[stage.rawValue]?[token]
     }
 
     func fallbackSynonym(_ token: String) -> String? {
@@ -1270,7 +1275,7 @@ private struct HistoricalLexiconLookup {
         var terms = Array(oldNorseEntries.keys)
         terms.append(contentsOf: self.protoNorseEntries.keys)
         terms.append(contentsOf: self.lexiconStore.fallbackTemplates().synonyms.keys)
-        terms.append(contentsOf: self.lexiconStore.fallbackTemplates().paraphrases.keys)
+        terms.append(contentsOf: self.lexiconStore.fallbackTemplates().paraphrasesByStage.values.flatMap(\.keys))
         terms.append(contentsOf: self.lexiconStore.nameAdaptations().names.keys)
         terms.append(contentsOf: grammarRules.pronounMap.keys)
         terms.append(contentsOf: grammarRules.prepositionMap.keys)
@@ -1418,6 +1423,7 @@ private struct TranslationTokenResolution {
     let notes: [String]
     let unresolvedToken: String?
     let provenance: [TranslationProvenanceEntry]
+    let historicalStage: HistoricalStage?
 
     init(
         sourceToken: String,
@@ -1428,6 +1434,7 @@ private struct TranslationTokenResolution {
         notes: [String] = [],
         unresolvedToken: String? = nil,
         provenance: [TranslationProvenanceEntry] = [],
+        historicalStage: HistoricalStage? = nil,
     ) {
         self.sourceToken = sourceToken
         self.normalizedToken = normalizedToken
@@ -1437,6 +1444,7 @@ private struct TranslationTokenResolution {
         self.notes = notes
         self.unresolvedToken = unresolvedToken
         self.provenance = provenance
+        self.historicalStage = historicalStage
     }
 }
 
@@ -1653,6 +1661,7 @@ private struct YoungerFutharkRenderer {
 
 private struct ProtoNorseStageOutput {
     let form: String?
+    let historicalStage: HistoricalStage
     let notes: [String]
     let resolutionStatus: TranslationResolutionStatus
     let unresolvedToken: String?
@@ -1672,11 +1681,12 @@ private struct ProtoNorseLexicalStage {
             fidelity: fidelity,
             evidenceCap: evidenceCap,
         )
-        let paraphrase = self.lexiconLookup.fallbackParaphrase(token.normalized)
+        let paraphrase = self.lexiconLookup.fallbackParaphrase(token.normalized, stage: .protoNorse)
 
         if let entry {
             return ProtoNorseStageOutput(
                 form: entry.form,
+                historicalStage: .protoNorse,
                 notes: [],
                 resolutionStatus: entry.attestationStatus == .attested
                     ? .attested
@@ -1689,6 +1699,7 @@ private struct ProtoNorseLexicalStage {
         if fidelity == .strict {
             return ProtoNorseStageOutput(
                 form: nil,
+                historicalStage: .protoNorse,
                 notes: ["Missing attested or reconstructed Elder Futhark pattern for '\(token.raw)'."],
                 resolutionStatus: .unavailable,
                 unresolvedToken: token.raw,
@@ -1699,6 +1710,7 @@ private struct ProtoNorseLexicalStage {
         if let paraphrase {
             return ProtoNorseStageOutput(
                 form: paraphrase.lowercased(),
+                historicalStage: .protoNorse,
                 notes: ["Used descriptive paraphrase for '\(token.raw)'."],
                 resolutionStatus: .approximated,
                 unresolvedToken: nil,
@@ -1714,6 +1726,7 @@ private struct ProtoNorseLexicalStage {
         if token.isProperNameCandidate {
             return ProtoNorseStageOutput(
                 form: token.normalized,
+                historicalStage: .modernEnglish,
                 notes: ["Preserved an uncatalogued proper name phonetically."],
                 resolutionStatus: .approximated,
                 unresolvedToken: nil,
@@ -1728,13 +1741,14 @@ private struct ProtoNorseLexicalStage {
 
         return ProtoNorseStageOutput(
             form: token.normalized,
+            historicalStage: .modernEnglish,
             notes: ["Used phonological preservation for '\(token.raw)'."],
             resolutionStatus: .approximated,
             unresolvedToken: nil,
             provenance: [
                 self.lexiconLookup.provenanceFor(
                     sourceID: "internal_heuristics",
-                    detail: "Proto-Norse preservation fallback",
+                    detail: "Modern English spelling fallback; meaning not translated",
                 ),
             ],
         )
@@ -1950,7 +1964,11 @@ private struct TranslationEvidenceSynthesizer {
         let normalizedForm = resolutionStatus == .unavailable ? "" : stitchTokens(available.map(\.normalizedToken))
         let diplomaticForm = resolutionStatus == .unavailable ? "" : stitchTokens(available.map(\.diplomaticToken))
         let glyphOutput = resolutionStatus == .unavailable ? "" : stitchTokens(available.map(\.glyphToken))
-        let userFacingWarnings = Array(Set(evidenceRequest.analysisWarnings))
+        let stages = Set(available.compactMap(\.historicalStage))
+        let historicalStage: HistoricalStage = stages.count > 1 ? .mixed : (stages.first ?? evidenceRequest.historicalStage)
+        let stageWarnings = historicalStage == .modernEnglish || historicalStage == .mixed
+            ? ["Modern English spelling is preserved for some words; their meaning has not been translated into a historical language."] : []
+        let userFacingWarnings = Array(Set(evidenceRequest.analysisWarnings + stageWarnings))
 
         let needsStrictUnavailableFallback =
             request.fidelity == .strict &&
@@ -1963,7 +1981,7 @@ private struct TranslationEvidenceSynthesizer {
                 script: evidenceRequest.script,
                 fidelity: request.fidelity,
                 derivationKind: evidenceRequest.derivationKind,
-                historicalStage: evidenceRequest.historicalStage,
+                historicalStage: historicalStage,
                 normalizedForm: "",
                 diplomaticForm: "",
                 glyphOutput: "",
@@ -1998,7 +2016,7 @@ private struct TranslationEvidenceSynthesizer {
             script: evidenceRequest.script,
             fidelity: request.fidelity,
             derivationKind: evidenceRequest.derivationKind,
-            historicalStage: evidenceRequest.historicalStage,
+            historicalStage: historicalStage,
             normalizedForm: normalizedForm,
             diplomaticForm: diplomaticForm,
             glyphOutput: glyphOutput,

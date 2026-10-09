@@ -14,10 +14,13 @@
     "mountains": "mountain",
     "kings": "king"
   },
-  "paraphrases": {
-    "computer": "reiknandi vél",
-    "opportunity": "gott færi",
-    "yourself": "sjálfr",
-    "everyone": "hverr maðr"
+  "paraphrasesByStage": {
+    "OLD_NORSE": {
+      "computer": "reiknandi vél",
+      "opportunity": "gott færi",
+      "yourself": "sjálfr",
+      "everyone": "hverr maðr"
+    },
+    "PROTO_NORSE": {}
   }
 }

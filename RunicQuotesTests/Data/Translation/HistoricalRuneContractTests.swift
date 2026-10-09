@@ -151,4 +151,22 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertEqual(stored.tokenBreakdown, result.tokenBreakdown)
     }
 
+    func testElderFallbackNeverRelabelsOldNorseParaphraseAsProtoNorse() {
+        let computer = self.service.translate(text: "computer", script: .elder, fidelity: .readable)
+        XCTAssertEqual(computer.normalizedForm, "computer")
+        XCTAssertEqual(computer.glyphOutput, "ᚲᛟᛗᛈᚢᛏᛖᚱ")
+        XCTAssertEqual(computer.historicalStage, .modernEnglish)
+        XCTAssertEqual(computer.evidenceTier, .approximate)
+        XCTAssertFalse(computer.normalizedForm.contains("reiknandi"))
+        let ancient = self.service.translate(text: "wolf", script: .elder, fidelity: .readable)
+        XCTAssertEqual(ancient.normalizedForm, "wulfaz")
+        XCTAssertEqual(ancient.historicalStage, .protoNorse)
+        let mixed = self.service.translate(text: "wolf computer", script: .elder, fidelity: .readable)
+        XCTAssertEqual(mixed.historicalStage, .mixed)
+        XCTAssertTrue(mixed.userFacingWarnings.contains { $0.contains("meaning has not been translated") })
+        let younger = self.service.translate(text: "computer", script: .younger, fidelity: .readable)
+        XCTAssertEqual(younger.normalizedForm, "reiknandi vél")
+        XCTAssertEqual(younger.historicalStage, .oldNorse)
+    }
+
 }
