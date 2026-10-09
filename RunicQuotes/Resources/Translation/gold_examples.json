@@ -10,8 +10,8 @@
         "derivationKind": "GOLD_EXAMPLE",
         "historicalStage": "OLD_NORSE",
         "normalizedForm": "úlfr veiðir um nótt",
-        "diplomaticForm": "ulfr uiþir um nutt",
-        "glyphOutput": "ᚢᛚᚠᚱ ᚢᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ",
+        "diplomaticForm": "ulfr uaiþir um nutt",
+        "glyphOutput": "ᚢᛚᚠᚱ ᚢᛅᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ",
         "requestedVariant": "LONG_BRANCH",
         "resolutionStatus": "RECONSTRUCTED",
         "supportLevel": "SUPPORTED",
@@ -80,8 +80,8 @@
           {
             "sourceToken": "hunts",
             "normalizedToken": "veiðir",
-            "diplomaticToken": "uiþir",
-            "glyphToken": "ᚢᛁᚦᛁᚱ",
+            "diplomaticToken": "uaiþir",
+            "glyphToken": "ᚢᛅᛁᚦᛁᚱ",
             "resolutionStatus": "RECONSTRUCTED",
             "provenance": [
               {

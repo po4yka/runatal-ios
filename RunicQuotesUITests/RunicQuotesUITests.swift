@@ -180,7 +180,7 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         XCTAssertEqual(badge.label, "Reconstructed")
         let output = self.findElement(in: app, identifier: "translation_output_text", maxSwipes: 5)
         XCTAssertTrue(output.exists)
-        XCTAssertFalse(output.label.isEmpty)
+        XCTAssertEqual(output.label, "ᚢᛚᚠᚱ ᚢᛅᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ")
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Real-Younger-translation-with-evidence"
         attachment.lifetime = .keepAlways

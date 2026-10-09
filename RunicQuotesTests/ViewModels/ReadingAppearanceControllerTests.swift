@@ -56,7 +56,7 @@ struct ReadingAppearanceControllerTests {
             return quote
         }.value
         #expect(await TestSupport.eventually { model.script == .younger && model.presentation(for: second).source == .structuredTranslation })
-        #expect(model.presentation(for: second).text == "ᚢᛚᚠᚱ ᚢᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ")
+        #expect(model.presentation(for: second).text == "ᚢᛚᚠᚱ ᚢᛅᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ")
         #expect(model.font.isCompatible(with: .younger))
     }
 

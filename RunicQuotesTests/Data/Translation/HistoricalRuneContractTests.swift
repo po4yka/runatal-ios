@@ -154,6 +154,18 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertEqual(preserved.evidenceTier, .approximate)
     }
 
+    func testGoldWolfProjectionPreservesTheCitedDiphthongInItsFullAndTokenOutputs() {
+        let result = self.service.translate(text: "The wolf hunts at night", script: .younger)
+        XCTAssertEqual(result.normalizedForm, "úlfr veiðir um nótt")
+        XCTAssertEqual(result.diplomaticForm, "ulfr uaiþir um nutt")
+        XCTAssertEqual(result.glyphOutput, "ᚢᛚᚠᚱ ᚢᛅᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ")
+        XCTAssertEqual(result.evidenceTier, .reconstructed)
+        let hunts = result.tokenBreakdown.first { $0.sourceToken == "hunts" }
+        XCTAssertEqual(hunts?.normalizedToken, "veiðir")
+        XCTAssertEqual(hunts?.diplomaticToken, "uaiþir")
+        XCTAssertEqual(hunts?.glyphToken, "ᚢᛅᛁᚦᛁᚱ")
+    }
+
     func testRepeatedWordBreakdownPreservesEveryOrderedOccurrence() throws {
         let result = self.service.translate(text: "wolf wolf wolf", script: .younger)
         XCTAssertEqual(result.tokenBreakdown.count, 3)
