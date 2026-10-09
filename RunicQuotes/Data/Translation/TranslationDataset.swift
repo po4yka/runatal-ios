@@ -65,6 +65,8 @@ struct OldNorseLexiconEntry: Codable {
     let past3sg: String?
     let pluralForm: String?
     let dativePhrase: String?
+    let nounForms: [String: String]?
+    let objectCase: String?
     let strictEligible: Bool
     let sourceID: String
     let sourceWork: String?
@@ -87,6 +89,8 @@ struct OldNorseLexiconEntry: Codable {
         case past3sg
         case pluralForm
         case dativePhrase
+        case nounForms
+        case objectCase
         case strictEligible
         case sourceID = "sourceId"
         case sourceWork
@@ -111,6 +115,8 @@ struct OldNorseLexiconEntry: Codable {
         self.past3sg = try container.decodeIfPresent(String.self, forKey: .past3sg)
         self.pluralForm = try container.decodeIfPresent(String.self, forKey: .pluralForm)
         self.dativePhrase = try container.decodeIfPresent(String.self, forKey: .dativePhrase)
+        self.nounForms = try container.decodeIfPresent([String: String].self, forKey: .nounForms)
+        self.objectCase = try container.decodeIfPresent(String.self, forKey: .objectCase)
         self.strictEligible = try container.decodeIfPresent(Bool.self, forKey: .strictEligible) ?? true
         self.sourceID = try container.decode(String.self, forKey: .sourceID)
         self.sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)

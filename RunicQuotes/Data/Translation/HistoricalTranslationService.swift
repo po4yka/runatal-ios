@@ -238,7 +238,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v10"
+    let engineVersion = "yf-translation-v11"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -289,15 +289,23 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
             grammarRules: grammarRules,
             recognizedTerms: self.lexiconLookup.recognizedEnglishTerms(),
             multiwordExpressions: self.lexiconLookup.multiwordExpressions(),
+            recognizedVerbs: self.lexiconLookup.recognizedEnglishVerbs(),
         )
-        let resolutions = parsed.tokens.compactMap { token -> TranslationTokenResolution? in
+        let objectVerb = parsed.verbTokens.first?.normalized ?? ""
+        let objectCase = self.lexiconLookup.oldNorseFor(
+            objectVerb, fidelity: request.fidelity, evidenceCap: request.evidenceCap,
+        )?.objectCase
+        let verbIndex = parsed.tokens.firstIndex { $0.normalized == parsed.verbTokens.first?.normalized }
+        let resolutions = parsed.tokens.enumerated().compactMap { index, token -> TranslationTokenResolution? in
             if token.type == .punctuation {
                 return token.asPunctuationResolution()
             }
             if grammarRules.removableWords.contains(token.normalized) {
                 return nil
             }
-            return self.resolveToken(token, request: request)
+            let grammaticalCase = verbIndex.map { index > $0 } == true && !parsed.modifierTokens.contains(where: { $0.raw == token.raw })
+                ? objectCase : nil
+            return self.resolveToken(token, request: request, grammaticalCase: grammaticalCase)
         }
 
         return self.evidenceSynthesizer.buildResult(
@@ -321,6 +329,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
     private func resolveToken(
         _ token: ParsedEnglishToken,
         request: TranslationRequest,
+        grammaticalCase: String?,
     ) -> TranslationTokenResolution {
         var provenance: [TranslationProvenanceEntry] = []
         var notes: [String] = []
@@ -358,7 +367,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
         ) {
             resolutionStatus = entry.attestationStatus == .attested ? .attested : .reconstructed
             provenance.append(self.lexiconLookup.provenanceFor(entry: entry))
-            let morphology = self.morphologyStage.inflect(entry: entry, token: token)
+            let morphology = self.morphologyStage.inflect(entry: entry, token: token, grammaticalCase: grammaticalCase)
             notes.append(contentsOf: morphology.notes)
             normalized = morphology.form
         } else if token.isProperNameCandidate, request.fidelity != .strict {
@@ -426,7 +435,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v8"
+    let engineVersion = "ef-translation-v9"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -473,6 +482,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
             grammarRules: self.lexiconLookup.grammarRules(),
             recognizedTerms: self.lexiconLookup.recognizedEnglishTerms(),
             multiwordExpressions: self.lexiconLookup.multiwordExpressions(),
+            recognizedVerbs: self.lexiconLookup.recognizedEnglishVerbs(),
         )
         if request.fidelity == .strict {
             return self.strictUnavailableResult(request, warnings: parsed.warnings)
@@ -661,6 +671,7 @@ private struct EnglishSyntaxParser {
             grammarRules: lexiconLookup.grammarRules(),
             recognizedTerms: lexiconLookup.recognizedEnglishTerms(),
             multiwordExpressions: lexiconLookup.multiwordExpressions(),
+            recognizedVerbs: lexiconLookup.recognizedEnglishVerbs(),
         )
     }
 
@@ -669,6 +680,7 @@ private struct EnglishSyntaxParser {
         grammarRules: GrammarRulesData,
         recognizedTerms: Set<String>,
         multiwordExpressions: [String],
+        recognizedVerbs: Set<String> = [],
     ) -> ParsedEnglishText {
         let normalizedText = text
             .replacingOccurrences(of: "[’‘ʼ]", with: "'", options: .regularExpression)
@@ -717,7 +729,7 @@ private struct EnglishSyntaxParser {
             if let auxiliaryLemma = grammarRules.auxiliaryMap[normalized] {
                 let shouldCollapseAuxiliary =
                     self.collapsibleAuxiliaries.contains(normalized) &&
-                    self.hasFollowingContentWord(after: index, in: mergedTokens)
+                    self.hasFollowingVerb(after: index, in: mergedTokens, recognizedVerbs: recognizedVerbs)
 
                 if shouldCollapseAuxiliary {
                     warnings.append("Auxiliary chains are simplified to the main lexical verb.")
@@ -884,8 +896,17 @@ private struct EnglishSyntaxParser {
         return nil
     }
 
-    private func hasFollowingContentWord(after index: Int, in tokens: [ParsedEnglishToken]) -> Bool {
-        tokens.dropFirst(index + 1).contains { $0.type == .word }
+    private func hasFollowingVerb(after index: Int, in tokens: [ParsedEnglishToken], recognizedVerbs: Set<String>) -> Bool {
+        // A noun phrase or punctuation ends the chain. A later verb elsewhere in
+        // the sentence is not evidence that this lexical verb is auxiliary.
+        for token in tokens.dropFirst(index + 1) {
+            guard token.type == .word else { return false }
+            if ["not", "never"].contains(token.normalized) {
+                continue
+            }
+            return recognizedVerbs.contains(token.normalized)
+        }
+        return false
     }
 
     private func isVerbLike(_ token: ParsedEnglishToken, grammarRules: GrammarRulesData) -> Bool {
@@ -1238,6 +1259,12 @@ private struct HistoricalLexiconLookup {
         }
     }
 
+    func recognizedEnglishVerbs() -> Set<String> {
+        let verbs = Set(self.oldNorseEntries.values.filter { $0.partOfSpeech == "verb" }.map(\.english))
+        let aliases = self.lexiconStore.fallbackTemplates().synonyms.filter { verbs.contains($0.value) }.keys
+        return verbs.union(aliases).union(self.lexiconStore.grammarRules().auxiliaryMap.keys)
+    }
+
     func recognizedEnglishTerms() -> Set<String> {
         let grammarRules = self.lexiconStore.grammarRules()
         var terms = Array(oldNorseEntries.keys)
@@ -1432,7 +1459,7 @@ private struct MorphologyStageOutput {
 private struct OldNorseMorphologyStage {
     let lexiconLookup: HistoricalLexiconLookup
 
-    func inflect(entry: OldNorseLexiconEntry, token: ParsedEnglishToken) -> MorphologyStageOutput {
+    func inflect(entry: OldNorseLexiconEntry, token: ParsedEnglishToken, grammaticalCase: String?) -> MorphologyStageOutput {
         let hints = token.toMorphologyHints()
         switch entry.partOfSpeech {
         case "verb":
@@ -1442,7 +1469,7 @@ private struct OldNorseMorphologyStage {
             )
         case "noun":
             return MorphologyStageOutput(
-                form: self.inflectNoun(entry: entry, hints: hints),
+                form: self.inflectNoun(entry: entry, hints: hints, grammaticalCase: grammaticalCase),
                 notes: entry.paradigmID.map { ["Applied noun paradigm \($0)."] } ?? [],
             )
         case "preposition":
@@ -1467,7 +1494,10 @@ private struct OldNorseMorphologyStage {
         return pastForm ?? presentForm ?? entry.lemma
     }
 
-    private func inflectNoun(entry: OldNorseLexiconEntry, hints: MorphologyHints) -> String {
+    private func inflectNoun(entry: OldNorseLexiconEntry, hints: MorphologyHints, grammaticalCase: String?) -> String {
+        if let grammaticalCase, let form = entry.nounForms?["\(grammaticalCase)_\(hints.isPlural ? "PLURAL" : "SINGULAR")"] {
+            return form
+        }
         let paradigm = entry.paradigmID.flatMap { self.lexiconLookup.paradigmTables().nounParadigms[$0] }
         let inflected: String? = if hints.isPlural {
             if let plural = entry.pluralForm {

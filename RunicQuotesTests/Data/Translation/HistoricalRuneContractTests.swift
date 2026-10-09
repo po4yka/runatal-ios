@@ -106,4 +106,24 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertNotEqual(past.glyphOutput, present.glyphOutput)
     }
 
+    func testLexicalHaveKeepsPossessionAndGovernsAccusativeObject() {
+        let present = self.service.translate(text: "He has a wolf", script: .younger)
+        XCTAssertEqual(present.normalizedForm, "hann hefir úlf")
+        XCTAssertTrue(present.isAvailable)
+        XCTAssertEqual(present.evidenceTier, .reconstructed)
+        XCTAssertTrue(present.provenance.contains { $0.sourceID == "barnes_nion" })
+        XCTAssertFalse(present.notes.contains { $0.contains("Auxiliary chains") })
+        XCTAssertEqual(self.service.translate(text: "He had a wolf", script: .younger).normalizedForm, "hann hafði úlf")
+    }
+
+    func testLexicalVerbDoesNotCollapseAcrossNounPhraseOrPunctuation() {
+        for input in ["He has a wolf and hunts", "He has a wolf. He hunts"] {
+            let result = self.service.translate(text: input, script: .younger, fidelity: .readable)
+            XCTAssertTrue(result.tokenBreakdown.contains { $0.sourceToken == "has" && $0.normalizedToken == "hefir" })
+        }
+        let auxiliary = self.service.translate(text: "He does not hunt", script: .younger)
+        XCTAssertFalse(auxiliary.tokenBreakdown.contains { $0.sourceToken == "does" })
+        XCTAssertTrue(auxiliary.tokenBreakdown.contains { $0.sourceToken == "hunt" })
+    }
+
 }

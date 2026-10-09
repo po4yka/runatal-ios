@@ -98,6 +98,15 @@
       "license": "CC-BY-SA-4.0",
       "licenseNote": "Derived segmented readings cite the specific RuneS entry and signum; RuneS origin-data notices also identify Rundata under ODbL.",
       "url": "https://www.runesdb.de/"
+    },
+    {
+      "id": "barnes_nion",
+      "name": "Michael Barnes: A New Introduction to Old Norse I",
+      "role": "Explicit inflection paradigms and grammatical government",
+      "work": "A New Introduction to Old Norse I, third edition (2008)",
+      "license": "Reference only",
+      "licenseNote": "Open scholarly grammar consulted; no prose text redistributed.",
+      "url": "https://vsnr.org/wp-content/uploads/2021/11/NION-1.pdf"
     }
   ]
 }

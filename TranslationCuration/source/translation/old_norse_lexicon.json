@@ -7,7 +7,11 @@
     "paradigmId": "strong_masc_a",
     "strictEligible": true,
     "sourceId": "zoega",
-    "citations": ["úlfr"]
+    "citations": ["úlfr"],
+    "nounForms": {
+      "ACCUSATIVE_SINGULAR": "úlf",
+      "ACCUSATIVE_PLURAL": "úlfa"
+    }
   },
   {
     "id": "on_veida",
@@ -329,5 +333,26 @@
     "licenseNote": "Project-authored readable verb approximation.",
     "regressionId": "verb_honor_readable",
     "citations": ["Curated readable verb approximation"]
+  },
+  {
+    "id": "on_hafa",
+    "english": "have",
+    "partOfSpeech": "verb",
+    "lemma": "hafa",
+    "present3sg": "hefir",
+    "past3sg": "hafði",
+    "objectCase": "ACCUSATIVE",
+    "strictEligible": true,
+    "sourceId": "barnes_nion",
+    "sourceWork": "A New Introduction to Old Norse I, third edition (2008)",
+    "citations": [
+      "§3.6.7 p.154: hafa, hefr/hefir, hafði; §3.9.7.1 pp.249–250: non-auxiliary hafa, nominative subject and accusative object"
+    ],
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "verb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Reference-only scholarly grammar; forms are project-curated lexical data, not a claim of phrase attestation.",
+    "regressionId": "lexical-have-object"
   }
 ]
