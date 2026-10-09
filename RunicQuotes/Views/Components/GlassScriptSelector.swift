@@ -91,11 +91,12 @@ private struct ScriptButton: View {
                 Text(self.compactTitle)
                     .font(DesignTokens.Typography.metadata)
                     .fontWeight(self.isSelected ? .semibold : .regular)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             .foregroundStyle(self.isSelected ? self.palette.chipSelectedForeground : self.palette.textSecondary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .padding(.horizontal, 8)
         }
         .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: self.isSelected))
         .accessibilityLabel(self.script.displayName)

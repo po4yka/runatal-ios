@@ -134,6 +134,10 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
         let cirth = refreshedOptions.element(boundBy: 0)
         let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: cirth)
         XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+        let selectorAttachment = XCTAttachment(screenshot: app.screenshot())
+        selectorAttachment.name = "Actual-Home-script-selector-with-Cirth"
+        selectorAttachment.lifetime = .keepAlways
+        self.add(selectorAttachment)
         let actions = self.findElement(in: app, identifier: "quote_actions_button", maxSwipes: 4)
         self.tapElement(actions)
         let share = app.buttons["Share Quote"]
@@ -147,5 +151,4 @@ final class LibraryInteractionUITests: RunicQuotesUITestCase {
         attachment.lifetime = .keepAlways
         self.add(attachment)
     }
-
 }
