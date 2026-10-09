@@ -83,9 +83,11 @@
 		2E42BD2566940897321AE489 /* QuotePackInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49A947CDA00A5801EF9779F /* QuotePackInstallerTests.swift */; };
 		2F756F0033B6D8666FE27D4A /* QuoteQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392643A03974647648A5AF59 /* QuoteQueries.swift */; };
 		2F919D1D86E9E9DB98EFCBF7 /* YoungerFutharkMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936E5F0180B59B59CC6F6882 /* YoungerFutharkMap.swift */; };
+		3047E3BD4657E103AE4E870B /* QuoteRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 745FECC0DE71FF8A52539699 /* QuoteRecord.swift */; };
 		308FE8DA8BA54A235745AF9F /* QuotePackInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB7429440AC24120F509384 /* QuotePackInstaller.swift */; };
 		30C43824B3C4D07474C7B1D7 /* LegacyGeneratedRuneMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5F833D37E6EBCBB4D49C75 /* LegacyGeneratedRuneMigration.swift */; };
 		3103C56F8C3ECA08FA121C44 /* RunicTextBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319E8EBEC664357D97F6BBD2 /* RunicTextBundle.swift */; };
+		317C5D435035A537B0CB87DE /* ReadingLibrarySnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E170095A07D2CCFB0B32FB59 /* ReadingLibrarySnapshotTests.swift */; };
 		31A0890B597116EE6FA80383 /* FeatureDiscoveryControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1CA06C8B192D4EE0294B86A /* FeatureDiscoveryControllerTests.swift */; };
 		3294DDD2E2901AABD9A7591A /* RunicTransliterationContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDFBE5E2049265E7CE6F464 /* RunicTransliterationContractTests.swift */; };
 		32F72CB3E15FDC7C6F1C779C /* LiquidEffectPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD00C739C9AC7F8F03FF1DB /* LiquidEffectPolicy.swift */; };
@@ -104,6 +106,7 @@
 		3A47C82A0BD3381AF8134324 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8CA96F011684EEF607F274 /* DeepLink.swift */; };
 		3A6166397859F894E2975585 /* DailyReminderClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DBFCAF77CEF8E3BD560BA2 /* DailyReminderClient.swift */; };
 		3B3AF8255513BA1E26713ABB /* RunatalCirth-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BEE3336A41C871722480B486 /* RunatalCirth-Regular.ttf */; };
+		3B5C46D26D3519329CBAC50F /* QuoteRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 745FECC0DE71FF8A52539699 /* QuoteRecord.swift */; };
 		3C781AF149E59A3F9C727456 /* TranslationRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F0F8F11C72DE6E3D669077 /* TranslationRepositoryTests.swift */; };
 		3C8EF4D0A605A1901C279EB7 /* PhotoLibraryImageSaverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32A22A0C19424B992CDD9CF /* PhotoLibraryImageSaverTests.swift */; };
 		3D0A9DBD55A4AC2903B045E6 /* QuoteSeedCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE1A2EF70BCF97615EB30A8 /* QuoteSeedCatalog.swift */; };
@@ -558,6 +561,7 @@
 		72B5530EEC3C2846644B5287 /* HistoricalGlyphInventory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalGlyphInventory.swift; sourceTree = "<group>"; };
 		7340ECEBC0AE69020E0C1F6B /* QuoteListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteListRow.swift; sourceTree = "<group>"; };
 		735E032A4D79140DE918EB09 /* HistoricalTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalTranslationService.swift; sourceTree = "<group>"; };
+		745FECC0DE71FF8A52539699 /* QuoteRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteRecord.swift; sourceTree = "<group>"; };
 		76975A20EA9C6F2539425F1F /* FeatureDiscoveryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureDiscoveryController.swift; sourceTree = "<group>"; };
 		7717F484AC75C90A2D3B5A01 /* RunicFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicFont.swift; sourceTree = "<group>"; };
 		78B218CD2F98CC6AC16F46E0 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
@@ -682,6 +686,7 @@
 		DD5F0EEAF0B1A2B31C1EDDFD /* UITestPersistentStoreConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestPersistentStoreConfigurator.swift; sourceTree = "<group>"; };
 		DDFAB852621B8BDD54F7F279 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		E110C363B0E8CEF8B96E9320 /* TranslationSupplementarySectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationSupplementarySectionsView.swift; sourceTree = "<group>"; };
+		E170095A07D2CCFB0B32FB59 /* ReadingLibrarySnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingLibrarySnapshotTests.swift; sourceTree = "<group>"; };
 		E1B87B33A496BEDBE1CAF18D /* WidgetStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetStyle.swift; sourceTree = "<group>"; };
 		E38F7E8FB943021792E211A1 /* AppRootComponent+Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRootComponent+Views.swift"; sourceTree = "<group>"; };
 		E4379492DB16FEA7E0ABFB5C /* DatabaseCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -885,6 +890,7 @@
 				F64B11996A162AE53AD615AC /* QuoteQueryTests.swift */,
 				61645924446BB1A7C083EE28 /* QuoteRepositoryPerformanceTests.swift */,
 				800A14271C3DC6CA765C4888 /* QuoteRepositoryTests.swift */,
+				E170095A07D2CCFB0B32FB59 /* ReadingLibrarySnapshotTests.swift */,
 				9223BDDB015089A96FF9F9F3 /* RunicTransliteratorPerformanceTests.swift */,
 				254648007D90E0C204E80CCD /* RunicTransliteratorTests.swift */,
 				29272DD790785C7A54F3BE97 /* TranslationBackfillBatchTests.swift */,
@@ -1034,6 +1040,7 @@
 				44432773198273AF5D770878 /* QuoteCatalogUpgrade.swift */,
 				3BB7429440AC24120F509384 /* QuotePackInstaller.swift */,
 				392643A03974647648A5AF59 /* QuoteQueries.swift */,
+				745FECC0DE71FF8A52539699 /* QuoteRecord.swift */,
 				C086E6B5E1D77DDAAA16CD5B /* QuoteRepository.swift */,
 				DAE1A2EF70BCF97615EB30A8 /* QuoteSeedCatalog.swift */,
 				5AAAFEA03CB24FCD2DDB641C /* TranslationBackfillWorker.swift */,
@@ -1749,6 +1756,7 @@
 				B6A1B05386BB9F0DC118E51E /* QuoteProvider.swift in Sources */,
 				E9DF49156CB4E5629F6120B6 /* QuoteQueries.swift in Sources */,
 				C4A9D4CA9E966E6F45AA42DE /* QuoteReading.swift in Sources */,
+				3047E3BD4657E103AE4E870B /* QuoteRecord.swift in Sources */,
 				CBC56A42ECA5A67AE559E02B /* QuoteRepository.swift in Sources */,
 				737D53392AAF3EB91610F759 /* QuoteScriptPickerView.swift in Sources */,
 				08E7C8D8B9D7FAD57BB73468 /* QuoteSearchResultsSectionView.swift in Sources */,
@@ -1877,6 +1885,7 @@
 				54C43A3CF875C222426A03F1 /* QuoteProvider.swift in Sources */,
 				2F756F0033B6D8666FE27D4A /* QuoteQueries.swift in Sources */,
 				15E980D5B3A69EFD9577C2B7 /* QuoteReading.swift in Sources */,
+				3B5C46D26D3519329CBAC50F /* QuoteRecord.swift in Sources */,
 				3469E397AD3AD02541DEB6D0 /* QuoteRepository.swift in Sources */,
 				3D0A9DBD55A4AC2903B045E6 /* QuoteSeedCatalog.swift in Sources */,
 				84C76C8EB42F87063AA36398 /* QuoteSeedReceipt.swift in Sources */,
@@ -1974,6 +1983,7 @@
 				C1364C06B4D1106BB9FC5F42 /* QuoteViewModelTests.swift in Sources */,
 				F1972BC1D8FE70B9B5D8A567 /* QuoteViewModelTranslationTests.swift in Sources */,
 				1C62F63AD632088C49FC6BFD /* ReadingAppearanceControllerTests.swift in Sources */,
+				317C5D435035A537B0CB87DE /* ReadingLibrarySnapshotTests.swift in Sources */,
 				DEEDBB7267C79B1A369A59ED /* RuneEditorialContractTests.swift in Sources */,
 				537E69EFC0E84597FCD9BA99 /* RunicPresentationTests.swift in Sources */,
 				3294DDD2E2901AABD9A7591A /* RunicTransliterationContractTests.swift in Sources */,

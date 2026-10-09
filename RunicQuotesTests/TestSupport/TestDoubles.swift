@@ -227,6 +227,13 @@ final class TestQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
     }
 
+    func readingLibraryQuotes() throws -> [QuoteRecord] {
+        if let allQuotesError {
+            throw allQuotesError
+        }
+        return self.lock.withLock { Array(self.quoteByID.values) }
+    }
+
     func archivedQuotes() throws -> [QuoteRecord] {
         if let archivedQuotesError {
             throw archivedQuotesError

@@ -11,54 +11,6 @@ import SwiftData
 
 // swiftlint:disable function_parameter_count
 
-/// Sendable snapshot of a Quote model used across actor boundaries.
-struct QuoteRecord: Identifiable {
-    let id: UUID
-    let textLatin: String
-    let author: String
-    let source: String?
-    let collection: QuoteCollection
-    let runicElder: String?
-    let runicYounger: String?
-    let runicCirth: String?
-    let cirthEncodingRaw: String?
-    let storedTranslationMetadataData: Data?
-    let createdAt: Date
-    let isHidden: Bool
-    let isDeleted: Bool
-    let deletedAt: Date?
-    let isUserGenerated: Bool
-
-    init(from quote: Quote) {
-        self.id = quote.id
-        self.textLatin = quote.textLatin
-        self.author = quote.author
-        self.source = quote.source
-        self.collection = quote.collection
-        self.runicElder = quote.runicElder
-        self.runicYounger = quote.runicYounger
-        self.runicCirth = quote.runicCirth
-        self.cirthEncodingRaw = quote.cirthEncodingRaw
-        self.storedTranslationMetadataData = quote.storedTranslationMetadataData
-        self.createdAt = quote.createdAt
-        self.isHidden = quote.isHidden
-        self.isDeleted = quote.isSoftDeleted
-        self.deletedAt = quote.deletedAt
-        self.isUserGenerated = quote.isUserGenerated
-    }
-
-    func runicText(for script: RunicScript) -> String? {
-        switch script {
-        case .elder:
-            self.runicElder
-        case .younger:
-            self.runicYounger
-        case .cirth:
-            self.runicCirth
-        }
-    }
-}
-
 /// Protocol defining the quote repository interface
 protocol QuoteRepository: Sendable {
     /// Seed the database with initial quotes if needed
@@ -72,6 +24,8 @@ protocol QuoteRepository: Sendable {
 
     /// Get all quotes
     func allQuotes() throws -> [QuoteRecord]
+    /// One coherent snapshot of visible and archived records for presentation.
+    func readingLibraryQuotes() throws -> [QuoteRecord]
 
     /// Get a quote by identifier regardless of archive state.
     func quote(id: UUID) throws -> QuoteRecord?
@@ -244,6 +198,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     func allQuotes() throws -> [QuoteRecord] {
         try QuoteQueries.visible(in: self.makeContext()).map(QuoteRecord.init(from:))
+    }
+
+    func readingLibraryQuotes() throws -> [QuoteRecord] {
+        try self.makeContext().fetch(FetchDescriptor<Quote>(sortBy: [SortDescriptor(\.createdAt)])).map(QuoteRecord.init(from:))
     }
 
     func quote(id: UUID) throws -> QuoteRecord? {

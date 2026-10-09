@@ -46,6 +46,10 @@ actor QuoteProvider {
         try self.repository.allQuotes()
     }
 
+    func readingLibraryQuotes() async throws -> [QuoteRecord] {
+        try self.repository.readingLibraryQuotes()
+    }
+
     /// Get a quote by id regardless of archive state.
     func quote(id: UUID) async throws -> QuoteRecord? {
         try self.repository.quote(id: id)

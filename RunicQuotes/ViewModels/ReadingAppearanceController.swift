@@ -64,9 +64,7 @@ final class ReadingAppearanceController: ObservableObject {
         self.loadTask = Task {
             do {
                 let preferences = try self.repository.snapshot()
-                let visible = try await self.quotes.allQuotes()
-                let archived = try await self.quotes.archivedQuotes()
-                let allQuotes = visible + archived
+                let allQuotes = try await self.quotes.readingLibraryQuotes()
                 let cached = try await self.translations.latestTranslations(for: allQuotes.map(\.id), script: preferences.selectedScript)
                 try Task.checkCancellation()
                 guard generation == self.generation else { return }
