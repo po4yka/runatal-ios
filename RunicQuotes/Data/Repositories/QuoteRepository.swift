@@ -259,12 +259,12 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             let quote = Quote(textLatin: textLatin, author: author, collection: collection, isUserGenerated: true)
             quote.source = source
             self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
+            context.insert(quote)
+            try SwiftDataTranslationRepository.stage(results: translations, for: quote.id, sourceText: textLatin, in: context)
             let artifacts = translations.filter(\.isAvailable)
             if !artifacts.isEmpty {
                 quote.storedTranslationMetadataData = try JSONEncoder().encode(artifacts)
             }
-            context.insert(quote)
-            try SwiftDataTranslationRepository.stage(results: translations, for: quote.id, sourceText: textLatin, in: context)
             return QuoteRecord(from: quote)
         }
         if !translations.isEmpty {
