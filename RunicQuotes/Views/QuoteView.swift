@@ -162,8 +162,12 @@ struct QuoteView: View {
             }
             .confirmationDialog("Create quote", isPresented: self.$showCreateChoices, titleVisibility: .visible) {
                 Button(String(localized: "translation.menu.newQuote")) { self.showCreateQuote = true }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(String(localized: "translation.menu.newQuote"))
                     .accessibilityIdentifier("quote_create_new_action")
                 Button(String(localized: "translation.menu.translate")) { self.showTranslationView = true }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(String(localized: "translation.menu.translate"))
                     .accessibilityIdentifier("quote_create_translate_action")
                 Button("Cancel", role: .cancel) {}
             }
