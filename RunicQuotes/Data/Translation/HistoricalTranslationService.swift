@@ -209,7 +209,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v5"
+    let engineVersion = "yf-translation-v6"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -1421,7 +1421,11 @@ private struct PhonologyStageOutput {
 
 private struct YoungerFutharkPhonologyStage {
     func rewrite(_ text: String) -> PhonologyStageOutput {
-        var current = text.lowercased()
+        var current = text.precomposedStringWithCanonicalMapping.lowercased()
+            .replacingOccurrences(of: "[áàâäā]", with: "a", options: .regularExpression)
+            .replacingOccurrences(of: "[íìîïī]", with: "i", options: .regularExpression)
+            .replacingOccurrences(of: "[úùûüū]", with: "u", options: .regularExpression)
+            .replacingOccurrences(of: "[ýÿœ]", with: "u", options: .regularExpression)
         var notes: [String] = []
 
         current = self.applyRegexRule(

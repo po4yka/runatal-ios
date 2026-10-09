@@ -232,6 +232,7 @@
 		C1364C06B4D1106BB9FC5F42 /* QuoteViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867E3D7B78E5CD810F554534 /* QuoteViewModelTests.swift */; };
 		C1D1104F7D68F07C2993C2BB /* RuneReferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A31FDDC9898A40F38E16018 /* RuneReferenceView.swift */; };
 		C2627DFEEEEE506F9D3D9A34 /* AppThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D057DD4B6AA1E732D565F36 /* AppThemePalette.swift */; };
+		C31F2FF88A380C28D63E54DC /* HistoricalRuneContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298F22C07F27A2A380014AF3 /* HistoricalRuneContractTests.swift */; };
 		C40CA8AFB1DCE3271435CA97 /* ArchiveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5D2237F9A54CEB21360101 /* ArchiveViewModel.swift */; };
 		C57FA0FE58B955FE314482D7 /* TranslationResultSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F09BA7EB1691227D723C5C /* TranslationResultSectionView.swift */; };
 		C62E741B21EFE0B002211A73 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A760915913A7ACBEF831D3 /* Haptics.swift */; };
@@ -362,6 +363,7 @@
 		2904EB09440EF9C5DE602EBB /* CirthAngerthas.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CirthAngerthas.ttf; sourceTree = "<group>"; };
 		29272DD790785C7A54F3BE97 /* TranslationBackfillBatchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationBackfillBatchTests.swift; sourceTree = "<group>"; };
 		2941E0513FED4AD817461D21 /* RunicQuotes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunicQuotes.entitlements; sourceTree = "<group>"; };
+		298F22C07F27A2A380014AF3 /* HistoricalRuneContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalRuneContractTests.swift; sourceTree = "<group>"; };
 		2B41742376FA7887628DCDA7 /* OnboardingActionFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingActionFooter.swift; sourceTree = "<group>"; };
 		2CB581A12D1B7995D4913602 /* QuoteBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteBackgroundView.swift; sourceTree = "<group>"; };
 		2E144C9CE793AD73C6BC6040 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -723,6 +725,7 @@
 		313A060D406895F2B5159EDB /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				7F57FF743C76D637F5E18FC5 /* Translation */,
 				5ECC03A44D6B0C53CBD619D6 /* Transliteration */,
 				E4379492DB16FEA7E0ABFB5C /* DatabaseCoordinatorTests.swift */,
 				B0185373B369090B54886138 /* HistoricalTranslationServiceTests.swift */,
@@ -905,6 +908,14 @@
 				DD5F0EEAF0B1A2B31C1EDDFD /* UITestPersistentStoreConfigurator.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		7F57FF743C76D637F5E18FC5 /* Translation */ = {
+			isa = PBXGroup;
+			children = (
+				298F22C07F27A2A380014AF3 /* HistoricalRuneContractTests.swift */,
+			);
+			path = Translation;
 			sourceTree = "<group>";
 		};
 		9299081B078966340160B868 /* RunicQuotesWidget */ = {
@@ -1668,6 +1679,7 @@
 				3DE970CD4C24D11D127E88C2 /* CreateEditQuoteViewModelTests.swift in Sources */,
 				2B548269E6367A5C8619ACCF /* DatabaseCoordinatorTests.swift in Sources */,
 				31A0890B597116EE6FA80383 /* FeatureDiscoveryControllerTests.swift in Sources */,
+				C31F2FF88A380C28D63E54DC /* HistoricalRuneContractTests.swift in Sources */,
 				995B06203D1F75239DE2E54C /* HistoricalTranslationServiceTests.swift in Sources */,
 				6E9E76F747D0C2560143CAD8 /* LegacyGeneratedRuneMigrationTests.swift in Sources */,
 				52FFC4FA942AB92066DAEA42 /* LiquidEffectPolicyTests.swift in Sources */,
