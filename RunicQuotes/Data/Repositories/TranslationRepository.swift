@@ -17,18 +17,25 @@ protocol TranslationRepository: Sendable {
 }
 
 final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Sendable {
-    private let modelContext: ModelContext
+    private let modelContainer: ModelContainer
     private let translationService: HistoricalTranslationService
 
     init(
         modelContext: ModelContext,
         translationService: HistoricalTranslationService = HistoricalTranslationService(),
     ) {
-        self.modelContext = modelContext
+        self.modelContainer = modelContext.container
         self.translationService = translationService
     }
 
+    private func makeContext() -> ModelContext {
+        let context = ModelContext(self.modelContainer)
+        context.autosaveEnabled = false
+        return context
+    }
+
     func latestTranslation(for quoteID: UUID, script: RunicScript) throws -> TranslationResult? {
+        let modelContext = self.makeContext()
         var descriptor = FetchDescriptor<TranslationRecord>(
             predicate: #Predicate {
                 $0.quoteID == quoteID && $0.scriptRaw == script.rawValue
@@ -43,6 +50,23 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
     }
 
     func cache(result: TranslationResult, for quoteID: UUID, sourceText: String) throws {
+        try self.cache(results: [result], for: quoteID, sourceText: sourceText)
+    }
+
+    func cache(results: [TranslationResult], for quoteID: UUID, sourceText: String) throws {
+        let context = self.makeContext()
+        try Self.stage(results: results, for: quoteID, sourceText: sourceText, in: context)
+        try context.save()
+        NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": quoteID])
+    }
+
+    static func stage(results: [TranslationResult], for quoteID: UUID, sourceText: String, in context: ModelContext) throws {
+        for result in results {
+            try self.stage(result: result, for: quoteID, sourceText: sourceText, in: context)
+        }
+    }
+
+    private static func stage(result: TranslationResult, for quoteID: UUID, sourceText: String, in context: ModelContext) throws {
         guard result.resolutionStatus != .unavailable else { return }
 
         let cacheKey = TranslationRecord.makeCacheKey(
@@ -59,7 +83,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         )
         descriptor.fetchLimit = 1
 
-        if let existing = try modelContext.fetch(descriptor).first {
+        if let existing = try context.fetch(descriptor).first {
             existing.normalizedForm = result.normalizedForm
             existing.diplomaticForm = result.diplomaticForm
             existing.glyphOutput = result.glyphOutput
@@ -76,34 +100,30 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             existing.userFacingWarningsData = try JSONEncoder().encode(result.userFacingWarnings)
             existing.updatedAt = Date()
         } else {
-            self.modelContext.insert(TranslationRecord(result: result.withSourceText(sourceText), quoteID: quoteID))
+            context.insert(TranslationRecord(result: result.withSourceText(sourceText), quoteID: quoteID))
         }
 
-        try self.modelContext.save()
-        NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": quoteID])
-    }
-
-    func cache(results: [TranslationResult], for quoteID: UUID, sourceText: String) throws {
-        for result in results where result.resolutionStatus != .unavailable {
-            try cache(result: result, for: quoteID, sourceText: sourceText)
-        }
     }
 
     func deleteTranslations(for quoteID: UUID) throws {
-        let descriptor = FetchDescriptor<TranslationRecord>(
-            predicate: #Predicate { $0.quoteID == quoteID },
-        )
-        for record in try self.modelContext.fetch(descriptor) {
-            self.modelContext.delete(record)
-        }
-        try self.modelContext.save()
+        let context = self.makeContext()
+        try Self.stageDeletion(for: quoteID, in: context)
+        try context.save()
         NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": quoteID])
     }
 
+    static func stageDeletion(for quoteID: UUID, in context: ModelContext) throws {
+        let descriptor = FetchDescriptor<TranslationRecord>(predicate: #Predicate { $0.quoteID == quoteID })
+        for record in try context.fetch(descriptor) {
+            context.delete(record)
+        }
+    }
+
     func backfillAllQuotes() throws {
+        let modelContext = self.makeContext()
         self.translationService.warmUp()
 
-        let state = try fetchOrCreateBackfillState()
+        let state = try fetchOrCreateBackfillState(in: modelContext)
         let versionSignature = self.translationService.versionSignature
         let datasetVersion = self.translationService.datasetVersion
         if state.isCompleted && state.engineVersion == versionSignature && state.datasetVersion == datasetVersion {
@@ -117,7 +137,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         state.updatedAt = Date()
         state.completedAt = nil
         state.isCompleted = false
-        try self.modelContext.save()
+        try modelContext.save()
 
         let descriptor = FetchDescriptor<Quote>(sortBy: [SortDescriptor(\.createdAt)])
         let quotes = try modelContext.fetch(descriptor)
@@ -142,11 +162,11 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         state.isCompleted = true
         state.completedAt = Date()
         state.updatedAt = Date()
-        try self.modelContext.save()
+        try modelContext.save()
         NotificationCenter.default.post(name: .translationCacheUpdated, object: nil)
     }
 
-    private func fetchOrCreateBackfillState() throws -> TranslationBackfillState {
+    private func fetchOrCreateBackfillState(in modelContext: ModelContext) throws -> TranslationBackfillState {
         var descriptor = FetchDescriptor<TranslationBackfillState>(
             predicate: #Predicate { $0.key == "translation-backfill-state" },
         )
@@ -155,8 +175,8 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             return state
         }
         let state = TranslationBackfillState()
-        self.modelContext.insert(state)
-        try self.modelContext.save()
+        modelContext.insert(state)
+        try modelContext.save()
         return state
     }
 }

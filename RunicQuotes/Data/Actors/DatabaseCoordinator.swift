@@ -30,15 +30,9 @@ actor DatabaseCoordinator {
 
     private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "DatabaseCoordinator")
 
-    private static let defaultQuoteRepositoryFactory: QuoteRepositoryFactory = { context, translationService in
-        let translationRepository = SwiftDataTranslationRepository(
-            modelContext: context,
-            translationService: translationService,
-        )
-        return SwiftDataQuoteRepository(
-            modelContext: context,
-            translationCacheRepository: translationRepository,
-        )
+    private static let defaultQuoteRepositoryFactory: QuoteRepositoryFactory = { context, _ in
+        SwiftDataQuoteRepository(modelContext: context)
+
     }
 
     private static let defaultTranslationRepositoryFactory: TranslationRepositoryFactory = { context, translationService in

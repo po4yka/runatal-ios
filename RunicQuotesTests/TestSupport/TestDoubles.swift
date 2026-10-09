@@ -233,6 +233,7 @@ final class TestQuoteRepository: QuoteRepository, @unchecked Sendable {
         source: String?,
         collection: QuoteCollection,
         storedRunic: RunicTextBundle?,
+        translations: [TranslationResult] = [],
     ) throws -> QuoteRecord {
         if let createError {
             throw createError

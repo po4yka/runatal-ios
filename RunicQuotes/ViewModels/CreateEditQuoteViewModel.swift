@@ -151,6 +151,7 @@ final class CreateEditQuoteViewModel: ObservableObject {
                     source: source,
                     collection: self.state.collection,
                     storedRunic: self.makeStoredRunicBundle(for: trimmedText),
+                    translations: [],
                 )
                 self.state.createdQuoteID = record.id
                 self.logger.info("Quote created: \(record.id)")

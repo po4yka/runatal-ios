@@ -76,7 +76,6 @@ final class TranslationViewModel: ObservableObject {
     @Published private(set) var state = TranslationUiState()
 
     private let quoteRepository: QuoteRepository
-    private let translationRepository: TranslationRepository
     private let preferencesRepository: any UserPreferencesRepository
     private var preferences = UserPreferencesSnapshot()
     private let translationService: HistoricalTranslationService
@@ -84,12 +83,10 @@ final class TranslationViewModel: ObservableObject {
 
     init(
         quoteRepository: QuoteRepository,
-        translationRepository: TranslationRepository,
         preferencesRepository: any UserPreferencesRepository,
         translationService: HistoricalTranslationService = HistoricalTranslationService(),
     ) {
         self.quoteRepository = quoteRepository
-        self.translationRepository = translationRepository
         self.preferencesRepository = preferencesRepository
         self.translationService = translationService
     }
@@ -98,16 +95,10 @@ final class TranslationViewModel: ObservableObject {
         modelContext: ModelContext,
         translationService: HistoricalTranslationService = HistoricalTranslationService(),
     ) {
-        let translationRepository = SwiftDataTranslationRepository(
-            modelContext: modelContext,
-            translationService: translationService,
-        )
         self.init(
             quoteRepository: SwiftDataQuoteRepository(
                 modelContext: modelContext,
-                translationCacheRepository: translationRepository,
             ),
-            translationRepository: translationRepository,
             preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: modelContext),
             translationService: translationService,
         )
@@ -209,7 +200,6 @@ final class TranslationViewModel: ObservableObject {
                 (savedQuote, saveMessage) = try self.saveStructuredQuote(
                     input: input,
                     quoteRepository: self.quoteRepository,
-                    translationRepository: self.translationRepository,
                 )
             }
 
@@ -227,13 +217,10 @@ final class TranslationViewModel: ObservableObject {
     static func preview() -> TranslationViewModel {
         let container = ModelContainerHelper.createPlaceholderContainer()
         let context = ModelContext(container)
-        let translationRepository = SwiftDataTranslationRepository(modelContext: context)
         return TranslationViewModel(
             quoteRepository: SwiftDataQuoteRepository(
                 modelContext: context,
-                translationCacheRepository: translationRepository,
             ),
-            translationRepository: translationRepository,
             preferencesRepository: SwiftDataUserPreferencesRepository(modelContext: context),
         )
     }
@@ -356,6 +343,7 @@ final class TranslationViewModel: ObservableObject {
             source: nil,
             collection: .motivation,
             storedRunic: bundle,
+            translations: [],
         )
         return (savedQuote, String(localized: "translation.save.success"))
     }
@@ -363,7 +351,6 @@ final class TranslationViewModel: ObservableObject {
     private func saveStructuredQuote(
         input: String,
         quoteRepository: QuoteRepository,
-        translationRepository: TranslationRepository,
     ) throws -> (QuoteRecord, String) {
         let results = self.translationService.translateAllAvailable(
             text: input,
@@ -385,8 +372,8 @@ final class TranslationViewModel: ObservableObject {
             source: nil,
             collection: .motivation,
             storedRunic: bundle,
+            translations: results,
         )
-        try translationRepository.cache(results: results, for: savedQuote.id, sourceText: input)
         return (savedQuote, String(localized: "translation.save.success.structured"))
     }
 }

@@ -31,24 +31,11 @@ final class AppRootComponent: BootstrapComponent {
         }
     }
 
-    var translationRepository: SwiftDataTranslationRepository {
-        let modelContext = self.modelContainer.mainContext
-        let translationService = self.translationService
-        return shared {
-            SwiftDataTranslationRepository(
-                modelContext: modelContext,
-                translationService: translationService,
-            )
-        }
-    }
-
     var quoteRepository: SwiftDataQuoteRepository {
         let modelContext = self.modelContainer.mainContext
-        let translationRepository = self.translationRepository
         return shared {
             SwiftDataQuoteRepository(
                 modelContext: modelContext,
-                translationCacheRepository: translationRepository,
             )
         }
     }
@@ -107,7 +94,6 @@ final class AppRootComponent: BootstrapComponent {
                 TranslationFeatureComponent(
                     parent: self,
                     quoteRepository: self.quoteRepository,
-                    translationRepository: self.translationRepository,
                     preferencesRepository: self.preferencesRepository,
                     translationService: self.translationService,
                 ).view()

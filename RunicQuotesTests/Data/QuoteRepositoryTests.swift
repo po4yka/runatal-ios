@@ -290,11 +290,70 @@ struct QuoteRepositoryTests {
         try repository.seedIfNeeded()
         #expect(try repository.quote(id: override.id)?.runicCirth == "EXACT-OUTPUT")
         #expect(try repository.quote(id: punctuation.id)?.runicCirth == punctuation.runicCirth)
-        #expect(legacy.runicCirth == RunicTransliterator.transliterate(legacy.textLatin, to: .cirth))
-        #expect(legacy.cirthEncodingRaw == "ANGERTHAS_LATIN_V1")
+        let persistedLegacy = try #require(ModelContext(context.container).fetch(FetchDescriptor<Quote>()).first { $0.id == legacy.id })
+        #expect(persistedLegacy.runicCirth == RunicTransliterator.transliterate(legacy.textLatin, to: .cirth))
+        #expect(persistedLegacy.cirthEncodingRaw == "ANGERTHAS_LATIN_V1")
         #expect(versioned.runicCirth == "\u{E001}")
         try repository.seedIfNeeded()
         #expect(try repository.quote(id: override.id)?.runicCirth == "EXACT-OUTPUT")
+    }
+
+    @Test
+    func failedUpdatePreservesQuoteAndCacheWithoutSavingOtherContexts() throws {
+        let (repository, context) = try makeRepository()
+        let original = try repository.createQuote(
+            textLatin: "Original text", author: "Audit", source: nil, collection: .motivation,
+            translations: [TestSupport.makeTranslationResult(sourceText: "Original text", script: .elder)],
+        )
+        let failing = SwiftDataQuoteRepository(modelContext: context, commit: { _ in throw TestError(message: "save failed") })
+        context.insert(Quote(textLatin: "Unrelated pending work", author: "Audit"))
+        #expect(throws: TestError.self) {
+            try failing.updateQuote(id: original.id, textLatin: "Changed text", author: "Audit", source: nil, collection: .stoic)
+        }
+        #expect(try repository.quote(id: original.id)?.textLatin == "Original text")
+        let persisted = ModelContext(context.container)
+        #expect(try persisted.fetchCount(FetchDescriptor<Quote>()) == 1)
+        #expect(try persisted.fetchCount(FetchDescriptor<TranslationRecord>()) == 1)
+        #expect(context.hasChanges)
+        _ = try repository.updateQuote(id: original.id, textLatin: "Changed text", author: "Audit", source: nil, collection: .stoic)
+        #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<TranslationRecord>()) == 0)
+    }
+
+    @Test
+    func failedStructuredCreatePersistsNeitherQuoteNorCacheAndCanRetry() throws {
+        let (repository, context) = try makeRepository()
+        let failing = SwiftDataQuoteRepository(modelContext: context, commit: { _ in throw TestError(message: "save failed") })
+        let result = TestSupport.makeTranslationResult(script: .elder)
+        #expect(throws: TestError.self) {
+            try failing.createQuote(textLatin: result.sourceText, author: "Audit", source: nil, collection: .stoic, translations: [result])
+        }
+        let persisted = ModelContext(context.container)
+        #expect(try persisted.fetchCount(FetchDescriptor<Quote>()) == 0)
+        #expect(try persisted.fetchCount(FetchDescriptor<TranslationRecord>()) == 0)
+        _ = try repository.createQuote(textLatin: result.sourceText, author: "Audit", source: nil, collection: .stoic, translations: [result])
+        #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<Quote>()) == 1)
+        #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<TranslationRecord>()) == 1)
+    }
+
+    @Test
+    func failedPurgePreservesAllQuotesCachesAndBookmarks() throws {
+        let (repository, context) = try makeRepository()
+        let first = try repository.createQuote(textLatin: "First", author: "Audit", source: nil, collection: .stoic, translations: [TestSupport.makeTranslationResult(sourceText: "First")])
+        let second = try repository.createQuote(textLatin: "Second", author: "Audit", source: nil, collection: .stoic, translations: [TestSupport.makeTranslationResult(sourceText: "Second")])
+        let oldDate = Date(timeIntervalSince1970: 100)
+        _ = try repository.softDeleteQuote(id: first.id, deletedAt: oldDate)
+        _ = try repository.softDeleteQuote(id: second.id, deletedAt: oldDate)
+        let preferences = SwiftDataUserPreferencesRepository(modelContext: context)
+        try preferences.apply([.toggleSavedQuote(first.id), .toggleSavedQuote(second.id)])
+        let failing = SwiftDataQuoteRepository(modelContext: context, commit: { _ in throw TestError(message: "save failed") })
+        #expect(throws: TestError.self) { try failing.purgeDeletedQuotes(before: Date()) }
+        #expect(try repository.archivedQuotes().count == 2)
+        #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<TranslationRecord>()) == 2)
+        #expect(try preferences.snapshot().savedQuoteIDs == [first.id, second.id])
+        #expect(try repository.purgeDeletedQuotes(before: Date()) == 2)
+        #expect(try repository.archivedQuotes().isEmpty)
+        #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<TranslationRecord>()) == 0)
+        #expect(try preferences.snapshot().savedQuoteIDs.isEmpty)
     }
 
     private func makeRepository(seedData: Bool = false) throws -> (SwiftDataQuoteRepository, ModelContext) {

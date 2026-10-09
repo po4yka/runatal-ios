@@ -83,6 +83,7 @@ protocol QuoteRepository: Sendable {
         source: String?,
         collection: QuoteCollection,
         storedRunic: RunicTextBundle?,
+        translations: [TranslationResult],
     ) throws -> QuoteRecord
 
     /// Update an existing quote by ID.
@@ -118,104 +119,106 @@ protocol QuoteRepository: Sendable {
 /// to one owning `ModelActor` executor or the UI's main actor. Repository instances
 /// must never be shared between those owners; only Sendable DTOs cross the boundary.
 final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
-    private let modelContext: ModelContext
-    private let translationCacheRepository: TranslationRepository
+    typealias Commit = @Sendable (ModelContext) throws -> Void
+
+    private let modelContainer: ModelContainer
+    private let commit: Commit
     private let transliterator = RunicTransliterator.self
     private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Repository")
 
-    init(
-        modelContext: ModelContext,
-        translationCacheRepository: TranslationRepository? = nil,
-    ) {
-        self.modelContext = modelContext
-        self.translationCacheRepository = translationCacheRepository
-            ?? SwiftDataTranslationRepository(modelContext: modelContext)
+    init(modelContext: ModelContext, commit: @escaping Commit = { try $0.save() }) {
+        self.modelContainer = modelContext.container
+        self.commit = commit
+    }
+
+    private func makeContext() -> ModelContext {
+        let context = ModelContext(self.modelContainer)
+        context.autosaveEnabled = false
+        return context
+    }
+
+    private func transaction<T>(_ body: (ModelContext) throws -> T) throws -> T {
+        let context = self.makeContext()
+        do {
+            let result = try body(context)
+            try self.commit(context)
+            return result
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     // MARK: - Seeding
 
     func seedIfNeeded() throws {
-        // Check if database is already seeded
-        let descriptor = FetchDescriptor<Quote>()
-        let existingQuotes = try modelContext.fetch(descriptor)
+        try self.transaction { context in
+            // Check if database is already seeded
+            let descriptor = FetchDescriptor<Quote>()
+            let existingQuotes = try context.fetch(descriptor)
 
-        guard existingQuotes.isEmpty else {
-            try self.backfillCollectionsIfNeeded(for: existingQuotes)
-            try self.migrateLegacyCirthIfNeeded(for: existingQuotes)
-            self.logger.info("Database already seeded with \(existingQuotes.count) quotes")
-            return
+            guard existingQuotes.isEmpty else {
+                try self.backfillCollectionsIfNeeded(for: existingQuotes, in: context)
+                self.migrateLegacyCirthIfNeeded(for: existingQuotes)
+                self.logger.info("Database already seeded with \(existingQuotes.count) quotes")
+                return
+            }
+
+            self.logger.info("Seeding database with quotes...")
+
+            // Load quotes from JSON
+            guard let url = seedDataURL() else {
+                throw QuoteRepositoryError.seedDataNotFound
+            }
+            let data = try Data(contentsOf: url)
+
+            let quoteDataArray = try decodeSeedData(from: data)
+
+            // Create Quote objects and transliterate
+            for quoteData in quoteDataArray {
+                let quote = Quote(
+                    textLatin: quoteData.textLatin,
+                    author: quoteData.author,
+                    collection: quoteData.collection,
+                )
+
+                // Precompute runic transliterations
+                quote.runicElder = self.transliterator.transliterate(quoteData.textLatin, to: .elder)
+                quote.runicYounger = self.transliterator.transliterate(quoteData.textLatin, to: .younger)
+                quote.runicCirth = self.transliterator.transliterate(quoteData.textLatin, to: .cirth)
+
+                context.insert(quote)
+            }
+
+            self.logger.info("Database seeded with \(quoteDataArray.count) quotes")
         }
-
-        self.logger.info("Seeding database with quotes...")
-
-        // Load quotes from JSON
-        guard let url = seedDataURL() else {
-            throw QuoteRepositoryError.seedDataNotFound
-        }
-        let data = try Data(contentsOf: url)
-
-        let quoteDataArray = try decodeSeedData(from: data)
-
-        // Create Quote objects and transliterate
-        for quoteData in quoteDataArray {
-            let quote = Quote(
-                textLatin: quoteData.textLatin,
-                author: quoteData.author,
-                collection: quoteData.collection,
-            )
-
-            // Precompute runic transliterations
-            quote.runicElder = self.transliterator.transliterate(quoteData.textLatin, to: .elder)
-            quote.runicYounger = self.transliterator.transliterate(quoteData.textLatin, to: .younger)
-            quote.runicCirth = self.transliterator.transliterate(quoteData.textLatin, to: .cirth)
-
-            self.modelContext.insert(quote)
-        }
-
-        try self.modelContext.save()
-        self.logger.info("Database seeded with \(quoteDataArray.count) quotes")
     }
 
     // MARK: - Quote Retrieval
 
     func quoteOfTheDay(for script: RunicScript) throws -> QuoteRecord {
-        let allQuotes = try fetchVisibleQuotes()
-
-        guard !allQuotes.isEmpty else {
-            throw QuoteRepositoryError.noQuotesAvailable
-        }
-
-        let index = AppConstants.dailyQuoteIndex(totalQuotes: allQuotes.count)
-        let quote = allQuotes[index]
-
-        // Ensure the quote has the runic transliteration for the requested script
-        try ensureTransliteration(for: quote, script: script)
-
+        let context = self.makeContext()
+        let quotes = try self.fetchVisibleQuotes(in: context)
+        guard !quotes.isEmpty else { throw QuoteRepositoryError.noQuotesAvailable }
+        let quote = quotes[AppConstants.dailyQuoteIndex(totalQuotes: quotes.count)]
+        try self.ensureTransliteration(for: quote, script: script, in: context)
         return QuoteRecord(from: quote)
     }
 
     func randomQuote(for script: RunicScript) throws -> QuoteRecord {
-        let allQuotes = try fetchVisibleQuotes()
-
-        guard !allQuotes.isEmpty else {
-            throw QuoteRepositoryError.noQuotesAvailable
-        }
-
-        let randomIndex = Int.random(in: 0 ..< allQuotes.count)
-        let quote = allQuotes[randomIndex]
-
-        // Ensure the quote has the runic transliteration for the requested script
-        try ensureTransliteration(for: quote, script: script)
-
+        let context = self.makeContext()
+        let quotes = try self.fetchVisibleQuotes(in: context)
+        guard let quote = quotes.randomElement() else { throw QuoteRepositoryError.noQuotesAvailable }
+        try self.ensureTransliteration(for: quote, script: script, in: context)
         return QuoteRecord(from: quote)
     }
 
     func allQuotes() throws -> [QuoteRecord] {
-        try self.fetchVisibleQuotes().map(QuoteRecord.init(from:))
+        try self.fetchVisibleQuotes(in: self.makeContext()).map(QuoteRecord.init(from:))
     }
 
     func quote(id: UUID) throws -> QuoteRecord? {
-        try self.fetchQuote(id: id).map(QuoteRecord.init(from:))
+        try self.fetchQuote(id: id, in: self.makeContext()).map(QuoteRecord.init(from:))
     }
 
     func archivedQuotes() throws -> [QuoteRecord] {
@@ -223,7 +226,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             predicate: #Predicate { $0.isHidden || $0.isSoftDeleted },
             sortBy: [SortDescriptor(\.createdAt)],
         )
-        return try self.modelContext.fetch(descriptor).map(QuoteRecord.init(from:))
+        return try self.makeContext().fetch(descriptor).map(QuoteRecord.init(from:))
     }
 
     // MARK: - Create / Update
@@ -234,20 +237,20 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         source: String?,
         collection: QuoteCollection,
         storedRunic: RunicTextBundle? = nil,
+        translations: [TranslationResult] = [],
     ) throws -> QuoteRecord {
-        let quote = Quote(
-            textLatin: textLatin,
-            author: author,
-            collection: collection,
-            isUserGenerated: true,
-        )
-        quote.source = source
-        self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
-
-        self.modelContext.insert(quote)
-        try self.modelContext.save()
-        self.logger.info("Created user quote: \(quote.id)")
-        return QuoteRecord(from: quote)
+        let record = try self.transaction { context in
+            let quote = Quote(textLatin: textLatin, author: author, collection: collection, isUserGenerated: true)
+            quote.source = source
+            self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
+            context.insert(quote)
+            try SwiftDataTranslationRepository.stage(results: translations, for: quote.id, sourceText: textLatin, in: context)
+            return QuoteRecord(from: quote)
+        }
+        if !translations.isEmpty {
+            self.notifyTranslationChange(for: record.id)
+        }
+        return record
     }
 
     func updateQuote(
@@ -258,105 +261,109 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         collection: QuoteCollection,
         storedRunic: RunicTextBundle? = nil,
     ) throws -> QuoteRecord {
-        var descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { $0.id == id },
-        )
-        descriptor.fetchLimit = 1
-        guard let quote = try modelContext.fetch(descriptor).first else {
-            throw QuoteRepositoryError.quoteNotFound
+        let record = try self.transaction { context in
+            let quote = try self.requireQuote(id: id, in: context)
+            if quote.textLatin != textLatin {
+                try SwiftDataTranslationRepository.stageDeletion(for: id, in: context)
+            }
+            quote.textLatin = textLatin
+            quote.author = author
+            quote.source = source
+            quote.collection = collection
+            self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
+            return QuoteRecord(from: quote)
         }
-
-        let textDidChange = quote.textLatin != textLatin
-        quote.textLatin = textLatin
-        quote.author = author
-        quote.source = source
-        quote.collection = collection
-        self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
-
-        try self.modelContext.save()
-        if textDidChange {
-            try self.translationCacheRepository.deleteTranslations(for: id)
-        }
-        self.logger.info("Updated quote: \(quote.id)")
-        return QuoteRecord(from: quote)
+        self.notifyTranslationChange(for: id)
+        return record
     }
 
     func hideQuote(id: UUID) throws -> QuoteRecord {
-        let quote = try requireQuote(id: id)
-        quote.isHidden = true
-        quote.isSoftDeleted = false
-        quote.deletedAt = nil
-        try self.modelContext.save()
-        return QuoteRecord(from: quote)
+        try self.transaction { context in
+            let quote = try self.requireQuote(id: id, in: context)
+            quote.isHidden = true
+            quote.isSoftDeleted = false
+            quote.deletedAt = nil
+            return QuoteRecord(from: quote)
+        }
     }
 
     func softDeleteQuote(id: UUID, deletedAt: Date = Date()) throws -> QuoteRecord {
-        let quote = try requireQuote(id: id)
-        quote.isSoftDeleted = true
-        quote.isHidden = false
-        quote.deletedAt = deletedAt
-        try self.modelContext.save()
-        return QuoteRecord(from: quote)
+        try self.transaction { context in
+            let quote = try self.requireQuote(id: id, in: context)
+            quote.isSoftDeleted = true
+            quote.isHidden = false
+            quote.deletedAt = deletedAt
+            return QuoteRecord(from: quote)
+        }
     }
 
     func restoreQuote(id: UUID) throws -> QuoteRecord {
-        let quote = try requireQuote(id: id)
-        quote.isHidden = false
-        quote.isSoftDeleted = false
-        quote.deletedAt = nil
-        try self.modelContext.save()
-        return QuoteRecord(from: quote)
+        try self.transaction { context in
+            let quote = try self.requireQuote(id: id, in: context)
+            quote.isHidden = false
+            quote.isSoftDeleted = false
+            quote.deletedAt = nil
+            return QuoteRecord(from: quote)
+        }
     }
 
     func eraseQuote(id: UUID) throws {
-        let quote = try requireQuote(id: id)
-        self.modelContext.delete(quote)
-        try self.modelContext.save()
-        try self.translationCacheRepository.deleteTranslations(for: id)
+        try self.transaction { context in
+            try context.delete(self.requireQuote(id: id, in: context))
+            try SwiftDataTranslationRepository.stageDeletion(for: id, in: context)
+            try self.pruneSavedQuotes([id], in: context)
+        }
+        self.notifyTranslationChange(for: id)
     }
 
     func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int {
-        let descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { $0.isSoftDeleted && $0.deletedAt != nil },
-        )
-        let deletedQuotes = try modelContext.fetch(descriptor)
-        var purgedCount = 0
-
-        for quote in deletedQuotes {
-            guard let deletedAt = quote.deletedAt, deletedAt < cutoffDate else { continue }
-            let quoteID = quote.id
-            self.modelContext.delete(quote)
-            purgedCount += 1
-            try self.translationCacheRepository.deleteTranslations(for: quoteID)
+        let ids = try self.transaction { context in
+            let descriptor = FetchDescriptor<Quote>(
+                predicate: #Predicate { $0.isSoftDeleted && ($0.deletedAt ?? cutoffDate) < cutoffDate },
+            )
+            let quotes = try context.fetch(descriptor)
+            let ids = Set(quotes.map(\.id))
+            for quote in quotes {
+                let id = quote.id
+                context.delete(quote)
+                try SwiftDataTranslationRepository.stageDeletion(for: id, in: context)
+            }
+            try self.pruneSavedQuotes(ids, in: context)
+            return ids
         }
-
-        if purgedCount > 0 {
-            try self.modelContext.save()
+        if !ids.isEmpty {
+            NotificationCenter.default.post(name: .translationCacheUpdated, object: nil)
         }
-
-        return purgedCount
+        return ids.count
     }
 
-    private func fetchVisibleQuotes() throws -> [Quote] {
+    private func pruneSavedQuotes(_ ids: Set<UUID>, in context: ModelContext) throws {
+        guard !ids.isEmpty else { return }
+        for preferences in try context.fetch(FetchDescriptor<UserPreferences>()) {
+            preferences.savedQuoteIDs.subtract(ids)
+        }
+    }
+
+    private func notifyTranslationChange(for id: UUID) {
+        NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": id])
+    }
+
+    private func fetchVisibleQuotes(in context: ModelContext) throws -> [Quote] {
         let descriptor = FetchDescriptor<Quote>(
             predicate: #Predicate { !$0.isHidden && !$0.isSoftDeleted },
             sortBy: [SortDescriptor(\.createdAt)],
         )
-        return try self.modelContext.fetch(descriptor)
+        return try context.fetch(descriptor)
     }
 
-    private func fetchQuote(id: UUID) throws -> Quote? {
-        var descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { $0.id == id },
-        )
+    private func fetchQuote(id: UUID, in context: ModelContext) throws -> Quote? {
+        var descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
-        return try self.modelContext.fetch(descriptor).first
+        return try context.fetch(descriptor).first
     }
 
-    private func requireQuote(id: UUID) throws -> Quote {
-        guard let quote = try fetchQuote(id: id) else {
-            throw QuoteRepositoryError.quoteNotFound
-        }
+    private func requireQuote(id: UUID, in context: ModelContext) throws -> Quote {
+        guard let quote = try self.fetchQuote(id: id, in: context) else { throw QuoteRepositoryError.quoteNotFound }
         return quote
     }
 
@@ -376,7 +383,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     // MARK: - Private Helpers
 
     /// Ensure a quote has transliteration for the requested script
-    private func ensureTransliteration(for quote: Quote, script: RunicScript) throws {
+    private func ensureTransliteration(for quote: Quote, script: RunicScript, in context: ModelContext) throws {
         var needsSave = false
 
         switch script {
@@ -398,7 +405,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
 
         if needsSave {
-            try self.modelContext.save()
+            try self.commit(context)
         }
     }
 
@@ -420,7 +427,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     /// Repair only unversioned records emitted by the original U+E000–U+E02A mapping.
     /// Explicitly encoded output and Unicode punctuation must never trigger this migration.
-    private func migrateLegacyCirthIfNeeded(for quotes: [Quote]) throws {
+    private func migrateLegacyCirthIfNeeded(for quotes: [Quote]) {
         let legacyQuotes = quotes.filter { quote in
             guard quote.cirthEncodingRaw == nil, let cirth = quote.runicCirth else { return false }
             return cirth.unicodeScalars.contains { (0xE000 ... 0xE02A).contains($0.value) }
@@ -431,11 +438,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             quote.runicCirth = self.transliterator.transliterate(quote.textLatin, to: .cirth)
             quote.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
         }
-        try self.modelContext.save()
         self.logger.info("Migrated legacy Cirth encoding for \(legacyQuotes.count) quotes")
     }
 
-    private func backfillCollectionsIfNeeded(for existingQuotes: [Quote]) throws {
+    private func backfillCollectionsIfNeeded(for existingQuotes: [Quote], in context: ModelContext) throws {
         let quotesNeedingBackfill = existingQuotes.filter {
             QuoteCollection(rawValue: $0.collectionRaw ?? "") == nil
         }
@@ -463,7 +469,6 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
 
         if didUpdate {
-            try self.modelContext.save()
             self.logger.info("Backfilled collection tags for existing quotes")
         }
     }
