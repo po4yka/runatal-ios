@@ -33,13 +33,13 @@ struct QuoteToolbar: ToolbarContent {
             .accessibilityIdentifier("quote_notifications_button")
 
             Menu {
-                Button(action: self.createQuote) {
-                    Label(String(localized: "translation.menu.newQuote"), systemImage: "plus")
-                }
+                Button(String(localized: "translation.menu.newQuote"), systemImage: "plus", action: self.createQuote)
+                    .accessibilityLabel(String(localized: "translation.menu.newQuote"))
+                    .accessibilityIdentifier("quote_create_new_action")
 
-                Button(action: self.openTranslation) {
-                    Label(String(localized: "translation.menu.translate"), systemImage: "character.cursor.ibeam")
-                }
+                Button(String(localized: "translation.menu.translate"), systemImage: "character.cursor.ibeam", action: self.openTranslation)
+                    .accessibilityLabel(String(localized: "translation.menu.translate"))
+                    .accessibilityIdentifier("quote_create_translate_action")
             } label: {
                 Label("Create quote", systemImage: "plus")
                     .labelStyle(.iconOnly)
