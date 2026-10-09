@@ -238,7 +238,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v11"
+    let engineVersion = "yf-translation-v12"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -1530,6 +1530,20 @@ private struct YoungerFutharkPhonologyStage {
             .replacingOccurrences(of: "[ýÿœ]", with: "u", options: .regularExpression)
         var notes: [String] = []
 
+        current = self.applyLiteralRule(
+            value: current,
+            target: "ei",
+            replacement: "ai",
+            notes: &notes,
+            note: "Preserved diphthong spelling before single-vowel reduction (RuneS Sö 254: stain, aystain).",
+        )
+        current = self.applyLiteralRule(
+            value: current,
+            target: "ey",
+            replacement: "au",
+            notes: &notes,
+            note: "Preserved diphthong spelling before single-vowel reduction (RuneS Sö 254: stain, aystain).",
+        )
         current = self.applyRegexRule(
             value: current,
             pattern: #"[eéæ]"#,
@@ -1550,20 +1564,6 @@ private struct YoungerFutharkPhonologyStage {
             replacement: "u",
             notes: &notes,
             note: "Applied rounded-vowel reduction group.",
-        )
-        current = self.applyLiteralRule(
-            value: current,
-            target: "ei",
-            replacement: "i",
-            notes: &notes,
-            note: "Applied diphthong handling group.",
-        )
-        current = self.applyLiteralRule(
-            value: current,
-            target: "ey",
-            replacement: "y",
-            notes: &notes,
-            note: "Applied diphthong handling group.",
         )
         current = self.applyLiteralRule(
             value: current,

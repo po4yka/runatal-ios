@@ -126,4 +126,18 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertTrue(auxiliary.tokenBreakdown.contains { $0.sourceToken == "hunt" })
     }
 
+    func testDiphthongsRewriteBeforeSingleVowelReduction() {
+        let hunt = self.service.translate(text: "hunt", script: .younger)
+        XCTAssertEqual(hunt.normalizedForm, "veiða")
+        XCTAssertEqual(hunt.diplomaticForm, "vaiþa")
+        XCTAssertEqual(hunt.glyphOutput, "ᚢᛅᛁᚦᛅ")
+        let one = self.service.translate(text: "one", script: .younger)
+        XCTAssertEqual(one.diplomaticForm, "ain")
+        XCTAssertEqual(one.glyphOutput, "ᛅᛁᚾ")
+        let preserved = self.service.translate(text: "ey", script: .younger, fidelity: .decorative)
+        XCTAssertEqual(preserved.diplomaticForm, "au")
+        XCTAssertEqual(preserved.glyphOutput, "ᛅᚢ")
+        XCTAssertEqual(preserved.evidenceTier, .approximate)
+    }
+
 }
