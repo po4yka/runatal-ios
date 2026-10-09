@@ -335,15 +335,13 @@ private final class DatabaseTranslationRepositorySpy: DatabaseTranslationReposit
     }
 
     func backfillAllQuotes() async throws {
-        self.lock.lock()
-        self.backfillCallCount += 1
-        let context = self.ownedContext
-        self.lock.unlock()
+        let context = self.lock.withLock {
+            self.backfillCallCount += 1
+            return self.ownedContext
+        }
         guard let context else { return }
         let count = try context.fetchCount(FetchDescriptor<Quote>())
-        self.lock.lock()
-        self.quoteCountAtBackfill = count
-        self.lock.unlock()
+        self.lock.withLock { self.quoteCountAtBackfill = count }
         if self.backfillFails {
             context.insert(TranslationBackfillState(processedCount: 1))
             try context.save()
