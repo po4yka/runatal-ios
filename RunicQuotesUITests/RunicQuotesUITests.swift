@@ -169,9 +169,11 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         input.tap()
         input.typeText("Honor the old ways")
 
-        let translateButton = app.segmentedControls.buttons["Translate"]
+        let translateButton = app.buttons["translation_mode_TRANSLATE"]
         XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate mode should exist")
-        translateButton.tap()
+        self.tapElement(translateButton)
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: translateButton)
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
 
         let accuracyButton = app.buttons["translation_accuracy_button"]
         XCTAssertTrue(accuracyButton.waitForExistence(timeout: 5), "Accuracy button should exist")
@@ -221,9 +223,11 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
     private func enterRealYoungerTranslation(in app: XCUIApplication) {
         self.openTranslationFromCreateMenu(app)
         self.selectYoungerTranslationScript(in: app)
-        let mode = app.segmentedControls.buttons["Translate"]
+        let mode = app.buttons["translation_mode_TRANSLATE"]
         XCTAssertTrue(mode.waitForExistence(timeout: 5))
         self.tapElement(mode)
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: mode)
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
         let input = self.findElement(in: app, identifier: "translation_input_editor", maxSwipes: 3)
         XCTAssertTrue(input.exists)
         self.tapElement(input)

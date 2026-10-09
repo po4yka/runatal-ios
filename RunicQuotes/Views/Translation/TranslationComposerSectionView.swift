@@ -32,12 +32,16 @@ struct TranslationComposerSectionView: View {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                     SectionLabel(title: "Method", palette: self.palette)
 
-                    Picker("Mode", selection: self.modeBinding) {
+                    HStack(spacing: DesignTokens.Spacing.sm) {
                         ForEach(TranslationMode.allCases) { mode in
-                            Text(mode.displayName).tag(mode)
+                            Button(mode.displayName) { self.modeBinding.wrappedValue = mode }
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .buttonStyle(LiquidProminentButtonStyle(palette: self.palette, emphasized: self.state.translationMode == mode))
+                                .accessibilityLabel(mode.displayName)
+                                .accessibilityValue(self.state.translationMode == mode ? "Selected" : "Not selected")
+                                .accessibilityIdentifier("translation_mode_\(mode.rawValue)")
                         }
                     }
-                    .pickerStyle(.segmented)
 
                     if self.state.translationMode == .translate {
                         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
