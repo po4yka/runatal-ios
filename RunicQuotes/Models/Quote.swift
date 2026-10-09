@@ -14,6 +14,9 @@ final class Quote {
     /// Unique identifier
     @Attribute(.unique) var id: UUID
 
+    /// Stable built-in catalog identity; absent on user-created and legacy rows.
+    @Attribute(.unique) var builtInID: String?
+
     /// Original Latin text of the quote
     var textLatin: String
 

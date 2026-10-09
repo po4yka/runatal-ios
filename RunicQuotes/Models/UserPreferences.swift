@@ -14,6 +14,11 @@ final class UserPreferences {
     /// Unique identifier (singleton pattern)
     @Attribute(.unique) var id: UUID
 
+    @Attribute(.unique) var singletonKey: String?
+
+    /// Nil marks a legacy library that predates durable catalog import receipts.
+    var catalogIdentityVersion: String?
+
     /// Currently selected runic script
     var selectedScriptRaw: String
 
@@ -174,7 +179,9 @@ final class UserPreferences {
         lastUsedPreset: ReadingPreset? = nil,
         savedQuoteIDs: Set<UUID> = [],
     ) {
-        self.id = UUID()
+        self.id = UUID(uuid: (0x52, 0x75, 0x6E, 0x61, 0x74, 0x61, 0x6C, 0, 0, 0, 0, 0, 0, 0, 0, 1))
+        self.singletonKey = "user-preferences"
+        self.catalogIdentityVersion = "v1"
         self.selectedScriptRaw = selectedScript.rawValue
         self.selectedFontRaw = selectedFont.rawValue
         self.widgetModeRaw = widgetMode.rawValue
@@ -247,10 +254,25 @@ final class UserPreferences {
     /// - Parameter context: The model context to use
     /// - Returns: The user preferences instance
     static func getOrCreate(in context: ModelContext) throws -> UserPreferences {
-        let descriptor = FetchDescriptor<UserPreferences>()
-        let existing = try context.fetch(descriptor)
+        let existing = try context.fetch(FetchDescriptor<UserPreferences>()).sorted {
+            if $0.lastUpdated != $1.lastUpdated {
+                return $0.lastUpdated > $1.lastUpdated
+            }
+            return $0.id.uuidString < $1.id.uuidString
+        }
 
         if let first = existing.first {
+            // Keep the newest appearance settings and union library membership from duplicate legacy rows.
+            if existing.count > 1 {
+                first.savedQuoteIDs = existing.reduce(into: Set<UUID>()) { $0.formUnion($1.savedQuoteIDs) }
+                first.installedPackIDs = existing.reduce(into: Set<String>()) { $0.formUnion($1.installedPackIDs) }
+                for duplicate in existing.dropFirst() {
+                    context.delete(duplicate)
+                }
+            }
+            if first.singletonKey != "user-preferences" {
+                first.singletonKey = "user-preferences"
+            }
             return first
         }
 

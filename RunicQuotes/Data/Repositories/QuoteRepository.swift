@@ -9,7 +9,6 @@ import Foundation
 import os
 import SwiftData
 
-// swiftlint:disable file_length
 // swiftlint:disable function_parameter_count
 
 /// Sendable snapshot of a Quote model used across actor boundaries.
@@ -112,7 +111,6 @@ protocol QuoteRepository: Sendable {
     func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int
 }
 
-// swiftlint:disable type_body_length
 /// SwiftData implementation of the QuoteRepository
 ///
 /// Safety: each repository instance and its non-Sendable `ModelContext` remain confined
@@ -123,12 +121,18 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     private let modelContainer: ModelContainer
     private let commit: Commit
+    private let catalogLoader: @Sendable () throws -> [QuoteCatalogEntry]
     private let transliterator = RunicTransliterator.self
     private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "Repository")
 
-    init(modelContext: ModelContext, commit: @escaping Commit = { try $0.save() }) {
+    init(
+        modelContext: ModelContext,
+        commit: @escaping Commit = { try $0.save() },
+        catalogLoader: @escaping @Sendable () throws -> [QuoteCatalogEntry] = QuoteSeedCatalog.load,
+    ) {
         self.modelContainer = modelContext.container
         self.commit = commit
+        self.catalogLoader = catalogLoader
     }
 
     private func makeContext() -> ModelContext {
@@ -152,45 +156,55 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     // MARK: - Seeding
 
     func seedIfNeeded() throws {
+        let catalog = try self.catalogLoader()
+        guard Set(catalog.map(\.id)).count == catalog.count, catalog.allSatisfy({ !$0.id.isEmpty }) else {
+            throw QuoteRepositoryError.invalidSeedData
+        }
         try self.transaction { context in
-            // Check if database is already seeded
-            let descriptor = FetchDescriptor<Quote>()
-            let existingQuotes = try context.fetch(descriptor)
-
-            guard existingQuotes.isEmpty else {
-                try self.backfillCollectionsIfNeeded(for: existingQuotes, in: context)
-                self.migrateLegacyCirthIfNeeded(for: existingQuotes)
-                self.logger.info("Database already seeded with \(existingQuotes.count) quotes")
-                return
+            let quotes = try context.fetch(FetchDescriptor<Quote>())
+            let receipts = try context.fetch(FetchDescriptor<QuoteSeedReceipt>())
+            let preferences = try context.fetch(FetchDescriptor<UserPreferences>())
+            let legacyLibrary = try receipts.isEmpty && (
+                quotes.contains { $0.builtInID == nil }
+                    || preferences.contains { $0.catalogIdentityVersion == nil }
+                    || (context.fetchCount(FetchDescriptor<TranslationBackfillState>())) > 0
+            )
+            if legacyLibrary {
+                try self.adoptLegacyLibrary(quotes: quotes, in: context)
             }
-
-            self.logger.info("Seeding database with quotes...")
-
-            // Load quotes from JSON
-            guard let url = seedDataURL() else {
-                throw QuoteRepositoryError.seedDataNotFound
-            }
-            let data = try Data(contentsOf: url)
-
-            let quoteDataArray = try decodeSeedData(from: data)
-
-            // Create Quote objects and transliterate
-            for quoteData in quoteDataArray {
-                let quote = Quote(
-                    textLatin: quoteData.textLatin,
-                    author: quoteData.author,
-                    collection: quoteData.collection,
-                )
-
-                // Precompute runic transliterations
-                quote.runicElder = self.transliterator.transliterate(quoteData.textLatin, to: .elder)
-                quote.runicYounger = self.transliterator.transliterate(quoteData.textLatin, to: .younger)
-                quote.runicCirth = self.transliterator.transliterate(quoteData.textLatin, to: .cirth)
-
+            let knownIDs = try Set(context.fetch(FetchDescriptor<QuoteSeedReceipt>()).map(\.seedID))
+            for entry in catalog where !knownIDs.contains(entry.id) {
+                let quote = Quote(textLatin: entry.textLatin, author: entry.author, collection: entry.collection)
+                quote.id = QuoteSeedReceipt.stableQuoteID(for: entry.id)
+                quote.builtInID = entry.id
+                quote.source = entry.source
+                self.applyStoredRunic(to: quote, textLatin: entry.textLatin, storedRunic: nil)
                 context.insert(quote)
+                context.insert(QuoteSeedReceipt(seedID: entry.id, quoteID: quote.id))
             }
+            self.migrateLegacyCirthIfNeeded(for: quotes)
+            for preference in preferences {
+                preference.catalogIdentityVersion = "v1"
+            }
+        }
+    }
 
-            self.logger.info("Database seeded with \(quoteDataArray.count) quotes")
+    private func adoptLegacyLibrary(quotes: [Quote], in context: ModelContext) throws {
+        let legacy = try QuoteSeedCatalog.legacyIdentities()
+        // Unknown edited rows remain intact. Missing baseline IDs are recorded as erased rather than reimported.
+        for entry in legacy {
+            let key = self.seedQuoteKey(textLatin: entry.textLatin, author: entry.author)
+            let match = quotes.first {
+                !$0.isUserGenerated && $0.builtInID == nil
+                    && self.seedQuoteKey(textLatin: $0.textLatin, author: $0.author) == key
+            }
+            if let match {
+                match.builtInID = entry.id
+                if QuoteCollection(rawValue: match.collectionRaw ?? "") == nil {
+                    match.collection = entry.collection
+                }
+            }
+            context.insert(QuoteSeedReceipt(seedID: entry.id, quoteID: match?.id))
         }
     }
 
@@ -312,6 +326,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             try context.delete(self.requireQuote(id: id, in: context))
             try SwiftDataTranslationRepository.stageDeletion(for: id, in: context)
             try self.pruneSavedQuotes([id], in: context)
+            try self.markCatalogErased([id], in: context)
         }
         self.notifyTranslationChange(for: id)
     }
@@ -329,12 +344,22 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
                 try SwiftDataTranslationRepository.stageDeletion(for: id, in: context)
             }
             try self.pruneSavedQuotes(ids, in: context)
+            try self.markCatalogErased(ids, in: context)
             return ids
         }
         if !ids.isEmpty {
             NotificationCenter.default.post(name: .translationCacheUpdated, object: nil)
         }
         return ids.count
+    }
+
+    private func markCatalogErased(_ ids: Set<UUID>, in context: ModelContext) throws {
+        guard !ids.isEmpty else { return }
+        for receipt in try context.fetch(FetchDescriptor<QuoteSeedReceipt>()) {
+            if let id = receipt.quoteID, ids.contains(id) {
+                receipt.quoteID = nil
+            }
+        }
     }
 
     private func pruneSavedQuotes(_ ids: Set<UUID>, in context: ModelContext) throws {
@@ -409,22 +434,6 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
     }
 
-    /// Seed data row used for initial import and migration backfill.
-    private struct SeedQuoteData: Codable {
-        let textLatin: String
-        let author: String
-        let collection: QuoteCollection
-    }
-
-    private func decodeSeedData(from data: Data) throws -> [SeedQuoteData] {
-        do {
-            return try JSONDecoder().decode([SeedQuoteData].self, from: data)
-        } catch {
-            self.logger.error("Invalid seed data format: \(error.localizedDescription)")
-            throw QuoteRepositoryError.invalidSeedData
-        }
-    }
-
     /// Repair only unversioned records emitted by the original U+E000–U+E02A mapping.
     /// Explicitly encoded output and Unicode punctuation must never trigger this migration.
     private func migrateLegacyCirthIfNeeded(for quotes: [Quote]) {
@@ -441,38 +450,6 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         self.logger.info("Migrated legacy Cirth encoding for \(legacyQuotes.count) quotes")
     }
 
-    private func backfillCollectionsIfNeeded(for existingQuotes: [Quote], in context: ModelContext) throws {
-        let quotesNeedingBackfill = existingQuotes.filter {
-            QuoteCollection(rawValue: $0.collectionRaw ?? "") == nil
-        }
-        guard !quotesNeedingBackfill.isEmpty else { return }
-
-        guard let url = seedDataURL() else {
-            throw QuoteRepositoryError.seedDataNotFound
-        }
-        let data = try Data(contentsOf: url)
-
-        let seedData = try decodeSeedData(from: data)
-        let seedCollectionByKey = Dictionary(
-            uniqueKeysWithValues: seedData.map {
-                (self.seedQuoteKey(textLatin: $0.textLatin, author: $0.author), $0.collection)
-            },
-        )
-
-        var didUpdate = false
-
-        for quote in quotesNeedingBackfill {
-            let key = self.seedQuoteKey(textLatin: quote.textLatin, author: quote.author)
-            guard let collection = seedCollectionByKey[key] else { continue }
-            quote.collection = collection
-            didUpdate = true
-        }
-
-        if didUpdate {
-            self.logger.info("Backfilled collection tags for existing quotes")
-        }
-    }
-
     private func seedQuoteKey(textLatin: String, author: String) -> String {
         "\(self.normalizeSeedField(textLatin))||\(self.normalizeSeedField(author))"
     }
@@ -483,43 +460,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// Locate seed data in both SwiftPM and app bundle layouts.
-    private func seedDataURL() -> URL? {
-        #if SWIFT_PACKAGE
-            if let packageURL = Bundle.module.url(forResource: "quotes", withExtension: "json") {
-                return packageURL
-            }
-            if let packageSubdirectoryURL = Bundle.module.url(
-                forResource: "quotes",
-                withExtension: "json",
-                subdirectory: "SeedData",
-            ) {
-                return packageSubdirectoryURL
-            }
-        #endif
-        if let appURL = Bundle.main.url(forResource: "quotes", withExtension: "json") {
-            return appURL
-        }
-        if let appSeedSubdirectoryURL = Bundle.main.url(
-            forResource: "quotes",
-            withExtension: "json",
-            subdirectory: "SeedData",
-        ) {
-            return appSeedSubdirectoryURL
-        }
-        if let appResourcesSeedURL = Bundle.main.url(
-            forResource: "quotes",
-            withExtension: "json",
-            subdirectory: "Resources/SeedData",
-        ) {
-            return appResourcesSeedURL
-        }
-
-        return nil
-    }
 }
-
-// swiftlint:enable type_body_length
 
 // MARK: - Errors
 
@@ -544,4 +485,3 @@ enum QuoteRepositoryError: LocalizedError {
 }
 
 // swiftlint:enable function_parameter_count
-// swiftlint:enable file_length

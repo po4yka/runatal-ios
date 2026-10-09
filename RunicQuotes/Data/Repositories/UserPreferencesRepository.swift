@@ -75,8 +75,10 @@ final class SwiftDataUserPreferencesRepository: UserPreferencesRepository, @unch
 
     func snapshot() throws -> UserPreferencesSnapshot {
         let context = ModelContext(self.modelContainer)
-        guard let preferences = try context.fetch(FetchDescriptor<UserPreferences>()).first else {
-            return UserPreferencesSnapshot()
+        context.autosaveEnabled = false
+        let preferences = try UserPreferences.getOrCreate(in: context)
+        if context.hasChanges {
+            try context.save()
         }
         return UserPreferencesSnapshot(from: preferences)
     }

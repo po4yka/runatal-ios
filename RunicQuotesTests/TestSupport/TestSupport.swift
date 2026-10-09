@@ -12,7 +12,7 @@ import Testing
 
 enum TestSupport {
     static func makeModelContainer() throws -> ModelContainer {
-        let schema = Schema([Quote.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
+        let schema = Schema([Quote.self, QuoteSeedReceipt.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         return try ModelContainer(for: schema, configurations: configuration)
     }

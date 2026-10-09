@@ -26,6 +26,7 @@ enum ModelContainerHelper {
         do {
             let schema = Schema([
                 Quote.self,
+                QuoteSeedReceipt.self,
                 UserPreferences.self,
                 TranslationRecord.self,
                 TranslationBackfillState.self,
@@ -54,6 +55,7 @@ enum ModelContainerHelper {
     static func createMainContainer() throws -> ModelContainer {
         let schema = Schema([
             Quote.self,
+            QuoteSeedReceipt.self,
             UserPreferences.self,
             TranslationRecord.self,
             TranslationBackfillState.self,

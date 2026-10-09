@@ -34,7 +34,7 @@ let package = Package(
                 "Resources/Localizations",
             ],
             resources: [
-                .process("Resources/SeedData/quotes.json"),
+                .process("Resources/SeedData"),
                 .process("Resources/Translation"),
             ],
         ),
