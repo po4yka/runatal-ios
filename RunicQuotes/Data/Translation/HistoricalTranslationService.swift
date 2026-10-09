@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import os
 
 // swiftlint:disable file_length function_body_length function_parameter_count
 
 // MARK: - Service
 
-protocol TranslationEngine {
+protocol TranslationEngine: Sendable {
     var script: RunicScript { get }
     var engineVersion: String { get }
     var datasetVersion: String { get }
@@ -31,9 +32,9 @@ private enum TranslationSourceLanguageDetector {
 }
 
 /// Structured offline historical translation and Erebor transcription service.
-final class HistoricalTranslationService: @unchecked Sendable {
+final class HistoricalTranslationService: Sendable {
     private let assetProvider: AssetTranslationDatasetProvider?
-    private let engineFactory: TranslationEngineFactory
+    private let engineFactory: TranslationEngineFactory?
 
     init(
         lexiconStore: HistoricalLexiconStore,
@@ -57,7 +58,7 @@ final class HistoricalTranslationService: @unchecked Sendable {
         )
     }
 
-    init(datasetProvider: AssetTranslationDatasetProvider = AssetTranslationDatasetProvider()) {
+    private init(datasetProvider: AssetTranslationDatasetProvider) {
         self.assetProvider = datasetProvider
         self.engineFactory = TranslationEngineFactory(
             elderEngine: ElderFutharkTranslationEngine(
@@ -75,24 +76,49 @@ final class HistoricalTranslationService: @unchecked Sendable {
         )
     }
 
+    convenience init() {
+        do {
+            try self.init(datasetProvider: AssetTranslationDatasetProvider())
+        } catch {
+            self.init(datasetError: error.localizedDescription)
+        }
+    }
+
+    init(resourceDirectory: URL) {
+        do {
+            let provider = try AssetTranslationDatasetProvider(resourceDirectory: resourceDirectory)
+            self.assetProvider = provider
+            self.engineFactory = TranslationEngineFactory(
+                elderEngine: ElderFutharkTranslationEngine(lexiconStore: provider, runicCorpusStore: provider),
+                youngerEngine: YoungerFutharkTranslationEngine(lexiconStore: provider, runicCorpusStore: provider),
+                cirthEngine: EreborCirthTranslationEngine(runicCorpusStore: provider, ereborStore: provider),
+            )
+        } catch {
+            self.assetProvider = nil
+            self.engineFactory = nil
+        }
+    }
+
+    private init(datasetError: String) {
+        self.assetProvider = nil
+        self.engineFactory = nil
+        Logger(subsystem: AppConstants.loggingSubsystem, category: "TranslationDataset").error("Historical dataset unavailable: \(datasetError, privacy: .public)")
+    }
+
     var versionSignature: String {
         [
-            self.engineFactory.create(.elder).engineVersion,
-            self.engineFactory.create(.younger).engineVersion,
-            self.engineFactory.create(.cirth).engineVersion,
+            self.engineFactory?.create(.elder).engineVersion ?? "dataset-unavailable",
+            self.engineFactory?.create(.younger).engineVersion ?? "dataset-unavailable",
+            self.engineFactory?.create(.cirth).engineVersion ?? "dataset-unavailable",
         ].joined(separator: "|")
     }
 
     func engineVersion(for script: RunicScript) -> String {
-        self.engineFactory.create(script).engineVersion
+        self.engineFactory?.create(script).engineVersion ?? "dataset-unavailable"
     }
 
     var datasetVersion: String {
-        self.engineFactory.create(.elder).datasetVersion
-    }
-
-    func warmUp() {
-        self.assetProvider?.warmUp()
+        self.engineFactory?.create(.elder).datasetVersion ?? "dataset-unavailable"
     }
 
     func translate(
@@ -115,7 +141,10 @@ final class HistoricalTranslationService: @unchecked Sendable {
             return self.unsupportedLanguageResult(for: normalizedRequest)
         }
 
-        let result = self.engineFactory.create(request.script).translate(normalizedRequest)
+        guard let engineFactory else {
+            return self.datasetUnavailableResult(for: normalizedRequest)
+        }
+        let result = engineFactory.create(request.script).translate(normalizedRequest)
         let isAttestedPhrase = result.resolutionStatus == .attested && result.evidenceTier == .attested && result.isAvailable
         guard request.evidenceCap != .attestedOnly || isAttestedPhrase else {
             return self.attestationUnavailableResult(for: normalizedRequest, attempted: result)
@@ -160,6 +189,17 @@ final class HistoricalTranslationService: @unchecked Sendable {
                 evidenceCap: evidenceCap,
             )
         }
+    }
+
+    private func datasetUnavailableResult(for request: TranslationRequest) -> TranslationResult {
+        TranslationResult(
+            sourceText: request.sourceText, script: request.script, fidelity: request.fidelity,
+            historicalStage: .modernEnglish, normalizedForm: "", diplomaticForm: "", glyphOutput: "",
+            resolutionStatus: .unavailable, notes: ["The offline historical dataset could not be loaded."],
+            unresolvedTokens: [request.sourceText],
+            userFacingWarnings: ["Historical data is unavailable. Modern spelling transcription remains available."],
+            engineVersion: self.engineVersion(for: request.script), datasetVersion: self.datasetVersion,
+        )
     }
 
     private func attestationUnavailableResult(for request: TranslationRequest, attempted: TranslationResult) -> TranslationResult {
@@ -217,7 +257,7 @@ final class HistoricalTranslationService: @unchecked Sendable {
     }
 }
 
-private struct TranslationEngineFactory {
+private struct TranslationEngineFactory: Sendable {
     let elderEngine: ElderFutharkTranslationEngine
     let youngerEngine: YoungerFutharkTranslationEngine
     let cirthEngine: EreborCirthTranslationEngine
@@ -238,7 +278,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v15"
+    let engineVersion = "yf-translation-v16"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -352,7 +392,9 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
                 ),
             )
             normalized = preposition
-        } else if let name = lexiconLookup.resolveName(token.normalized) {
+        } else if request.fidelity != .strict, let name = lexiconLookup.resolveName(token.normalized) {
+            resolutionStatus = .approximated
+            notes.append("Project-authored readable name adaptation; no historical name attestation is claimed.")
             provenance.append(
                 self.lexiconLookup.provenanceFor(
                     sourceID: "internal_heuristics",
@@ -446,7 +488,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v10"
+    let engineVersion = "ef-translation-v11"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -578,7 +620,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
 
 private struct EreborCirthTranslationEngine: TranslationEngine {
     let script: RunicScript = .cirth
-    let engineVersion = "cirth-translation-v8"
+    let engineVersion = "cirth-translation-v9"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -990,6 +1032,15 @@ private enum ParsedEnglishTokenType {
 
 private extension GrammarRulesData {
     static let empty = GrammarRulesData(
+        metadata: TranslationAssetMetadata(
+            id: "empty-parser-grammar",
+            sourceID: "internal_heuristics",
+            sourceWork: "Runatal tokenizer",
+            citations: ["Parsing without semantic mappings"],
+            historicalStage: .modernEnglish,
+            inventory: .readableParaphrase,
+            licenseNote: "Project-authored parsing rules",
+        ),
         removableWords: [],
         pronounFeatures: [:],
         governedPrepositions: [:],
@@ -1030,6 +1081,9 @@ private struct TranslationGoldExampleResolver {
             return nil
         }
 
+        if request.fidelity == .strict, !result.inventory.isStrictEligible {
+            return nil
+        }
         let resolvedEvidenceTier = TranslationEvidenceTier(rawValue: result.evidenceTierRaw ?? "")
             ?? TranslationResult.defaultEvidenceTier(
                 for: TranslationResolutionStatus(rawValue: result.resolutionStatus) ?? .unavailable,
@@ -1118,7 +1172,8 @@ private struct HistoricalSourceCatalog {
         licenseNote: String? = nil,
         regressionID: String? = nil,
     ) -> TranslationProvenanceEntry {
-        let source = self.sourceEntries[sourceID]
+        let reference = referenceID.flatMap { self.corpusReferences[$0] }
+        let source = self.sourceEntries[reference?.sourceID ?? sourceID]
             ?? self.sourceEntries["internal_heuristics"]
             ?? TranslationSourceEntry(
                 id: "internal_heuristics",
@@ -1129,7 +1184,6 @@ private struct HistoricalSourceCatalog {
                 licenseNote: nil,
                 url: "https://github.com/po4yka/runatal-ios",
             )
-        let reference = referenceID.flatMap { self.corpusReferences[$0] }
         return TranslationProvenanceEntry(
             sourceID: source.id,
             referenceID: referenceID,

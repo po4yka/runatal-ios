@@ -21,21 +21,21 @@
           "attestationRefs": [
             "yf_ref_wolf_night"
           ],
-          "warningFragments": []
+          "warningFragments": [],
+          "regressionId": "benchmark_common_wolf_night-younger_futhark"
         },
         {
           "script": "ELDER_FUTHARK",
           "fidelity": "STRICT",
-          "normalizedForm": "wulfaz waiþiþi nahts",
-          "diplomaticForm": "wulfaz waiþiþi nahts",
-          "glyphOutput": "ᚹᚢᛚᚠᚨᛉ ᚹᚨᛁᚦᛁᚦᛁ ᚾᚨᚺᛏᛊ",
-          "resolutionStatus": "RECONSTRUCTED",
-          "evidenceTier": "RECONSTRUCTED",
-          "supportLevel": "SUPPORTED",
-          "attestationRefs": [
-            "ef_ref_wolf_night"
-          ],
-          "warningFragments": []
+          "normalizedForm": "",
+          "diplomaticForm": "",
+          "glyphOutput": "",
+          "resolutionStatus": "UNAVAILABLE",
+          "evidenceTier": "UNSUPPORTED",
+          "supportLevel": "UNSUPPORTED",
+          "attestationRefs": [],
+          "warningFragments": [],
+          "regressionId": "benchmark_common_wolf_night-elder_futhark"
         }
       ]
     },
@@ -60,7 +60,8 @@
           "attestationRefs": [
             "yf_ref_king_mountain"
           ],
-          "warningFragments": []
+          "warningFragments": [],
+          "regressionId": "benchmark_inscription_king_mountain-younger_futhark"
         }
       ]
     },
@@ -84,7 +85,8 @@
           "attestationRefs": [
             "ef_ref_wulfaz"
           ],
-          "warningFragments": []
+          "warningFragments": [],
+          "regressionId": "benchmark_short_attested_wolf-elder_futhark"
         }
       ]
     },
@@ -108,7 +110,8 @@
           "attestationRefs": [],
           "warningFragments": [
             "English input only"
-          ]
+          ],
+          "regressionId": "benchmark_unsupported_language-younger_futhark"
         }
       ]
     },
@@ -134,7 +137,8 @@
           "attestationRefs": [
             "elder_gallehus_dr12-reference"
           ],
-          "warningFragments": []
+          "warningFragments": [],
+          "regressionId": "elder_gallehus_dr12-source-benchmark-elder_futhark"
         }
       ]
     },
@@ -160,7 +164,8 @@
           "attestationRefs": [
             "elder_vimose_dr207-reference"
           ],
-          "warningFragments": []
+          "warningFragments": [],
+          "regressionId": "elder_vimose_dr207-source-benchmark-elder_futhark"
         }
       ]
     },
@@ -186,7 +191,8 @@
           "attestationRefs": [
             "younger_jelling_dr41-reference"
           ],
-          "warningFragments": []
+          "warningFragments": [],
+          "regressionId": "younger_jelling_dr41-source-benchmark-younger_futhark"
         }
       ]
     },
@@ -212,7 +218,8 @@
           "attestationRefs": [
             "younger_jelling_dr42-reference"
           ],
-          "warningFragments": []
+          "warningFragments": [],
+          "regressionId": "younger_jelling_dr42-source-benchmark-younger_futhark"
         }
       ]
     }

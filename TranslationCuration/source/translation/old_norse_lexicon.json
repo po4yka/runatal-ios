@@ -35,7 +35,14 @@
     "inflectionSourceId": "barnes_nion",
     "inflectionCitations": [
       "NION I §§3.1.4–3.1.9: declension, mutation and definite article; Zoega s.v. úlfr"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "noun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_ulfR-lexical-v1"
   },
   {
     "id": "on_veida",
@@ -100,7 +107,14 @@
         ]
       }
     },
-    "requiresObject": false
+    "requiresObject": false,
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "verb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_veida-lexical-v1"
   },
   {
     "id": "on_nott",
@@ -112,7 +126,14 @@
     "sourceId": "zoega",
     "citations": [
       "nótt"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "noun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_nott-lexical-v1"
   },
   {
     "id": "on_konungr",
@@ -150,7 +171,14 @@
     "inflectionSourceId": "barnes_nion",
     "inflectionCitations": [
       "NION I §§3.1.4–3.1.9: declension, mutation and definite article; Zoega s.v. konungr"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "noun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_konungr-lexical-v1"
   },
   {
     "id": "on_fjall",
@@ -188,7 +216,14 @@
     "inflectionSourceId": "barnes_nion",
     "inflectionCitations": [
       "NION I §§3.1.4–3.1.9: declension, mutation and definite article; Zoega s.v. fjall"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "noun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_fjall-lexical-v1"
   },
   {
     "id": "on_ferd",
@@ -226,7 +261,14 @@
     "inflectionSourceId": "barnes_nion",
     "inflectionCitations": [
       "NION I §§3.1.4–3.1.9: declension, mutation and definite article; Zoega s.v. ferð"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "noun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_ferd-lexical-v1"
   },
   {
     "id": "on_spor",
@@ -238,7 +280,14 @@
     "sourceId": "zoega",
     "citations": [
       "spor"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "noun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_spor-lexical-v1"
   },
   {
     "id": "on_mikill",
@@ -279,7 +328,14 @@
     "inflectionSourceId": "barnes_nion",
     "inflectionCitations": [
       "NION I §3.3.9 p.107 paradigm9: mikill; §3.3.1: case/number/gender agreement."
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "adjective",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_mikill-lexical-v1"
   },
   {
     "id": "on_verk",
@@ -317,7 +373,14 @@
     "inflectionSourceId": "barnes_nion",
     "inflectionCitations": [
       "NION I §§3.1.4–3.1.9: declension, mutation and definite article; Zoega s.v. verk"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "noun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_verk-lexical-v1"
   },
   {
     "id": "on_elska",
@@ -331,7 +394,14 @@
     "sourceId": "internal_heuristics",
     "citations": [
       "Modernized approximation"
-    ]
+    ],
+    "sourceWork": "Runatal offline translation heuristics",
+    "attestationStatus": "FALLBACK",
+    "inventory": "READABLE_PARAPHRASE",
+    "grammaticalClass": "verb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Project-authored deterministic fallback and support logic. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_elska-lexical-v1"
   },
   {
     "id": "on_gera",
@@ -345,7 +415,14 @@
     "sourceId": "zoega",
     "citations": [
       "gera"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "verb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_gera-lexical-v1"
   },
   {
     "id": "on_reika",
@@ -359,7 +436,14 @@
     "sourceId": "internal_heuristics",
     "citations": [
       "Curated approximation"
-    ]
+    ],
+    "sourceWork": "Runatal offline translation heuristics",
+    "attestationStatus": "FALLBACK",
+    "inventory": "READABLE_PARAPHRASE",
+    "grammaticalClass": "verb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Project-authored deterministic fallback and support logic. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_reika-lexical-v1"
   },
   {
     "id": "on_villr",
@@ -370,7 +454,14 @@
     "sourceId": "zoega",
     "citations": [
       "villr"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "adjective",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_villr-lexical-v1"
   },
   {
     "id": "on_naud",
@@ -382,7 +473,14 @@
     "sourceId": "zoega",
     "citations": [
       "nauð"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "noun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_naud-lexical-v1"
   },
   {
     "id": "on_vera",
@@ -455,7 +553,14 @@
           "3_PLURAL"
         ]
       }
-    }
+    },
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "verb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_vera-lexical-v1"
   },
   {
     "id": "on_thegar",
@@ -466,7 +571,14 @@
     "sourceId": "zoega",
     "citations": [
       "þegar"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "adverb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_thegar-lexical-v1"
   },
   {
     "id": "on_taka",
@@ -480,7 +592,14 @@
     "sourceId": "zoega",
     "citations": [
       "taka"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "verb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_taka-lexical-v1"
   },
   {
     "id": "on_einn",
@@ -491,7 +610,14 @@
     "sourceId": "zoega",
     "citations": [
       "einn"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "pronoun",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_einn-lexical-v1"
   },
   {
     "id": "on_undir",
@@ -503,7 +629,14 @@
     "sourceId": "cleasby_vigfusson",
     "citations": [
       "undir"
-    ]
+    ],
+    "sourceWork": "An Icelandic-English Dictionary",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "preposition",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used for supplementary lexical checks. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_undir-lexical-v1"
   },
   {
     "id": "on_med",
@@ -515,7 +648,14 @@
     "sourceId": "zoega",
     "citations": [
       "með"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "preposition",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_med-lexical-v1"
   },
   {
     "id": "on_af",
@@ -527,7 +667,14 @@
     "sourceId": "zoega",
     "citations": [
       "af"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "preposition",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_af-lexical-v1"
   },
   {
     "id": "on_til",
@@ -539,7 +686,14 @@
     "sourceId": "zoega",
     "citations": [
       "til"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "preposition",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_til-lexical-v1"
   },
   {
     "id": "on_i",
@@ -551,7 +705,14 @@
     "sourceId": "zoega",
     "citations": [
       "í"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "preposition",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_i-lexical-v1"
   },
   {
     "id": "on_um",
@@ -563,7 +724,14 @@
     "sourceId": "zoega",
     "citations": [
       "um"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "preposition",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_um-lexical-v1"
   },
   {
     "id": "on_ganga",
@@ -577,7 +745,14 @@
     "sourceId": "zoega",
     "citations": [
       "ganga"
-    ]
+    ],
+    "sourceWork": "A Concise Dictionary of Old Icelandic",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "grammaticalClass": "verb",
+    "historicalStage": "OLD_NORSE",
+    "licenseNote": "Public-domain dictionary used as supplementary lexical support. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "on_ganga-lexical-v1"
   },
   {
     "id": "on_eigi",
@@ -585,11 +760,11 @@
     "partOfSpeech": "adverb",
     "lemma": "eigi",
     "strictEligible": true,
-    "sourceId": "onp",
+    "sourceId": "zoega",
     "sourceWork": "ONP prose lemma index",
-    "attestationStatus": "ATTESTED",
-    "inventory": "ATTESTED_FORMULA",
-    "lemmaAuthorityId": "ONP:eigi",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "lemmaAuthorityId": "ZOEGA:s.v.:eigi",
     "grammaticalClass": "adverb",
     "historicalStage": "OLD_NORSE",
     "licenseNote": "Reference-only lemma metadata.",
@@ -604,11 +779,11 @@
     "partOfSpeech": "adverb",
     "lemma": "aldri",
     "strictEligible": true,
-    "sourceId": "onp",
+    "sourceId": "zoega",
     "sourceWork": "ONP prose lemma index",
-    "attestationStatus": "ATTESTED",
-    "inventory": "ATTESTED_FORMULA",
-    "lemmaAuthorityId": "ONP:aldri",
+    "attestationStatus": "RECONSTRUCTED",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "lemmaAuthorityId": "ZOEGA:s.v.:aldri",
     "grammaticalClass": "adverb",
     "historicalStage": "OLD_NORSE",
     "licenseNote": "Reference-only lemma metadata.",

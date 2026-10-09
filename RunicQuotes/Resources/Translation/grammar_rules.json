@@ -155,5 +155,16 @@
         "NION I §3.9.1 p.219: með Óláfi Svía konungi, association with dative."
       ]
     }
+  },
+  "metadata": {
+    "id": "grammar_rules-inventory",
+    "sourceId": "barnes_nion",
+    "sourceWork": "A New Introduction to Old Norse I, third edition (2008)",
+    "citations": [
+      "NION I §§3.2,3.3,3.6,3.7: limited person/number/case rules; other parsing heuristics project-authored."
+    ],
+    "historicalStage": "OLD_NORSE",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "licenseNote": "Open scholarly grammar consulted; no prose text redistributed."
   }
 }

@@ -24,5 +24,16 @@
       "everyone": "hverr maðr"
     },
     "PROTO_NORSE": {}
+  },
+  "metadata": {
+    "id": "fallback_templates-inventory",
+    "sourceId": "internal_heuristics",
+    "sourceWork": "Runatal offline translation heuristics",
+    "citations": [
+      "Stage-separated readable paraphrases and lexical aliases are project-authored approximations."
+    ],
+    "historicalStage": "MIXED_HISTORICAL_AND_MODERN",
+    "inventory": "READABLE_PARAPHRASE",
+    "licenseNote": "Project-authored deterministic fallback and support logic."
   }
 }

@@ -75,11 +75,11 @@
     {
       "id": "tolkien_appendix_e",
       "name": "Appendix E / Erebor notes",
-      "role": "Cirth transcription reference",
+      "role": "Angerthas graph inventory and Erebor sound assignment guidance",
       "work": "The Lord of the Rings, Appendix E",
       "license": "Reference only",
-      "licenseNote": "Reference-only transcription guidance; runtime ships only derived tables.",
-      "url": "https://tolkiengateway.net/wiki/Angerthas_Erebor"
+      "licenseNote": "Reference-only primary Appendix E table reproduced in Cirth documentation; does not attest Runatal-authored example phrases.",
+      "url": "https://mirrors.mit.edu/CTAN/fonts/cirth/cirth.pdf"
     },
     {
       "id": "internal_heuristics",

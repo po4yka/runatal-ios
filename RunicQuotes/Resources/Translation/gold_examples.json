@@ -28,24 +28,33 @@
         "provenance": [
           {
             "sourceId": "onp",
-            "label": "ONP normalized exemplar",
+            "label": "Dictionary of Old Norse Prose (ONP)",
             "role": "Old Norse headword and normalization reference",
             "license": "Reference only",
-            "detail": "Curated lemma set for the wolf/night example."
+            "detail": "Curated lemma set for the wolf/night example.",
+            "sourceWork": "Ordbog over det norrøne prosasprog",
+            "licenseNote": "External scholarly reference consulted during curation; not redistributed.",
+            "url": "https://nors.ku.dk/forskning/arnamagnaeanske-samling/onp/"
           },
           {
             "sourceId": "menota",
-            "label": "Menota layer guidance",
+            "label": "Menota Handbook",
             "role": "Normalized versus diplomatic editorial guidance",
             "license": "Open access reference",
-            "detail": "Used to separate normalized and diplomatic forms."
+            "detail": "Used to separate normalized and diplomatic forms.",
+            "sourceWork": "Menota Handbook",
+            "licenseNote": "Open handbook reference used for editorial layer guidance.",
+            "url": "https://www.menota.org/HB2_ch3.xml"
           },
           {
-            "sourceId": "runor",
+            "sourceId": "internal_heuristics",
             "referenceId": "yf_ref_wolf_night",
-            "label": "Runor-aligned Younger exemplar",
-            "role": "Runic inscription discovery and verification reference",
-            "license": "Reference only"
+            "label": "Runatal project-authored historical reconstruction example",
+            "role": "Offline fallback logic and generated educational notes",
+            "license": "Project-owned",
+            "sourceWork": "Runatal curated educational examples",
+            "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+            "url": "https://github.com/po4yka/runatal-ios"
           }
         ],
         "tokenBreakdown": [
@@ -58,10 +67,13 @@
             "provenance": [
               {
                 "sourceId": "onp",
-                "label": "ONP normalized exemplar",
+                "label": "Dictionary of Old Norse Prose (ONP)",
                 "role": "Old Norse headword and normalization reference",
                 "license": "Reference only",
-                "detail": "Curated lemma set for the wolf/night example."
+                "detail": "Curated lemma set for the wolf/night example.",
+                "sourceWork": "Ordbog over det norrøne prosasprog",
+                "licenseNote": "External scholarly reference consulted during curation; not redistributed.",
+                "url": "https://nors.ku.dk/forskning/arnamagnaeanske-samling/onp/"
               }
             ]
           },
@@ -74,10 +86,13 @@
             "provenance": [
               {
                 "sourceId": "onp",
-                "label": "ONP normalized exemplar",
+                "label": "Dictionary of Old Norse Prose (ONP)",
                 "role": "Old Norse headword and normalization reference",
                 "license": "Reference only",
-                "detail": "Curated lemma set for the wolf/night example."
+                "detail": "Curated lemma set for the wolf/night example.",
+                "sourceWork": "Ordbog over det norrøne prosasprog",
+                "licenseNote": "External scholarly reference consulted during curation; not redistributed.",
+                "url": "https://nors.ku.dk/forskning/arnamagnaeanske-samling/onp/"
               }
             ]
           },
@@ -90,10 +105,13 @@
             "provenance": [
               {
                 "sourceId": "menota",
-                "label": "Menota layer guidance",
+                "label": "Menota Handbook",
                 "role": "Normalized versus diplomatic editorial guidance",
                 "license": "Open access reference",
-                "detail": "Used to separate normalized and diplomatic forms."
+                "detail": "Used to separate normalized and diplomatic forms.",
+                "sourceWork": "Menota Handbook",
+                "licenseNote": "Open handbook reference used for editorial layer guidance.",
+                "url": "https://www.menota.org/HB2_ch3.xml"
               }
             ]
           },
@@ -105,15 +123,19 @@
             "resolutionStatus": "RECONSTRUCTED",
             "provenance": [
               {
-                "sourceId": "runor",
+                "sourceId": "internal_heuristics",
                 "referenceId": "yf_ref_wolf_night",
-                "label": "Runor-aligned Younger exemplar",
-                "role": "Runic inscription discovery and verification reference",
-                "license": "Reference only"
+                "label": "Runatal project-authored historical reconstruction example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           }
-        ]
+        ],
+        "inventory": "APPROVED_RECONSTRUCTION"
       },
       {
         "script": "ELDER_FUTHARK",
@@ -137,11 +159,14 @@
         ],
         "provenance": [
           {
-            "sourceId": "srd",
+            "sourceId": "internal_heuristics",
             "referenceId": "ef_ref_wolf_night",
-            "label": "SRD-style Elder exemplar",
-            "role": "Gold examples and runic comparison corpus",
-            "license": "Reference only"
+            "label": "Runatal project-authored historical reconstruction example",
+            "role": "Offline fallback logic and generated educational notes",
+            "license": "Project-owned",
+            "sourceWork": "Runatal curated educational examples",
+            "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+            "url": "https://github.com/po4yka/runatal-ios"
           }
         ],
         "tokenBreakdown": [
@@ -153,11 +178,14 @@
             "resolutionStatus": "RECONSTRUCTED",
             "provenance": [
               {
-                "sourceId": "srd",
+                "sourceId": "internal_heuristics",
                 "referenceId": "ef_ref_wolf_night",
-                "label": "SRD-style Elder exemplar",
-                "role": "Gold examples and runic comparison corpus",
-                "license": "Reference only"
+                "label": "Runatal project-authored historical reconstruction example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           },
@@ -169,11 +197,14 @@
             "resolutionStatus": "RECONSTRUCTED",
             "provenance": [
               {
-                "sourceId": "srd",
+                "sourceId": "internal_heuristics",
                 "referenceId": "ef_ref_wolf_night",
-                "label": "SRD-style Elder exemplar",
-                "role": "Gold examples and runic comparison corpus",
-                "license": "Reference only"
+                "label": "Runatal project-authored historical reconstruction example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           },
@@ -185,15 +216,19 @@
             "resolutionStatus": "RECONSTRUCTED",
             "provenance": [
               {
-                "sourceId": "srd",
+                "sourceId": "internal_heuristics",
                 "referenceId": "ef_ref_wolf_night",
-                "label": "SRD-style Elder exemplar",
-                "role": "Gold examples and runic comparison corpus",
-                "license": "Reference only"
+                "label": "Runatal project-authored historical reconstruction example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           }
-        ]
+        ],
+        "inventory": "READABLE_PARAPHRASE"
       },
       {
         "script": "CIRTH",
@@ -219,11 +254,14 @@
         ],
         "provenance": [
           {
-            "sourceId": "tolkien_appendix_e",
+            "sourceId": "internal_heuristics",
             "referenceId": "cirth_ref_wolf_night",
-            "label": "Appendix E wolf-night example",
-            "role": "Cirth transcription reference",
-            "license": "Reference only"
+            "label": "Runatal project-authored Erebor transcription example",
+            "role": "Offline fallback logic and generated educational notes",
+            "license": "Project-owned",
+            "sourceWork": "Runatal curated educational examples",
+            "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+            "url": "https://github.com/po4yka/runatal-ios"
           }
         ],
         "tokenBreakdown": [
@@ -235,11 +273,14 @@
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
-                "sourceId": "tolkien_appendix_e",
+                "sourceId": "internal_heuristics",
                 "referenceId": "cirth_ref_wolf_night",
-                "label": "Appendix E wolf-night example",
-                "role": "Cirth transcription reference",
-                "license": "Reference only"
+                "label": "Runatal project-authored Erebor transcription example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           },
@@ -251,11 +292,14 @@
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
-                "sourceId": "tolkien_appendix_e",
+                "sourceId": "internal_heuristics",
                 "referenceId": "cirth_ref_wolf_night",
-                "label": "Appendix E wolf-night example",
-                "role": "Cirth transcription reference",
-                "license": "Reference only"
+                "label": "Runatal project-authored Erebor transcription example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           },
@@ -267,11 +311,14 @@
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
-                "sourceId": "tolkien_appendix_e",
+                "sourceId": "internal_heuristics",
                 "referenceId": "cirth_ref_wolf_night",
-                "label": "Appendix E wolf-night example",
-                "role": "Cirth transcription reference",
-                "license": "Reference only"
+                "label": "Runatal project-authored Erebor transcription example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           },
@@ -283,11 +330,14 @@
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
-                "sourceId": "tolkien_appendix_e",
+                "sourceId": "internal_heuristics",
                 "referenceId": "cirth_ref_wolf_night",
-                "label": "Appendix E wolf-night example",
-                "role": "Cirth transcription reference",
-                "license": "Reference only"
+                "label": "Runatal project-authored Erebor transcription example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           },
@@ -299,15 +349,19 @@
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
-                "sourceId": "tolkien_appendix_e",
+                "sourceId": "internal_heuristics",
                 "referenceId": "cirth_ref_wolf_night",
-                "label": "Appendix E wolf-night example",
-                "role": "Cirth transcription reference",
-                "license": "Reference only"
+                "label": "Runatal project-authored Erebor transcription example",
+                "role": "Offline fallback logic and generated educational notes",
+                "license": "Project-owned",
+                "sourceWork": "Runatal curated educational examples",
+                "licenseNote": "Project-authored phrase, not a quotation from an inscription database or Tolkien. Sources support lexical/graph guidance only.",
+                "url": "https://github.com/po4yka/runatal-ios"
               }
             ]
           }
-        ]
+        ],
+        "inventory": "APPROVED_RECONSTRUCTION"
       }
     ]
   }

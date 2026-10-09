@@ -20,7 +20,6 @@ struct TranslationBackfillWorker {
     func run() async throws {
         guard self.batchSize > 0 else { throw TranslationBackfillError.invalidBatchSize }
         try Task.checkCancellation()
-        self.translationService.warmUp()
         let version = self.translationService.versionSignature
         let dataset = self.translationService.datasetVersion
         let signature = "\(version)|\(dataset)"

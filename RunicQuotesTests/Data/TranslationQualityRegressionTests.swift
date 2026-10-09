@@ -10,7 +10,12 @@ import Testing
 
 @Suite(.tags(.dataset))
 struct TranslationQualityRegressionTests {
-    private let provider = AssetTranslationDatasetProvider()
+    private let provider: AssetTranslationDatasetProvider
+
+    init() throws {
+        self.provider = try AssetTranslationDatasetProvider()
+    }
+
     private let service = HistoricalTranslationService()
 
     @Test

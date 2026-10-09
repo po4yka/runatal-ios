@@ -12,7 +12,10 @@
     "attestationStatus": "RECONSTRUCTED",
     "inventory": "APPROVED_RECONSTRUCTION",
     "sourceWork": "Runatal constrained lexical reconstruction",
-    "licenseNote": "Project-authored proposed spelling, not corpus attestation."
+    "licenseNote": "Project-authored proposed spelling, not corpus attestation.",
+    "grammaticalClass": "noun",
+    "historicalStage": "PROTO_NORSE",
+    "regressionId": "pn_wulfaz-lexical-v1"
   },
   {
     "id": "pn_kuningaz",
@@ -27,7 +30,10 @@
     "attestationStatus": "RECONSTRUCTED",
     "inventory": "APPROVED_RECONSTRUCTION",
     "sourceWork": "Runatal constrained lexical reconstruction",
-    "licenseNote": "Project-authored proposed spelling, not corpus attestation."
+    "licenseNote": "Project-authored proposed spelling, not corpus attestation.",
+    "grammaticalClass": "noun",
+    "historicalStage": "PROTO_NORSE",
+    "regressionId": "pn_kuningaz-lexical-v1"
   },
   {
     "id": "pn_waithi",
@@ -38,7 +44,14 @@
     "sourceId": "internal_heuristics",
     "citations": [
       "Approximation"
-    ]
+    ],
+    "sourceWork": "Runatal offline translation heuristics",
+    "attestationStatus": "FALLBACK",
+    "inventory": "READABLE_PARAPHRASE",
+    "grammaticalClass": "verb",
+    "historicalStage": "PROTO_NORSE",
+    "licenseNote": "Project-authored deterministic fallback and support logic. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "pn_waithi-lexical-v1"
   },
   {
     "id": "pn_nahts",
@@ -49,7 +62,14 @@
     "sourceId": "internal_heuristics",
     "citations": [
       "Approximation"
-    ]
+    ],
+    "sourceWork": "Runatal offline translation heuristics",
+    "attestationStatus": "FALLBACK",
+    "inventory": "READABLE_PARAPHRASE",
+    "grammaticalClass": "noun",
+    "historicalStage": "PROTO_NORSE",
+    "licenseNote": "Project-authored deterministic fallback and support logic. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "pn_nahts-lexical-v1"
   },
   {
     "id": "pn_berga",
@@ -60,7 +80,14 @@
     "sourceId": "internal_heuristics",
     "citations": [
       "Approximation"
-    ]
+    ],
+    "sourceWork": "Runatal offline translation heuristics",
+    "attestationStatus": "FALLBACK",
+    "inventory": "READABLE_PARAPHRASE",
+    "grammaticalClass": "noun",
+    "historicalStage": "PROTO_NORSE",
+    "licenseNote": "Project-authored deterministic fallback and support logic. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "pn_berga-lexical-v1"
   },
   {
     "id": "pn_ferdi",
@@ -71,7 +98,14 @@
     "sourceId": "internal_heuristics",
     "citations": [
       "Approximation"
-    ]
+    ],
+    "sourceWork": "Runatal offline translation heuristics",
+    "attestationStatus": "FALLBACK",
+    "inventory": "READABLE_PARAPHRASE",
+    "grammaticalClass": "noun",
+    "historicalStage": "PROTO_NORSE",
+    "licenseNote": "Project-authored deterministic fallback and support logic. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "pn_ferdi-lexical-v1"
   },
   {
     "id": "pn_werka",
@@ -82,7 +116,14 @@
     "sourceId": "internal_heuristics",
     "citations": [
       "Approximation"
-    ]
+    ],
+    "sourceWork": "Runatal offline translation heuristics",
+    "attestationStatus": "FALLBACK",
+    "inventory": "READABLE_PARAPHRASE",
+    "grammaticalClass": "noun",
+    "historicalStage": "PROTO_NORSE",
+    "licenseNote": "Project-authored deterministic fallback and support logic. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "pn_werka-lexical-v1"
   },
   {
     "id": "pn_isti",
@@ -93,7 +134,14 @@
     "sourceId": "internal_heuristics",
     "citations": [
       "Approximation"
-    ]
+    ],
+    "sourceWork": "Runatal offline translation heuristics",
+    "attestationStatus": "FALLBACK",
+    "inventory": "READABLE_PARAPHRASE",
+    "grammaticalClass": "verb",
+    "historicalStage": "PROTO_NORSE",
+    "licenseNote": "Project-authored deterministic fallback and support logic. Lexical or hypothetical form only; not sentence attestation.",
+    "regressionId": "pn_isti-lexical-v1"
   },
   {
     "id": "pn_eki",

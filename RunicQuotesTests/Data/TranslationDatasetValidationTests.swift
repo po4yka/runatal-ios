@@ -11,13 +11,17 @@ import Testing
 
 @Suite(.tags(.dataset))
 struct TranslationDatasetValidationTests {
-    private let provider = AssetTranslationDatasetProvider()
+    private let provider: AssetTranslationDatasetProvider
+
+    init() throws {
+        self.provider = try AssetTranslationDatasetProvider()
+    }
 
     @Test
     func datasetManifestDeclaresSourceOfTruthPackage() {
         let manifest = self.provider.datasetManifest()
 
-        #expect(manifest.version == "2026.10-runes-i6")
+        #expect(manifest.version == "2026.10-runes-i7")
         #expect(manifest.sourceOfTruthPackage == "TranslationCuration/translation-curation-v1")
     }
 
@@ -49,11 +53,12 @@ struct TranslationDatasetValidationTests {
     }
 
     @Test
-    func onpEntriesExposeLemmaAuthorityIdentifiers() {
-        let onpEntries = self.provider.oldNorseLexicon().filter { $0.sourceID == "onp" }
-
-        #expect(!onpEntries.isEmpty)
-        #expect(onpEntries.allSatisfy { ($0.lemmaAuthorityID ?? "").hasPrefix("ONP:") })
+    func dictionaryEntriesUseVerifiedHeadwordsWithoutFabricatedONPIDs() {
+        let entries = self.provider.oldNorseLexicon()
+        let negation = entries.filter { ["on_eigi", "on_aldri"].contains($0.id) }
+        #expect(negation.count == 2)
+        #expect(negation.allSatisfy { $0.sourceID == "zoega" && $0.citations == [$0.lemma] })
+        #expect(entries.allSatisfy { !($0.lemmaAuthorityID ?? "").hasPrefix("ONP:") })
     }
 
     @Test

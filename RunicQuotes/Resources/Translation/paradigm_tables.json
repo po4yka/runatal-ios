@@ -30,5 +30,16 @@
       "thirdPersonPresentSuffix": "",
       "thirdPersonPastSuffix": ""
     }
+  },
+  "metadata": {
+    "id": "paradigm_tables-inventory",
+    "sourceId": "internal_heuristics",
+    "sourceWork": "Runatal offline translation heuristics",
+    "citations": [
+      "Legacy suffix summaries are project-authored educational metadata; live grammar uses explicit cited forms."
+    ],
+    "historicalStage": "OLD_NORSE",
+    "inventory": "READABLE_PARAPHRASE",
+    "licenseNote": "Project-authored deterministic fallback and support logic."
   }
 }

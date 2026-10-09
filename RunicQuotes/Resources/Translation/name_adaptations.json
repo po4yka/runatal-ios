@@ -6,5 +6,16 @@
     "oscar": "óskar",
     "albert": "albertr",
     "tolkien": "tolkien"
+  },
+  "metadata": {
+    "id": "name_adaptations-inventory",
+    "sourceId": "internal_heuristics",
+    "sourceWork": "Runatal offline translation heuristics",
+    "citations": [
+      "Project-authored readable name adaptations, not verified Old Norse attestations."
+    ],
+    "historicalStage": "OLD_NORSE",
+    "inventory": "READABLE_PARAPHRASE",
+    "licenseNote": "Project-authored deterministic fallback and support logic."
   }
 }

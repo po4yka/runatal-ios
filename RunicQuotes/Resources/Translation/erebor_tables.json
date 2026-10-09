@@ -105,5 +105,16 @@
     "rr": "",
     "tt": ""
   },
-  "wordSeparator": "·"
+  "wordSeparator": "·",
+  "metadata": {
+    "id": "erebor_tables-inventory",
+    "sourceId": "tolkien_appendix_e",
+    "sourceWork": "The Lord of the Rings, Appendix E",
+    "citations": [
+      "Appendix E table of values and Erebor mode notes; CSUR graph registry; examples project-authored."
+    ],
+    "historicalStage": "EREBOR_ENGLISH",
+    "inventory": "APPROVED_RECONSTRUCTION",
+    "licenseNote": "Reference-only primary Appendix E table reproduced in Cirth documentation; does not attest Runatal-authored example phrases."
+  }
 }
