@@ -42,6 +42,7 @@ final class ReadingAppearanceController: ObservableObject {
         self.observation = NotificationCenter.default.publisher(for: .preferencesDidChange)
             .merge(with: NotificationCenter.default.publisher(for: .libraryDidChange))
             .merge(with: NotificationCenter.default.publisher(for: .translationCacheUpdated))
+            .receive(on: RunLoop.main)
             .sink { [weak self] _ in Task { @MainActor in self?.refresh() } }
     }
 

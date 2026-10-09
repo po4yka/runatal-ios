@@ -34,6 +34,33 @@ struct ReadingAppearanceControllerTests {
     }
 
     @Test
+    func actualBackgroundLibraryCacheAndPreferenceWritesRefreshTheMainActorPresentation() async throws {
+        let context = try TestSupport.makeModelContext()
+        let quotes = SwiftDataQuoteRepository(modelContext: context)
+        let preferences = SwiftDataUserPreferencesRepository(modelContext: context)
+        let translations = SwiftDataTranslationRepository(modelContext: context)
+        let first = try quotes.createQuote(textLatin: "Harja", author: "Reader", source: nil, collection: .stoic)
+        let firstResult = HistoricalTranslationService().translate(text: first.textLatin, script: .elder, fidelity: .strict)
+        #expect(firstResult.isAvailable)
+        try translations.cache(result: firstResult, for: first.id, sourceText: first.textLatin)
+        let model = ReadingAppearanceController(repository: preferences, quotes: QuoteProvider(modelContainer: context.container), translations: TranslationProvider(modelContainer: context.container))
+        #expect(await TestSupport.eventually { model.presentation(for: first).source == .structuredTranslation })
+
+        // Every event originates from a real successful detached repository mutation.
+        // Calling the MainActor-inherited Combine sink on this executor previously trapped.
+        let second = try await Task.detached {
+            let quote = try quotes.createQuote(textLatin: "The wolf hunts at night", author: "Reader", source: nil, collection: .stoic)
+            let result = HistoricalTranslationService().translate(text: quote.textLatin, script: .younger, fidelity: .strict)
+            try translations.cache(result: result, for: quote.id, sourceText: quote.textLatin)
+            try preferences.apply([.script(.younger)])
+            return quote
+        }.value
+        #expect(await TestSupport.eventually { model.script == .younger && model.presentation(for: second).source == .structuredTranslation })
+        #expect(model.presentation(for: second).text == "ᚢᛚᚠᚱ ᚢᛁᚦᛁᚱ ᚢᛘ ᚾᚢᛏᛏ")
+        #expect(model.font.isCompatible(with: .younger))
+    }
+
+    @Test
     func originalPassageSourceAcceptsOnlyExplicitWebLinks() {
         #expect(QuoteSourceSheet.webURL(in: "Work, edition, stanza 1\nhttps://example.org/source")?.host == "example.org")
         #expect(QuoteSourceSheet.webURL(in: "file:///private/example") == nil)
