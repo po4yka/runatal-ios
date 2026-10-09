@@ -209,7 +209,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v6"
+    let engineVersion = "yf-translation-v7"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -397,7 +397,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v5"
+    let engineVersion = "ef-translation-v6"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -527,7 +527,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
 
 private struct EreborCirthTranslationEngine: TranslationEngine {
     let script: RunicScript = .cirth
-    let engineVersion = "cirth-translation-v4"
+    let engineVersion = "cirth-translation-v5"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -642,24 +642,28 @@ private struct EnglishSyntaxParser {
         multiwordExpressions: [String],
     ) -> ParsedEnglishText {
         let normalizedText = text
+            .replacingOccurrences(of: "[’‘ʼ]", with: "'", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
 
         var warnings = [String]()
 
-        let rawTokens = self.tokenRegex
-            .matches(in: normalizedText, range: NSRange(normalizedText.startIndex..., in: normalizedText))
-            .compactMap { Range($0.range, in: normalizedText).map { normalizedText[$0] } }
-            .map(String.init)
+        let rawTokens = self.tokenize(normalizedText)
             .flatMap { self.expandContractions(in: $0, warnings: &warnings, pronouns: Set(grammarRules.pronounMap.keys)) }
             .map { value in
                 ParsedEnglishToken(
                     raw: value,
                     normalized: value.lowercased(),
-                    type: value.allSatisfy { $0.isLetter || $0 == "'" } ? .word : .punctuation,
+                    type: value.contains(where: \.isLetter) && value.allSatisfy { $0.isLetter || $0 == "'" } ? .word : .punctuation,
                     isProperNameCandidate: value.first?.isUppercase == true,
                 )
             }
+
+        if rawTokens.contains(where: {
+            $0.type == .punctuation && !$0.raw.allSatisfy(\.isNumber) && !self.punctuationCharacters.contains($0.raw)
+        }) {
+            warnings.append("Symbols and quotation marks are preserved literally; their meaning is not historically translated.")
+        }
 
         let mergedTokens = self.mergeMultiwordExpressions(
             in: rawTokens,
@@ -864,8 +868,42 @@ private struct EnglishSyntaxParser {
             grammarRules.imperativeHints.contains(token.normalized)
     }
 
-    private let tokenRegex = (try? NSRegularExpression(pattern: #"[A-Za-z']+|[.,!?;:-]"#))
-        ?? NSRegularExpression()
+    /// Tokenize complete graphemes, retaining every non-whitespace character.
+    /// Letter/number boundaries are explicit; apostrophes join only letters inside words.
+    private func tokenize(_ text: String) -> [String] {
+        let characters = Array(text)
+        var tokens: [String] = []
+        var current = ""
+        var isWord: Bool?
+        func flush() {
+            if !current.isEmpty {
+                tokens.append(current)
+            }
+            current = ""
+            isWord = nil
+        }
+        for (index, character) in characters.enumerated() {
+            let joinsWord = character == "'" && isWord == true && index + 1 < characters.count && characters[index + 1].isLetter
+            if character.isLetter || character.isNumber {
+                let nextIsWord = character.isLetter
+                if let isWord, isWord != nextIsWord {
+                    flush()
+                }
+                isWord = nextIsWord
+                current.append(character)
+            } else if joinsWord {
+                current.append(character)
+            } else {
+                flush()
+                if !character.isWhitespace {
+                    tokens.append(String(character))
+                }
+            }
+        }
+        flush()
+        return tokens
+    }
+
     private let punctuationCharacters = Set([".", ",", "!", "?", ";", ":", "-"])
     private let collapsibleAuxiliaries = Set(["do", "does", "did", "have", "has", "had", "will", "would", "shall", "should", "can", "could", "may", "might", "must"])
     private let commonPrepositions = Set(["at", "in", "on", "under", "with", "for", "from", "to", "of"])
