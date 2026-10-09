@@ -19,3 +19,14 @@ protocol QuoteTranslationReading: Sendable {
 
 extension QuoteProvider: QuoteReading {}
 extension TranslationProvider: QuoteTranslationReading {}
+
+protocol ReadingLibraryProviding: Sendable {
+    func readingLibraryQuotes() async throws -> [QuoteRecord]
+}
+
+protocol ReadingTranslationsProviding: Sendable {
+    func latestTranslations(for quoteIDs: [UUID], script: RunicScript) async throws -> [UUID: TranslationResult]
+}
+
+extension QuoteProvider: ReadingLibraryProviding {}
+extension TranslationProvider: ReadingTranslationsProviding {}

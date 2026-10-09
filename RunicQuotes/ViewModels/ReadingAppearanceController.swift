@@ -28,13 +28,13 @@ final class ReadingAppearanceController: ObservableObject {
     }
 
     private let repository: any UserPreferencesRepository
-    private let quotes: QuoteProvider
-    private let translations: TranslationProvider
+    private let quotes: any ReadingLibraryProviding
+    private let translations: any ReadingTranslationsProviding
     private var observation: AnyCancellable?
     private var loadTask: Task<Void, Never>?
-    private var generation = 0
+    private var needsRefresh = false
 
-    init(repository: any UserPreferencesRepository, quotes: QuoteProvider, translations: TranslationProvider) {
+    init(repository: any UserPreferencesRepository, quotes: any ReadingLibraryProviding, translations: any ReadingTranslationsProviding) {
         self.repository = repository
         self.quotes = quotes
         self.translations = translations
@@ -43,6 +43,7 @@ final class ReadingAppearanceController: ObservableObject {
             .merge(with: NotificationCenter.default.publisher(for: .libraryDidChange))
             .merge(with: NotificationCenter.default.publisher(for: .translationCacheUpdated))
             .receive(on: RunLoop.main)
+            .throttle(for: .milliseconds(150), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] _ in Task { @MainActor in self?.refresh() } }
     }
 
@@ -59,16 +60,25 @@ final class ReadingAppearanceController: ObservableObject {
     }
 
     private func refresh() {
-        self.generation += 1
-        let generation = self.generation
-        self.loadTask?.cancel()
+        guard self.loadTask == nil else { self.needsRefresh = true; return }
         self.loadTask = Task {
+            defer {
+                self.loadTask = nil
+                if self.needsRefresh {
+                    self.needsRefresh = false
+                    Task { @MainActor [weak self] in self?.refresh() }
+                }
+            }
             do {
                 let preferences = try self.repository.snapshot()
                 let allQuotes = try await self.quotes.readingLibraryQuotes()
                 let cached = try await self.translations.latestTranslations(for: allQuotes.map(\.id), script: preferences.selectedScript)
                 try Task.checkCancellation()
-                guard generation == self.generation else { return }
+                let current = try self.repository.snapshot()
+                guard current.selectedScript == preferences.selectedScript, current.selectedFont == preferences.selectedFont else {
+                    self.needsRefresh = true
+                    return
+                }
                 var next = State()
                 next.script = preferences.selectedScript
                 next.font = preferences.selectedFont.isCompatible(with: next.script) ? preferences.selectedFont : RunicFontConfiguration.recommendedFont(for: next.script)
@@ -79,7 +89,6 @@ final class ReadingAppearanceController: ObservableObject {
                 self.state = next
             } catch is CancellationError {
             } catch {
-                guard generation == self.generation else { return }
                 self.state.errorMessage = error.localizedDescription
             }
         }
