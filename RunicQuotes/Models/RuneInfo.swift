@@ -68,32 +68,16 @@ struct RuneInfo: Identifiable {
 
     // MARK: - Cirth (select Angerthas runes)
 
-    static let cirth: [RuneInfo] = [
-        RuneInfo(id: "cirth-1", glyph: "\u{E080}", name: "Certh 1", meaning: "p", sound: "p", script: .cirth),
-        RuneInfo(id: "cirth-2", glyph: "\u{E081}", name: "Certh 2", meaning: "b", sound: "b", script: .cirth),
-        RuneInfo(id: "cirth-3", glyph: "\u{E082}", name: "Certh 3", meaning: "f", sound: "f", script: .cirth),
-        RuneInfo(id: "cirth-4", glyph: "\u{E091}", name: "Certh 4", meaning: "ch/kh", sound: "ch", script: .cirth),
-        RuneInfo(id: "cirth-5", glyph: "\u{E092}", name: "Certh 5", meaning: "g", sound: "g", script: .cirth),
-        RuneInfo(id: "cirth-6", glyph: "\u{E0A7}", name: "Certh 6", meaning: "i", sound: "i", script: .cirth),
-        RuneInfo(id: "cirth-7", glyph: "\u{E087}", name: "Certh 7", meaning: "t", sound: "t", script: .cirth),
-        RuneInfo(id: "cirth-8", glyph: "\u{E0A1}", name: "Certh 8", meaning: "h", sound: "h", script: .cirth),
-        RuneInfo(id: "cirth-9", glyph: "\u{E088}", name: "Certh 9", meaning: "d", sound: "d", script: .cirth),
-        RuneInfo(id: "cirth-10", glyph: "\u{E0B1}", name: "Certh 10", meaning: "a", sound: "a", script: .cirth),
-        RuneInfo(id: "cirth-11", glyph: "\u{00FE}", name: "Certh 11", meaning: "th (voiceless)", sound: "th", script: .cirth),
-        RuneInfo(id: "cirth-12", glyph: "\u{00F0}", name: "Certh 12", meaning: "dh (voiced)", sound: "dh", script: .cirth),
-        RuneInfo(id: "cirth-14", glyph: "\u{E095}", name: "Certh 14", meaning: "n", sound: "n", script: .cirth),
-        RuneInfo(id: "cirth-17", glyph: "\u{E0AC}", name: "Certh 17", meaning: "w", sound: "w", script: .cirth),
-        RuneInfo(id: "cirth-18", glyph: "\u{E085}", name: "Certh 18", meaning: "m", sound: "m", script: .cirth),
-        RuneInfo(id: "cirth-21", glyph: "\u{E095}", name: "Certh 21", meaning: "n (dental)", sound: "n", script: .cirth),
-        RuneInfo(id: "cirth-22", glyph: "\u{E09E}", name: "Certh 22", meaning: "l", sound: "l", script: .cirth),
-        RuneInfo(id: "cirth-28", glyph: "\u{00F1}", name: "Certh 28", meaning: "ng", sound: "ng", script: .cirth),
-        RuneInfo(id: "cirth-31", glyph: "\u{E090}", name: "Certh 31", meaning: "z", sound: "z", script: .cirth),
-        RuneInfo(id: "cirth-33", glyph: "\u{E0B9}", name: "Certh 33", meaning: "s", sound: "s", script: .cirth),
-        RuneInfo(id: "cirth-35", glyph: "\u{E0AF}", name: "Certh 35", meaning: "e", sound: "e", script: .cirth),
-        RuneInfo(id: "cirth-38", glyph: "\u{E0B3}", name: "Certh 38", meaning: "o/u", sound: "o", script: .cirth),
-        RuneInfo(id: "cirth-39", glyph: "\u{E0A8}", name: "Certh 39", meaning: "y (consonant)", sound: "y", script: .cirth),
-        RuneInfo(id: "cirth-40", glyph: "\u{E0A8}", name: "Certh 40", meaning: "y (vowel)", sound: "y", script: .cirth),
-    ]
+    static let cirth: [RuneInfo] = CirthGraph.erebor.map { graph in
+        RuneInfo(
+            id: graph.id,
+            glyph: graph.glyph,
+            name: "Certh \(graph.number)",
+            meaning: "Erebor \(graph.soundLabel)",
+            sound: graph.soundLabel,
+            script: .cirth,
+        )
+    }
 
     // MARK: - Helpers
 
@@ -111,7 +95,7 @@ struct RuneInfo: Identifiable {
         switch script {
         case .elder: "24 runes \u{00B7} c. 150\u{2013}800 CE"
         case .younger: "16 runes \u{00B7} c. 800\u{2013}1100 CE"
-        case .cirth: "24 runes \u{00B7} Tolkien's Angerthas"
+        case .cirth: "\(self.cirth.count) graphs · Angerthas Erebor · fictional script"
         }
     }
 

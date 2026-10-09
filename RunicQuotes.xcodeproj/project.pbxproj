@@ -21,6 +21,7 @@
 		076F723A78F6A09F6149BCE5 /* HomeAccessoryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D287587E9500C7C77A17A9 /* HomeAccessoryController.swift */; };
 		086FDA1E9927DBD46404558E /* source_manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 051D10FB26786E9F8A6E5096 /* source_manifest.json */; };
 		08E7C8D8B9D7FAD57BB73468 /* QuoteSearchResultsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46530A831316B5DC7F21AEB /* QuoteSearchResultsSectionView.swift */; };
+		09E8E2AF21F800F94706D3CA /* CirthGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AFA3BA48ADFB447F4A0605 /* CirthGraph.swift */; };
 		0A38C3D20E4A5E5DD642E1E6 /* proto_norse_lexicon.json in Resources */ = {isa = PBXBuildFile; fileRef = EA79F1EF076584C30A2E8F1A /* proto_norse_lexicon.json */; };
 		0A5018A69733F4AC51CD209A /* RunicAtmosphere.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1EB0A1921077E31D83D070 /* RunicAtmosphere.swift */; };
 		0A6B608059AA36BD782D2B8C /* SettingsSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 556FD1B0807558493BDB1485 /* SettingsSectionHeaderView.swift */; };
@@ -223,6 +224,7 @@
 		A0D436DA7F21FE8B1D075CC1 /* UserPreferencesRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F6DCE87E4759F628AA52D7 /* UserPreferencesRepositoryTests.swift */; };
 		A124F519C224F4366EC9CF21 /* NotificationCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2F2ECC205A3193A383C949 /* NotificationCenterView.swift */; };
 		A18485CE01462007FC92EFEF /* QuoteActionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C2EF4303253DFD3C7A8DCD2 /* QuoteActionsSheet.swift */; };
+		A214032AD13138EE854E2E4E /* CirthGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AFA3BA48ADFB447F4A0605 /* CirthGraph.swift */; };
 		A2CACB0E2A38CDE63C3A86BB /* fallback_templates.json in Resources */ = {isa = PBXBuildFile; fileRef = A6BC5C798B86BDC40880E7C1 /* fallback_templates.json */; };
 		A2F26AB6AE30C24DE19BAB3E /* LiquidContentScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344FF5A29EC11F3B8DA0D80B /* LiquidContentScaffold.swift */; };
 		A418BAAC19206F47791DF191 /* TranslationDataset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E33E8BF19601454BA34EB60 /* TranslationDataset.swift */; };
@@ -334,6 +336,7 @@
 		FB2FA4349C5CA58E4B03B192 /* TranslationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9FAFA1332C6B784029AC3A /* TranslationRepository.swift */; };
 		FCD41C785F8F54B0DA3D5DD6 /* ShareQuoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0812F898293C58524827CB58 /* ShareQuoteView.swift */; };
 		FE2002A8780BE10D5DC555C8 /* WidgetStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B87B33A496BEDBE1CAF18D /* WidgetStyle.swift */; };
+		FED9B8CD3011B7CA808308F3 /* CirthReferenceContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA745A0E2317E3366765144 /* CirthReferenceContractTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -511,6 +514,7 @@
 		82E4001B0BFC0226B7679656 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		8361DF9EB2E970107F3D328F /* younger_phrase_templates.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = younger_phrase_templates.json; sourceTree = "<group>"; };
 		83DEE0FC812ECA09D5B4F64B /* SearchFeatureComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFeatureComponent.swift; sourceTree = "<group>"; };
+		84AFA3BA48ADFB447F4A0605 /* CirthGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirthGraph.swift; sourceTree = "<group>"; };
 		84E13AAAD7A9D226EC598ED7 /* UserPreferencesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesRepository.swift; sourceTree = "<group>"; };
 		84E5680C9E1529A0B6D900E4 /* RunicFontConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicFontConfiguration.swift; sourceTree = "<group>"; };
 		867E3D7B78E5CD810F554534 /* QuoteViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteViewModelTests.swift; sourceTree = "<group>"; };
@@ -523,6 +527,7 @@
 		8D07A67D98CB2F2A9A484B65 /* QuoteViewModel+Translation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuoteViewModel+Translation.swift"; sourceTree = "<group>"; };
 		8D4AB74F5FDD0776AAEAC8BB /* LegacyCirthEncodingMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCirthEncodingMigration.swift; sourceTree = "<group>"; };
 		8EF962C0A9BA24A131F3E24A /* SettingsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
+		8FA745A0E2317E3366765144 /* CirthReferenceContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirthReferenceContractTests.swift; sourceTree = "<group>"; };
 		905C08E9F45C0E02763F20FF /* SettingsLivePreviewSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsLivePreviewSectionView.swift; sourceTree = "<group>"; };
 		91F6165A1F27C4DB0A7CEED3 /* QuoteToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteToolbar.swift; sourceTree = "<group>"; };
 		9223BDDB015089A96FF9F9F3 /* RunicTransliteratorPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicTransliteratorPerformanceTests.swift; sourceTree = "<group>"; };
@@ -1166,6 +1171,7 @@
 				2E3DEE95BC6D47B6029A43E3 /* Enums */,
 				B723FF2BBA39152B7D109F7F /* Translation */,
 				EFD33FEB94C08AE583E1C739 /* Widget */,
+				84AFA3BA48ADFB447F4A0605 /* CirthGraph.swift */,
 				824C528D8EA4F2613FB657E3 /* Quote.swift */,
 				0772DDF200F344D99763EDE5 /* QuotePack.swift */,
 				D96927F8E28E008282576D37 /* QuoteSeedReceipt.swift */,
@@ -1305,6 +1311,7 @@
 			isa = PBXGroup;
 			children = (
 				3E477BE1F638D34B176D5CA9 /* AppTabTests.swift */,
+				8FA745A0E2317E3366765144 /* CirthReferenceContractTests.swift */,
 				BCCD7477D6F601FB79E68BBF /* CoreModelTests.swift */,
 				FE4FD903EF9A52601139F16D /* QuoteCollectionTests.swift */,
 				821A5A79BDA7AC1DBE2FEA4D /* TranslationModelTests.swift */,
@@ -1564,6 +1571,7 @@
 				9F60459CCB5D8D72FF876E98 /* ArchiveView.swift in Sources */,
 				C40CA8AFB1DCE3271435CA97 /* ArchiveViewModel.swift in Sources */,
 				93D7483DE21A717FBE49E43F /* AssetTranslationDatasetProvider.swift in Sources */,
+				A214032AD13138EE854E2E4E /* CirthGraph.swift in Sources */,
 				10695CE75AA38F66515EBF5B /* CirthMap.swift in Sources */,
 				C856887F96D1F6349B499582 /* CollectionCoverCardView.swift in Sources */,
 				1D578B506EDB7798FB1E5CE9 /* CollectionCoverCarousel.swift in Sources */,
@@ -1717,6 +1725,7 @@
 				A7CFEF718CDFCBAAE437D658 /* AppTheme.swift in Sources */,
 				25071A27E9B2F9D76C9D108E /* AppThemePalette.swift in Sources */,
 				224F0172139DDBB63F6D94CF /* AssetTranslationDatasetProvider.swift in Sources */,
+				09E8E2AF21F800F94706D3CA /* CirthGraph.swift in Sources */,
 				BA67058E31B74300E5599144 /* CirthMap.swift in Sources */,
 				141F2F2192D738B66E839AB2 /* Color+Grayscale.swift in Sources */,
 				59C39DC0FD287FD6272192DB /* DatabaseCoordinator.swift in Sources */,
@@ -1803,6 +1812,7 @@
 				B45C0163ED26177B10220BF8 /* ArchiveViewModelTests.swift in Sources */,
 				AF2F54CDE916621F2A3F1895 /* AttestedQuoteCatalogTests.swift in Sources */,
 				A43B915CA98780F1A9BB2979 /* CirthEncodingContractTests.swift in Sources */,
+				FED9B8CD3011B7CA808308F3 /* CirthReferenceContractTests.swift in Sources */,
 				90844CD1CB3A7A6534D60F81 /* CoreModelTests.swift in Sources */,
 				8E6C177E6AF85DFDA37B58DD /* CoreUtilityTests.swift in Sources */,
 				3DE970CD4C24D11D127E88C2 /* CreateEditQuoteViewModelTests.swift in Sources */,
