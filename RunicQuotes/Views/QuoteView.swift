@@ -71,8 +71,12 @@ struct QuoteView: View {
             .onChange(of: self.viewModel.state.currentScript) { _, _ in
                 self.startScriptMorphTransition()
             }
-            .onReceive(NotificationCenter.default.publisher(for: .preferencesDidChange)) { _ in
-                self.viewModel.onPreferencesChanged()
+            .onReceive(NotificationCenter.default.publisher(for: .preferencesDidChange)) { notification in
+                if let collection = notification.userInfo?["collection"] as? QuoteCollection {
+                    self.viewModel.onCollectionChanged(collection)
+                } else {
+                    self.viewModel.onPreferencesChanged()
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { notification in
                 let scriptRaw = notification.userInfo?["script"] as? String

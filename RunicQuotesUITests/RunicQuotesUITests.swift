@@ -183,6 +183,20 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
 
     // MARK: - Navigation Tests
 
+    func testCollectionShelfSelectsTheMatchingHomeStream() {
+        let app = self.requireApp()
+        let collections = self.tabButton(in: app, identifier: "collections_tab", labels: ["Collections"])
+        self.tapElement(collections)
+        let shelf = self.findElement(in: app, identifier: "collection_Tolkien", maxSwipes: 4)
+        XCTAssertTrue(shelf.exists)
+        self.tapElement(shelf)
+        self.waitForQuoteCard(in: app)
+        let selection = app.buttons["collection_cover_Tolkien"]
+        XCTAssertTrue(selection.exists)
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Selected"), object: selection)
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+    }
+
     func testSwitchBetweenTabs() {
         let app = self.requireApp()
         let homeTab = self.tabButton(in: app, identifier: "home_tab", labels: ["Home"])
