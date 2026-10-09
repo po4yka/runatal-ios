@@ -18,6 +18,14 @@ final class AppRootComponent: BootstrapComponent {
         super.init()
     }
 
+    var bootstrapViewModel: AppBootstrapViewModel {
+        shared { AppBootstrapViewModel(database: self.databaseCoordinator) }
+    }
+
+    var navigationCoordinator: QuoteNavigationCoordinator {
+        shared { QuoteNavigationCoordinator() }
+    }
+
     var dailyReminderViewModel: DailyReminderViewModel {
         shared { DailyReminderViewModel(client: SystemDailyReminderClient(), preferencesRepository: self.preferencesRepository) }
     }
@@ -25,7 +33,7 @@ final class AppRootComponent: BootstrapComponent {
     var dailyReminderNotificationDelegate: DailyReminderNotificationDelegate {
         shared {
             DailyReminderNotificationDelegate {
-                NotificationCenter.default.post(name: .switchToQuoteTab, object: nil, userInfo: ["mode": WidgetMode.daily.rawValue])
+                self.bootstrapViewModel.enqueue(DeepLink.openDailyQuote(script: nil).url)
             }
         }
     }

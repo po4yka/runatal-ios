@@ -90,7 +90,7 @@ struct DatabaseCoordinatorTests {
             translationRepositoryFactory: { _, _ in translationRepository },
         )
 
-        await coordinator.purgeExpiredQuotes()
+        try await coordinator.purgeExpiredQuotes()
 
         #expect(quoteRepository.purgeCallCount == 1)
         #expect(quoteRepository.lastCutoffDate != nil)
@@ -129,7 +129,7 @@ struct DatabaseCoordinatorTests {
             },
         )
 
-        await coordinator.purgeExpiredQuotes()
+        await #expect(throws: (any Error).self) { try await coordinator.purgeExpiredQuotes() }
         await coordinator.backfillTranslations()
 
         #expect(quoteRepository.purgeCallCount == 1)
@@ -156,7 +156,7 @@ struct DatabaseCoordinatorTests {
         )
 
         await coordinator.backfillTranslations()
-        await coordinator.purgeExpiredQuotes()
+        try await coordinator.purgeExpiredQuotes()
 
         #expect(translationRepository.backfillCallCount == 1)
         #expect(quoteRepository.quoteCountAtSuccessfulPurge == 0)
@@ -184,7 +184,7 @@ struct DatabaseCoordinatorTests {
         )
 
         try await coordinator.seedIfNeeded()
-        await coordinator.purgeExpiredQuotes()
+        try await coordinator.purgeExpiredQuotes()
         await coordinator.backfillTranslations()
 
         #expect(contexts.identifiers.count == 3)

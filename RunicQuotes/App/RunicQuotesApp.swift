@@ -20,11 +20,14 @@ struct RunicQuotesApp: App {
     let modelContainer: ModelContainer
     let rootComponent: AppRootComponent
     let featureDiscoveryController: FeatureDiscoveryController
+    @StateObject private var bootstrapViewModel: AppBootstrapViewModel
     @AppStorage(AppConstants.onboardingCompletedKey) private var hasCompletedOnboarding = false
     @AppStorage(AppConstants.selectedThemeStorageKey) private var selectedThemeRaw = AppTheme.obsidian.rawValue
     @State private var showDatabaseError = false
     @State private var databaseErrorMessage = ""
     @State private var showOnboarding = false
+    @State private var isMainTabMounted = false
+    @State private var didFinishBootstrapPresentation = false
 
     private var shouldSkipOnboarding: Bool {
         ProcessInfo.processInfo.environment["SKIP_ONBOARDING"] == "1"
@@ -43,17 +46,6 @@ struct RunicQuotesApp: App {
             self.modelContainer = container
             self.rootComponent = AppRootComponent(modelContainer: container)
 
-            // Seed database on first launch, then purge expired soft-deleted quotes
-            let databaseCoordinator = self.rootComponent.databaseCoordinator
-            Task {
-                do {
-                    try await databaseCoordinator.seedIfNeeded()
-                } catch {
-                    Self.logger.error("Failed to seed database: \(error.localizedDescription)")
-                }
-                await databaseCoordinator.purgeExpiredQuotes()
-                await databaseCoordinator.backfillTranslations()
-            }
         } catch {
             Self.logger.critical("Failed to create ModelContainer: \(error.localizedDescription)")
 
@@ -65,17 +57,9 @@ struct RunicQuotesApp: App {
             self.databaseErrorMessage = "Using temporary database. Data will not be saved."
             self.showDatabaseError = true
 
-            let databaseCoordinator = self.rootComponent.databaseCoordinator
-            Task {
-                do {
-                    try await databaseCoordinator.seedIfNeeded()
-                } catch {
-                    Self.logger.error("Failed to seed fallback database: \(error.localizedDescription)")
-                }
-                await databaseCoordinator.backfillTranslations()
-            }
         }
 
+        _bootstrapViewModel = StateObject(wrappedValue: self.rootComponent.bootstrapViewModel)
         UNUserNotificationCenter.current().delegate = self.rootComponent.dailyReminderNotificationDelegate
         _ = self.rootComponent.widgetRefreshCoordinator
         self.featureDiscoveryController.configureForLaunch(processInfo: .processInfo)
@@ -90,10 +74,20 @@ struct RunicQuotesApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                self.rootComponent.makeMainTabView()
-                    .onOpenURL { url in
-                        self.handleDeepLink(url)
-                    }
+                switch self.bootstrapViewModel.phase {
+                case .loading:
+                    ProgressView("Preparing your library").accessibilityIdentifier("library_bootstrap_loading")
+                case .ready:
+                    self.rootComponent.makeMainTabView()
+                        .onAppear { self.isMainTabMounted = true; self.openQueuedURLsIfReady() }
+                        .onDisappear { self.isMainTabMounted = false }
+                case .failed(let message):
+                    VStack(spacing: DesignTokens.Spacing.md) {
+                        Text("Your library could not be prepared")
+                        Text(message)
+                        Button("Try again") { Task { await self.bootstrapViewModel.prepare() } }
+                    }.accessibilityIdentifier("library_bootstrap_error")
+                }
 
                 // Show error banner if database initialization failed
                 if self.showDatabaseError {
@@ -115,23 +109,21 @@ struct RunicQuotesApp: App {
                     }
                 }
             }
+            .onOpenURL { self.bootstrapViewModel.enqueue($0) }
+            .onChange(of: self.bootstrapViewModel.pendingURLs) { _, _ in self.openQueuedURLsIfReady() }
+            .onChange(of: self.bootstrapViewModel.phase) { _, phase in
+                if phase == .ready {
+                    self.openQueuedURLsIfReady(); Task { await self.finishBootstrapPresentation() }
+                }
+            }
             .modelContainer(self.modelContainer)
             .environment(\.userPreferencesRepository, self.rootComponent.preferencesRepository)
             .environment(\.runicTheme, self.selectedTheme)
             .environmentObject(self.featureDiscoveryController)
             .environmentObject(self.rootComponent.dailyReminderViewModel)
+            .environmentObject(self.rootComponent.navigationCoordinator)
             .animation(DesignTokens.Motion.themeTransition, value: self.selectedThemeRaw)
-            .task {
-                if self.shouldSkipOnboarding {
-                    self.hasCompletedOnboarding = true
-                    self.showOnboarding = false
-                }
-
-                self.featureDiscoveryController.updateOnboardingCompleted(self.hasCompletedOnboarding)
-                await self.syncThemeFromPreferences()
-                guard !self.hasCompletedOnboarding else { return }
-                self.showOnboarding = true
-            }
+            .task { await self.bootstrapViewModel.prepare() }
             .onChange(of: self.hasCompletedOnboarding) { _, hasCompletedOnboarding in
                 self.featureDiscoveryController.updateOnboardingCompleted(hasCompletedOnboarding)
             }
@@ -143,6 +135,19 @@ struct RunicQuotesApp: App {
                 }
             }
         }
+    }
+
+    @MainActor
+    private func finishBootstrapPresentation() async {
+        guard !self.didFinishBootstrapPresentation else { return }
+        self.didFinishBootstrapPresentation = true
+        if self.shouldSkipOnboarding {
+            self.hasCompletedOnboarding = true; self.showOnboarding = false
+        }
+        self.featureDiscoveryController.updateOnboardingCompleted(self.hasCompletedOnboarding)
+        await self.syncThemeFromPreferences()
+        await self.rootComponent.dailyReminderViewModel.onAppear()
+        self.showOnboarding = !self.hasCompletedOnboarding
     }
 
     @MainActor
@@ -159,38 +164,27 @@ struct RunicQuotesApp: App {
 
     // MARK: - Deep Link Handling
 
-    private func handleDeepLink(_ url: URL) {
-        guard url.scheme == AppConstants.urlScheme else { return }
-
-        let host = url.host
-        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-
-        switch host {
-        case "quote", "daily":
-            let script = components?.queryItems?.first(where: { $0.name == "script" })?.value ?? ""
-            let mode = host == "daily" ? WidgetMode.daily.rawValue : components?.queryItems?.first(where: { $0.name == "mode" })?.value ?? ""
-            let id = components?.queryItems?.first(where: { $0.name == "id" })?.value.flatMap(UUID.init(uuidString:))
-            if host == "quote", id == nil {
-                return
-            }
-            var context: [AnyHashable: Any] = ["script": script, "mode": mode]
-            if let id {
-                context["quoteID"] = id
-            }
-            if let collection = components?.queryItems?.first(where: { $0.name == "collection" })?.value {
-                context["collection"] = collection
-            }
-            NotificationCenter.default.post(name: .switchToQuoteTab, object: nil, userInfo: context)
-        case "settings":
-            // Open settings tab
-            NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
-        case "next":
-            // Load next quote
-            NotificationCenter.default.post(name: .loadNextQuote, object: nil)
-        default:
-            break
+    private func openQueuedURLsIfReady() {
+        guard self.bootstrapViewModel.phase == .ready, self.isMainTabMounted else { return }
+        for url in self.bootstrapViewModel.consumePendingURLs() {
+            self.handleDeepLink(url)
         }
     }
+
+    private func handleDeepLink(_ url: URL) {
+        guard let link = DeepLink.from(url: url) else { return }
+        switch link {
+        case .openQuote(let id, let script, let mode, let collection):
+            self.rootComponent.navigationCoordinator.openQuote(id: id, script: script, mode: mode, collection: collection)
+        case .openDailyQuote(let script):
+            self.rootComponent.navigationCoordinator.openQuote(id: nil, script: script, mode: .daily, collection: nil)
+        case .nextQuote:
+            self.rootComponent.navigationCoordinator.openQuote(id: nil, script: nil, mode: .random, collection: nil)
+        case .openSettings: NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
+        case .openApp: NotificationCenter.default.post(name: .switchToQuoteTab, object: nil)
+        }
+    }
+
 }
 
 /// Main tab view with Home, Collections, Search, Saved, and Settings screens.

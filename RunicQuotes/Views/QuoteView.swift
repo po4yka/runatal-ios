@@ -25,6 +25,7 @@ struct QuoteView: View {
 
     @StateObject private var viewModel: QuoteViewModel
     @State private var didInitialize = false
+    @State private var isRouteConsumerReady = false
     @State private var isScriptMorphing = false
     @State private var scriptMorphTask: Task<Void, Never>?
     @State private var showShareView = false
@@ -35,6 +36,7 @@ struct QuoteView: View {
     @State private var editingQuoteRecord: QuoteRecord?
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.runicTheme) private var runicTheme
+    @EnvironmentObject private var navigationCoordinator: QuoteNavigationCoordinator
     @EnvironmentObject private var homeAccessoryController: HomeAccessoryController
     @EnvironmentObject private var featureDiscoveryController: FeatureDiscoveryController
     private let createEditQuoteViewBuilder: CreateEditQuoteViewBuilder
@@ -61,9 +63,11 @@ struct QuoteView: View {
     private var lifecycleAwareContent: some View {
         self.rootContent
             .task {
+                self.viewModel.onAppear()
+                self.isRouteConsumerReady = true
+                self.openPendingQuoteIfReady()
                 guard !self.didInitialize else { return }
                 self.didInitialize = true
-                self.viewModel.onAppear()
                 if Self.shouldOpenTranslationOnLaunchForUITests {
                     self.showTranslationView = true
                 }
@@ -78,11 +82,7 @@ struct QuoteView: View {
                     self.viewModel.onPreferencesChanged()
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: .switchToQuoteTab)) { notification in
-                let scriptRaw = notification.userInfo?["script"] as? String
-                let modeRaw = notification.userInfo?["mode"] as? String
-                self.viewModel.onOpenQuoteDeepLink(quoteID: notification.userInfo?["quoteID"] as? UUID, scriptRaw: scriptRaw, modeRaw: modeRaw, collectionRaw: notification.userInfo?["collection"] as? String)
-            }
+            .onReceive(self.navigationCoordinator.$pendingRequest.receive(on: RunLoop.main)) { _ in self.openPendingQuoteIfReady() }
             .onReceive(NotificationCenter.default.publisher(for: .loadNextQuote)) { _ in
                 self.handleNextQuoteTriggered()
             }
@@ -107,6 +107,7 @@ struct QuoteView: View {
     private var chromeContent: some View {
         self.lifecycleAwareContent
             .onDisappear {
+                self.isRouteConsumerReady = false
                 self.scriptMorphTask?.cancel()
                 self.scriptMorphTask = nil
                 self.homeAccessoryController.hide()
@@ -151,7 +152,7 @@ struct QuoteView: View {
             .sheet(isPresented: self.$showCreateQuote) {
                 NavigationStack {
                     self.createEditQuoteViewBuilder.makeView(mode: .create, onSaved: { id in
-                        self.viewModel.onQuoteSaved(id)
+                        self.navigationCoordinator.openQuote(id: id, script: nil, mode: nil, collection: nil)
                     })
                 }
             }
@@ -176,7 +177,7 @@ struct QuoteView: View {
             .sheet(item: self.$editingQuoteRecord) { record in
                 NavigationStack {
                     self.createEditQuoteViewBuilder.makeView(mode: .edit(record), onSaved: { id in
-                        self.viewModel.onQuoteSaved(id)
+                        self.navigationCoordinator.openQuote(id: id, script: nil, mode: nil, collection: nil)
                     })
                 }
             }
@@ -368,6 +369,16 @@ struct QuoteView: View {
         )
     }
 
+    private func openPendingQuoteIfReady() {
+        guard self.isRouteConsumerReady, let request = self.navigationCoordinator.consumePendingRequest() else { return }
+        self.viewModel.onOpenQuoteDeepLink(
+            quoteID: request.id,
+            scriptRaw: request.script?.rawValue,
+            modeRaw: request.mode?.rawValue,
+            collectionRaw: request.collection?.rawValue,
+        )
+    }
+
     // MARK: - Script Morph Animation
 
     private func startScriptMorphTransition() {
@@ -439,58 +450,6 @@ struct QuoteView: View {
         }
     }
 
-}
-
-// MARK: - Preview
-
-private enum QuoteViewPreviewFactory {
-    @MainActor
-    static func sampleContainer() -> ModelContainer {
-        let container = ModelContainerHelper.createPlaceholderContainer()
-        let quote = Quote(
-            textLatin: "Not all those who wander are lost.",
-            author: "J.R.R. Tolkien",
-        )
-        quote.runicElder = "ᚾᛟᛏ ᚨᛚᛚ ᚦᛟᛋᛖ ᚹᚺᛟ ᚹᚨᚾᛞᛖᚱ ᚨᚱᛖ ᛚᛟᛋᛏ"
-        container.mainContext.insert(quote)
-        return container
-    }
-}
-
-#Preview {
-    QuoteView(
-        viewModel: QuoteViewModel.preview(),
-        createEditQuoteViewBuilder: CreateEditQuoteViewBuilder { mode, onSaved in
-            CreateEditQuoteView(
-                viewModel: CreateEditQuoteViewModel.preview(mode: mode),
-                mode: mode,
-                onSaved: onSaved,
-            )
-        },
-        translationViewBuilder: TranslationViewBuilder {
-            TranslationView(viewModel: TranslationViewModel.preview())
-        },
-    )
-    .modelContainer(for: [Quote.self, UserPreferences.self], inMemory: true)
-    .environmentObject(FeatureDiscoveryController.preview())
-}
-
-#Preview("With Sample Data") {
-    QuoteView(
-        viewModel: QuoteViewModel.preview(),
-        createEditQuoteViewBuilder: CreateEditQuoteViewBuilder { mode, onSaved in
-            CreateEditQuoteView(
-                viewModel: CreateEditQuoteViewModel.preview(mode: mode),
-                mode: mode,
-                onSaved: onSaved,
-            )
-        },
-        translationViewBuilder: TranslationViewBuilder {
-            TranslationView(viewModel: TranslationViewModel.preview())
-        },
-    )
-    .modelContainer(QuoteViewPreviewFactory.sampleContainer())
-    .environmentObject(FeatureDiscoveryController.preview())
 }
 
 // swiftlint:enable type_body_length

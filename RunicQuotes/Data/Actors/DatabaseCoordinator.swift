@@ -93,7 +93,7 @@ actor DatabaseCoordinator {
     }
 
     /// Purge quotes that were soft-deleted more than 30 days ago.
-    func purgeExpiredQuotes() async {
+    func purgeExpiredQuotes() async throws {
         let cutoffDate = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
 
         do {
@@ -106,6 +106,7 @@ actor DatabaseCoordinator {
         } catch {
             self.modelContext.rollback()
             Self.logger.error("Failed to purge expired quotes: \(error.localizedDescription)")
+            throw error
         }
     }
 
