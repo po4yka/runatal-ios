@@ -95,9 +95,11 @@ struct RunicPresentationInput: Sendable {
 enum RunicPresentationResolver {
     static func resolve(_ input: RunicPresentationInput, currentCache: TranslationResult?) -> ResolvedRunicPresentation {
         let stored = input.storedText ?? ""
-        if input.script == .cirth, input.cirthEncoding == "CIRTH_UNKNOWN_V0" {
+        let unsupportedCirth = input.script == .cirth && input.cirthEncoding != LegacyCirthEncodingMigration.encoding
+            && (input.storedText != nil || input.cirthEncoding != nil)
+        if unsupportedCirth {
             return ResolvedRunicPresentation(
-                warnings: ["The saved Cirth encoding is unknown. Original glyph data is preserved, but it cannot be rendered with the current font."],
+                warnings: ["The saved Cirth encoding is not supported by the current font. Original glyph data is preserved."],
                 isRenderable: false,
                 text: stored,
                 source: .savedRunicText,

@@ -12,6 +12,22 @@ import Testing
 @Suite(.tags(.model))
 struct RunicPresentationTests {
     @Test
+    func explicitUnsupportedCirthEncodingPreservesBytesWithoutClaimingRenderableOutput() {
+        let stored = "\u{E001}"
+        let result = RunicPresentationResolver.resolve(RunicPresentationInput(
+            textLatin: "Old output",
+            storedText: stored,
+            script: .cirth,
+            cirthEncoding: "OTHER_EXPLICIT_FONT",
+            savedMetadata: nil,
+        ), currentCache: nil)
+        #expect(result.text == stored)
+        #expect(!result.isRenderable)
+        #expect(result.evidenceTier == nil)
+        #expect(!result.warnings.isEmpty)
+    }
+
+    @Test
     func newerCacheCannotBePairedWithAnOlderQuoteSourceSnapshot() {
         let cache = HistoricalTranslationService().translate(text: "The wolf hunts at night", script: .younger, fidelity: .strict)
         #expect(cache.isAvailable)
