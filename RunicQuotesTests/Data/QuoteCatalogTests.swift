@@ -65,7 +65,7 @@ struct QuoteCatalogTests {
         try context.save()
         let repository = SwiftDataQuoteRepository(modelContext: context)
         try repository.seedIfNeeded()
-        #expect(try repository.allQuotes().count == 2)
+        #expect(try repository.allQuotes().count == 6)
         let currentEntry = try #require(QuoteSeedCatalog.load().first { $0.id == legacyEntry.id })
         #expect(try repository.quote(id: originalID)?.textLatin == currentEntry.textLatin)
         #expect(try repository.quote(id: originalID)?.source == currentEntry.source)
@@ -73,7 +73,7 @@ struct QuoteCatalogTests {
         let persisted = ModelContext(context.container)
         #expect(try persisted.fetch(FetchDescriptor<Quote>()).first { $0.id == originalID }?.builtInID == legacyEntry.id)
         #expect(try SwiftDataUserPreferencesRepository(modelContext: context).snapshot().savedQuoteIDs == [originalID, edited.id])
-        #expect(try persisted.fetchCount(FetchDescriptor<QuoteSeedReceipt>()) == 40)
+        #expect(try persisted.fetchCount(FetchDescriptor<QuoteSeedReceipt>()) == 44)
     }
 
     @Test
@@ -85,8 +85,9 @@ struct QuoteCatalogTests {
         try context.save()
         let repository = SwiftDataQuoteRepository(modelContext: context)
         try repository.seedIfNeeded()
-        #expect(try repository.allQuotes().isEmpty)
-        #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<QuoteSeedReceipt>()) == 40)
+        #expect(try repository.allQuotes().count == 4)
+        #expect(try repository.allQuotes().allSatisfy { $0.source?.contains("RuneS") == true })
+        #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<QuoteSeedReceipt>()) == 44)
     }
 
     @Test
@@ -122,8 +123,8 @@ struct QuoteCatalogTests {
         async let secondSeed: Void = second.seedIfNeeded()
         _ = try await (firstSeed, secondSeed)
         let records = try await first.allQuotes()
-        #expect(records.count == 40)
-        #expect(Set(records.map(\.id)).count == 40)
+        #expect(records.count == 44)
+        #expect(Set(records.map(\.id)).count == 44)
     }
 
 }

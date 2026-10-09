@@ -40,6 +40,7 @@
 		14DBF763BDBE919575F63B4F /* FeatureDiscoveryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76975A20EA9C6F2539425F1F /* FeatureDiscoveryController.swift */; };
 		14E125CAE57D3140AD8310A4 /* dataset_manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = E9FB92A723C4584BDE20B2D3 /* dataset_manifest.json */; };
 		1523F61E079B70B49552674C /* AppNeedleGenerated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6210067AFEEEAE82DFBB9D4A /* AppNeedleGenerated.swift */; };
+		15620636F712D7DF21043982 /* attested-quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = 5F777F1DE186C172F4F0D819 /* attested-quotes.json */; };
 		15A31188C48CD73821A55F3B /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA5C6D0918CA5DC78C48034 /* FilterChip.swift */; };
 		15B2F28DB9FBB82E3D9005AE /* quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = E74382339680BCDC248E90D2 /* quotes.json */; };
 		19F65364BB12089BD56F1900 /* legacy-quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = 729406B9BE8B742600821A96 /* legacy-quotes.json */; };
@@ -61,6 +62,7 @@
 		281807E746FCF6BD1A38B512 /* .gitkeep in Resources */ = {isa = PBXBuildFile; fileRef = E917694A8BB0D5A08FE8CE92 /* .gitkeep */; };
 		29B9E9ADFD6E1AD3077E6053 /* RunicTextBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319E8EBEC664357D97F6BBD2 /* RunicTextBundle.swift */; };
 		2A59105385340183C91A5D40 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D66DF992AD1C9DB6BB78E142 /* LaunchScreen.storyboard */; };
+		2A695DE651B4B834619F0BC7 /* attested-quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = 5F777F1DE186C172F4F0D819 /* attested-quotes.json */; };
 		2B04537C532349F0AACA790E /* QuoteSeedReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96927F8E28E008282576D37 /* QuoteSeedReceipt.swift */; };
 		2B548269E6367A5C8619ACCF /* DatabaseCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4379492DB16FEA7E0ABFB5C /* DatabaseCoordinatorTests.swift */; };
 		2B64BFAC73A3696D99C968BD /* RunatalCirth-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 17C99FAFF512BE3F9CF18CE3 /* RunatalCirth-OFL.txt */; };
@@ -236,6 +238,7 @@
 		AED3D2265B6E697390FF2B3B /* QuoteCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF971F9C0D5DF5108CFC3A02 /* QuoteCollection.swift */; };
 		AF0455A9E12944A591BFC35C /* AppSearchCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FB49DC803C8777AA40CCCB6 /* AppSearchCoordinatorTests.swift */; };
 		AF1FB5E258C5AEBAF5248BA2 /* TranslationProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C97E1A6ABA1FC67150EC1CF /* TranslationProviderTests.swift */; };
+		AF2F54CDE916621F2A3F1895 /* AttestedQuoteCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98119BA01894E39C96FDF095 /* AttestedQuoteCatalogTests.swift */; };
 		AFE0E1A32A6277A143E75C82 /* HistoricalTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735E032A4D79140DE918EB09 /* HistoricalTranslationService.swift */; };
 		B0C65774673955234A23554F /* RunicThemeEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D65B56077DA6F8023641044 /* RunicThemeEnvironment.swift */; };
 		B19A3677BB8557D60D2EF285 /* UserPreferencesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E13AAAD7A9D226EC598ED7 /* UserPreferencesRepository.swift */; };
@@ -454,6 +457,7 @@
 		5BDFBE5E2049265E7CE6F464 /* RunicTransliterationContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunicTransliterationContractTests.swift; sourceTree = "<group>"; };
 		5C2EF4303253DFD3C7A8DCD2 /* QuoteActionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteActionsSheet.swift; sourceTree = "<group>"; };
 		5E9A0E70518E073D81D54A44 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		5F777F1DE186C172F4F0D819 /* attested-quotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "attested-quotes.json"; sourceTree = "<group>"; };
 		603D96BC013E882E70E437E2 /* QuotePacksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotePacksView.swift; sourceTree = "<group>"; };
 		61534662729FF86B59930268 /* FeedbackBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackBanner.swift; sourceTree = "<group>"; };
 		61558C0A5062DD4EC0DCAEA0 /* RunicQuotesWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunicQuotesWidget.entitlements; sourceTree = "<group>"; };
@@ -519,6 +523,7 @@
 		936E5F0180B59B59CC6F6882 /* YoungerFutharkMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YoungerFutharkMap.swift; sourceTree = "<group>"; };
 		95DA5226EBC82E1F360D3919 /* CollectionShelfRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionShelfRow.swift; sourceTree = "<group>"; };
 		97901C0182B80CACC32A10D7 /* BabelStoneRunic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = BabelStoneRunic.ttf; sourceTree = "<group>"; };
+		98119BA01894E39C96FDF095 /* AttestedQuoteCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttestedQuoteCatalogTests.swift; sourceTree = "<group>"; };
 		992911E8E077D3D32D46855A /* QuoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteView.swift; sourceTree = "<group>"; };
 		9C86B69FE3138573C3BADC6F /* TipKitUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipKitUITests.swift; sourceTree = "<group>"; };
 		9D71542EC46EEF7E2614247D /* GlassScriptSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassScriptSelector.swift; sourceTree = "<group>"; };
@@ -776,6 +781,7 @@
 			children = (
 				7F57FF743C76D637F5E18FC5 /* Translation */,
 				5ECC03A44D6B0C53CBD619D6 /* Transliteration */,
+				98119BA01894E39C96FDF095 /* AttestedQuoteCatalogTests.swift */,
 				E4379492DB16FEA7E0ABFB5C /* DatabaseCoordinatorTests.swift */,
 				B0185373B369090B54886138 /* HistoricalTranslationServiceTests.swift */,
 				1C00C2B061A2AA7E98F85E9B /* PersistentStoreMigrationTests.swift */,
@@ -1002,6 +1008,7 @@
 			isa = PBXGroup;
 			children = (
 				F0C6AAD3297BCB76481D7FC5 /* .gitkeep */,
+				5F777F1DE186C172F4F0D819 /* attested-quotes.json */,
 				729406B9BE8B742600821A96 /* legacy-quotes.json */,
 				9EEC4B0F05DF5286795C8AAA /* quote-packs.json */,
 				E74382339680BCDC248E90D2 /* quotes.json */,
@@ -1473,6 +1480,7 @@
 				3550A1691E03C45CA28FBFBF /* README.md in Resources */,
 				2B64BFAC73A3696D99C968BD /* RunatalCirth-OFL.txt in Resources */,
 				3B3AF8255513BA1E26713ABB /* RunatalCirth-Regular.ttf in Resources */,
+				15620636F712D7DF21043982 /* attested-quotes.json in Resources */,
 				14E125CAE57D3140AD8310A4 /* dataset_manifest.json in Resources */,
 				476D013F0A8FD29F3011E81B /* elder_attested_forms.json in Resources */,
 				0417384EE552D2DD50CB0FA0 /* erebor_tables.json in Resources */,
@@ -1504,6 +1512,7 @@
 				6C6B492202A9D5A42EE274A5 /* NotoSansRunic-Regular.ttf in Resources */,
 				7D1A20FD7FE1F1637A4C30F1 /* RunatalCirth-OFL.txt in Resources */,
 				4B30C02446582FCBCB284DD3 /* RunatalCirth-Regular.ttf in Resources */,
+				2A695DE651B4B834619F0BC7 /* attested-quotes.json in Resources */,
 				9F9FB1D148A3363281B59CD6 /* dataset_manifest.json in Resources */,
 				33C581A7A8164627BC44F05A /* elder_attested_forms.json in Resources */,
 				D7AC853C8FB1F72E2A5D1C57 /* erebor_tables.json in Resources */,
@@ -1776,6 +1785,7 @@
 				AF0455A9E12944A591BFC35C /* AppSearchCoordinatorTests.swift in Sources */,
 				CA6DC566FBF027F7ECE6468A /* AppTabTests.swift in Sources */,
 				B45C0163ED26177B10220BF8 /* ArchiveViewModelTests.swift in Sources */,
+				AF2F54CDE916621F2A3F1895 /* AttestedQuoteCatalogTests.swift in Sources */,
 				A43B915CA98780F1A9BB2979 /* CirthEncodingContractTests.swift in Sources */,
 				90844CD1CB3A7A6534D60F81 /* CoreModelTests.swift in Sources */,
 				8E6C177E6AF85DFDA37B58DD /* CoreUtilityTests.swift in Sources */,

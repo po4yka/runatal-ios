@@ -81,10 +81,10 @@ struct QuotePackInstallerTests {
         try context.save()
         let repository = SwiftDataQuoteRepository(modelContext: context)
         try repository.seedIfNeeded()
-        #expect(try repository.allQuotes().count == 48)
+        #expect(try repository.allQuotes().count == 52)
         try repository.seedIfNeeded()
-        #expect(try repository.allQuotes().count == 48)
-        #expect(try repository.allQuotes().allSatisfy { $0.collection == .stoic })
+        #expect(try repository.allQuotes().count == 52)
+        #expect(try repository.allQuotes().filter { $0.collection == .stoic }.count == 48)
     }
 
     @Test

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "builtin-inscription-elder-gallehus-dr12",
+    "textLatin": "I, Hlewagastiz Holtijaz, made the horn.",
+    "author": "Gallehus, gold horn B",
+    "collection": "Motivation",
+    "source": "RuneS: Gallehus, gold horn B; DR 12 / KJ 43 / SJy 60; https://www.runesdb.de/en/find/28; CC-BY-SA-4.0; source-data attribution as identified by RuneS; English literal rendering of a recorded inscription reading."
+  },
+  {
+    "id": "builtin-inscription-elder-vimose-dr207",
+    "textLatin": "Harja",
+    "author": "Vimose comb",
+    "collection": "Motivation",
+    "source": "RuneS: Vimose comb; DR 207 / KJ 26 / Fyn 19; https://www.runesdb.de/en/find/20; CC-BY-SA-4.0; source-data attribution as identified by RuneS; English literal rendering of a recorded inscription reading."
+  },
+  {
+    "id": "builtin-inscription-younger-jelling-dr41",
+    "textLatin": "King Gorm made this monument in memory of Thyra, his wife, Denmark's adornment.",
+    "author": "Jelling stone 1",
+    "collection": "Motivation",
+    "source": "RuneS: Jelling stone 1; DR 41 / SJy 10; https://www.runesdb.de/en/find/1158; CC-BY-SA-4.0; source-data attribution as identified by RuneS; English literal rendering of a restored damaged reading (reconstructed)."
+  },
+  {
+    "id": "builtin-inscription-younger-jelling-dr42",
+    "textLatin": "King Harald ordered these monuments made in memory of Gorm, his father, and Thyra, his mother.",
+    "author": "Jelling stone 2, side A, first clause",
+    "collection": "Motivation",
+    "source": "RuneS: Jelling stone 2, side A, first clause; DR 42 / SJy 11; https://www.runesdb.de/en/find/1159; CC-BY-SA-4.0; source-data attribution as identified by RuneS; English literal rendering of a recorded inscription reading."
+  }
+]

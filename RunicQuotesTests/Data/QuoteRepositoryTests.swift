@@ -118,7 +118,7 @@ struct QuoteRepositoryTests {
     func allQuotesReturnsAllQuotes() throws {
         let (repository, _) = try makeRepository(seedData: true)
         let quotes = try repository.allQuotes()
-        #expect(quotes.count == 40)
+        #expect(quotes.count == 44)
     }
 
     @Test

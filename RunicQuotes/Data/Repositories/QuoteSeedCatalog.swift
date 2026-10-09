@@ -17,7 +17,7 @@ struct QuoteCatalogEntry: Codable, Sendable {
 
 enum QuoteSeedCatalog {
     static func load() throws -> [QuoteCatalogEntry] {
-        try self.validatedEntries("quotes")
+        try self.validatedEntries("quotes") + self.validatedEntries("attested-quotes")
     }
 
     static func legacyIdentities() throws -> [QuoteCatalogEntry] {

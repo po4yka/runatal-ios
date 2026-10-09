@@ -44,7 +44,7 @@ struct PersistentStoreMigrationTests {
         #expect(after.textLatin == before.textLatin)
         #expect(after.runicCirth == "\u{E09E}\u{E0AF}\u{E092}\u{E0B1}\u{E091}\u{E0A8}")
         #expect(!after.isHidden && !after.isDeleted)
-        #expect(try quotes.allQuotes().count == 81)
+        #expect(try quotes.allQuotes().count == 85)
         #expect(try quotes.allQuotes().filter { $0.source?.contains("Project Gutenberg") == true }.count == 80)
         #expect(try preferences.snapshot().savedQuoteIDs == [before.id, UITestPersistentStoreConfigurator.legacyArchivedQuoteID])
         let archived = try #require(quotes.archivedQuotes().first)

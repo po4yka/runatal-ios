@@ -75,7 +75,7 @@ struct QuoteCatalogUpgradeTests {
     @Test
     func revisedCatalogIsCompleteAndEveryEntryHasHonestSource() throws {
         let entries = try QuoteSeedCatalog.load()
-        #expect(entries.count == 40)
+        #expect(entries.count == 44)
         #expect(entries.allSatisfy { $0.source?.contains("https://") == true })
         let film = try #require(entries.first { $0.id == "builtin-0003" })
         #expect(film.source?.contains("film") == true)
