@@ -93,7 +93,7 @@ final class Quote {
         self.runicYounger = nil
         self.runicCirth = nil
         self.runicTransliterationVersion = 3
-        self.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
+        self.cirthEncodingRaw = "CIRTH_CSUR_V1"
     }
 
     /// Collection membership for this quote.

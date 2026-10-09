@@ -278,7 +278,7 @@ struct QuoteRepositoryTests {
             storedRunic: nil,
         )
         let legacy = Quote(textLatin: "the king", author: "Legacy")
-        legacy.runicCirth = "\u{E00B}\u{E003} \u{E004}"
+        legacy.runicCirth = "\u{E00B}\u{E003} \u{E004}\u{E006}\u{E024}"
         legacy.cirthEncodingRaw = nil
         context.insert(legacy)
         let versioned = Quote(textLatin: "Different font", author: "Audit")
@@ -292,7 +292,7 @@ struct QuoteRepositoryTests {
         #expect(try repository.quote(id: punctuation.id)?.runicCirth == punctuation.runicCirth)
         let persistedLegacy = try #require(ModelContext(context.container).fetch(FetchDescriptor<Quote>()).first { $0.id == legacy.id })
         #expect(persistedLegacy.runicCirth == RunicTransliterator.transliterate(legacy.textLatin, to: .cirth).glyphOutput)
-        #expect(persistedLegacy.cirthEncodingRaw == "ANGERTHAS_LATIN_V1")
+        #expect(persistedLegacy.cirthEncodingRaw == "CIRTH_CSUR_V1")
         #expect(versioned.runicCirth == "\u{E001}")
         try repository.seedIfNeeded()
         #expect(try repository.quote(id: override.id)?.runicCirth == "EXACT-OUTPUT")

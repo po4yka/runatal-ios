@@ -33,8 +33,8 @@ struct RunicFontConfigurationTests {
     @Test
     func fontNameUsesFallbackForUnsupportedPairing() {
         #expect(RunicFontConfiguration.fontName(for: .elder, font: .noto) == "Noto Sans Runic")
-        #expect(RunicFontConfiguration.fontName(for: .elder, font: .cirth) == "Angerthas Moria")
-        #expect(RunicFontConfiguration.fontName(for: .cirth, font: .noto) == "Angerthas Moria")
+        #expect(RunicFontConfiguration.fontName(for: .elder, font: .cirth) == "Noto Sans Runic")
+        #expect(RunicFontConfiguration.fontName(for: .cirth, font: .noto) == "RunatalCirth-Regular")
         #expect(RunicFontConfiguration.serifFontName == "SourceSerif4-Regular")
     }
 

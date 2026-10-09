@@ -16,11 +16,15 @@
         "resolutionStatus": "RECONSTRUCTED",
         "supportLevel": "SUPPORTED",
         "evidenceTier": "RECONSTRUCTED",
-        "attestationRefs": ["yf_ref_wolf_night"],
+        "attestationRefs": [
+          "yf_ref_wolf_night"
+        ],
         "inputLanguage": "ENGLISH",
         "userFacingWarnings": [],
         "confidence": 0.97,
-        "notes": ["Matched a curated Old Norse example aligned with the translation specification."],
+        "notes": [
+          "Matched a curated Old Norse example aligned with the translation specification."
+        ],
         "provenance": [
           {
             "sourceId": "onp",
@@ -122,11 +126,15 @@
         "resolutionStatus": "RECONSTRUCTED",
         "supportLevel": "SUPPORTED",
         "evidenceTier": "RECONSTRUCTED",
-        "attestationRefs": ["ef_ref_wolf_night"],
+        "attestationRefs": [
+          "ef_ref_wolf_night"
+        ],
         "inputLanguage": "ENGLISH",
         "userFacingWarnings": [],
         "confidence": 0.9,
-        "notes": ["Matched a curated Proto-Norse reconstruction kept for regression coverage."],
+        "notes": [
+          "Matched a curated Proto-Norse reconstruction kept for regression coverage."
+        ],
         "provenance": [
           {
             "sourceId": "srd",
@@ -194,17 +202,21 @@
         "historicalStage": "EREBOR_ENGLISH",
         "normalizedForm": "the wolf hunts at night",
         "diplomaticForm": "th·e w·o·l·f h·u·n·t·s a·t n·i·gh·t",
-        "glyphOutput": "    ",
+        "glyphOutput": "    ",
         "resolutionStatus": "APPROXIMATED",
         "supportLevel": "PARTIAL",
         "evidenceTier": "APPROXIMATE",
-        "attestationRefs": ["cirth_ref_wolf_night"],
+        "attestationRefs": [
+          "cirth_ref_wolf_night"
+        ],
         "inputLanguage": "ENGLISH",
         "userFacingWarnings": [
           "Cirth remains a transcription track rather than a semantic historical translation."
         ],
         "confidence": 0.78,
-        "notes": ["Curated Erebor transcription example using Appendix E-style orthography tables."],
+        "notes": [
+          "Curated Erebor transcription example using Appendix E-style orthography tables."
+        ],
         "provenance": [
           {
             "sourceId": "tolkien_appendix_e",
@@ -219,7 +231,7 @@
             "sourceToken": "the",
             "normalizedToken": "the",
             "diplomaticToken": "th·e",
-            "glyphToken": "",
+            "glyphToken": "",
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
@@ -235,7 +247,7 @@
             "sourceToken": "wolf",
             "normalizedToken": "wolf",
             "diplomaticToken": "w·o·l·f",
-            "glyphToken": "",
+            "glyphToken": "",
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
@@ -251,7 +263,7 @@
             "sourceToken": "hunts",
             "normalizedToken": "hunts",
             "diplomaticToken": "h·u·n·t·s",
-            "glyphToken": "",
+            "glyphToken": "",
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
@@ -267,7 +279,7 @@
             "sourceToken": "at",
             "normalizedToken": "at",
             "diplomaticToken": "a·t",
-            "glyphToken": "",
+            "glyphToken": "",
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {
@@ -283,7 +295,7 @@
             "sourceToken": "night",
             "normalizedToken": "night",
             "diplomaticToken": "n·i·gh·t",
-            "glyphToken": "",
+            "glyphToken": "",
             "resolutionStatus": "APPROXIMATED",
             "provenance": [
               {

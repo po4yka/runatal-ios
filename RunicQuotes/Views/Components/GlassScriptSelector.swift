@@ -82,7 +82,7 @@ private struct ScriptButton: View {
             VStack(spacing: 4) {
                 // Script icon/symbol
                 Text(self.scriptSymbol)
-                    .font(.system(size: 20, weight: .medium, design: .serif))
+                    .font(.custom(RunicFontConfiguration.fontName(for: self.script, font: .noto), size: 20))
                     .fontWeight(.medium)
 
                 // Script name
@@ -109,7 +109,7 @@ private struct ScriptButton: View {
         case .younger:
             "ᚠ" // Younger Futhark F-rune
         case .cirth:
-            "⸸" // Decorative symbol (actual Cirth would use PUA)
+            "\u{E080}" // Canonical certh 1
         }
     }
 }

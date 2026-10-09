@@ -7,108 +7,65 @@
 
 import Foundation
 
-// MARK: - Cirth (Angerthas) Character Mappings
-
-/// Single character mappings for Cirth/Angerthas.
-///
-/// The Angerthas Moria font is a Latin-substitution font: each ASCII letter
-/// position contains a Cirth rune glyph. Typing 'a' renders the Cirth rune
-/// for the 'a' sound, 'b' renders the rune for 'b', etc.
-///
-/// Because the font handles the visual mapping, single Latin letters map
-/// directly to themselves (lowercased). The font file has no glyphs in
-/// the Private Use Area.
+/// Modern spelling transcription in Angerthas Erebor mode. Code points identify
+/// graph shapes in the CSUR registry; sounds depend on the selected historical mode.
+/// Sources: https://www.evertype.com/standards/csur/cirth.html
+/// https://mirrors.mit.edu/CTAN/fonts/cirth/cirth.pdf (Appendix E table).
 let cirthMap: [Character: String] = [
-    "a": "a",
-    "b": "b",
-    "c": "c",
-    "d": "d",
-    "e": "e",
-    "f": "f",
-    "g": "g",
-    "h": "h",
-    "i": "i",
-    "j": "j",
-    "k": "k",
-    "l": "l",
-    "m": "m",
-    "n": "n",
-    "o": "o",
-    "p": "p",
-    "q": "q",
-    "r": "r",
-    "s": "s",
-    "t": "t",
-    "u": "u",
-    "v": "v",
-    "w": "w",
-    "x": "x",
-    "y": "y",
-    "z": "z",
+    "a": "\u{E0B1}",
+    "b": "\u{E081}",
+    "c": "\u{E091}",
+    "d": "\u{E088}",
+    "e": "\u{E0AF}",
+    "f": "\u{E082}",
+    "g": "\u{E092}",
+    "h": "\u{E0A1}",
+    "i": "\u{E0A7}",
+    "j": "\u{E08D}",
+    "k": "\u{E091}",
+    "l": "\u{E09E}",
+    "m": "\u{E085}",
+    "n": "\u{E095}",
+    "o": "\u{E0B3}",
+    "p": "\u{E080}",
+    "q": "\u{E091}",
+    "r": "\u{E08B}",
+    "s": "\u{E0B9}",
+    "t": "\u{E087}",
+    "u": "\u{E0AA}",
+    "v": "\u{E083}",
+    "w": "\u{E0AC}",
+    "x": "\u{E090}",
+    "y": "\u{E0A8}",
+    "z": "\u{E0AB}",
 ]
 
-/// Digraph mappings for Cirth (two-character combinations).
-///
-/// The font includes glyphs at Latin-1 supplement positions for sounds
-/// that require a dedicated rune:
-///   - þ (U+00FE, thorn)   — voiceless "th" as in 'thin'
-///   - ð (U+00F0, eth)     — voiced "th" as in 'this'
-///   - ñ (U+00F1, n-tilde) — "ng" nasal
-///   - ç (U+00E7, c-cedilla) — "ch"
-///
-/// Digraphs without a dedicated font glyph are omitted; the transliterator
-/// will fall through and render them as two separate rune characters.
 let cirthDigraphs: [String: String] = [
-    "th": "\u{00FE}", // þ — voiceless th (thin)
-    "dh": "\u{00F0}", // ð — voiced th (this)
-    "ng": "\u{00F1}", // ñ — ng nasal
-    "ch": "\u{00E7}", // ç — ch
-]
-
-// MARK: - Additional Cirth Information
-
-/// Cirth rune names (for reference and potential future UI display)
-let cirthRuneNames: [Int: String] = [
-    1: "p",
-    2: "b",
-    3: "f",
-    4: "kh/ch",
-    5: "g",
-    6: "i",
-    7: "t",
-    8: "h",
-    9: "d",
-    10: "a",
-    11: "th (thin)",
-    12: "dh (this)",
-    13: "gh",
-    14: "n (dental)",
-    15: "ss",
-    16: "kw",
-    17: "w",
-    18: "m",
-    19: "mb",
-    20: "r (soft)",
-    21: "n",
-    22: "l",
-    23: "ll",
-    24: "r (hard)",
-    25: "rh",
-    26: "l (soft)",
-    27: "lh",
-    28: "ng",
-    29: "sh",
-    30: "zh",
-    31: "z",
-    32: "s (variant)",
-    33: "s",
-    34: "s (weak)",
-    35: "e",
-    36: "ng/nd",
-    37: "ks",
-    38: "o/u",
-    39: "y (consonant)",
-    40: "y",
-    41: "hw",
-    42: "y (vowel)",
+    "ngw": "\u{E09A}",
+    "ghw": "\u{E099}",
+    "khw": "\u{E098}",
+    "aa": "\u{E0B2}",
+    "ch": "\u{E08C}",
+    "dh": "\u{E08A}",
+    "ee": "\u{E0B0}",
+    "gh": "\u{E094}",
+    "gw": "\u{E097}",
+    "hw": "\u{E084}",
+    "hy": "\u{E0A9}",
+    "kh": "\u{E093}",
+    "lh": "\u{E09F}",
+    "mb": "\u{E086}",
+    "nd": "\u{E0A0}",
+    "ng": "\u{E0A4}",
+    "nw": "\u{E09B}",
+    "oe": "\u{E0B6}",
+    "oo": "\u{E0B4}",
+    "ph": "\u{E082}",
+    "ps": "\u{E0BE}",
+    "qu": "\u{E096}",
+    "sh": "\u{E08E}",
+    "th": "\u{E089}",
+    "ts": "\u{E0BF}",
+    "ue": "\u{E0AD}",
+    "zh": "\u{E08F}",
 ]

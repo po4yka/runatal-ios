@@ -69,6 +69,27 @@ final class LegacyGeneratedRuneMigrationTests: XCTestCase {
     }
 
     @MainActor
+    func testBootstrapPreservesCorruptArtifactAndUnknownCustomCirth() throws {
+        let (repository, context) = try makeRepository()
+        let corrupt = Quote(textLatin: "different source", author: "Owner")
+        corrupt.runicCirth = "x"
+        corrupt.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
+        let opaque = Data([0xFF, 0x00, 0x42])
+        corrupt.storedTranslationMetadataData = opaque
+        let custom = Quote(textLatin: "the king", author: "Owner")
+        custom.runicCirth = "\u{E00B}\u{E003} \u{E004}"
+        custom.cirthEncodingRaw = nil
+        context.insert(corrupt)
+        context.insert(custom)
+        try context.save()
+        try repository.seedIfNeeded()
+        let migrated = try XCTUnwrap(repository.quote(id: corrupt.id))
+        XCTAssertEqual(migrated.runicCirth, "\u{E091}\u{E0B9}")
+        XCTAssertEqual(migrated.storedTranslationMetadataData, opaque)
+        XCTAssertEqual(try repository.quote(id: custom.id)?.runicCirth, "\u{E00B}\u{E003} \u{E004}")
+    }
+
+    @MainActor
     private func makeRepository() throws -> (SwiftDataQuoteRepository, ModelContext) {
         let context = try TestSupport.makeModelContext()
         return (SwiftDataQuoteRepository(modelContext: context), context)

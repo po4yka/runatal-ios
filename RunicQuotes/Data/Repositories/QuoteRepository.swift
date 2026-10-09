@@ -190,6 +190,9 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
                 LegacyGeneratedRuneMigration.upgradeNormalization(quote, render: self.transliterator.transliterate)
             }
             LegacyGeneratedRuneMigration.upgradeOriginalCirth(quotes, render: self.transliterator.transliterate)
+            for quote in quotes {
+                LegacyCirthEncodingMigration.upgrade(quote)
+            }
             for preference in preferences {
                 preference.catalogIdentityVersion = "v1"
             }

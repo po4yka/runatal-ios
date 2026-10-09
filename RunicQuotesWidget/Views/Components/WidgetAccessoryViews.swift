@@ -19,7 +19,7 @@ struct CircularWidgetView: View {
     var body: some View {
         ZStack {
             if self.entry.showsDecorativeGlyphs {
-                WidgetGlyphRing(glyph: self.entry.decorativeGlyph, palette: self.palette)
+                WidgetGlyphRing(glyph: self.entry.decorativeGlyph, fontName: self.entry.widgetFontName, palette: self.palette)
                     .padding(1)
             }
 
@@ -90,7 +90,7 @@ struct InlineWidgetView: View {
                 .truncationMode(.tail)
                 .accessibilityLabel(self.entry.widgetAccessibilityLabel)
         } else {
-            Text("\(self.entry.compactLatin(maxCharacters: 20)) \u{00B7} \(self.entry.decorativeGlyph)")
+            (Text("\(self.entry.compactLatin(maxCharacters: 20)) \u{00B7} ") + Text(self.entry.decorativeGlyph).font(.custom(self.entry.widgetFontName, size: 12)))
                 .font(.caption)
                 .lineLimit(1)
                 .truncationMode(.tail)
@@ -101,6 +101,7 @@ struct InlineWidgetView: View {
 
 struct WidgetDecorativeBackground: View {
     let glyph: String
+    let fontName: String
     let palette: AppThemePalette
 
     private let points: [CGPoint] = [
@@ -117,7 +118,7 @@ struct WidgetDecorativeBackground: View {
             ZStack {
                 ForEach(self.points.enumerated(), id: \.offset) { index, point in
                     Text(self.glyph)
-                        .font(.system(size: 16 + CGFloat(index % 3) * 7, weight: .semibold))
+                        .font(.custom(self.fontName, size: 16 + CGFloat(index % 3) * 7))
                         .foregroundStyle((index.isMultiple(of: 2) ? self.palette.accent : self.palette.separator).opacity(0.16))
                         .rotationEffect(.degrees(Double(index) * 31))
                         .position(
@@ -140,6 +141,7 @@ struct WidgetDecorativeBackground: View {
 
 private struct WidgetGlyphRing: View {
     let glyph: String
+    let fontName: String
     let palette: AppThemePalette
 
     var body: some View {
@@ -159,7 +161,7 @@ private struct WidgetGlyphRing: View {
                 Spacer()
                 Text(self.glyph)
             }
-            .font(.system(size: 9, weight: .bold))
+            .font(.custom(self.fontName, size: 9))
             .foregroundStyle(self.palette.textTertiary.opacity(0.85))
             .padding(.vertical, 3)
 
@@ -168,7 +170,7 @@ private struct WidgetGlyphRing: View {
                 Spacer()
                 Text(self.glyph)
             }
-            .font(.system(size: 9, weight: .bold))
+            .font(.custom(self.fontName, size: 9))
             .foregroundStyle(self.palette.textTertiary.opacity(0.85))
             .padding(.horizontal, 3)
         }
@@ -204,7 +206,7 @@ extension RunicQuoteEntry {
         case .elder, .younger:
             "\u{16A0}"
         case .cirth:
-            "\u{2E38}"
+            "\u{E080}"
         }
     }
 

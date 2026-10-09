@@ -23,6 +23,7 @@ enum RunicTransliterator {
             map = cirthMap
             digraphs = cirthDigraphs
         }
+        let sequenceLengths = Set(digraphs.keys.map(\.count)).sorted(by: >)
         let input = Array(text.map { self.normalizeLatin($0, script: script) }.joined())
         let outputGraphs = Set((Array(map.values) + Array(digraphs.values)).flatMap { Array($0) })
         var output = ""
@@ -30,9 +31,11 @@ enum RunicTransliterator {
         var seen = Set<Character>()
         var index = 0
         while index < input.count {
-            if index + 1 < input.count, let glyphs = digraphs[String(input[index ... index + 1])] {
+            if let length = sequenceLengths.first(where: { length in
+                index + length <= input.count && digraphs[String(input[index ..< index + length])] != nil
+            }), let glyphs = digraphs[String(input[index ..< index + length])] {
                 output.append(glyphs)
-                index += 2
+                index += length
                 continue
             }
             let character = input[index]

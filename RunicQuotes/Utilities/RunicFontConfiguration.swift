@@ -17,7 +17,7 @@ enum RunicFontConfiguration {
     static func fontName(for script: RunicScript, font: RunicFont) -> String {
         switch script {
         case .cirth:
-            "Angerthas Moria"
+            "RunatalCirth-Regular"
         case .elder, .younger:
             switch font {
             case .noto:
@@ -25,7 +25,7 @@ enum RunicFontConfiguration {
             case .babelstone:
                 "BabelStone Runic"
             case .cirth:
-                "Angerthas Moria" // fallback
+                "Noto Sans Runic"
             }
         }
     }

@@ -13,10 +13,10 @@ enum LegacyGeneratedRuneMigration {
     /// D3's original placeholder migration, confined to explicitly unversioned rows.
     static func upgradeOriginalCirth(_ quotes: [Quote], render: (String, RunicScript) -> RunicTransliterationResult) {
         for quote in quotes {
-            guard quote.cirthEncodingRaw == nil, let cirth = quote.runicCirth,
-                  cirth.unicodeScalars.contains(where: { (0xE000 ... 0xE02A).contains($0.value) }) else { continue }
+            guard quote.cirthEncodingRaw == nil, quote.storedTranslationMetadataData == nil,
+                  quote.runicCirth == self.originalCirthV0(quote.textLatin) else { continue }
             quote.runicCirth = render(quote.textLatin, .cirth).glyphOutput
-            quote.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
+            quote.cirthEncodingRaw = LegacyCirthEncodingMigration.encoding
         }
     }
 
@@ -36,6 +36,54 @@ enum LegacyGeneratedRuneMigration {
         }
         quote.runicTransliterationVersion = 2
     }
+
+    /// Exact frozen initial c6f9f65 placeholder output; unknown/custom PUA
+    /// does not confer permission to regenerate the Latin source.
+    private static func originalCirthV0(_ text: String) -> String {
+        self.render(text, map: self.cirthPlaceholderMapV0, digraphs: self.cirthPlaceholderDigraphsV0, includeNumbers: false)
+    }
+
+    private static let cirthPlaceholderMapV0: [Character: Character] = [
+        "a": "\u{E001}",
+        "e": "\u{E003}",
+        "i": "\u{E006}",
+        "o": "\u{E00C}",
+        "u": "\u{E009}",
+        "b": "\u{E002}",
+        "c": "\u{E004}",
+        "d": "\u{E009}",
+        "f": "\u{E003}",
+        "g": "\u{E005}",
+        "h": "\u{E008}",
+        "j": "\u{E02A}",
+        "k": "\u{E004}",
+        "l": "\u{E016}",
+        "m": "\u{E012}",
+        "n": "\u{E015}",
+        "p": "\u{E001}",
+        "q": "\u{E010}",
+        "r": "\u{E018}",
+        "s": "\u{E021}",
+        "t": "\u{E007}",
+        "v": "\u{E002}",
+        "w": "\u{E011}",
+        "x": "\u{E025}",
+        "y": "\u{E02A}",
+        "z": "\u{E01F}",
+    ]
+
+    private static let cirthPlaceholderDigraphsV0: [String: Character] = [
+        "th": "\u{E00B}",
+        "dh": "\u{E00C}",
+        "sh": "\u{E01D}",
+        "ch": "\u{E004}",
+        "gh": "\u{E00D}",
+        "ng": "\u{E024}",
+        "nd": "\u{E024}",
+        "mb": "\u{E013}",
+        "kh": "\u{E008}",
+        "wh": "\u{E029}",
+    ]
 
     private static let youngerMapV1: [Character: Character] = Dictionary(
         uniqueKeysWithValues: zip("abcdefghijklmnopqrstuvwxyz", "ᚨᛒᚴᛞᚨᚠᚴᚻᛁᛃᚴᛚᛗᚾᚨᛒᚴᚱᛊᛏᚢᚠᚢᚴᛁᛊ"),
@@ -69,7 +117,7 @@ enum LegacyGeneratedRuneMigration {
         uniqueKeysWithValues: zip("abcdefghijklmnopqrstuvwxyz", "ᚨᛒᚴᛞᛖᚠᚷᚻᛁᛃᚴᛚᛗᚾᚩᛈᚴᚱᛊᛏᚢᚡᚹᚴᛁᛉ"),
     )
 
-    private static func render(_ text: String, map: [Character: Character], digraphs: [String: Character]) -> String {
+    private static func render(_ text: String, map: [Character: Character], digraphs: [String: Character], includeNumbers: Bool = true) -> String {
         let input = Array(text.lowercased())
         var output = ""
         var index = 0
@@ -84,7 +132,7 @@ enum LegacyGeneratedRuneMigration {
                 output.append(glyph)
             } else if character.isWhitespace {
                 output.append(" ")
-            } else if character.isNumber || character.isPunctuation {
+            } else if (includeNumbers && character.isNumber) || character.isPunctuation {
                 output.append(character)
             }
             index += 1

@@ -53,7 +53,7 @@ struct SmallWidgetView: View {
             self.entry.widgetBackgroundGradient(for: self.colorScheme)
 
             if self.entry.showsDecorativeGlyphs {
-                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, palette: self.palette)
+                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, fontName: self.entry.widgetFontName, palette: self.palette)
                     .opacity(0.42)
             }
 
@@ -140,7 +140,7 @@ struct MediumWidgetView: View {
                 .opacity(0.45)
 
             if self.entry.showsDecorativeGlyphs {
-                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, palette: self.palette)
+                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, fontName: self.entry.widgetFontName, palette: self.palette)
                     .opacity(0.32)
             }
 
@@ -244,7 +244,7 @@ struct LargeWidgetView: View {
                 .opacity(0.42)
 
             if self.entry.showsDecorativeGlyphs {
-                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, palette: self.palette)
+                WidgetDecorativeBackground(glyph: self.entry.decorativeGlyph, fontName: self.entry.widgetFontName, palette: self.palette)
                     .opacity(0.28)
             }
 

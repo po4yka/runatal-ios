@@ -566,7 +566,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
 
 private struct EreborCirthTranslationEngine: TranslationEngine {
     let script: RunicScript = .cirth
-    let engineVersion = "cirth-translation-v7"
+    let engineVersion = "cirth-translation-v8"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -581,7 +581,7 @@ private struct EreborCirthTranslationEngine: TranslationEngine {
         )
         self.goldExampleResolver = TranslationGoldExampleResolver(
             runicCorpusStore: runicCorpusStore,
-            cirthRenderer: CirthFontRenderer(wordSeparator: ereborStore.ereborTables().wordSeparator),
+            cirthRenderer: CirthFontRenderer(tables: ereborStore.ereborTables()),
         )
         self.tokenizer = CirthOrthographyStage(
             ereborStore: ereborStore,
@@ -1758,7 +1758,7 @@ private struct CirthOrthographyStage {
     init(ereborStore: EreborOrthographyStore, sourceCatalog: HistoricalSourceCatalog) {
         self.ereborStore = ereborStore
         self.sourceCatalog = sourceCatalog
-        self.renderer = CirthFontRenderer(wordSeparator: ereborStore.ereborTables().wordSeparator)
+        self.renderer = CirthFontRenderer(tables: ereborStore.ereborTables())
     }
 
     func resolvePhrase(request: TranslationRequest) -> TranslationResult? {
@@ -1869,11 +1869,16 @@ private struct CirthOrthographyStage {
 }
 
 private struct CirthFontRenderer {
-    let wordSeparator: String
+    let tables: EreborTablesData
 
     func render(diplomatic: String) -> String {
-        let normalized = diplomatic.replacingOccurrences(of: self.wordSeparator, with: "")
-        return RunicTransliterator.transliterate(normalized, to: .cirth).glyphOutput
+        let mappings = self.tables.singleCharacters
+            .merging(self.tables.sequences) { _, sequence in sequence }
+            .merging(self.tables.longVowels) { _, vowel in vowel }
+            .merging(self.tables.longConsonants) { _, consonant in consonant }
+        return diplomatic.components(separatedBy: " ").map { word in
+            word.components(separatedBy: self.tables.wordSeparator).map { mappings[$0] ?? $0 }.joined()
+        }.joined(separator: " ")
     }
 }
 

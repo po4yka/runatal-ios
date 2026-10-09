@@ -62,7 +62,7 @@ struct QuoteData: Codable, Equatable {
             author: "J.R.R. Tolkien",
             runicElder: "ᚾᛟᛏ ᚨᛚᛚ ᚦᛟᛋᛖ ᚹᚺᛟ ᚹᚨᚾᛞᛖᚱ ᚨᚱᛖ ᛚᛟᛋᛏ",
             runicYounger: "ᚾᚨᛏ ᚨᛚᛚ ᚦᚨᛋᚨ ᚹᚺᚨ ᚹᚨᚾᛞᚨᚱ ᚨᚱᚨ ᛚᚨᛋᛏ",
-            runicCirth: "⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸",
+            runicCirth: RunicTransliterator.transliterate("Not all those who wander are lost.", to: .cirth).glyphOutput,
         )
     }
 
@@ -74,14 +74,14 @@ struct QuoteData: Codable, Equatable {
                 author: "Virgil",
                 runicElder: "ᚠᛟᚱᛏᚢᚾᛖ ᚠᚨᚡᛟᚱᛋ ᚦᛖ ᛒᛟᛚᛞ",
                 runicYounger: "ᚠᚨᚱᛏᚢᚾᚨ ᚠᚨᚡᚨᚱᛋ ᚦᚨ ᛒᚨᛚᛞ",
-                runicCirth: "⸸⸸⸸⸸⸸⸸⸸ ⸸⸸⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸⸸",
+                runicCirth: RunicTransliterator.transliterate("Fortune favors the bold.", to: .cirth).glyphOutput,
             ),
             QuoteData(
                 textLatin: "The only way out is through.",
                 author: "Robert Frost",
                 runicElder: "ᚦᛖ ᛟᚾᛚᚤ ᚹᚨᚤ ᛟᚢᛏ ᛁᛋ ᚦᚱᛟᚢᚷᚺ",
                 runicYounger: "ᚦᚨ ᚨᚾᛚᛁ ᚹᚨᛁ ᚨᚢᛏ ᛁᛋ ᚦᚱᚨᚢᚷᚺ",
-                runicCirth: "⸸⸸⸸ ⸸⸸⸸⸸ ⸸⸸⸸ ⸸⸸⸸ ⸸⸸ ⸸⸸⸸⸸⸸⸸⸸",
+                runicCirth: RunicTransliterator.transliterate("The only way out is through.", to: .cirth).glyphOutput,
             ),
         ]
     }

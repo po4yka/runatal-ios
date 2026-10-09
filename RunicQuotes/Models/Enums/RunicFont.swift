@@ -37,7 +37,7 @@ enum RunicFont: String, Codable, CaseIterable, Identifiable {
         case .babelstone:
             "BabelStoneRunic.ttf"
         case .cirth:
-            "CirthAngerthas.ttf"
+            "RunatalCirth-Regular.ttf"
         }
     }
 

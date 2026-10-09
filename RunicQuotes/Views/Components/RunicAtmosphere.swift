@@ -58,7 +58,7 @@ struct RunicAtmosphere: View {
             ZStack {
                 ForEach(self.glyphs) { glyph in
                     Text(glyph.character)
-                        .font(.system(size: glyph.size))
+                        .font(.custom(RunicFontConfiguration.fontName(for: self.script, font: .noto), size: glyph.size))
                         .foregroundStyle(.white)
                         .opacity(glyph.opacity)
                         .rotationEffect(glyph.rotation)
@@ -93,7 +93,7 @@ struct RunicAtmosphere: View {
         case .younger:
             ["\u{16A0}", "\u{16A2}", "\u{16A6}", "\u{16B1}", "\u{16B4}", "\u{16B7}", "\u{16C1}", "\u{16C8}"]
         case .cirth:
-            ["\u{16A0}", "\u{16A6}", "\u{16B1}", "\u{16B7}", "\u{16BE}", "\u{16C1}", "\u{16C7}", "\u{16CB}"]
+            ["\u{E080}", "\u{E089}", "\u{E08B}", "\u{E091}", "\u{E095}", "\u{E09E}", "\u{E0B1}", "\u{E0B9}"]
         }
     }
 }

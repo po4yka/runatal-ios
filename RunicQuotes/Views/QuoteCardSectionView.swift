@@ -127,7 +127,7 @@ struct QuoteCardSectionView: View {
             .frame(maxWidth: .infinity, minHeight: 380, alignment: .top)
             .overlay(alignment: .topTrailing) {
                 Text(self.decorativeGlyph)
-                    .font(.system(size: 60))
+                    .font(.custom(RunicFontConfiguration.fontName(for: self.script, font: self.font), size: 60))
                     .foregroundStyle(self.palette.ornament)
                     .opacity(0.18)
                     .rotationEffect(.degrees(-12))

@@ -106,7 +106,7 @@ struct RunicTransliteratorTests {
     func cirthDigraphs() {
         #expect(RunicTransliterator.transliterate("th", to: .cirth).glyphOutput != "th")
         #expect(RunicTransliterator.transliterate("ch", to: .cirth).glyphOutput != "ch")
-        #expect(RunicTransliterator.transliterate("sh", to: .cirth).glyphOutput == "sh")
+        #expect(RunicTransliterator.transliterate("sh", to: .cirth).glyphOutput == "\u{E08E}")
     }
 
     @Test
@@ -125,7 +125,7 @@ struct RunicTransliteratorTests {
 
         #expect(elder != text)
         #expect(younger != text)
-        #expect(cirth == text)
+        #expect(cirth == "\u{E082}\u{E0B3}\u{E08B}\u{E087}\u{E0AA}\u{E095}\u{E0AF}")
     }
 
     @Test

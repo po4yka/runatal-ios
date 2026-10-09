@@ -227,7 +227,7 @@ struct QuoteView: View {
         switch self.viewModel.state.currentScript {
         case .elder: "\u{16A0}"
         case .younger: "\u{16A2}"
-        case .cirth: "\u{16CB}"
+        case .cirth: "\u{E0B9}"
         }
     }
 

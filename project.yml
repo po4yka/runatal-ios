@@ -49,7 +49,7 @@ targets:
         UIAppFonts:
           - NotoSansRunic-Regular.ttf
           - BabelStoneRunic.ttf
-          - CirthAngerthas.ttf
+          - RunatalCirth-Regular.ttf
         UILaunchScreen:
           UIColorName: LaunchScreenBackground
         UILaunchStoryboardName: LaunchScreen
@@ -104,6 +104,12 @@ targets:
       - path: RunicQuotes/Utilities
         excludes:
           - "**/*.md"
+      - path: RunicQuotes/Resources/Fonts
+        buildPhase: resources
+      - path: RunicQuotes/Resources/SeedData
+        buildPhase: resources
+      - path: RunicQuotes/Resources/Translation
+        buildPhase: resources
     resources:
       - path: RunicQuotes/Resources/Fonts
         buildPhase: resources
@@ -118,7 +124,7 @@ targets:
         UIAppFonts:
           - NotoSansRunic-Regular.ttf
           - BabelStoneRunic.ttf
-          - CirthAngerthas.ttf
+          - RunatalCirth-Regular.ttf
     entitlements:
       path: RunicQuotesWidget/RunicQuotesWidget.entitlements
       properties:
