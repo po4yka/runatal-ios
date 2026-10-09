@@ -81,4 +81,18 @@ final class HistoricalRuneContractTests: XCTestCase {
         XCTAssertEqual(exact.evidenceTier, .attested)
     }
 
+    func testKnownLexemesTranslateBeforeCapitalizedNameFallback() {
+        for fidelity in [TranslationFidelity.readable, .decorative] {
+            let lower = self.service.translate(text: "wolf", script: .younger, fidelity: fidelity)
+            let title = self.service.translate(text: "Wolf", script: .younger, fidelity: fidelity)
+            XCTAssertEqual(title.normalizedForm, "úlfr")
+            XCTAssertEqual(title.normalizedForm, lower.normalizedForm)
+            XCTAssertEqual(title.glyphOutput, "ᚢᛚᚠᚱ")
+            XCTAssertFalse(title.notes.contains { $0.contains("uncatalogued proper name") })
+        }
+        let unknownName = self.service.translate(text: "Zelda", script: .younger, fidelity: .readable)
+        XCTAssertEqual(unknownName.evidenceTier, .approximate)
+        XCTAssertTrue(unknownName.notes.contains { $0.contains("uncatalogued proper name") })
+    }
+
 }

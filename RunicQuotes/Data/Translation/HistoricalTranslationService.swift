@@ -238,7 +238,7 @@ private struct TranslationEngineFactory {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v8"
+    let engineVersion = "yf-translation-v9"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -351,16 +351,6 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
                 ),
             )
             normalized = name
-        } else if token.isProperNameCandidate, request.fidelity != .strict {
-            resolutionStatus = .approximated
-            notes.append("Preserved an uncatalogued proper name phonetically.")
-            provenance.append(
-                self.lexiconLookup.provenanceFor(
-                    sourceID: "internal_heuristics",
-                    detail: "Proper-name preservation fallback",
-                ),
-            )
-            normalized = token.normalized
         } else if let entry = lexiconLookup.oldNorseFor(
             token.normalized,
             fidelity: request.fidelity,
@@ -371,6 +361,16 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
             let morphology = self.morphologyStage.inflect(entry: entry, token: token)
             notes.append(contentsOf: morphology.notes)
             normalized = morphology.form
+        } else if token.isProperNameCandidate, request.fidelity != .strict {
+            resolutionStatus = .approximated
+            notes.append("Preserved an uncatalogued proper name phonetically.")
+            provenance.append(
+                self.lexiconLookup.provenanceFor(
+                    sourceID: "internal_heuristics",
+                    detail: "Proper-name preservation fallback",
+                ),
+            )
+            normalized = token.normalized
         } else if request.fidelity != .strict, let paraphrase = lexiconLookup.fallbackParaphrase(token.normalized) {
             resolutionStatus = .approximated
             notes.append("Used descriptive paraphrase for '\(token.raw)'.")
