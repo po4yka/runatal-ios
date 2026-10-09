@@ -12,6 +12,43 @@ import Testing
 @Suite(.tags(.model))
 struct RunicPresentationTests {
     @Test
+    func readableModernAndMixedResultsDiscloseTheirActualHistoricalStage() {
+        let service = HistoricalTranslationService()
+        for (text, expected) in [("computer", RunicPresentationSource.structuredTranscription), ("wolf computer", .mixedAdaptation)] {
+            let cached = service.translate(text: text, script: .elder, fidelity: .readable)
+            #expect(cached.isAvailable)
+            let result = RunicPresentationResolver.resolve(RunicPresentationInput(
+                textLatin: text,
+                storedText: nil,
+                script: .elder,
+                cirthEncoding: nil,
+                savedMetadata: nil,
+            ), currentCache: cached)
+            #expect(result.source == expected)
+            #expect(!result.warnings.isEmpty)
+        }
+    }
+
+    @Test
+    func assessmentForAnotherScriptDoesNotMaskGeneratedOutputOrCurrentCache() {
+        let service = HistoricalTranslationService()
+        let text = "The wolf hunts at night"
+        let cirth = service.translate(text: text, script: .cirth, fidelity: .strict)
+        let younger = service.translate(text: text, script: .younger, fidelity: .strict)
+        #expect(cirth.isAvailable && younger.isAvailable)
+        let metadata = try JSONEncoder().encode([cirth])
+        let result = RunicPresentationResolver.resolve(RunicPresentationInput(
+            textLatin: text,
+            storedText: RunicTransliterator.transliterate(text, to: .younger).glyphOutput,
+            script: .younger,
+            cirthEncoding: nil,
+            savedMetadata: metadata,
+        ), currentCache: younger)
+        #expect(result.text == younger.glyphOutput)
+        #expect(result.source == .structuredTranslation)
+    }
+
+    @Test
     func explicitUnsupportedCirthEncodingPreservesBytesWithoutClaimingRenderableOutput() {
         let stored = "\u{E001}"
         let result = RunicPresentationResolver.resolve(RunicPresentationInput(

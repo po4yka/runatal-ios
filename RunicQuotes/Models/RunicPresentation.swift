@@ -14,6 +14,7 @@ enum RunicPresentationSource: String, Codable, CaseIterable, Identifiable, Senda
 
     case structuredTranslation
     case structuredTranscription
+    case mixedAdaptation
     case savedHistoricalArtifact
     case savedRunicText
     case storedTransliteration
@@ -25,6 +26,8 @@ enum RunicPresentationSource: String, Codable, CaseIterable, Identifiable, Senda
             "Structured historical translation"
         case .structuredTranscription:
             "Structured spelling transcription"
+        case .mixedAdaptation:
+            "Partial historical adaptation"
         case .savedHistoricalArtifact:
             "Saved structured result"
         case .savedRunicText:
@@ -46,6 +49,8 @@ enum RunicPresentationSource: String, Codable, CaseIterable, Identifiable, Senda
             "Historical translation"
         case .structuredTranscription:
             "Spelling transcription"
+        case .mixedAdaptation:
+            "Partial historical adaptation"
         case .savedHistoricalArtifact:
             "Saved structured result"
         case .savedRunicText:
@@ -118,7 +123,7 @@ enum RunicPresentationResolver {
             )
         }
         let generated = RunicTransliterator.transliterate(input.textLatin, to: input.script)
-        if !stored.isEmpty, input.savedMetadata != nil || stored != generated.glyphOutput {
+        if !stored.isEmpty, self.hasPreservedAssessment(input) || stored != generated.glyphOutput {
             let warnings = ["The original assessment of this saved output is unavailable."]
                 + (stored == generated.glyphOutput ? generated.warnings : [])
             return ResolvedRunicPresentation(
@@ -135,7 +140,7 @@ enum RunicPresentationResolver {
             return ResolvedRunicPresentation(
                 warnings: cached.userFacingWarnings,
                 text: cached.glyphOutput,
-                source: input.script == .cirth ? .structuredTranscription : .structuredTranslation,
+                source: self.source(for: cached.historicalStage),
                 evidenceTier: cached.evidenceTier,
                 primarySourceLabel: cached.primaryEvidenceLabel,
             )
@@ -147,6 +152,20 @@ enum RunicPresentationResolver {
             evidenceTier: nil,
             primarySourceLabel: nil,
         )
+    }
+
+    private static func source(for stage: HistoricalStage) -> RunicPresentationSource {
+        switch stage {
+        case .oldNorse, .protoNorse: .structuredTranslation
+        case .ereborEnglish, .modernEnglish: .structuredTranscription
+        case .mixed: .mixedAdaptation
+        }
+    }
+
+    private static func hasPreservedAssessment(_ input: RunicPresentationInput) -> Bool {
+        guard let data = input.savedMetadata else { return false }
+        guard let artifacts = try? JSONDecoder().decode([TranslationResult].self, from: data), !artifacts.isEmpty else { return true }
+        return artifacts.contains { $0.script == input.script }
     }
 
     private static func savedWarnings(for artifact: TranslationResult, input: RunicPresentationInput) -> [String] {
