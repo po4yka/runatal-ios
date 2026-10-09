@@ -12,40 +12,40 @@ import Testing
 struct RunicTransliteratorTests {
     @Test
     func elderFutharkBasicVowels() {
-        let result = RunicTransliterator.transliterate("aeiou", to: .elder)
+        let result = RunicTransliterator.transliterate("aeiou", to: .elder).glyphOutput
         #expect(result != "aeiou")
         #expect(!result.isEmpty)
     }
 
     @Test
     func elderFutharkBasicConsonants() {
-        let result = RunicTransliterator.transliterate("bdfgklmnprst", to: .elder)
+        let result = RunicTransliterator.transliterate("bdfgklmnprst", to: .elder).glyphOutput
         #expect(result != "bdfgklmnprst")
         #expect(!result.isEmpty)
     }
 
     @Test
     func elderFutharkDigraphTH() {
-        let result = RunicTransliterator.transliterate("th", to: .elder)
+        let result = RunicTransliterator.transliterate("th", to: .elder).glyphOutput
         #expect(result.count == 1)
         #expect(result != "th")
     }
 
     @Test
     func elderFutharkDigraphNG() {
-        #expect(RunicTransliterator.transliterate("ng", to: .elder) != "ng")
+        #expect(RunicTransliterator.transliterate("ng", to: .elder).glyphOutput != "ng")
     }
 
     @Test
     func elderFutharkFullWord() {
-        let result = RunicTransliterator.transliterate("fortune", to: .elder)
+        let result = RunicTransliterator.transliterate("fortune", to: .elder).glyphOutput
         #expect(!result.isEmpty)
         #expect(result != "fortune")
     }
 
     @Test
     func elderFutharkPhrase() {
-        let result = RunicTransliterator.transliterate("fortune favors the bold", to: .elder)
+        let result = RunicTransliterator.transliterate("fortune favors the bold", to: .elder).glyphOutput
         #expect(result.contains(" "))
         #expect(result != "fortune favors the bold")
     }
@@ -53,65 +53,65 @@ struct RunicTransliteratorTests {
     @Test
     func elderFutharkCaseInsensitive() {
         #expect(
-            RunicTransliterator.transliterate("fortune", to: .elder) ==
-                RunicTransliterator.transliterate("FORTUNE", to: .elder),
+            RunicTransliterator.transliterate("fortune", to: .elder).glyphOutput ==
+                RunicTransliterator.transliterate("FORTUNE", to: .elder).glyphOutput,
         )
     }
 
     @Test
     func elderFutharkPreservesPunctuation() {
-        let result = RunicTransliterator.transliterate("hello, world!", to: .elder)
+        let result = RunicTransliterator.transliterate("hello, world!", to: .elder).glyphOutput
         #expect(result.contains(","))
         #expect(result.contains("!"))
     }
 
     @Test
     func elderFutharkEmptyString() {
-        #expect(RunicTransliterator.transliterate("", to: .elder).isEmpty)
+        #expect(RunicTransliterator.transliterate("", to: .elder).glyphOutput.isEmpty)
     }
 
     @Test
     func youngerFutharkBasicVowels() {
-        let result = RunicTransliterator.transliterate("aeiou", to: .younger)
+        let result = RunicTransliterator.transliterate("aeiou", to: .younger).glyphOutput
         #expect(result != "aeiou")
         #expect(!result.isEmpty)
     }
 
     @Test
     func youngerFutharkMergedVowels() {
-        #expect(RunicTransliterator.transliterate("i", to: .younger) == RunicTransliterator.transliterate("e", to: .younger))
-        #expect(RunicTransliterator.transliterate("u", to: .younger) == RunicTransliterator.transliterate("o", to: .younger))
+        #expect(RunicTransliterator.transliterate("i", to: .younger).glyphOutput == RunicTransliterator.transliterate("e", to: .younger).glyphOutput)
+        #expect(RunicTransliterator.transliterate("u", to: .younger).glyphOutput == RunicTransliterator.transliterate("o", to: .younger).glyphOutput)
     }
 
     @Test
     func youngerFutharkMergedConsonants() {
-        #expect(RunicTransliterator.transliterate("b", to: .younger) == RunicTransliterator.transliterate("p", to: .younger))
+        #expect(RunicTransliterator.transliterate("b", to: .younger).glyphOutput == RunicTransliterator.transliterate("p", to: .younger).glyphOutput)
     }
 
     @Test
     func youngerFutharkFullWord() {
-        let result = RunicTransliterator.transliterate("fortune", to: .younger)
+        let result = RunicTransliterator.transliterate("fortune", to: .younger).glyphOutput
         #expect(!result.isEmpty)
         #expect(result != "fortune")
     }
 
     @Test
     func cirthBasicVowels() {
-        let result = RunicTransliterator.transliterate("aeiou", to: .cirth)
+        let result = RunicTransliterator.transliterate("aeiou", to: .cirth).glyphOutput
         #expect(result == "aeiou")
         #expect(!result.isEmpty)
     }
 
     @Test
     func cirthDigraphs() {
-        #expect(RunicTransliterator.transliterate("th", to: .cirth) != "th")
-        #expect(RunicTransliterator.transliterate("ch", to: .cirth) != "ch")
-        #expect(RunicTransliterator.transliterate("sh", to: .cirth) == "sh")
+        #expect(RunicTransliterator.transliterate("th", to: .cirth).glyphOutput != "th")
+        #expect(RunicTransliterator.transliterate("ch", to: .cirth).glyphOutput != "ch")
+        #expect(RunicTransliterator.transliterate("sh", to: .cirth).glyphOutput == "sh")
     }
 
     @Test
     func cirthFullPhrase() {
-        let result = RunicTransliterator.transliterate("not all those who wander", to: .cirth)
+        let result = RunicTransliterator.transliterate("not all those who wander", to: .cirth).glyphOutput
         #expect(result.contains(" "))
         #expect(result != "not all those who wander")
     }
@@ -119,9 +119,9 @@ struct RunicTransliteratorTests {
     @Test
     func allScriptsProduceDifferentOutput() {
         let text = "fortune"
-        let elder = RunicTransliterator.transliterate(text, to: .elder)
-        let younger = RunicTransliterator.transliterate(text, to: .younger)
-        let cirth = RunicTransliterator.transliterate(text, to: .cirth)
+        let elder = RunicTransliterator.transliterate(text, to: .elder).glyphOutput
+        let younger = RunicTransliterator.transliterate(text, to: .younger).glyphOutput
+        let cirth = RunicTransliterator.transliterate(text, to: .cirth).glyphOutput
 
         #expect(elder != text)
         #expect(younger != text)
@@ -131,24 +131,24 @@ struct RunicTransliteratorTests {
     @Test
     func scriptsPreserveWordBoundaries() {
         let text = "hello world"
-        #expect(RunicTransliterator.transliterate(text, to: .elder).contains(" "))
-        #expect(RunicTransliterator.transliterate(text, to: .younger).contains(" "))
-        #expect(RunicTransliterator.transliterate(text, to: .cirth).contains(" "))
+        #expect(RunicTransliterator.transliterate(text, to: .elder).glyphOutput.contains(" "))
+        #expect(RunicTransliterator.transliterate(text, to: .younger).glyphOutput.contains(" "))
+        #expect(RunicTransliterator.transliterate(text, to: .cirth).glyphOutput.contains(" "))
     }
 
     @Test
     func numbersPassThrough() {
-        #expect(!RunicTransliterator.transliterate("123", to: .elder).isEmpty)
+        #expect(!RunicTransliterator.transliterate("123", to: .elder).glyphOutput.isEmpty)
     }
 
     @Test
     func specialCharacters() {
-        #expect(!RunicTransliterator.transliterate("@#$%", to: .elder).isEmpty)
+        #expect(!RunicTransliterator.transliterate("@#$%", to: .elder).glyphOutput.isEmpty)
     }
 
     @Test
     func mixedContent() {
-        let result = RunicTransliterator.transliterate("hello123world!", to: .elder)
+        let result = RunicTransliterator.transliterate("hello123world!", to: .elder).glyphOutput
         #expect(result.contains("!"))
         #expect(!result.isEmpty)
     }

@@ -18,7 +18,7 @@ import Foundation
 /// Because the font handles the visual mapping, single Latin letters map
 /// directly to themselves (lowercased). The font file has no glyphs in
 /// the Private Use Area.
-let cirthMap: [Character: Character] = [
+let cirthMap: [Character: String] = [
     "a": "a",
     "b": "b",
     "c": "c",
@@ -58,7 +58,7 @@ let cirthMap: [Character: Character] = [
 ///
 /// Digraphs without a dedicated font glyph are omitted; the transliterator
 /// will fall through and render them as two separate rune characters.
-let cirthDigraphs: [String: Character] = [
+let cirthDigraphs: [String: String] = [
     "th": "\u{00FE}", // þ — voiceless th (thin)
     "dh": "\u{00F0}", // ð — voiced th (this)
     "ng": "\u{00F1}", // ñ — ng nasal

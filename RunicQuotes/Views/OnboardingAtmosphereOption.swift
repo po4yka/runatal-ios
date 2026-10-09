@@ -22,7 +22,7 @@ struct OnboardingAtmosphereOption: View {
     }
 
     private var runicSample: String {
-        RunicTransliterator.transliterate(self.sampleLatin, to: self.script)
+        RunicTransliterator.transliterate(self.sampleLatin, to: self.script).glyphOutput
     }
 
     private var recommendedFont: RunicFont {

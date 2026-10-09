@@ -291,7 +291,7 @@ struct QuoteRepositoryTests {
         #expect(try repository.quote(id: override.id)?.runicCirth == "EXACT-OUTPUT")
         #expect(try repository.quote(id: punctuation.id)?.runicCirth == punctuation.runicCirth)
         let persistedLegacy = try #require(ModelContext(context.container).fetch(FetchDescriptor<Quote>()).first { $0.id == legacy.id })
-        #expect(persistedLegacy.runicCirth == RunicTransliterator.transliterate(legacy.textLatin, to: .cirth))
+        #expect(persistedLegacy.runicCirth == RunicTransliterator.transliterate(legacy.textLatin, to: .cirth).glyphOutput)
         #expect(persistedLegacy.cirthEncodingRaw == "ANGERTHAS_LATIN_V1")
         #expect(versioned.runicCirth == "\u{E001}")
         try repository.seedIfNeeded()

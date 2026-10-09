@@ -269,7 +269,8 @@ final class TranslationViewModel: ObservableObject {
 
         switch self.state.translationMode {
         case .transliterate:
-            self.state.outputText = RunicTransliterator.transliterate(input, to: self.state.selectedScript)
+            let result = RunicTransliterator.transliterate(input, to: self.state.selectedScript)
+            self.state.outputText = result.glyphOutput
             self.state.normalizedForm = nil
             self.state.diplomaticForm = nil
             self.state.resolutionStatus = nil
@@ -281,7 +282,7 @@ final class TranslationViewModel: ObservableObject {
             self.state.unresolvedTokens = []
             self.state.attestationRefs = []
             self.state.inputLanguage = .english
-            self.state.userFacingWarnings = []
+            self.state.userFacingWarnings = result.warnings
             self.state.tokenBreakdown = self.buildTransliterationBreakdown(for: input, script: self.state.selectedScript)
 
         case .translate:
@@ -321,7 +322,7 @@ final class TranslationViewModel: ObservableObject {
                     sourceToken: token,
                     normalizedToken: token.lowercased(),
                     diplomaticToken: token.lowercased(),
-                    glyphToken: RunicTransliterator.transliterate(token, to: script),
+                    glyphToken: RunicTransliterator.transliterate(token, to: script).glyphOutput,
                     resolutionStatus: .reconstructed,
                     provenance: [],
                 )
@@ -333,9 +334,9 @@ final class TranslationViewModel: ObservableObject {
         quoteRepository: QuoteRepository,
     ) throws -> (QuoteRecord, String) {
         let bundle = RunicTextBundle(
-            elder: RunicTransliterator.transliterate(input, to: .elder),
-            younger: RunicTransliterator.transliterate(input, to: .younger),
-            cirth: RunicTransliterator.transliterate(input, to: .cirth),
+            elder: RunicTransliterator.transliterate(input, to: .elder).glyphOutput,
+            younger: RunicTransliterator.transliterate(input, to: .younger).glyphOutput,
+            cirth: RunicTransliterator.transliterate(input, to: .cirth).glyphOutput,
         )
         let savedQuote = try quoteRepository.createQuote(
             textLatin: input,

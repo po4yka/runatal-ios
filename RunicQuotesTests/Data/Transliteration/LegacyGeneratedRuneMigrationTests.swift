@@ -52,6 +52,23 @@ final class LegacyGeneratedRuneMigrationTests: XCTestCase {
     }
 
     @MainActor
+    func testNormalizationMigrationRecoversGeneratedAccentsAndKeepsCustomRunes() throws {
+        let (repository, context) = try makeRepository()
+        let generated = Quote(textLatin: "café ВОЛК", author: "Owner", isUserGenerated: true)
+        generated.runicElder = "ᚲᚨᚠ "
+        generated.runicTransliterationVersion = 2
+        let custom = Quote(textLatin: "café ВОЛК", author: "Owner", isUserGenerated: true)
+        custom.runicElder = "ᚹᛁᛋᛞᛟᛗ"
+        custom.runicTransliterationVersion = 2
+        context.insert(generated)
+        context.insert(custom)
+        try context.save()
+        try repository.seedIfNeeded()
+        XCTAssertEqual(try repository.quote(id: generated.id)?.runicElder, "ᚲᚨᚠᛖ ВОЛК")
+        XCTAssertEqual(try repository.quote(id: custom.id)?.runicElder, "ᚹᛁᛋᛞᛟᛗ")
+    }
+
+    @MainActor
     private func makeRepository() throws -> (SwiftDataQuoteRepository, ModelContext) {
         let context = try TestSupport.makeModelContext()
         return (SwiftDataQuoteRepository(modelContext: context), context)

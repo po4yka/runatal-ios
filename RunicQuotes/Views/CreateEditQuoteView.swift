@@ -251,6 +251,11 @@ struct CreateEditQuoteView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .lineLimit(4)
                     }
+                    ForEach(self.viewModel.state.transliterationWarnings, id: \.self) { warning in
+                        Label(warning, systemImage: "info.circle")
+                            .font(DesignTokens.Typography.metadata)
+                            .foregroundStyle(palette.textSecondary)
+                    }
                 }
             }
         }

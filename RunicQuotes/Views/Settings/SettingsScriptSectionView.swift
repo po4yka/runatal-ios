@@ -35,7 +35,7 @@ struct SettingsScriptSectionView: View {
 
     private func scriptRow(_ script: RunicScript) -> some View {
         let isSelected = self.viewModel.state.selectedScript == script
-        let runicPreview = RunicTransliterator.transliterate("rune", to: script)
+        let runicPreview = RunicTransliterator.transliterate("rune", to: script).glyphOutput
 
         return Button {
             withAnimation(.easeInOut(duration: 0.2)) {

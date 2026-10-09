@@ -187,6 +187,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             for quote in quotes {
                 LegacyGeneratedRuneMigration.upgradeElder(quote, render: self.transliterator.transliterate)
                 LegacyGeneratedRuneMigration.upgradeYounger(quote, render: self.transliterator.transliterate)
+                LegacyGeneratedRuneMigration.upgradeNormalization(quote, render: self.transliterator.transliterate)
             }
             LegacyGeneratedRuneMigration.upgradeOriginalCirth(quotes, render: self.transliterator.transliterate)
             for preference in preferences {
@@ -416,9 +417,9 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             return
         }
 
-        quote.runicElder = self.transliterator.transliterate(textLatin, to: .elder)
-        quote.runicYounger = self.transliterator.transliterate(textLatin, to: .younger)
-        quote.runicCirth = self.transliterator.transliterate(textLatin, to: .cirth)
+        quote.runicElder = self.transliterator.transliterate(textLatin, to: .elder).glyphOutput
+        quote.runicYounger = self.transliterator.transliterate(textLatin, to: .younger).glyphOutput
+        quote.runicCirth = self.transliterator.transliterate(textLatin, to: .cirth).glyphOutput
     }
 
     // MARK: - Private Helpers
@@ -430,17 +431,17 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         switch script {
         case .elder:
             if quote.runicElder == nil {
-                quote.runicElder = self.transliterator.transliterate(quote.textLatin, to: .elder)
+                quote.runicElder = self.transliterator.transliterate(quote.textLatin, to: .elder).glyphOutput
                 needsSave = true
             }
         case .younger:
             if quote.runicYounger == nil {
-                quote.runicYounger = self.transliterator.transliterate(quote.textLatin, to: .younger)
+                quote.runicYounger = self.transliterator.transliterate(quote.textLatin, to: .younger).glyphOutput
                 needsSave = true
             }
         case .cirth:
             if quote.runicCirth == nil {
-                quote.runicCirth = self.transliterator.transliterate(quote.textLatin, to: .cirth)
+                quote.runicCirth = self.transliterator.transliterate(quote.textLatin, to: .cirth).glyphOutput
                 needsSave = true
             }
         }

@@ -55,7 +55,7 @@ extension QuoteViewModel {
         }
 
         return ResolvedRunicPresentation(
-            text: RunicTransliterator.transliterate(quote.textLatin, to: state.currentScript),
+            text: RunicTransliterator.transliterate(quote.textLatin, to: state.currentScript).glyphOutput,
             source: .liveTransliteration,
             evidenceTier: nil,
             primarySourceLabel: nil,

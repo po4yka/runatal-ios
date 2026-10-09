@@ -12,7 +12,7 @@ import Foundation
 /// Modern Latin spelling approximated with the sixteen Viking-Age graphs.
 /// Source: Unicode Runic chart and Riksantikvarieämbetet Runskolan.
 /// Vowel length, nasality, and historical final ʀ require the historical translation pipeline.
-let youngerFutharkMap: [Character: Character] = [
+let youngerFutharkMap: [Character: String] = [
     "a": "ᛅ",
     "b": "ᛒ",
     "c": "ᚴ",
@@ -36,12 +36,12 @@ let youngerFutharkMap: [Character: Character] = [
     "u": "ᚢ",
     "v": "ᚢ",
     "w": "ᚢ",
-    "x": "ᚴ",
+    "x": "ᚴᛋ",
     "y": "ᚢ",
     "z": "ᛋ",
 ]
 
-let youngerFutharkDigraphs: [String: Character] = [
+let youngerFutharkDigraphs: [String: String] = [
     "th": "ᚦ",
     "ng": "ᚾ",
 ]

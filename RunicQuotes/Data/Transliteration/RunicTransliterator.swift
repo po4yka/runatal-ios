@@ -7,138 +7,67 @@
 
 import Foundation
 
-/// Provides transliteration from Latin text to various runic scripts
+/// Converts modern Latin spelling to runes and reports characters outside the supported spelling inventory.
 enum RunicTransliterator {
-
-    // MARK: - Public API
-
-    /// Transliterate Latin text to the specified runic script
-    /// - Parameters:
-    ///   - text: The Latin text to transliterate
-    ///   - script: The target runic script
-    /// - Returns: The transliterated runic text
-    static func transliterate(_ text: String, to script: RunicScript) -> String {
+    static func transliterate(_ text: String, to script: RunicScript) -> RunicTransliterationResult {
+        let map: [Character: String]
+        let digraphs: [String: String]
         switch script {
         case .elder:
-            self.latinToElderFuthark(text)
+            map = elderFutharkMap
+            digraphs = elderFutharkDigraphs
         case .younger:
-            self.latinToYoungerFuthark(text)
+            map = youngerFutharkMap
+            digraphs = youngerFutharkDigraphs
         case .cirth:
-            self.latinToCirth(text)
+            map = cirthMap
+            digraphs = cirthDigraphs
         }
-    }
-
-    // MARK: - Elder Futhark (Unicode U+16A0–U+16EA)
-
-    /// Transliterate to Elder Futhark runes
-    private static func latinToElderFuthark(_ text: String) -> String {
-        var result = ""
-        let normalized = text.lowercased()
-        var i = normalized.startIndex
-
-        while i < normalized.endIndex {
-            // Check for digraphs first (two-character combinations)
-            if i < normalized.index(before: normalized.endIndex) {
-                let digraph = String(normalized[i ... normalized.index(after: i)])
-
-                if let runeChar = elderFutharkDigraphs[digraph] {
-                    result.append(runeChar)
-                    i = normalized.index(i, offsetBy: 2)
-                    continue
+        let input = Array(text.map { self.normalizeLatin($0, script: script) }.joined())
+        let outputGraphs = Set((Array(map.values) + Array(digraphs.values)).flatMap { Array($0) })
+        var output = ""
+        var unresolved: [String] = []
+        var seen = Set<Character>()
+        var index = 0
+        while index < input.count {
+            if index + 1 < input.count, let glyphs = digraphs[String(input[index ... index + 1])] {
+                output.append(glyphs)
+                index += 2
+                continue
+            }
+            let character = input[index]
+            if let glyphs = map[character] {
+                output.append(glyphs)
+            } else {
+                output.append(character)
+                let literal = character.isWhitespace || character.isPunctuation || character.isNumber || outputGraphs.contains(character)
+                if !literal, seen.insert(character).inserted {
+                    unresolved.append(String(character))
                 }
             }
-
-            // Check single character
-            let char = normalized[i]
-            if let runeChar = elderFutharkMap[char] {
-                result.append(runeChar)
-            } else if char.isNumber {
-                result.append(char)
-            } else if char.isWhitespace {
-                result.append(" ")
-            } else if char.isPunctuation {
-                result.append(char)
-            }
-
-            i = normalized.index(after: i)
+            index += 1
         }
-
-        return result
+        return RunicTransliterationResult(glyphOutput: output, unresolvedCharacters: unresolved)
     }
 
-    // MARK: - Younger Futhark (Unicode U+16A0–U+16EA subset)
-
-    /// Transliterate to Younger Futhark runes
-    private static func latinToYoungerFuthark(_ text: String) -> String {
-        var result = ""
-        let normalized = text.lowercased()
-        var i = normalized.startIndex
-
-        while i < normalized.endIndex {
-            // Check for digraphs
-            if i < normalized.index(before: normalized.endIndex) {
-                let digraph = String(normalized[i ... normalized.index(after: i)])
-
-                if let runeChar = youngerFutharkDigraphs[digraph] {
-                    result.append(runeChar)
-                    i = normalized.index(i, offsetBy: 2)
-                    continue
-                }
-            }
-
-            // Check single character
-            let char = normalized[i]
-            if let runeChar = youngerFutharkMap[char] {
-                result.append(runeChar)
-            } else if char.isNumber {
-                result.append(char)
-            } else if char.isWhitespace {
-                result.append(" ")
-            } else if char.isPunctuation {
-                result.append(char)
-            }
-
-            i = normalized.index(after: i)
+    private static func normalizeLatin(_ character: Character, script: RunicScript) -> String {
+        guard character.isLetter, let scalar = character.unicodeScalars.first else { return String(character) }
+        let codePoint = scalar.value
+        let isLatin = (0x0041 ... 0x007A).contains(codePoint) || (0x00C0 ... 0x024F).contains(codePoint) || (0x1E00 ... 0x1EFF).contains(codePoint)
+        guard isLatin else { return String(character) }
+        let lower = String(character).lowercased()
+        switch lower {
+        case "þ": return "th"
+        case "ð": return script == .cirth ? "dh" : "th"
+        case "æ": return "ae"
+        case "œ": return "oe"
+        case "ø": return "o"
+        case "ß": return "ss"
+        case "ł": return "l"
+        case "đ": return "d"
+        case "ı": return "i"
+        default:
+            return lower.folding(options: [.diacriticInsensitive, .widthInsensitive], locale: Locale(identifier: "en_US_POSIX"))
         }
-
-        return result
-    }
-
-    // MARK: - Cirth (Latin-substitution font)
-
-    /// Transliterate to Cirth/Angerthas runes (ASCII mapped via Angerthas Moria font)
-    private static func latinToCirth(_ text: String) -> String {
-        var result = ""
-        let normalized = text.lowercased()
-        var i = normalized.startIndex
-
-        while i < normalized.endIndex {
-            // Check for digraphs (Cirth uses many digraphs like th, sh, ng, etc.)
-            if i < normalized.index(before: normalized.endIndex) {
-                let digraph = String(normalized[i ... normalized.index(after: i)])
-
-                if let runeChar = cirthDigraphs[digraph] {
-                    result.append(runeChar)
-                    i = normalized.index(i, offsetBy: 2)
-                    continue
-                }
-            }
-
-            // Check single character
-            let char = normalized[i]
-            if let runeChar = cirthMap[char] {
-                result.append(runeChar)
-            } else if char.isNumber {
-                result.append(char)
-            } else if char.isWhitespace {
-                result.append(" ")
-            } else if char.isPunctuation {
-                result.append(char)
-            }
-
-            i = normalized.index(after: i)
-        }
-
-        return result
     }
 }

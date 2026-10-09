@@ -60,7 +60,7 @@ final class SettingsViewModel: ObservableObject {
 
     /// Runic transliteration for the live preview panel.
     var livePreviewRunicText: String {
-        RunicTransliterator.transliterate(self.livePreviewLatinText, to: self.state.selectedScript)
+        RunicTransliterator.transliterate(self.livePreviewLatinText, to: self.state.selectedScript).glyphOutput
     }
 
     /// Whether reset action should be active.
@@ -170,7 +170,7 @@ final class SettingsViewModel: ObservableObject {
 
     /// Preview text for a specific preset card.
     func presetPreviewRunicText(for preset: ReadingPreset) -> String {
-        RunicTransliterator.transliterate(preset.previewLatinText, to: preset.script)
+        RunicTransliterator.transliterate(preset.previewLatinText, to: preset.script).glyphOutput
     }
 
     // MARK: - Private Methods

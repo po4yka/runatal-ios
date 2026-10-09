@@ -92,7 +92,7 @@ final class Quote {
         self.runicElder = nil
         self.runicYounger = nil
         self.runicCirth = nil
-        self.runicTransliterationVersion = 2
+        self.runicTransliterationVersion = 3
         self.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
     }
 

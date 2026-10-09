@@ -180,7 +180,7 @@ final class HistoricalTranslationService: @unchecked Sendable {
             inputLanguage: .unsupported,
             userFacingWarnings: [
                 "Translation currently supports English input only.",
-                "Use transliteration mode for non-English text.",
+                "Use transliteration for Latin-letter text; unsupported characters remain visible.",
             ],
             engineVersion: self.engineVersion(for: request.script),
             datasetVersion: self.datasetVersion,
@@ -397,7 +397,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v6"
+    let engineVersion = "ef-translation-v7"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -527,7 +527,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
 
 private struct EreborCirthTranslationEngine: TranslationEngine {
     let script: RunicScript = .cirth
-    let engineVersion = "cirth-translation-v5"
+    let engineVersion = "cirth-translation-v6"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -1809,13 +1809,13 @@ private struct CirthFontRenderer {
 
     func render(diplomatic: String) -> String {
         let normalized = diplomatic.replacingOccurrences(of: self.wordSeparator, with: "")
-        return RunicTransliterator.transliterate(normalized, to: .cirth)
+        return RunicTransliterator.transliterate(normalized, to: .cirth).glyphOutput
     }
 }
 
 private struct ElderRuneRenderer {
     func render(_ text: String) -> String {
-        RunicTransliterator.transliterate(text, to: .elder)
+        RunicTransliterator.transliterate(text, to: .elder).glyphOutput
     }
 }
 

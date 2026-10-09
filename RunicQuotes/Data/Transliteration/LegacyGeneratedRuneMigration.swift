@@ -11,28 +11,28 @@ import Foundation
 /// Runtime callers must use RunicTransliterator; these tables are not an alternate live API.
 enum LegacyGeneratedRuneMigration {
     /// D3's original placeholder migration, confined to explicitly unversioned rows.
-    static func upgradeOriginalCirth(_ quotes: [Quote], render: (String, RunicScript) -> String) {
+    static func upgradeOriginalCirth(_ quotes: [Quote], render: (String, RunicScript) -> RunicTransliterationResult) {
         for quote in quotes {
             guard quote.cirthEncodingRaw == nil, let cirth = quote.runicCirth,
                   cirth.unicodeScalars.contains(where: { (0xE000 ... 0xE02A).contains($0.value) }) else { continue }
-            quote.runicCirth = render(quote.textLatin, .cirth)
+            quote.runicCirth = render(quote.textLatin, .cirth).glyphOutput
             quote.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
         }
     }
 
-    static func upgradeElder(_ quote: Quote, render: (String, RunicScript) -> String) {
+    static func upgradeElder(_ quote: Quote, render: (String, RunicScript) -> RunicTransliterationResult) {
         guard (quote.runicTransliterationVersion ?? 0) < 1 else { return }
         if quote.storedTranslationMetadataData == nil, quote.runicElder == self.elderV1(quote.textLatin) {
-            quote.runicElder = render(quote.textLatin, .elder)
+            quote.runicElder = render(quote.textLatin, .elder).glyphOutput
         }
         quote.runicTransliterationVersion = 1
     }
 
-    static func upgradeYounger(_ quote: Quote, render: (String, RunicScript) -> String) {
+    static func upgradeYounger(_ quote: Quote, render: (String, RunicScript) -> RunicTransliterationResult) {
         guard (quote.runicTransliterationVersion ?? 0) < 2 else { return }
         let original = self.render(quote.textLatin, map: self.youngerMapV1, digraphs: ["th": "ᚦ", "ng": "ᚾ"])
         if quote.storedTranslationMetadataData == nil, quote.runicYounger == original {
-            quote.runicYounger = render(quote.textLatin, .younger)
+            quote.runicYounger = render(quote.textLatin, .younger).glyphOutput
         }
         quote.runicTransliterationVersion = 2
     }
@@ -40,6 +40,26 @@ enum LegacyGeneratedRuneMigration {
     private static let youngerMapV1: [Character: Character] = Dictionary(
         uniqueKeysWithValues: zip("abcdefghijklmnopqrstuvwxyz", "ᚨᛒᚴᛞᚨᚠᚴᚻᛁᛃᚴᛚᛗᚾᚨᛒᚴᚱᛊᛏᚢᚠᚢᚴᛁᛊ"),
     )
+
+    static func upgradeNormalization(_ quote: Quote, render: (String, RunicScript) -> RunicTransliterationResult) {
+        guard (quote.runicTransliterationVersion ?? 0) < 3 else { return }
+        if quote.storedTranslationMetadataData == nil {
+            if quote.runicElder == self.render(quote.textLatin, map: self.elderMapV2, digraphs: ["th": "ᚦ", "ng": "ᛜ", "ei": "ᛇ"]) {
+                quote.runicElder = render(quote.textLatin, .elder).glyphOutput
+            }
+            if quote.runicYounger == self.render(quote.textLatin, map: self.youngerMapV2, digraphs: ["th": "ᚦ", "ng": "ᚾ"]) {
+                quote.runicYounger = render(quote.textLatin, .younger).glyphOutput
+            }
+            let latinMap = Dictionary(uniqueKeysWithValues: zip("abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz"))
+            if quote.runicCirth == self.render(quote.textLatin, map: latinMap, digraphs: ["th": "þ", "dh": "ð", "ch": "ç", "ng": "ñ"]) {
+                quote.runicCirth = render(quote.textLatin, .cirth).glyphOutput
+            }
+        }
+        quote.runicTransliterationVersion = 3
+    }
+
+    private static let elderMapV2: [Character: Character] = Dictionary(uniqueKeysWithValues: zip("abcdefghijklmnopqrstuvwxyz", "ᚨᛒᚲᛞᛖᚠᚷᚺᛁᛃᚲᛚᛗᚾᛟᛈᚲᚱᛊᛏᚢᚠᚹᚲᛁᛉ"))
+    private static let youngerMapV2: [Character: Character] = Dictionary(uniqueKeysWithValues: zip("abcdefghijklmnopqrstuvwxyz", "ᛅᛒᚴᛏᛁᚠᚴᚼᛁᛁᚴᛚᛘᚾᚢᛒᚴᚱᛋᛏᚢᚢᚢᚴᚢᛋ"))
 
     static func elderV1(_ text: String) -> String {
         self.render(text, map: self.elderMapV1, digraphs: ["th": "ᚦ", "ng": "ᛜ", "ei": "ᛇ"])

@@ -19,6 +19,7 @@ struct CreateEditQuoteUiState {
     var source: String = ""
     var collection: QuoteCollection = .motivation
     var runicPreview: String = ""
+    var transliterationWarnings: [String] = []
     var isSaving: Bool = false
     var errorMessage: String?
     var showSuccess: Bool = false
@@ -200,18 +201,21 @@ final class CreateEditQuoteViewModel: ObservableObject {
         let text = self.state.quoteText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else {
             self.state.runicPreview = ""
+            self.state.transliterationWarnings = []
             return
         }
-        self.state.runicPreview = RunicTransliterator.transliterate(text, to: .elder)
+        let result = RunicTransliterator.transliterate(text, to: .elder)
+        self.state.runicPreview = result.glyphOutput
+        self.state.transliterationWarnings = result.warnings
     }
 
     private func makeStoredRunicBundle(for text: String) -> RunicTextBundle? {
         guard !text.isEmpty else { return nil }
 
         return RunicTextBundle(
-            elder: RunicTransliterator.transliterate(text, to: .elder),
-            younger: RunicTransliterator.transliterate(text, to: .younger),
-            cirth: RunicTransliterator.transliterate(text, to: .cirth),
+            elder: RunicTransliterator.transliterate(text, to: .elder).glyphOutput,
+            younger: RunicTransliterator.transliterate(text, to: .younger).glyphOutput,
+            cirth: RunicTransliterator.transliterate(text, to: .cirth).glyphOutput,
         )
     }
 }

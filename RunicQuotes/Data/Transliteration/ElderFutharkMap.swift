@@ -11,7 +11,7 @@ import Foundation
 
 /// Single character mappings for Elder Futhark (24 runes)
 /// Unicode range: U+16A0–U+16EA
-let elderFutharkMap: [Character: Character] = [
+let elderFutharkMap: [Character: String] = [
     // Vowels
     "a": "\u{16A8}", // ᚨ RUNIC LETTER ANSUZ A
     "e": "\u{16D6}", // ᛖ RUNIC LETTER EHWAZ EH E
@@ -38,13 +38,13 @@ let elderFutharkMap: [Character: Character] = [
     "t": "\u{16CF}", // ᛏ RUNIC LETTER TIWAZ TIR TYR T
     "v": "\u{16A0}", // Modern Latin v is approximated by Fehu; Elder has no dedicated v
     "w": "\u{16B9}", // ᚹ RUNIC LETTER WUNJO WYNN W
-    "x": "\u{16B2}", // ᚲ RUNIC LETTER KAUNA (x → k)
+    "x": "ᚲᛊ", // Modern x approximated as the complete k+s sound sequence
     "y": "\u{16C1}", // ᛁ RUNIC LETTER ISAZ IS ISS I (y → i)
     "z": "\u{16C9}", // ᛉ RUNIC LETTER ALGIZ EOLHX
 ]
 
 /// Digraph mappings for Elder Futhark (two-character combinations)
-let elderFutharkDigraphs: [String: Character] = [
+let elderFutharkDigraphs: [String: String] = [
     "th": "\u{16A6}", // ᚦ RUNIC LETTER THURISAZ THURS THORN
     "ng": "\u{16DC}", // ᛜ RUNIC LETTER INGWAZ
     "ei": "\u{16C7}", // ᛇ RUNIC LETTER IWAZ EOH (ei diphthong)

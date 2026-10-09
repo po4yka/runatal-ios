@@ -13,7 +13,7 @@ final class RunicTransliteratorPerformanceTests: XCTestCase {
         let longText = String(repeating: "fortune favors the bold ", count: 100)
 
         measure {
-            _ = RunicTransliterator.transliterate(longText, to: .elder)
+            _ = RunicTransliterator.transliterate(longText, to: .elder).glyphOutput
         }
     }
 }

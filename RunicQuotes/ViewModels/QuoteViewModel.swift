@@ -472,7 +472,7 @@ final class QuoteViewModel: ObservableObject {
             }
 
             let runicPreview = firstQuote.runicText(for: self.state.currentScript)
-                ?? RunicTransliterator.transliterate(firstQuote.textLatin, to: self.state.currentScript)
+                ?? RunicTransliterator.transliterate(firstQuote.textLatin, to: self.state.currentScript).glyphOutput
 
             return QuoteCollectionCover(
                 collection: collection,
