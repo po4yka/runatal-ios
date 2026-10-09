@@ -73,4 +73,5 @@ extension Notification.Name {
     static let loadNextQuote = Notification.Name("LoadNextQuote")
     static let preferencesDidChange = Notification.Name("PreferencesDidChange")
     static let translationCacheUpdated = Notification.Name("TranslationCacheUpdated")
+    static let libraryDidChange = Notification.Name("LibraryDidChange")
 }

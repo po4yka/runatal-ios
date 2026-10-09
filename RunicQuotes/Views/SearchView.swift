@@ -15,7 +15,6 @@ struct SearchView: View {
     @EnvironmentObject private var searchCoordinator: AppSearchCoordinator
     @EnvironmentObject private var featureDiscoveryController: FeatureDiscoveryController
     @StateObject private var viewModel: SearchViewModel
-    @State private var didInitialize = false
 
     private var palette: AppThemePalette {
         .themed(self.runicTheme, for: self.colorScheme)
@@ -81,10 +80,11 @@ struct SearchView: View {
         }
         .navigationTitle("Search")
         .task {
-            guard !self.didInitialize else { return }
-            self.didInitialize = true
             self.viewModel.onAppear()
             self.viewModel.updateSearchText(self.searchCoordinator.query)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .libraryDidChange).receive(on: RunLoop.main)) { _ in
+            self.viewModel.onAppear()
         }
         .onAppear {
             self.searchCoordinator.isPresented = true

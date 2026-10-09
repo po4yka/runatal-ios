@@ -28,6 +28,7 @@ final class SavedQuotesViewModel: ObservableObject {
     private let quoteProvider: QuoteProvider
     private let preferencesRepository: any UserPreferencesRepository
     private var preferences = UserPreferencesSnapshot()
+    private var loadGeneration = 0
 
     private let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "SavedQuotesVM")
 
@@ -50,10 +51,12 @@ final class SavedQuotesViewModel: ObservableObject {
 
     /// Load saved quotes when view appears.
     func onAppear() {
+        self.loadGeneration += 1
+        let generation = self.loadGeneration
         self.state.isLoading = true
         self.state.errorMessage = nil
         Task {
-            await self.loadSavedQuotes()
+            await self.loadSavedQuotes(generation: generation)
         }
     }
 
@@ -72,15 +75,17 @@ final class SavedQuotesViewModel: ObservableObject {
 
     // MARK: - Private Methods
 
-    private func loadSavedQuotes() async {
+    private func loadSavedQuotes(generation: Int) async {
         do {
             self.preferences = try self.preferencesRepository.snapshot()
             let savedIDs = self.preferences.savedQuoteIDs
 
             let allQuotes = try await quoteProvider.allQuotes()
+            guard generation == self.loadGeneration else { return }
             self.state.savedQuotes = allQuotes.filter { savedIDs.contains($0.id) }
             self.state.isLoading = false
         } catch {
+            guard generation == self.loadGeneration else { return }
             self.logger.error("Failed to load saved quotes: \(error.localizedDescription)")
             self.state.errorMessage = "Failed to load saved quotes: \(error.localizedDescription)"
             self.state.isLoading = false

@@ -123,6 +123,9 @@ final class SwiftDataUserPreferencesRepository: UserPreferencesRepository, @unch
             preferences.installedPackIDs = snapshot.installedPackIDs
         }
         try context.save()
+        if !mutations.isEmpty {
+            NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
+        }
         return snapshot
     }
 }

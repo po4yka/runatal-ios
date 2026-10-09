@@ -372,7 +372,6 @@ struct OnboardingView: View {
         do {
             let script = self.selectedScript ?? .elder
             try self.preferencesRepository.apply([.script(script)])
-            NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
             Self.logger.error("Failed to save onboarding preferences: \(error.localizedDescription)")
         }

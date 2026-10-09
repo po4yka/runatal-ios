@@ -10,7 +10,6 @@ import SwiftUI
 /// Displays bookmarked/favorited quotes.
 struct SavedView: View {
     @StateObject private var viewModel: SavedQuotesViewModel
-    @State private var didInitialize = false
     @State private var feedbackTone: FeedbackBanner.Tone?
     @State private var feedbackTitle = ""
     @State private var feedbackMessage = ""
@@ -94,8 +93,12 @@ struct SavedView: View {
         }
         .navigationTitle("Saved")
         .task {
-            guard !self.didInitialize else { return }
-            self.didInitialize = true
+            self.viewModel.onAppear()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .preferencesDidChange).receive(on: RunLoop.main)) { _ in
+            self.viewModel.onAppear()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .libraryDidChange).receive(on: RunLoop.main)) { _ in
             self.viewModel.onAppear()
         }
     }

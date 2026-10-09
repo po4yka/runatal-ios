@@ -71,7 +71,7 @@ struct QuoteView: View {
             .onChange(of: self.viewModel.state.currentScript) { _, _ in
                 self.startScriptMorphTransition()
             }
-            .onReceive(NotificationCenter.default.publisher(for: .preferencesDidChange)) { notification in
+            .onReceive(NotificationCenter.default.publisher(for: .preferencesDidChange).receive(on: RunLoop.main)) { notification in
                 if let collection = notification.userInfo?["collection"] as? QuoteCollection {
                     self.viewModel.onCollectionChanged(collection)
                 } else {
@@ -85,6 +85,9 @@ struct QuoteView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .loadNextQuote)) { _ in
                 self.handleNextQuoteTriggered()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .libraryDidChange).receive(on: RunLoop.main)) { _ in
+                self.viewModel.onLibraryChanged()
             }
             .onReceive(NotificationCenter.default.publisher(for: .translationCacheUpdated).receive(on: RunLoop.main)) { notification in
                 let quoteID = notification.userInfo?["quoteID"] as? UUID

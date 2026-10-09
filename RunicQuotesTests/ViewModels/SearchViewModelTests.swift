@@ -32,6 +32,27 @@ struct SearchViewModelTests {
     }
 
     @Test
+    func reappearanceRefreshesCreatedEditedAndDeletedSearchResults() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataQuoteRepository(modelContext: context)
+        let first = try repository.createQuote(textLatin: "A quiet source", author: "Reader", source: nil, collection: .motivation)
+        let viewModel = SearchViewModel(quoteProvider: QuoteProvider(modelContainer: context.container))
+        viewModel.updateSearchText("source")
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.filteredQuotes.map(\.id) == [first.id])
+        let second = try repository.createQuote(textLatin: "Another source", author: "Reader", source: nil, collection: .motivation)
+        _ = try repository.updateQuote(id: first.id, textLatin: "A changed passage", author: "Reader", source: nil, collection: .motivation)
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.filteredQuotes.map(\.id) == [second.id])
+        _ = try repository.softDeleteQuote(id: second.id)
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.filteredQuotes.isEmpty)
+    }
+
+    @Test
     func selectedCollectionFiltersAndToggleClearsSelection() async throws {
         let repository = TestQuoteRepository()
         repository.allQuotesValue = [

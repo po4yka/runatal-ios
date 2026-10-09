@@ -215,7 +215,6 @@ final class SettingsViewModel: ObservableObject {
                 self.state.selectedTheme.rawValue,
                 forKey: AppConstants.selectedThemeStorageKey,
             )
-            NotificationCenter.default.post(name: .preferencesDidChange, object: nil)
         } catch {
             self.state.errorMessage = "Failed to save preferences: \(error.localizedDescription)"
         }

@@ -29,6 +29,7 @@ final class SearchViewModel: ObservableObject {
 
     private let quoteProvider: QuoteProvider
     private var cachedQuotes: [QuoteRecord] = []
+    private var loadGeneration = 0
 
     // MARK: - Computed Properties
 
@@ -45,10 +46,12 @@ final class SearchViewModel: ObservableObject {
 
     /// Load all visible quotes into cache when the view appears.
     func onAppear() {
+        self.loadGeneration += 1
+        let generation = self.loadGeneration
         self.state.isLoading = true
         self.state.errorMessage = nil
         Task {
-            await self.loadQuotes()
+            await self.loadQuotes(generation: generation)
         }
     }
 
@@ -79,12 +82,15 @@ final class SearchViewModel: ObservableObject {
 
     // MARK: - Private Methods
 
-    private func loadQuotes() async {
+    private func loadQuotes(generation: Int) async {
         do {
-            self.cachedQuotes = try await self.quoteProvider.allQuotes()
+            let quotes = try await self.quoteProvider.allQuotes()
+            guard generation == self.loadGeneration else { return }
+            self.cachedQuotes = quotes
             self.applyFilters()
             self.state.isLoading = false
         } catch {
+            guard generation == self.loadGeneration else { return }
             self.state.errorMessage = error.localizedDescription
             self.state.isLoading = false
         }

@@ -497,6 +497,29 @@ enum QuoteViewModelError: LocalizedError {
     }
 }
 
+extension QuoteViewModel {
+    /// Reload library data while keeping the passage the reader currently has open.
+    func onLibraryChanged() {
+        self.state.isLoading = true
+        self.state.errorMessage = nil
+        Task {
+            defer { self.state.isLoading = false }
+            do {
+                let allQuotes = try await self.quoteProvider.allQuotes()
+                self.cachedQuotes = allQuotes
+                self.updateCollectionCovers(using: allQuotes)
+                if let quote = allQuotes.first(where: { $0.id == self.state.currentQuoteID }) {
+                    await self.updateState(with: quote)
+                } else {
+                    await self.loadQuote(using: self.state.currentWidgetMode, updateContext: false)
+                }
+            } catch {
+                self.state.errorMessage = error.localizedDescription
+            }
+        }
+    }
+}
+
 // MARK: - Preview Helper
 
 extension QuoteViewModel {

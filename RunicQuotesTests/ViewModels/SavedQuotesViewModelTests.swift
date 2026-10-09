@@ -83,6 +83,29 @@ struct SavedQuotesViewModelTests {
     }
 
     @Test
+    func reappearanceLoadsNewBookmarksAndExcludesArchivedQuotes() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataQuoteRepository(modelContext: context)
+        let quote = try repository.createQuote(textLatin: "A newly saved passage", author: "Reader", source: nil, collection: .motivation)
+        let preferences = SwiftDataUserPreferencesRepository(modelContext: context)
+        let viewModel = SavedQuotesViewModel(
+            quoteProvider: QuoteProvider(modelContainer: context.container),
+            preferencesRepository: preferences,
+        )
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.savedQuotes.isEmpty)
+        try preferences.apply([.toggleSavedQuote(quote.id)])
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.savedQuotes.map(\.id) == [quote.id])
+        _ = try repository.hideQuote(id: quote.id)
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading })
+        #expect(viewModel.state.savedQuotes.isEmpty)
+    }
+
+    @Test
     func copyQuoteTextFormatsForSharing() throws {
         let quote = TestSupport.makeQuoteRecord(text: "Fortune favors the bold", author: "Virgil")
         let viewModel = try SavedQuotesViewModel(

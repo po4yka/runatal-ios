@@ -271,6 +271,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         if !translations.isEmpty {
             self.notifyTranslationChange(for: record.id)
         }
+        self.notifyLibraryChange()
         return record
     }
 
@@ -298,37 +299,44 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             return QuoteRecord(from: quote)
         }
         self.notifyTranslationChange(for: id)
+        self.notifyLibraryChange()
         return record
     }
 
     func hideQuote(id: UUID) throws -> QuoteRecord {
-        try self.transaction { context in
+        let record = try self.transaction { context in
             let quote = try self.requireQuote(id: id, in: context)
             quote.isHidden = true
             quote.isSoftDeleted = false
             quote.deletedAt = nil
             return QuoteRecord(from: quote)
         }
+        self.notifyLibraryChange()
+        return record
     }
 
     func softDeleteQuote(id: UUID, deletedAt: Date = Date()) throws -> QuoteRecord {
-        try self.transaction { context in
+        let record = try self.transaction { context in
             let quote = try self.requireQuote(id: id, in: context)
             quote.isSoftDeleted = true
             quote.isHidden = false
             quote.deletedAt = deletedAt
             return QuoteRecord(from: quote)
         }
+        self.notifyLibraryChange()
+        return record
     }
 
     func restoreQuote(id: UUID) throws -> QuoteRecord {
-        try self.transaction { context in
+        let record = try self.transaction { context in
             let quote = try self.requireQuote(id: id, in: context)
             quote.isHidden = false
             quote.isSoftDeleted = false
             quote.deletedAt = nil
             return QuoteRecord(from: quote)
         }
+        self.notifyLibraryChange()
+        return record
     }
 
     func eraseQuote(id: UUID) throws {
@@ -339,6 +347,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             try self.markCatalogErased([id], in: context)
         }
         self.notifyTranslationChange(for: id)
+        self.notifyLibraryChange()
     }
 
     func purgeDeletedQuotes(before cutoffDate: Date) throws -> Int {
@@ -359,6 +368,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
         if !ids.isEmpty {
             NotificationCenter.default.post(name: .translationCacheUpdated, object: nil)
+            self.notifyLibraryChange()
         }
         return ids.count
     }
@@ -477,3 +487,9 @@ enum QuoteRepositoryError: LocalizedError {
 }
 
 // swiftlint:enable function_parameter_count
+
+private extension SwiftDataQuoteRepository {
+    func notifyLibraryChange() {
+        NotificationCenter.default.post(name: .libraryDidChange, object: nil)
+    }
+}
