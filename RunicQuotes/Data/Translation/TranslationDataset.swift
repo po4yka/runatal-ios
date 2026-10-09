@@ -714,6 +714,21 @@ struct TranslationBenchmarkExpectation: Codable, Sendable {
     let warningFragments: [String]
     let regressionID: String?
 
+    private enum CodingKeys: String, CodingKey {
+        case script
+        case fidelity
+        case requestedVariant
+        case normalizedForm
+        case diplomaticForm
+        case glyphOutput
+        case resolutionStatus
+        case evidenceTier
+        case supportLevel
+        case attestationRefs
+        case warningFragments
+        case regressionID = "regressionId"
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.script = try container.decodeScript(forKey: .script)
