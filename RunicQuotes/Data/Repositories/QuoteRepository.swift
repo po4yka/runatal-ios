@@ -21,6 +21,7 @@ struct QuoteRecord: Identifiable {
     let runicElder: String?
     let runicYounger: String?
     let runicCirth: String?
+    let storedTranslationMetadataData: Data?
     let createdAt: Date
     let isHidden: Bool
     let isDeleted: Bool
@@ -36,6 +37,7 @@ struct QuoteRecord: Identifiable {
         self.runicElder = quote.runicElder
         self.runicYounger = quote.runicYounger
         self.runicCirth = quote.runicCirth
+        self.storedTranslationMetadataData = quote.storedTranslationMetadataData
         self.createdAt = quote.createdAt
         self.isHidden = quote.isHidden
         self.isDeleted = quote.isSoftDeleted
@@ -193,10 +195,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         let legacy = try QuoteSeedCatalog.legacyIdentities()
         // Unknown edited rows remain intact. Missing baseline IDs are recorded as erased rather than reimported.
         for entry in legacy {
-            let key = self.seedQuoteKey(textLatin: entry.textLatin, author: entry.author)
+            let key = QuoteSeedCatalog.identity(textLatin: entry.textLatin, author: entry.author)
             let match = quotes.first {
                 !$0.isUserGenerated && $0.builtInID == nil
-                    && self.seedQuoteKey(textLatin: $0.textLatin, author: $0.author) == key
+                    && QuoteSeedCatalog.identity(textLatin: $0.textLatin, author: $0.author) == key
             }
             if let match {
                 match.builtInID = entry.id
@@ -257,6 +259,10 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             let quote = Quote(textLatin: textLatin, author: author, collection: collection, isUserGenerated: true)
             quote.source = source
             self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
+            let artifacts = translations.filter(\.isAvailable)
+            if !artifacts.isEmpty {
+                quote.storedTranslationMetadataData = try JSONEncoder().encode(artifacts)
+            }
             context.insert(quote)
             try SwiftDataTranslationRepository.stage(results: translations, for: quote.id, sourceText: textLatin, in: context)
             return QuoteRecord(from: quote)
@@ -282,6 +288,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
                 quote.translationBackfillSourceText = nil
                 try SwiftDataTranslationRepository.stageDeletion(for: id, in: context)
             }
+            quote.storedTranslationMetadataData = nil
             quote.textLatin = textLatin
             quote.author = author
             quote.source = source
@@ -450,16 +457,6 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             quote.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
         }
         self.logger.info("Migrated legacy Cirth encoding for \(legacyQuotes.count) quotes")
-    }
-
-    private func seedQuoteKey(textLatin: String, author: String) -> String {
-        "\(self.normalizeSeedField(textLatin))||\(self.normalizeSeedField(author))"
-    }
-
-    private func normalizeSeedField(_ value: String) -> String {
-        value
-            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
 }

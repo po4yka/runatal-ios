@@ -24,6 +24,16 @@ enum QuoteSeedCatalog {
         try self.loadResource("legacy-quotes")
     }
 
+    static func identity(textLatin: String, author: String) -> String {
+        "\(self.normalizeSeedField(textLatin))||\(self.normalizeSeedField(author))"
+    }
+
+    private static func normalizeSeedField(_ value: String) -> String {
+        value
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private static func loadResource(_ name: String) throws -> [QuoteCatalogEntry] {
         guard let url = self.resourceURL(name) else { throw QuoteRepositoryError.seedDataNotFound }
         let entries: [QuoteCatalogEntry]

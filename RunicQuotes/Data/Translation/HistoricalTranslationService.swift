@@ -83,6 +83,10 @@ final class HistoricalTranslationService: @unchecked Sendable {
         ].joined(separator: "|")
     }
 
+    func engineVersion(for script: RunicScript) -> String {
+        self.engineFactory.create(script).engineVersion
+    }
+
     var datasetVersion: String {
         self.engineFactory.create(.elder).datasetVersion
     }
@@ -178,7 +182,7 @@ final class HistoricalTranslationService: @unchecked Sendable {
                 "Translation currently supports English input only.",
                 "Use transliteration mode for non-English text.",
             ],
-            engineVersion: self.versionSignature,
+            engineVersion: self.engineVersion(for: request.script),
             datasetVersion: self.datasetVersion,
         )
     }

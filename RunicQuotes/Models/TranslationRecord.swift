@@ -13,6 +13,7 @@ import SwiftData
 final class TranslationRecord {
     @Attribute(.unique) var cacheKey: String
     var quoteID: UUID
+    var sourceText: String = ""
     var scriptRaw: String
     var fidelityRaw: String
     var requestedVariantRaw: String?
@@ -128,6 +129,7 @@ extension TranslationRecord {
             createdAt: result.createdAt,
             updatedAt: result.updatedAt,
         )
+        self.sourceText = result.sourceText
     }
 
     var script: RunicScript {
@@ -155,7 +157,7 @@ extension TranslationRecord {
             throw TranslationRecordError.invalidMetadata
         }
         return try TranslationResult(
-            sourceText: "",
+            sourceText: self.sourceText,
             script: script,
             fidelity: fidelity,
             derivationKind: derivation,

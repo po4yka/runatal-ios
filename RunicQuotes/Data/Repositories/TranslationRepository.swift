@@ -38,9 +38,16 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
 
     func latestTranslation(for quoteID: UUID, script: RunicScript) throws -> TranslationResult? {
         let modelContext = self.makeContext()
+        var quoteDescriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        quoteDescriptor.fetchLimit = 1
+        guard let quote = try modelContext.fetch(quoteDescriptor).first, !quote.isSoftDeleted else { return nil }
+        let sourceText = quote.textLatin
+        let engineVersion = self.translationService.engineVersion(for: script)
+        let datasetVersion = self.translationService.datasetVersion
         var descriptor = FetchDescriptor<TranslationRecord>(
             predicate: #Predicate {
                 $0.quoteID == quoteID && $0.scriptRaw == script.rawValue
+                    && $0.sourceText == sourceText && $0.engineVersion == engineVersion && $0.datasetVersion == datasetVersion
             },
             sortBy: [SortDescriptor(\.updatedAt, order: .reverse)],
         )
@@ -101,7 +108,11 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
     }
 
     private static func stage(result: TranslationResult, for quoteID: UUID, sourceText: String, in context: ModelContext) throws {
-        guard result.resolutionStatus != .unavailable else { return }
+        guard result.sourceText == sourceText else { throw TranslationCacheError.sourceChanged }
+        var quoteDescriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        quoteDescriptor.fetchLimit = 1
+        guard let quote = try context.fetch(quoteDescriptor).first else { throw QuoteRepositoryError.quoteNotFound }
+        guard quote.textLatin == sourceText else { throw TranslationCacheError.sourceChanged }
         guard result.confidence.isFinite else { throw TranslationRecordError.invalidMetadata }
 
         let cacheKey = TranslationRecord.makeCacheKey(
@@ -119,6 +130,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         descriptor.fetchLimit = 1
 
         if let existing = try context.fetch(descriptor).first {
+            existing.sourceText = sourceText
             existing.derivationKindRaw = result.derivationKind.rawValue
             existing.historicalStageRaw = result.historicalStage.rawValue
             existing.createdAt = result.createdAt
@@ -138,7 +150,9 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             existing.userFacingWarningsData = try JSONEncoder().encode(result.userFacingWarnings)
             existing.updatedAt = Date()
         } else {
-            try context.insert(TranslationRecord(result: result.withSourceText(sourceText), quoteID: quoteID))
+            let record = try TranslationRecord(result: result, quoteID: quoteID)
+            record.updatedAt = Date()
+            context.insert(record)
         }
 
     }
@@ -224,33 +238,6 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
     }
 }
 
-private extension TranslationResult {
-    func withSourceText(_ sourceText: String) -> TranslationResult {
-        TranslationResult(
-            sourceText: sourceText,
-            script: script,
-            fidelity: fidelity,
-            derivationKind: derivationKind,
-            historicalStage: historicalStage,
-            normalizedForm: normalizedForm,
-            diplomaticForm: diplomaticForm,
-            glyphOutput: glyphOutput,
-            requestedVariant: requestedVariant,
-            resolutionStatus: resolutionStatus,
-            supportLevel: supportLevel,
-            evidenceTier: evidenceTier,
-            confidence: confidence,
-            notes: notes,
-            unresolvedTokens: unresolvedTokens,
-            provenance: provenance,
-            tokenBreakdown: tokenBreakdown,
-            attestationRefs: attestationRefs,
-            inputLanguage: inputLanguage,
-            userFacingWarnings: userFacingWarnings,
-            engineVersion: engineVersion,
-            datasetVersion: datasetVersion,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-        )
-    }
+enum TranslationCacheError: Error {
+    case sourceChanged
 }

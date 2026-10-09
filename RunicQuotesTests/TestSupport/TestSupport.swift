@@ -11,6 +11,7 @@ import SwiftData
 import Testing
 
 enum TestSupport {
+    private static let translationService = HistoricalTranslationService()
     static func makeModelContainer() throws -> ModelContainer {
         let schema = Schema([Quote.self, QuoteSeedReceipt.self, UserPreferences.self, TranslationRecord.self, TranslationBackfillState.self])
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -101,8 +102,8 @@ enum TestSupport {
         attestationRefs: [String] = [],
         inputLanguage: TranslationSourceLanguage = .english,
         userFacingWarnings: [String] = [],
-        engineVersion: String = "test-engine",
-        datasetVersion: String = "test-dataset",
+        engineVersion: String? = nil,
+        datasetVersion: String? = nil,
         createdAt: Date = Date(timeIntervalSince1970: 1_700_000_000),
         updatedAt: Date? = nil,
     ) -> TranslationResult {
@@ -127,8 +128,8 @@ enum TestSupport {
             attestationRefs: attestationRefs,
             inputLanguage: inputLanguage,
             userFacingWarnings: userFacingWarnings,
-            engineVersion: engineVersion,
-            datasetVersion: datasetVersion,
+            engineVersion: engineVersion ?? self.translationService.engineVersion(for: script),
+            datasetVersion: datasetVersion ?? self.translationService.datasetVersion,
             createdAt: createdAt,
             updatedAt: updatedAt,
         )

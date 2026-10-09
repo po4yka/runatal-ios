@@ -237,42 +237,20 @@ struct QuoteViewModelTests {
 
     @Test
     func structuredTranslationIsPreferredWhenCacheUpdates() async throws {
-        let (viewModel, modelContext) = try makeViewModelWithContext()
-        viewModel.onAppear()
-
-        #expect(await TestSupport.eventually {
-            !viewModel.state.isLoading && viewModel.state.currentQuoteID != nil
-        })
-
-        let quoteID = try #require(viewModel.state.currentQuoteID)
-        let originalRunicText = viewModel.state.runicText
-        let translationRepository = SwiftDataTranslationRepository(modelContext: modelContext)
-        try translationRepository.cache(
-            result: TranslationResult(
-                sourceText: viewModel.state.latinText,
-                script: .elder,
-                fidelity: .strict,
-                derivationKind: .goldExample,
-                historicalStage: .oldNorse,
-                normalizedForm: "normalized",
-                diplomaticForm: "diplomatic",
-                glyphOutput: "ᛏᛖᛋᛏ",
-                resolutionStatus: .reconstructed,
-                confidence: 0.9,
-                notes: [],
-                unresolvedTokens: [],
-                provenance: [],
-                tokenBreakdown: [],
-                engineVersion: "test-engine",
-                datasetVersion: "test-dataset",
-            ),
-            for: quoteID,
-            sourceText: viewModel.state.latinText,
+        let (viewModel, modelContext) = try makeViewModelWithContext(seedData: false)
+        let text = "The wolf hunts at night"
+        let quote = try SwiftDataQuoteRepository(modelContext: modelContext).createQuote(
+            textLatin: text, author: "Audit", source: nil, collection: .stoic,
         )
-
-        viewModel.onTranslationCacheUpdated(for: quoteID)
-
-        #expect(await TestSupport.eventually { viewModel.state.runicText == "ᛏᛖᛋᛏ" })
+        try SwiftDataUserPreferencesRepository(modelContext: modelContext).apply([.script(.younger)])
+        viewModel.onAppear()
+        #expect(await TestSupport.eventually { !viewModel.state.isLoading && viewModel.state.currentQuoteID == quote.id })
+        let originalRunicText = viewModel.state.runicText
+        let result = HistoricalTranslationService().translate(text: text, script: .younger, fidelity: .strict)
+        #expect(result.isAvailable)
+        try SwiftDataTranslationRepository(modelContext: modelContext).cache(result: result, for: quote.id, sourceText: text)
+        viewModel.onTranslationCacheUpdated(for: quote.id)
+        #expect(await TestSupport.eventually { viewModel.state.runicText == result.glyphOutput })
         #expect(originalRunicText != viewModel.state.runicText)
         #expect(viewModel.state.runicPresentationSource == .structuredTranslation)
     }

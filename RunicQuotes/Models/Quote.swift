@@ -45,6 +45,9 @@ final class Quote {
     var translationBackfillSignature: String?
     var translationBackfillSourceText: String?
 
+    /// Original user-saved translation artifact metadata, retained independently from replaceable runtime cache.
+    var storedTranslationMetadataData: Data?
+
     /// Timestamp when the quote was created
     var createdAt: Date
 
