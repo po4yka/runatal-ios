@@ -149,6 +149,25 @@ final class QuoteViewModel: ObservableObject {
         }
     }
 
+    /// Focus the successfully persisted passage rather than choosing a new daily entry.
+    func onQuoteSaved(_ id: UUID) {
+        self.state.isLoading = true
+        Task {
+            defer { self.state.isLoading = false }
+            do {
+                let quotes = try await self.quoteProvider.allQuotes()
+                guard let quote = quotes.first(where: { $0.id == id }) else { throw QuoteRepositoryError.quoteNotFound }
+                self.cachedQuotes = quotes
+                if !self.state.currentCollection.contains(quote) {
+                    guard self.persistPreferences([.collection(quote.collection)]) else { return }
+                    self.state.currentCollection = quote.collection
+                }
+                self.updateCollectionCovers(using: quotes)
+                await self.updateState(with: quote)
+            } catch { self.state.errorMessage = error.localizedDescription }
+        }
+    }
+
     /// Refresh the quote of the day
     func refresh() {
         self.state.isLoading = true

@@ -7,7 +7,7 @@
 
 import Foundation
 
-typealias QuoteSaveHandler = (Foundation.UUID?) -> Void
+typealias QuoteSaveHandler = (Foundation.UUID) -> Void
 
 @MainActor
 final class TranslationViewBuilder {

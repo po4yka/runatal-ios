@@ -150,8 +150,8 @@ struct QuoteView: View {
             }
             .sheet(isPresented: self.$showCreateQuote) {
                 NavigationStack {
-                    self.createEditQuoteViewBuilder.makeView(mode: .create, onSaved: { _ in
-                        self.viewModel.onAppear()
+                    self.createEditQuoteViewBuilder.makeView(mode: .create, onSaved: { id in
+                        self.viewModel.onQuoteSaved(id)
                     })
                 }
             }
@@ -175,8 +175,8 @@ struct QuoteView: View {
             }
             .sheet(item: self.$editingQuoteRecord) { record in
                 NavigationStack {
-                    self.createEditQuoteViewBuilder.makeView(mode: .edit(record), onSaved: { _ in
-                        self.viewModel.onAppear()
+                    self.createEditQuoteViewBuilder.makeView(mode: .edit(record), onSaved: { id in
+                        self.viewModel.onQuoteSaved(id)
                     })
                 }
             }

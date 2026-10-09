@@ -77,7 +77,7 @@ struct CreateEditQuoteViewModelTests {
         #expect(repository.createdQuotes.count == 1)
         #expect(viewModel.state.isSaving == false)
         #expect(viewModel.state.showSuccess)
-        #expect(viewModel.state.createdQuoteID == repository.createdQuotes.first?.id)
+        #expect(viewModel.state.savedQuoteID == repository.createdQuotes.first?.id)
         #expect(repository.createdQuotes.first?.collection == .stoic)
     }
 
@@ -96,7 +96,7 @@ struct CreateEditQuoteViewModelTests {
 
         #expect(repository.updatedQuotes.count == 1)
         #expect(repository.updatedQuotes.first?.id == record.id)
-        #expect(viewModel.state.createdQuoteID == nil)
+        #expect(viewModel.state.savedQuoteID == record.id)
         #expect(viewModel.state.showSuccess)
     }
 

@@ -18,14 +18,14 @@ struct CreateEditQuoteView: View {
     @Environment(\.runicTheme) private var runicTheme
 
     private let mode: CreateEditMode
-    private let onSaved: ((UUID?) -> Void)?
+    private let onSaved: ((UUID) -> Void)?
 
     // MARK: - Initialization
 
     init(
         viewModel: CreateEditQuoteViewModel,
         mode: CreateEditMode = .create,
-        onSaved: ((UUID?) -> Void)? = nil,
+        onSaved: ((UUID) -> Void)? = nil,
     ) {
         self.mode = mode
         self.onSaved = onSaved
@@ -63,8 +63,8 @@ struct CreateEditQuoteView: View {
                 }
             }
             .onChange(of: self.viewModel.state.showSuccess) { _, showSuccess in
-                if showSuccess, case .edit = self.viewModel.mode {
-                    self.onSaved?(nil)
+                if showSuccess, case .edit = self.viewModel.mode, let id = self.viewModel.state.savedQuoteID {
+                    self.onSaved?(id)
                     self.dismiss()
                 }
             }
@@ -289,7 +289,8 @@ struct CreateEditQuoteView: View {
                             .multilineTextAlignment(.center)
 
                         Button {
-                            self.onSaved?(self.viewModel.state.createdQuoteID)
+                            guard let id = self.viewModel.state.savedQuoteID else { return }
+                            self.onSaved?(id)
                             self.dismiss()
                         } label: {
                             Text("View Quote")

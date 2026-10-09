@@ -23,7 +23,7 @@ struct CreateEditQuoteUiState {
     var isSaving: Bool = false
     var errorMessage: String?
     var showSuccess: Bool = false
-    var createdQuoteID: UUID?
+    var savedQuoteID: UUID?
 }
 
 // MARK: - Mode
@@ -154,11 +154,11 @@ final class CreateEditQuoteViewModel: ObservableObject {
                     storedRunic: self.makeStoredRunicBundle(for: trimmedText),
                     translations: [],
                 )
-                self.state.createdQuoteID = record.id
+                self.state.savedQuoteID = record.id
                 self.logger.info("Quote created: \(record.id)")
 
             case .edit(let existing):
-                _ = try self.quoteRepository.updateQuote(
+                let record = try self.quoteRepository.updateQuote(
                     id: existing.id,
                     textLatin: trimmedText,
                     author: trimmedAuthor,
@@ -166,6 +166,7 @@ final class CreateEditQuoteViewModel: ObservableObject {
                     collection: self.state.collection,
                     storedRunic: self.makeStoredRunicBundle(for: trimmedText),
                 )
+                self.state.savedQuoteID = record.id
                 self.logger.info("Quote updated: \(existing.id)")
             }
 

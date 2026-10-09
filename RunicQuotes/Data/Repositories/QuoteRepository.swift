@@ -297,17 +297,20 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
     ) throws -> QuoteRecord {
         let record = try self.transaction { context in
             let quote = try self.requireQuote(id: id, in: context)
-            if quote.textLatin != textLatin {
+            let textChanged = quote.textLatin != textLatin
+            if textChanged {
                 quote.translationBackfillSignature = nil
                 quote.translationBackfillSourceText = nil
                 try SwiftDataTranslationRepository.stageDeletion(for: id, in: context)
             }
-            quote.storedTranslationMetadataData = nil
             quote.textLatin = textLatin
             quote.author = author
             quote.source = source
             quote.collection = collection
-            self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
+            if textChanged {
+                quote.storedTranslationMetadataData = nil
+                self.applyStoredRunic(to: quote, textLatin: textLatin, storedRunic: storedRunic)
+            }
             return QuoteRecord(from: quote)
         }
         self.notifyTranslationChange(for: id)
@@ -416,7 +419,41 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         return quote
     }
 
+}
+
+// MARK: - Errors
+
+enum QuoteRepositoryError: LocalizedError {
+    case seedDataNotFound
+    case noQuotesAvailable
+    case invalidSeedData
+    case quoteNotFound
+
+    var errorDescription: String? {
+        switch self {
+        case .seedDataNotFound:
+            "Could not find the bundled quote catalog."
+        case .noQuotesAvailable:
+            "No quotes available in the database"
+        case .invalidSeedData:
+            "Seed data is invalid or missing collection tags"
+        case .quoteNotFound:
+            "Quote not found"
+        }
+    }
+}
+
+// swiftlint:enable function_parameter_count
+
+private extension SwiftDataQuoteRepository {
+    func notifyLibraryChange() {
+        NotificationCenter.default.post(name: .libraryDidChange, object: nil)
+    }
+}
+
+private extension SwiftDataQuoteRepository {
     private func applyStoredRunic(to quote: Quote, textLatin: String, storedRunic: RunicTextBundle?) {
+        quote.cirthEncodingRaw = LegacyCirthEncodingMigration.encoding
         if let storedRunic {
             quote.runicElder = storedRunic.elder
             quote.runicYounger = storedRunic.younger
@@ -449,6 +486,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         case .cirth:
             if quote.runicCirth == nil {
                 quote.runicCirth = self.transliterator.transliterate(quote.textLatin, to: .cirth).glyphOutput
+                quote.cirthEncodingRaw = LegacyCirthEncodingMigration.encoding
                 needsSave = true
             }
         }
@@ -458,34 +496,4 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
     }
 
-}
-
-// MARK: - Errors
-
-enum QuoteRepositoryError: LocalizedError {
-    case seedDataNotFound
-    case noQuotesAvailable
-    case invalidSeedData
-    case quoteNotFound
-
-    var errorDescription: String? {
-        switch self {
-        case .seedDataNotFound:
-            "Could not find the bundled quote catalog."
-        case .noQuotesAvailable:
-            "No quotes available in the database"
-        case .invalidSeedData:
-            "Seed data is invalid or missing collection tags"
-        case .quoteNotFound:
-            "Quote not found"
-        }
-    }
-}
-
-// swiftlint:enable function_parameter_count
-
-private extension SwiftDataQuoteRepository {
-    func notifyLibraryChange() {
-        NotificationCenter.default.post(name: .libraryDidChange, object: nil)
-    }
 }
