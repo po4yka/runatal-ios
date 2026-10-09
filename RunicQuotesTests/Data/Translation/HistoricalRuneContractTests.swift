@@ -21,7 +21,9 @@ final class HistoricalRuneContractTests: XCTestCase {
             XCTAssertTrue(result.isAvailable)
             XCTAssertFalse(result.glyphOutput.unicodeScalars.contains { $0.properties.isAlphabetic && $0.value < 0x16A0 })
         }
-    } func testSmartApostrophePreservesNegationLikeStraightContraction() {
+    }
+
+    func testSmartApostrophePreservesNegationLikeStraightContraction() {
         let straight = self.service.translate(text: "He can't hunt", script: .younger, fidelity: .readable)
         let smart = self.service.translate(text: "He can’t hunt", script: .younger, fidelity: .readable)
         XCTAssertEqual(smart.normalizedForm, straight.normalizedForm)
