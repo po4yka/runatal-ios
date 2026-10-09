@@ -232,7 +232,11 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         XCTAssertTrue(input.exists)
         self.tapElement(input)
         input.typeText("The wolf hunts at night")
-        app.swipeUp()
+        let done = app.buttons["translation_keyboard_done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        self.tapElement(done)
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.keyboards.firstMatch)
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 5), .completed)
     }
 
     // MARK: - Navigation Tests

@@ -102,6 +102,13 @@ struct TranslationView: View {
             .navigationBarTitleDisplayMode(.inline)
         #endif
             .toolbar {
+                #if canImport(UIKit)
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { self.isInputFocused = false }
+                            .accessibilityIdentifier("translation_keyboard_done")
+                    }
+                #endif
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         self.recordTranslationMethodExploration()
