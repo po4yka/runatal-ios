@@ -101,22 +101,26 @@ struct QuoteViewModelTests {
 
     @Test
     func fontCompatibilityCheck() async throws {
-        let viewModel = try makeViewModel()
+        let (viewModel, context) = try self.makeViewModelWithContext()
+        let preferences = SwiftDataUserPreferencesRepository(modelContext: context)
         viewModel.onScriptChanged(.cirth)
-
         #expect(await TestSupport.eventually {
             viewModel.state.currentScript == .cirth && !viewModel.state.isLoading
         })
+        let accepted = try preferences.snapshot()
+        let quoteID = viewModel.state.currentQuoteID
+        let displayed = viewModel.state.runicText
+        #expect(accepted.selectedFont == .cirth)
 
         viewModel.onFontChanged(.noto)
 
-        #expect(await TestSupport.eventually {
-            viewModel.state.errorMessage != nil || viewModel.state.currentFont != .noto
-        })
-
-        if let errorMessage = viewModel.state.errorMessage {
-            #expect(errorMessage.contains("compatible"))
-        }
+        #expect(viewModel.state.errorMessage == "Failed to save preferences: The selected font does not support the current script.")
+        #expect(viewModel.state.currentFont == .cirth)
+        #expect(viewModel.state.currentScript == .cirth)
+        #expect(viewModel.state.currentQuoteID == quoteID)
+        #expect(viewModel.state.runicText == displayed)
+        #expect(try preferences.snapshot().selectedFont == accepted.selectedFont)
+        #expect(try preferences.snapshot().selectedScript == accepted.selectedScript)
     }
 
     @Test
