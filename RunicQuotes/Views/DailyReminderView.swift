@@ -12,11 +12,20 @@ struct DailyReminderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            Toggle("Daily reading reminder", isOn: Binding(
-                get: { self.viewModel.state.isEnabled },
-                set: { value in Task { await self.viewModel.setEnabled(value) } },
-            ))
-            .accessibilityIdentifier("daily_reminder_enabled")
+            HStack {
+                Text("Daily reading reminder")
+                    .accessibilityHidden(true)
+                Spacer()
+                Toggle("Daily reading reminder", isOn: Binding(
+                    get: { self.viewModel.state.isEnabled },
+                    set: { value in Task { await self.viewModel.setEnabled(value) } },
+                ))
+                .labelsHidden()
+                .fixedSize()
+                .frame(minHeight: 44)
+                .accessibilityLabel("Daily reading reminder")
+                .accessibilityIdentifier("daily_reminder_enabled")
+            }
             DatePicker("Reminder time", selection: Binding(
                 get: { self.viewModel.state.time.date },
                 set: { date in Task { await self.viewModel.setTime(date) } },
