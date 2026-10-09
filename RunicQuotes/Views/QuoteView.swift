@@ -161,13 +161,17 @@ struct QuoteView: View {
                 }
             }
             .confirmationDialog("Create quote", isPresented: self.$showCreateChoices, titleVisibility: .visible) {
-                Button(String(localized: "translation.menu.newQuote")) { self.showCreateQuote = true }
-                    .accessibilityElement(children: .combine)
+                Button(String(localized: "translation.menu.newQuote"), action: self.openQuoteEditor)
+                    .accessibilityElement(children: .ignore)
                     .accessibilityLabel(String(localized: "translation.menu.newQuote"))
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAction(self.openQuoteEditor)
                     .accessibilityIdentifier("quote_create_new_action")
-                Button(String(localized: "translation.menu.translate")) { self.showTranslationView = true }
-                    .accessibilityElement(children: .combine)
+                Button(String(localized: "translation.menu.translate"), action: self.openTranslation)
+                    .accessibilityElement(children: .ignore)
                     .accessibilityLabel(String(localized: "translation.menu.translate"))
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAction(self.openTranslation)
                     .accessibilityIdentifier("quote_create_translate_action")
                 Button("Cancel", role: .cancel) {}
             }
@@ -386,6 +390,16 @@ struct QuoteView: View {
             script: self.viewModel.state.currentScript,
             caption: self.viewModel.state.author.isEmpty ? "Continue reading" : self.viewModel.state.author,
         )
+    }
+
+    private func openQuoteEditor() {
+        self.showCreateChoices = false
+        self.showCreateQuote = true
+    }
+
+    private func openTranslation() {
+        self.showCreateChoices = false
+        self.showTranslationView = true
     }
 
     private func openPendingQuoteIfReady() {
