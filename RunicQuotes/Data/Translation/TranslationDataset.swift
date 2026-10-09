@@ -67,6 +67,15 @@ struct OldNorseLexiconEntry: Codable {
     let dativePhrase: String?
     let nounForms: [String: String]?
     let objectCase: String?
+    let requiresObject: Bool?
+    let gender: String?
+    let englishPluralForms: [String]?
+    let adjectiveForms: [String: String]?
+    let presentForms: [String: String]?
+    let pastForms: [String: String]?
+    let englishVerbForms: [String: EnglishVerbForm]?
+    let inflectionSourceID: String?
+    let inflectionCitations: [String]?
     let strictEligible: Bool
     let sourceID: String
     let sourceWork: String?
@@ -91,6 +100,15 @@ struct OldNorseLexiconEntry: Codable {
         case dativePhrase
         case nounForms
         case objectCase
+        case requiresObject
+        case gender
+        case englishPluralForms
+        case adjectiveForms
+        case presentForms
+        case pastForms
+        case englishVerbForms
+        case inflectionSourceID = "inflectionSourceId"
+        case inflectionCitations
         case strictEligible
         case sourceID = "sourceId"
         case sourceWork
@@ -117,6 +135,15 @@ struct OldNorseLexiconEntry: Codable {
         self.dativePhrase = try container.decodeIfPresent(String.self, forKey: .dativePhrase)
         self.nounForms = try container.decodeIfPresent([String: String].self, forKey: .nounForms)
         self.objectCase = try container.decodeIfPresent(String.self, forKey: .objectCase)
+        self.requiresObject = try container.decodeIfPresent(Bool.self, forKey: .requiresObject)
+        self.gender = try container.decodeIfPresent(String.self, forKey: .gender)
+        self.englishPluralForms = try container.decodeIfPresent([String].self, forKey: .englishPluralForms)
+        self.adjectiveForms = try container.decodeIfPresent([String: String].self, forKey: .adjectiveForms)
+        self.presentForms = try container.decodeIfPresent([String: String].self, forKey: .presentForms)
+        self.pastForms = try container.decodeIfPresent([String: String].self, forKey: .pastForms)
+        self.englishVerbForms = try container.decodeIfPresent([String: EnglishVerbForm].self, forKey: .englishVerbForms)
+        self.inflectionSourceID = try container.decodeIfPresent(String.self, forKey: .inflectionSourceID)
+        self.inflectionCitations = try container.decodeIfPresent([String].self, forKey: .inflectionCitations)
         self.strictEligible = try container.decodeIfPresent(Bool.self, forKey: .strictEligible) ?? true
         self.sourceID = try container.decode(String.self, forKey: .sourceID)
         self.sourceWork = try container.decodeIfPresent(String.self, forKey: .sourceWork)
@@ -138,6 +165,29 @@ struct OldNorseLexiconEntry: Codable {
 
     var inventory: TranslationInventoryKind {
         TranslationInventoryKind(rawValue: self.inventoryRaw) ?? .approvedReconstruction
+    }
+}
+
+struct EnglishVerbForm: Codable {
+    let tense: String
+    let agreements: [String]
+}
+
+struct EnglishPronounFeatures: Codable {
+    let person: Int
+    let number: String
+    let gender: String?
+}
+
+struct GovernedPreposition: Codable {
+    let lemma: String
+    let grammaticalCase: String
+    let sourceID: String
+    let citations: [String]
+
+    private enum CodingKeys: String, CodingKey {
+        case lemma, grammaticalCase, citations
+        case sourceID = "sourceId"
     }
 }
 
@@ -278,6 +328,8 @@ struct EreborPhraseMappingEntry: Codable {
 }
 
 struct GrammarRulesData: Codable {
+    let pronounFeatures: [String: EnglishPronounFeatures]
+    let governedPrepositions: [String: GovernedPreposition]
     let removableWords: [String]
     let prepositionMap: [String: String]
     let interrogatives: [String]
@@ -290,6 +342,8 @@ struct GrammarRulesData: Codable {
 
     init(
         removableWords: [String],
+        pronounFeatures: [String: EnglishPronounFeatures],
+        governedPrepositions: [String: GovernedPreposition],
         prepositionMap: [String: String],
         interrogatives: [String],
         pronounMap: [String: String],
@@ -299,6 +353,8 @@ struct GrammarRulesData: Codable {
         imperativeHints: [String],
         englishFunctionWords: [String],
     ) {
+        self.pronounFeatures = pronounFeatures
+        self.governedPrepositions = governedPrepositions
         self.removableWords = removableWords
         self.prepositionMap = prepositionMap
         self.interrogatives = interrogatives
@@ -312,6 +368,8 @@ struct GrammarRulesData: Codable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.pronounFeatures = try container.decode([String: EnglishPronounFeatures].self, forKey: .pronounFeatures)
+        self.governedPrepositions = try container.decode([String: GovernedPreposition].self, forKey: .governedPrepositions)
         self.removableWords = try container.decodeIfPresent([String].self, forKey: .removableWords) ?? []
         self.prepositionMap = try container.decodeIfPresent([String: String].self, forKey: .prepositionMap) ?? [:]
         self.interrogatives = try container.decodeIfPresent([String].self, forKey: .interrogatives) ?? []

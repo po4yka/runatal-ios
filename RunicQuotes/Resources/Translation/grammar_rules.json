@@ -1,5 +1,9 @@
 {
-  "removableWords": ["the", "a", "an"],
+  "removableWords": [
+    "the",
+    "a",
+    "an"
+  ],
   "prepositionMap": {
     "at": "um",
     "in": "í",
@@ -7,16 +11,26 @@
     "under": "undir",
     "with": "með",
     "of": "af",
-    "to": "til"
+    "to": "til",
+    "into": "í"
   },
-  "interrogatives": ["who", "what", "why", "when", "where", "how"],
+  "interrogatives": [
+    "who",
+    "what",
+    "why",
+    "when",
+    "where",
+    "how"
+  ],
   "pronounMap": {
     "i": "ek",
     "you": "þú",
     "we": "vér",
     "they": "þeir",
     "he": "hann",
-    "she": "hon"
+    "she": "hon",
+    "it": "þat",
+    "you all": "þér"
   },
   "auxiliaryMap": {
     "am": "be",
@@ -50,7 +64,8 @@
   },
   "multiwordExpressions": [
     "old ways",
-    "under the mountain"
+    "under the mountain",
+    "you all"
   ],
   "imperativeHints": [
     "honor",
@@ -72,5 +87,73 @@
     "their",
     "his",
     "her"
-  ]
+  ],
+  "pronounFeatures": {
+    "i": {
+      "person": 1,
+      "number": "SINGULAR",
+      "gender": null
+    },
+    "you": {
+      "person": 2,
+      "number": "SINGULAR",
+      "gender": null
+    },
+    "he": {
+      "person": 3,
+      "number": "SINGULAR",
+      "gender": "MASCULINE"
+    },
+    "she": {
+      "person": 3,
+      "number": "SINGULAR",
+      "gender": "FEMININE"
+    },
+    "it": {
+      "person": 3,
+      "number": "SINGULAR",
+      "gender": "NEUTER"
+    },
+    "we": {
+      "person": 1,
+      "number": "PLURAL",
+      "gender": null
+    },
+    "you all": {
+      "person": 2,
+      "number": "PLURAL",
+      "gender": null
+    },
+    "they": {
+      "person": 3,
+      "number": "PLURAL",
+      "gender": "MASCULINE"
+    }
+  },
+  "governedPrepositions": {
+    "in": {
+      "lemma": "í",
+      "grammaticalCase": "DATIVE",
+      "sourceId": "barnes_nion",
+      "citations": [
+        "NION I §3.7.4: location uses dative, contrast direction with accusative."
+      ]
+    },
+    "into": {
+      "lemma": "í",
+      "grammaticalCase": "ACCUSATIVE",
+      "sourceId": "barnes_nion",
+      "citations": [
+        "NION I §3.7.4: direction into uses accusative."
+      ]
+    },
+    "with": {
+      "lemma": "með",
+      "grammaticalCase": "DATIVE",
+      "sourceId": "barnes_nion",
+      "citations": [
+        "NION I §3.9.1 p.219: með Óláfi Svía konungi, association with dative."
+      ]
+    }
+  }
 }

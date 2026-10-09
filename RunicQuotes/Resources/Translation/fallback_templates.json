@@ -12,7 +12,9 @@
     "walked": "walk",
     "wolves": "wolf",
     "mountains": "mountain",
-    "kings": "king"
+    "kings": "king",
+    "hunted": "hunt",
+    "journeys": "journey"
   },
   "paraphrasesByStage": {
     "OLD_NORSE": {
