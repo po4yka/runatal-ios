@@ -165,13 +165,13 @@ struct QuoteView: View {
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(String(localized: "translation.menu.newQuote"))
                     .accessibilityAddTraits(.isButton)
-                    .accessibilityAction(self.openQuoteEditor)
+                    .accessibilityAction(.default, self.openQuoteEditor)
                     .accessibilityIdentifier("quote_create_new_action")
                 Button(String(localized: "translation.menu.translate"), action: self.openTranslation)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(String(localized: "translation.menu.translate"))
                     .accessibilityAddTraits(.isButton)
-                    .accessibilityAction(self.openTranslation)
+                    .accessibilityAction(.default, self.openTranslation)
                     .accessibilityIdentifier("quote_create_translate_action")
                 Button("Cancel", role: .cancel) {}
             }
