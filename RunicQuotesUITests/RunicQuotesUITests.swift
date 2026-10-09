@@ -144,7 +144,9 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         let create = app.buttons["quote_create_menu"]
         XCTAssertTrue(create.waitForExistence(timeout: 5))
         self.tapElement(create)
-        let newQuote = app.buttons["quote_create_new_action"]
+        let choices = app.sheets["Create quote"]
+        XCTAssertTrue(choices.waitForExistence(timeout: 5))
+        let newQuote = choices.buttons["New Quote"]
         XCTAssertTrue(newQuote.waitForExistence(timeout: 5))
         self.tapElement(newQuote)
         XCTAssertTrue(app.navigationBars["New Quote"].waitForExistence(timeout: 5))

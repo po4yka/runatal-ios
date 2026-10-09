@@ -109,7 +109,9 @@ class RunicQuotesUITestCase: XCTestCase {
         XCTAssertTrue(createMenu.waitForExistence(timeout: 5), "Create menu should exist")
         self.tapElement(createMenu)
 
-        let translateButton = app.buttons["quote_create_translate_action"]
+        let choices = app.sheets["Create quote"]
+        XCTAssertTrue(choices.waitForExistence(timeout: 5), "Create choices should be presented")
+        let translateButton = choices.buttons["Translate"]
         XCTAssertTrue(translateButton.waitForExistence(timeout: 5), "Translate menu action should exist")
         self.tapElement(translateButton)
     }
