@@ -31,19 +31,16 @@ struct QuoteScriptPickerView: View {
             contentPadding: DesignTokens.Spacing.md,
         ) {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
-                        SectionLabel(title: "Script", palette: self.palette)
-                        Text(self.selectedScript.displayName)
-                            .font(DesignTokens.Typography.pageTitle)
-                            .foregroundStyle(self.palette.textPrimary)
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: DesignTokens.Spacing.sm) {
+                        self.headerTitle.fixedSize(horizontal: true, vertical: false)
+                        Spacer(minLength: DesignTokens.Spacing.sm)
+                        self.widgetNote.fixedSize(horizontal: true, vertical: false)
                     }
-
-                    Spacer()
-
-                    Text("Widgets follow this alphabet")
-                        .font(DesignTokens.Typography.metadata)
-                        .foregroundStyle(self.palette.textTertiary)
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                        self.headerTitle
+                        self.widgetNote
+                    }
                 }
 
                 GlassScriptSelector(selectedScript: self.selection)
@@ -53,5 +50,22 @@ struct QuoteScriptPickerView: View {
                     .accessibilityIdentifier("quote_script_selector")
             }
         }
+    }
+
+    private var headerTitle: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xxs) {
+            SectionLabel(title: "Script", palette: self.palette)
+            Text(self.selectedScript.displayName)
+                .font(DesignTokens.Typography.pageTitle)
+                .foregroundStyle(self.palette.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var widgetNote: some View {
+        Text("Widgets follow this alphabet")
+            .font(DesignTokens.Typography.metadata)
+            .foregroundStyle(self.palette.textTertiary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }

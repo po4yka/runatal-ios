@@ -57,6 +57,11 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
         let app = self.requireApp()
         for script in ["YOUNGER_FUTHARK", "CIRTH", "ELDER_FUTHARK"] {
             self.selectHomeScript(in: app, script: script)
+            let widgetNote = app.staticTexts["Widgets follow this alphabet"]
+            XCTAssertTrue(widgetNote.exists)
+            XCTAssertGreaterThan(widgetNote.frame.width, 0)
+            XCTAssertGreaterThanOrEqual(widgetNote.frame.minX, app.frame.minX)
+            XCTAssertLessThanOrEqual(widgetNote.frame.maxX, app.frame.maxX)
             let attachment = XCTAttachment(screenshot: app.screenshot())
             attachment.name = "Home-\(script)-actual-registered-font"
             attachment.lifetime = .keepAlways
