@@ -117,8 +117,10 @@ enum RunicPresentationResolver {
         }
         let generated = RunicTransliterator.transliterate(input.textLatin, to: input.script)
         if !stored.isEmpty, input.savedMetadata != nil || stored != generated.glyphOutput {
+            let warnings = ["The original assessment of this saved output is unavailable."]
+                + (stored == generated.glyphOutput ? generated.warnings : [])
             return ResolvedRunicPresentation(
-                warnings: generated.warnings,
+                warnings: warnings,
                 text: stored,
                 source: .savedRunicText,
                 evidenceTier: nil,
