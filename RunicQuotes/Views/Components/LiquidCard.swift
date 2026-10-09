@@ -43,6 +43,7 @@ struct ContentPlate<Content: View>: View {
             .background {
                 RoundedRectangle(cornerRadius: self.cornerRadius, style: .continuous)
                     .fill(self.backgroundFill)
+                    .shadow(color: self.shadowRadius > 0 ? self.palette.shadowColor : .clear, radius: self.shadowRadius, x: 0, y: self.tone == .hero ? 12 : 6)
             }
             .overlay {
                 RoundedRectangle(cornerRadius: self.cornerRadius, style: .continuous)
@@ -59,7 +60,6 @@ struct ContentPlate<Content: View>: View {
                     )
                     .allowsHitTesting(false)
             }
-            .shadow(color: self.palette.shadowColor, radius: self.shadowRadius, x: 0, y: self.tone == .hero ? 12 : 6)
     }
 
     private var backgroundFill: some ShapeStyle {
@@ -138,12 +138,15 @@ struct LiquidCard<Content: View>: View {
         return self.content
             .padding(self.contentPadding)
             .background {
-                if policy.shouldUseGlass {
-                    Color.clear
-                        .glassEffect(policy.glass(using: self.palette, interactive: self.interactive), in: shape)
-                } else {
-                    shape.fill(policy.fillColor(using: self.palette))
+                Group {
+                    if policy.shouldUseGlass {
+                        Color.clear
+                            .glassEffect(policy.glass(using: self.palette, interactive: self.interactive), in: shape)
+                    } else {
+                        shape.fill(policy.fillColor(using: self.palette))
+                    }
                 }
+                .shadow(color: self.shadowRadius > 0 ? self.palette.shadowColor.opacity(policy.shouldUseGlass ? 0.8 : 0.45) : .clear, radius: self.shadowRadius, x: 0, y: 8)
             }
             .overlay {
                 shape
@@ -161,6 +164,5 @@ struct LiquidCard<Content: View>: View {
                     .opacity(policy.shouldUseGlass ? 1 : 0.45)
                     .allowsHitTesting(false)
             }
-            .shadow(color: self.palette.shadowColor.opacity(policy.shouldUseGlass ? 0.8 : 0.45), radius: self.shadowRadius, x: 0, y: 8)
     }
 }

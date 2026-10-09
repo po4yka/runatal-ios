@@ -88,7 +88,7 @@ private struct ScriptButton: View {
                     .fontWeight(.medium)
 
                 // Script name
-                Text(self.script.displayName)
+                Text(self.script == .cirth ? "Cirth" : self.script.displayName)
                     .font(DesignTokens.Typography.metadata)
                     .fontWeight(self.isSelected ? .semibold : .regular)
             }
