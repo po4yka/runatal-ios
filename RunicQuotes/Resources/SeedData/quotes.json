@@ -1,242 +1,282 @@
 [
   {
-    "textLatin": "Cattle die, kinsmen die, the self must also die. I know one thing which never dies: the reputation of each dead man.",
-    "author": "Hávamál, Stanza 77",
+    "id": "builtin-0001",
+    "textLatin": "Cattle die, and kinsmen die, And so one dies one’s self; One thing I know that never dies, The fame of a dead man’s deeds.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0001"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 78 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
+    "id": "builtin-0002",
     "textLatin": "Not all those who wander are lost.",
     "author": "J.R.R. Tolkien",
     "collection": "Tolkien",
-    "id": "builtin-0002"
+    "source": "The Fellowship of the Ring · Book I, chapter10, Strider; poem in Gandalf’s letter · In copyright; pre-existing excerpt retained; not a public-domain text\nhttps://files-backend.assets.thrillshare.com/documents/asset/uploaded_file/4010/Big_Horn_1/b83b3902-6b18-49c1-81dc-c5c65e44fe11/Fellowship_of_the_Ring.pdf?disposition=inline"
   },
   {
+    "id": "builtin-0003",
     "textLatin": "Even the smallest person can change the course of the future.",
-    "author": "Galadriel",
+    "author": "Galadriel (film character)",
     "collection": "Tolkien",
-    "id": "builtin-0003"
+    "source": "The Lord of the Rings:The Fellowship of the Ring (film, 2001) · Galadriel’s farewell advice; screenplay by Fran Walsh, Philippa Boyens, and Peter Jackson; screenplay page 147 · In copyright; pre-existing excerpt retained; not a public-domain text\nhttps://fliphtml5.com/kkjum/ekyu/LOTR_fellowship_screenplay/"
   },
   {
+    "id": "builtin-0004",
     "textLatin": "All we have to decide is what to do with the time that is given us.",
-    "author": "Gandalf",
+    "author": "J.R.R. Tolkien (Gandalf)",
     "collection": "Tolkien",
-    "id": "builtin-0004"
+    "source": "The Fellowship of the Ring · Book I, chapter2, The Shadow of the Past · In copyright; pre-existing excerpt retained; not a public-domain text\nhttps://files-backend.assets.thrillshare.com/documents/asset/uploaded_file/4010/Big_Horn_1/b83b3902-6b18-49c1-81dc-c5c65e44fe11/Fellowship_of_the_Ring.pdf?disposition=inline"
   },
   {
-    "textLatin": "The only way out is through.",
-    "author": "Robert Frost",
+    "id": "builtin-0005",
+    "textLatin": "Be not therefore ashamed, whensoever thou must use the help of others.",
+    "author": "Marcus Aurelius",
     "collection": "Motivation",
-    "id": "builtin-0005"
+    "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section V · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
   },
   {
+    "id": "builtin-0006",
     "textLatin": "Fortune favors the bold.",
     "author": "Virgil",
     "collection": "Stoic",
-    "id": "builtin-0006"
+    "source": "Aeneid · Book10, line284; audentis fortuna iuvat · Public-domain original Latin; existing short English rendering\nhttps://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.04.0059%3Aentry%3Dfortis"
   },
   {
-    "textLatin": "Better to fight and fall than to live without hope.",
-    "author": "Völsunga Saga",
+    "id": "builtin-0007",
+    "textLatin": "The lives of the brave and noble are best, Sorrows they seldom feed; But the coward fear of all things feels, And not gladly the niggard gives.",
+    "author": "Hávamál",
     "collection": "Motivation",
-    "id": "builtin-0007"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 48 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "A guest should be courteous when he comes to the table and sit in wary silence.",
-    "author": "Hávamál, Stanza 5",
+    "id": "builtin-0008",
+    "textLatin": "The knowing guest who goes to the feast, In silent attention sits; With his ears he hears, with his eyes he watches, Thus wary are wise men all.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0008"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 7 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "Brave men can make their own luck.",
-    "author": "Norse Proverb",
+    "id": "builtin-0009",
+    "textLatin": "A measure of wisdom each man shall have, But never too much let him know; The fairest lives do those men live Whose wisdom wide has grown.",
+    "author": "Hávamál",
     "collection": "Motivation",
-    "id": "builtin-0009"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 54 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "Where words fail, swords prevail.",
-    "author": "Viking Saying",
+    "id": "builtin-0010",
+    "textLatin": "Often he speaks who never is still With words that win no faith; The babbling tongue, if a bridle it find not, Oft for itself sings ill.",
+    "author": "Hávamál",
     "collection": "Motivation",
-    "id": "builtin-0010"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 29 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "The foolish man thinks he will live forever if he keeps away from fighting, but old age gives him no peace even if weapons do.",
-    "author": "Hávamál, Stanza 16",
+    "id": "builtin-0011",
+    "textLatin": "The sluggard believes he shall live forever, If the fight he faces not; But age shall not grant him the gift of peace, Though spears may spare his life.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0011"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 16 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "It is better to stand and fight. If you run, you will only die tired.",
-    "author": "Viking Proverb",
+    "id": "builtin-0012",
+    "textLatin": "The son of a king shall be silent and wise, And bold in battle as well; Bravely and gladly a man shall go, Till the day of his death is come.",
+    "author": "Hávamál",
     "collection": "Motivation",
-    "id": "builtin-0012"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 15 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "Courage is the best defense.",
-    "author": "Norse Wisdom",
+    "id": "builtin-0013",
+    "textLatin": "Better is heart than a mighty blade For him who shall fiercely fight;",
+    "author": "Fáfnismál",
     "collection": "Motivation",
-    "id": "builtin-0013"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Fáfnismál, Bellows-edition stanza 28 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg2.8.28"
   },
   {
-    "textLatin": "The wolf on the hill is not as hungry as the wolf climbing the hill.",
-    "author": "Arnold Schwarzenegger",
+    "id": "builtin-0014",
+    "textLatin": "On the hillside drear the fir-tree dies, All bootless its needles and bark; It is like a man whom no one loves,— Why should his life be long?",
+    "author": "Hávamál",
     "collection": "Motivation",
-    "id": "builtin-0014"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 50 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "Fear not death, for the hour of your doom is set and none may escape it.",
-    "author": "Völsunga Saga",
+    "id": "builtin-0015",
+    "textLatin": "Cattle die, and kinsmen die, And so one dies one’s self; But a noble name will never die, If good renown one gets.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0015"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 77 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
+    "id": "builtin-0016",
     "textLatin": "A word to the wise is enough.",
     "author": "Plautus",
     "collection": "Stoic",
-    "id": "builtin-0016"
+    "source": "Persa · Line729(ActIV, scene7); dictum sapienti sat est · Public-domain original Latin; existing short English rendering\nhttps://wwww.thelatinlibrary.com/plautus/persa.shtml"
   },
   {
+    "id": "builtin-0017",
     "textLatin": "The road goes ever on and on.",
-    "author": "Bilbo Baggins",
+    "author": "J.R.R. Tolkien (Bilbo’s song)",
     "collection": "Tolkien",
-    "id": "builtin-0017"
+    "source": "The Fellowship of the Ring · Book I, chapter3, Three Is Company; Frodo recalls Bilbo’s rhyming · In copyright; pre-existing excerpt retained; not a public-domain text\nhttps://files-backend.assets.thrillshare.com/documents/asset/uploaded_file/4010/Big_Horn_1/b83b3902-6b18-49c1-81dc-c5c65e44fe11/Fellowship_of_the_Ring.pdf?disposition=inline"
   },
   {
+    "id": "builtin-0018",
     "textLatin": "Deeds will not be less valiant because they are unpraised.",
-    "author": "Aragorn",
+    "author": "J.R.R. Tolkien (Aragorn)",
     "collection": "Tolkien",
-    "id": "builtin-0018"
+    "source": "The Return of the King · Book V, chapter2, The Passing of the Grey Company · In copyright; pre-existing excerpt retained; not a public-domain text\nhttps://cdnc.heyzine.com/files/uploaded/v2/7a7546403ef58ef5dc5b5969abbf694aaec75110.pdf"
   },
   {
+    "id": "builtin-0019",
     "textLatin": "There is some good in this world, and it is worth fighting for.",
-    "author": "Samwise Gamgee",
+    "author": "Samwise Gamgee (film character)",
     "collection": "Tolkien",
-    "id": "builtin-0019"
+    "source": "The Lord of the Rings:The Two Towers (film, 2002) · Sam’s speech at Osgiliath; screenplay by Fran Walsh, Philippa Boyens, Peter Jackson, and Stephen Sinclair · In copyright; pre-existing excerpt retained; not a public-domain text\nhttps://content.time.com/time/subscriber/article/0,33009,1003828-3,00.html"
   },
   {
+    "id": "builtin-0020",
     "textLatin": "I would rather share one lifetime with you than face all the ages of this world alone.",
-    "author": "Arwen",
+    "author": "Arwen (film character)",
     "collection": "Tolkien",
-    "id": "builtin-0020"
+    "source": "The Lord of the Rings:The Fellowship of the Ring (film, 2001) · Arwen and Aragorn at Rivendell; screenplay by Fran Walsh, Philippa Boyens, and Peter Jackson; screenplay page 95 · In copyright; pre-existing excerpt retained; not a public-domain text\nhttps://fliphtml5.com/kkjum/ekyu/LOTR_fellowship_screenplay/"
   },
   {
-    "textLatin": "A man should be loyal through life to friends.",
-    "author": "Hávamál, Stanza 43",
+    "id": "builtin-0021",
+    "textLatin": "To his friend a man a friend shall prove, To him and the friend of his friend; But never a man shall friendship make With one of his foeman’s friends.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0021"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 43 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "It is better to live well than to live long.",
-    "author": "Norse Proverb",
+    "id": "builtin-0022",
+    "textLatin": "It is better to live than to lie a corpse, The live man catches the cow; I saw flames rise for the rich man’s pyre, And before his door he lay dead.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0022"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 70 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.70"
   },
   {
-    "textLatin": "Wisdom is welcome wherever it comes from.",
-    "author": "Old English Proverb",
+    "id": "builtin-0023",
+    "textLatin": "A better burden may no man bear For wanderings wide than wisdom; It is better than wealth on unknown ways, And in grief a refuge it gives.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0023"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 10 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "Do not speak harsh words to a guest.",
-    "author": "Hávamál, Stanza 127",
+    "id": "builtin-0024",
+    "textLatin": "I rede thee, Loddfafnir! and hear thou my rede,— Profit thou hast if thou hearest, Great thy gain if thou learnest: Curse not thy guest, nor show him thy gate, Deal well with a man in want.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0024"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 135 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
+    "id": "builtin-0025",
     "textLatin": "The brave man well shall fight and win, though dull his blade may be.",
-    "author": "Fáfnismál, Stanza 28",
+    "author": "Fáfnismál",
     "collection": "Motivation",
-    "id": "builtin-0025"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Fáfnismál, Bellows-edition stanza 28 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg2.8.28"
   },
   {
-    "textLatin": "Never walk away from home ahead of your axe and sword.",
-    "author": "Hávamál, Stanza 38",
+    "id": "builtin-0026",
+    "textLatin": "Away from his arms in the open field A man should fare not a foot; For never he knows when the need for a spear Shall arise on the distant road.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0026"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 38 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "Evil is wrought from want of thought.",
-    "author": "Old Norse Saying",
+    "id": "builtin-0027",
+    "textLatin": "Evil is wrought by want of thought, as well as want of heart.",
+    "author": "Thomas Hood",
     "collection": "Stoic",
-    "id": "builtin-0027"
+    "source": "The Lady’s Dream · Poetical works, The Lady’s Dream, penultimate speech stanza · Public-domain poem\nhttps://upload.wikimedia.org/wikipedia/commons/6/64/The_poetical_works_of_Thomas_Hood_..._Two_volumes_in_one_%28IA_poeticalworksoft02hood%29.pdf"
   },
   {
-    "textLatin": "Give praise to the day at evening, to your wife when she is dead, to a weapon when tried, to ice when crossed.",
-    "author": "Hávamál, Stanza 81",
+    "id": "builtin-0028",
+    "textLatin": "Give praise to the day at evening, to a woman on her pyre, To a weapon which is tried, to a maid at wedlock, To ice when it is crossed, to ale that is drunk.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0028"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 81 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.81"
   },
   {
-    "textLatin": "Oaths should be kept.",
-    "author": "Norse Value",
+    "id": "builtin-0029",
+    "textLatin": "Mingled is love when a man can speak To another all his thought; Nought is so bad as false to be, No friend speaks only fair.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0029"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 124 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "A man's own hand is most to be trusted.",
-    "author": "Hávamál, Stanza 60",
+    "id": "builtin-0030",
+    "textLatin": "No great thing needs a man to give, Oft little will purchase praise; With half a loaf and a half-filled cup A friend full fast I made.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0030"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 52 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "Dawn takes you by surprise.",
-    "author": "Irish Proverb",
+    "id": "builtin-0031",
+    "textLatin": "He must early go forth who fain the blood Or the goods of another would get; The wolf that lies idle shall win little meat, Or the sleeping man success.",
+    "author": "Hávamál",
     "collection": "Motivation",
-    "id": "builtin-0031"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 58 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "Who seeks shall find.",
-    "author": "Sophocles",
+    "id": "builtin-0032",
+    "textLatin": "Look within; within is the fountain of all good.",
+    "author": "Marcus Aurelius",
     "collection": "Stoic",
-    "id": "builtin-0032"
+    "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 7, section XXXI · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
   },
   {
-    "textLatin": "Speak your mind but ride a fast horse.",
-    "author": "Western Proverb",
+    "id": "builtin-0033",
+    "textLatin": "Wise shall he seem who well can question, And also answer well; Nought is concealed that men may say Among the sons of men.",
+    "author": "Hávamál",
     "collection": "Motivation",
-    "id": "builtin-0033"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 28 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
+    "id": "builtin-0034",
     "textLatin": "A word fitly spoken is like apples of gold.",
-    "author": "Proverbs 25:11",
+    "author": "Proverbs",
     "collection": "Stoic",
-    "id": "builtin-0034"
+    "source": "The Bible, King James Version · Proverbs25:11, first clause · Existing KJV excerpt; source labels public domain\nhttps://www.biblegateway.com/passage/?search=Proverbs%2025%3A11&version=KJV"
   },
   {
-    "textLatin": "Fire warms, but it also burns.",
-    "author": "Old Wisdom",
+    "id": "builtin-0035",
+    "textLatin": "A brand from a brand is kindled and burned, And fire from fire begotten; And man by his speech is known to men, And the stupid by their stillness.",
+    "author": "Hávamál",
     "collection": "Stoic",
-    "id": "builtin-0035"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 57 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#ch1.2"
   },
   {
-    "textLatin": "One must learn by doing the thing, for though you think you know it, you have no certainty until you try.",
-    "author": "Sophocles",
+    "id": "builtin-0036",
+    "textLatin": "And againe, because the way of precepts is long, where that of example is more short, and far more fruitful.",
+    "author": "Seneca",
     "collection": "Stoic",
-    "id": "builtin-0036"
+    "source": "Epistles to Lucilius · Thomas Lodge, 1614 · Letter 6 · Public-domain text; EEBO-TCP PhaseI transcription CC0-1.0\nhttps://raw.githubusercontent.com/textcreationpartnership/A11899/master/A11899.xml"
   },
   {
-    "textLatin": "Better a free death than a slavish life.",
-    "author": "Grettir's Saga",
+    "id": "builtin-0037",
+    "textLatin": "Among Fitjung’s sons saw I well-stocked folds,— Now bear they the beggar’s staff; Wealth is as swift as a winking eye, Of friends the falsest it is.",
+    "author": "Hávamál",
     "collection": "Motivation",
-    "id": "builtin-0037"
+    "source": "The Poetic Edda · Henry Adams Bellows, 1923 · Hávamál, Bellows-edition stanza 76 · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/files/73533/73533-h/73533-h.htm#lg1.2.76"
   },
   {
+    "id": "builtin-0038",
     "textLatin": "Let your plans be dark and impenetrable as night.",
     "author": "Sun Tzu",
     "collection": "Stoic",
-    "id": "builtin-0038"
+    "source": "The Art of War · ChapterVII, Maneuvering, paragraph36; first clause · Existing translation excerpt; no new text added\nhttps://classics.mit.edu/Tzu/artwar.html"
   },
   {
+    "id": "builtin-0039",
     "textLatin": "Age shall not weary them, nor the years condemn.",
     "author": "Laurence Binyon",
     "collection": "Motivation",
-    "id": "builtin-0039"
+    "source": "For the Fallen · Stanza4, line2; published1914 · Public-domain poem\nhttps://www.poetryfoundation.org/poems/57322/for-the-fallen"
   },
   {
-    "textLatin": "What we do in life echoes in eternity.",
+    "id": "builtin-0040",
+    "textLatin": "The best kind of revenge is, not to become like unto them.",
     "author": "Marcus Aurelius",
     "collection": "Stoic",
-    "id": "builtin-0040"
+    "source": "Meditations · Meric Casaubon, 1634/1635; ProjectGutenberg2680 transcription · Book 6, section V · Public-domain text; Project Gutenberg transcription\nhttps://www.gutenberg.org/cache/epub/2680/pg2680.txt"
   }
 ]

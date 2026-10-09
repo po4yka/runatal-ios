@@ -194,6 +194,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
             for quote in quotes {
                 LegacyCirthEncodingMigration.upgrade(quote)
             }
+            try QuoteCatalogUpgrade.stage(entries: catalog, quotes: quotes, in: context)
             for preference in preferences {
                 preference.catalogIdentityVersion = "v1"
             }
