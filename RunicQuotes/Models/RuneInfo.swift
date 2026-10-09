@@ -33,7 +33,7 @@ struct RuneInfo: Identifiable {
         RuneInfo(id: "elder-jera", glyph: "\u{16C3}", name: "Jera", meaning: "Year", sound: "j", script: .elder),
         RuneInfo(id: "elder-eihwaz", glyph: "\u{16C7}", name: "Eihwaz", meaning: "Yew", sound: "ï (uncertain)", script: .elder),
         RuneInfo(id: "elder-perthro", glyph: "\u{16C8}", name: "Perthro", meaning: "Uncertain", sound: "p", script: .elder),
-        RuneInfo(id: "elder-algiz", glyph: "\u{16C9}", name: "Algiz", meaning: "Elk", sound: "z", script: .elder),
+        RuneInfo(id: "elder-algiz", glyph: "\u{16C9}", name: "Algiz", meaning: "Uncertain (traditionally associated with elk)", sound: "z", script: .elder),
         RuneInfo(id: "elder-sowilo", glyph: "\u{16CA}", name: "Sowilo", meaning: "Sun", sound: "s", script: .elder),
         RuneInfo(id: "elder-tiwaz", glyph: "\u{16CF}", name: "Tiwaz", meaning: "Tyr", sound: "t", script: .elder),
         RuneInfo(id: "elder-berkano", glyph: "\u{16D2}", name: "Berkano", meaning: "Birch", sound: "b", script: .elder),
