@@ -176,6 +176,56 @@ final class StrictTranslationDatasetTests: XCTestCase {
         }
     }
 
+    func testGovernedPrepositionLeavesRequireKnownSourceAndNonemptyCitation() throws {
+        let directory = try self.copyDataset()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appendingPathComponent("grammar_rules.json")
+        let original = try Data(contentsOf: url)
+        for malformedSource in [true, false] {
+            let document = try XCTUnwrap(JSONSerialization.jsonObject(with: original, options: [.mutableContainers]) as? NSMutableDictionary)
+            let rules = try XCTUnwrap(document["governedPrepositions"] as? NSMutableDictionary)
+            let rule = try XCTUnwrap(rules.allValues.first as? NSMutableDictionary)
+            if malformedSource {
+                rule["sourceId"] = "unknown_authority"
+            } else {
+                rule["citations"] = ["  "]
+            }
+            try JSONSerialization.data(withJSONObject: document).write(to: url)
+            XCTAssertThrowsError(try AssetTranslationDatasetProvider(resourceDirectory: directory))
+        }
+    }
+
+    func testYoungerGoldAndBenchmarkVariantsAreValidatedWithoutApplyingThemToCirth() throws {
+        let directory = try self.copyDataset()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let goldURL = directory.appendingPathComponent("gold_examples.json")
+        let goldOriginal = try Data(contentsOf: goldURL)
+        let gold = try XCTUnwrap(JSONSerialization.jsonObject(with: goldOriginal, options: [.mutableContainers]) as? NSMutableArray)
+        let example = try XCTUnwrap(gold.firstObject as? NSMutableDictionary)
+        let results = try XCTUnwrap(example["results"] as? NSMutableArray)
+        let younger = try XCTUnwrap(results.firstObject as? NSMutableDictionary)
+        younger["requestedVariant"] = "MISSPELLED_VARIANT"
+        try JSONSerialization.data(withJSONObject: gold).write(to: goldURL)
+        XCTAssertThrowsError(try AssetTranslationDatasetProvider(resourceDirectory: directory))
+        try goldOriginal.write(to: goldURL)
+        let corpusURL = directory.appendingPathComponent("gold_corpus.json")
+        let corpusOriginal = try Data(contentsOf: corpusURL)
+        let corpus = try XCTUnwrap(JSONSerialization.jsonObject(with: corpusOriginal, options: [.mutableContainers]) as? NSMutableDictionary)
+        let benchmarks = try XCTUnwrap(corpus["benchmarks"] as? NSMutableArray)
+        let benchmark = try XCTUnwrap(benchmarks.firstObject as? NSMutableDictionary)
+        let expectations = try XCTUnwrap(benchmark["expectations"] as? NSMutableArray)
+        let expectation = try XCTUnwrap(expectations.firstObject as? NSMutableDictionary)
+        expectation["requestedVariant"] = "MISSPELLED_VARIANT"
+        try JSONSerialization.data(withJSONObject: corpus).write(to: corpusURL)
+        XCTAssertThrowsError(try AssetTranslationDatasetProvider(resourceDirectory: directory))
+        try corpusOriginal.write(to: corpusURL)
+        let cirth = try XCTUnwrap(results.lastObject as? NSMutableDictionary)
+        younger["requestedVariant"] = "LONG_BRANCH"
+        cirth["requestedVariant"] = "CIRTH_MODE"
+        try JSONSerialization.data(withJSONObject: gold).write(to: goldURL)
+        _ = try AssetTranslationDatasetProvider(resourceDirectory: directory)
+    }
+
     private func copyDataset() throws -> URL {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

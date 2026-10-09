@@ -39,6 +39,14 @@ extension KeyedDecodingContainer {
         return raw
     }
 
+    func decodeRequestedVariant(forKey key: Key, script: String) throws -> String? {
+        let raw = try self.decodeIfPresent(String.self, forKey: key)
+        if script == RunicScript.younger.translationScriptName, let raw, YoungerFutharkVariant(rawValue: raw) == nil {
+            throw DecodingError.dataCorruptedError(forKey: key, in: self, debugDescription: "Unknown Younger Futhark variant")
+        }
+        return raw
+    }
+
     func decodeConfidence(forKey key: Key) throws -> Double {
         let confidence = try self.decode(Double.self, forKey: key)
         guard confidence.isFinite, (0 ... 1).contains(confidence) else {

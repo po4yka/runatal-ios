@@ -133,6 +133,13 @@ extension AssetTranslationDatasetProvider {
                 throw TranslationDatasetError.invalidMetadata("Rule inventory lacks source metadata")
             }
         }
+        for rule in self.grammarRules().governedPrepositions.values {
+            guard sourceIDs.contains(rule.sourceID), !rule.citations.isEmpty,
+                  rule.citations.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
+            else {
+                throw TranslationDatasetError.invalidMetadata("Governed preposition lacks a known source and citations")
+            }
+        }
         for phrase in self.ereborTables().phraseMappings {
             try self.requireReferences(phrase.referenceIDs, known: referenceIDs)
         }
