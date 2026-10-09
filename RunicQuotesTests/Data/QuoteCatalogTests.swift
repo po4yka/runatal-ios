@@ -10,6 +10,7 @@ import Foundation
 import SwiftData
 import Testing
 
+@MainActor
 @Suite(.serialized, .tags(.repository))
 struct QuoteCatalogTests {
     @Test

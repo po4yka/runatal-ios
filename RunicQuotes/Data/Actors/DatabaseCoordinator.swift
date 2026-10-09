@@ -15,7 +15,7 @@ protocol DatabaseQuoteRepository: Sendable {
 }
 
 protocol DatabaseTranslationRepository: Sendable {
-    func backfillAllQuotes() throws
+    func backfillAllQuotes() async throws
 }
 
 extension SwiftDataQuoteRepository: DatabaseQuoteRepository {}
@@ -123,7 +123,7 @@ actor DatabaseCoordinator {
         let task = Task(priority: .utility) {
             do {
                 let repository = self.translationRepositoryFactory(self.modelContext, self.translationService)
-                try repository.backfillAllQuotes()
+                try await repository.backfillAllQuotes()
                 Self.logger.info("Translation backfill completed successfully")
             } catch {
                 self.modelContext.rollback()

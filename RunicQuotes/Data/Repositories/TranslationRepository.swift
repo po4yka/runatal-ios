@@ -14,7 +14,7 @@ protocol TranslationRepository: Sendable {
     func cache(result: TranslationResult, for quoteID: UUID, sourceText: String) throws
     func cache(results: [TranslationResult], for quoteID: UUID, sourceText: String) throws
     func deleteTranslations(for quoteID: UUID) throws
-    func backfillAllQuotes() throws
+    func backfillAllQuotes() async throws
 }
 
 final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Sendable {
@@ -171,71 +171,10 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         }
     }
 
-    func backfillAllQuotes() throws {
-        let modelContext = self.makeContext()
-        self.translationService.warmUp()
-
-        let state = try fetchOrCreateBackfillState(in: modelContext)
-        let versionSignature = self.translationService.versionSignature
-        let datasetVersion = self.translationService.datasetVersion
-        let signature = "\(versionSignature)|\(datasetVersion)"
-        let descriptor = FetchDescriptor<Quote>(sortBy: [SortDescriptor(\.createdAt)])
-        let quotes = try modelContext.fetch(descriptor).filter { !$0.isSoftDeleted }
-        let pending = quotes.filter {
-            $0.translationBackfillSignature != signature || $0.translationBackfillSourceText != $0.textLatin
-        }
-        if pending.isEmpty && state.isCompleted && state.engineVersion == versionSignature && state.datasetVersion == datasetVersion {
-            return
-        }
-
-        state.engineVersion = versionSignature
-        state.datasetVersion = datasetVersion
-        state.processedCount = 0
-        state.startedAt = Date()
-        state.updatedAt = Date()
-        state.completedAt = nil
-        state.isCompleted = false
-        try modelContext.save()
-
-        for quote in pending {
-            let elder = self.translationService.translate(
-                text: quote.textLatin,
-                script: .elder,
-                fidelity: .strict,
-            )
-            let younger = self.translationService.translate(
-                text: quote.textLatin,
-                script: .younger,
-                fidelity: .strict,
-                youngerVariant: .longBranch,
-            )
-            try self.cache(results: [elder, younger], for: quote.id, sourceText: quote.textLatin)
-            quote.translationBackfillSignature = signature
-            quote.translationBackfillSourceText = quote.textLatin
-            state.updatedAt = Date()
-        }
-
-        state.processedCount = quotes.count
-        state.isCompleted = true
-        state.completedAt = Date()
-        state.updatedAt = Date()
-        try modelContext.save()
-        NotificationCenter.default.post(name: .translationCacheUpdated, object: nil)
+    func backfillAllQuotes() async throws {
+        try await TranslationBackfillWorker(modelContainer: self.modelContainer, translationService: self.translationService).run()
     }
 
-    private func fetchOrCreateBackfillState(in modelContext: ModelContext) throws -> TranslationBackfillState {
-        var descriptor = FetchDescriptor<TranslationBackfillState>(
-            predicate: #Predicate { $0.key == "translation-backfill-state" },
-        )
-        descriptor.fetchLimit = 1
-        if let state = try modelContext.fetch(descriptor).first {
-            return state
-        }
-        let state = TranslationBackfillState()
-        modelContext.insert(state)
-        try modelContext.save()
-        return state
-    }
 }
 
 enum TranslationCacheError: Error {

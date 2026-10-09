@@ -214,23 +214,24 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     func quoteOfTheDay(for script: RunicScript) throws -> QuoteRecord {
         let context = self.makeContext()
-        let quotes = try self.fetchVisibleQuotes(in: context)
-        guard !quotes.isEmpty else { throw QuoteRepositoryError.noQuotesAvailable }
-        let quote = quotes[AppConstants.dailyQuoteIndex(totalQuotes: quotes.count)]
+        let count = try QuoteQueries.count(in: context)
+        guard count > 0 else { throw QuoteRepositoryError.noQuotesAvailable }
+        let quote = try QuoteQueries.quote(at: AppConstants.dailyQuoteIndex(totalQuotes: count), in: context)
         try self.ensureTransliteration(for: quote, script: script, in: context)
         return QuoteRecord(from: quote)
     }
 
     func randomQuote(for script: RunicScript) throws -> QuoteRecord {
         let context = self.makeContext()
-        let quotes = try self.fetchVisibleQuotes(in: context)
-        guard let quote = quotes.randomElement() else { throw QuoteRepositoryError.noQuotesAvailable }
+        let count = try QuoteQueries.count(in: context)
+        guard count > 0 else { throw QuoteRepositoryError.noQuotesAvailable }
+        let quote = try QuoteQueries.quote(at: Int.random(in: 0 ..< count), in: context)
         try self.ensureTransliteration(for: quote, script: script, in: context)
         return QuoteRecord(from: quote)
     }
 
     func allQuotes() throws -> [QuoteRecord] {
-        try self.fetchVisibleQuotes(in: self.makeContext()).map(QuoteRecord.init(from:))
+        try QuoteQueries.visible(in: self.makeContext()).map(QuoteRecord.init(from:))
     }
 
     func quote(id: UUID) throws -> QuoteRecord? {
@@ -380,14 +381,6 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
     private func notifyTranslationChange(for id: UUID) {
         NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": id])
-    }
-
-    private func fetchVisibleQuotes(in context: ModelContext) throws -> [Quote] {
-        let descriptor = FetchDescriptor<Quote>(
-            predicate: #Predicate { !$0.isHidden && !$0.isSoftDeleted },
-            sortBy: [SortDescriptor(\.createdAt)],
-        )
-        return try context.fetch(descriptor)
     }
 
     private func fetchQuote(id: UUID, in context: ModelContext) throws -> Quote? {

@@ -114,7 +114,7 @@ final class TestTranslationRepository: TranslationRepository, @unchecked Sendabl
         }
     }
 
-    func backfillAllQuotes() throws {
+    func backfillAllQuotes() async throws {
         if let backfillError {
             throw backfillError
         }

@@ -10,6 +10,7 @@ import Foundation
 import SwiftData
 import Testing
 
+@MainActor
 @Suite(.serialized, .tags(.repository))
 struct TranslationCacheFreshnessTests {
     @Test
@@ -39,7 +40,7 @@ struct TranslationCacheFreshnessTests {
     }
 
     @Test
-    func currentUnavailableResultSupersedesObsoleteSupportWithoutOverwritingSavedArtifact() throws {
+    func currentUnavailableResultSupersedesObsoleteSupportWithoutOverwritingSavedArtifact() async throws {
         let context = try TestSupport.makeModelContext()
         let quotes = SwiftDataQuoteRepository(modelContext: context)
         let text = "волк ночью"
@@ -49,7 +50,7 @@ struct TranslationCacheFreshnessTests {
             storedRunic: RunicTextBundle(elder: nil, younger: "USER-SAVED-EXACT", cirth: nil), translations: [old],
         )
         let translations = SwiftDataTranslationRepository(modelContext: context)
-        try translations.backfillAllQuotes()
+        try await translations.backfillAllQuotes()
         let latest = try #require(translations.latestTranslation(for: quote.id, script: .younger))
         #expect(latest.resolutionStatus == .unavailable)
         #expect(!latest.isAvailable)

@@ -42,7 +42,7 @@ actor TranslationProvider {
         try self.repository.deleteTranslations(for: quoteID)
     }
 
-    func backfillAllQuotes() throws {
-        try self.repository.backfillAllQuotes()
+    func backfillAllQuotes() async throws {
+        try await self.repository.backfillAllQuotes()
     }
 }

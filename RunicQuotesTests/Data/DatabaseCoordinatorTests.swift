@@ -334,7 +334,7 @@ private final class DatabaseTranslationRepositorySpy: DatabaseTranslationReposit
         self.lock.unlock()
     }
 
-    func backfillAllQuotes() throws {
+    func backfillAllQuotes() async throws {
         self.lock.lock()
         self.backfillCallCount += 1
         let context = self.ownedContext
