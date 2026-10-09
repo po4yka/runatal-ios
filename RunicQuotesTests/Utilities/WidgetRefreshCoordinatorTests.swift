@@ -13,6 +13,23 @@ import Testing
 @Suite(.serialized, .tags(.utility))
 struct WidgetRefreshCoordinatorTests {
     @Test
+    func continuousSuccessfulStoreWritesCannotStarveTimelineInvalidation() async throws {
+        let context = try TestSupport.makeModelContext()
+        let repository = SwiftDataUserPreferencesRepository(modelContext: context)
+        let reloader = WidgetReloaderSpy()
+        let coordinator = WidgetRefreshCoordinator(reloader: reloader)
+        for index in 0 ..< 24 {
+            try repository.apply([.decorativeGlyphs(index.isMultiple(of: 2))])
+            try await Task.sleep(for: .milliseconds(20))
+            if index == 8 {
+                #expect(reloader.count >= 1)
+            }
+        }
+        #expect(await TestSupport.eventually { reloader.count > 1 })
+        withExtendedLifetime(coordinator) {}
+    }
+
+    @Test
     func successfulRealPreferenceAndLibraryWritesReloadWidgetTimeline() async throws {
         let context = try TestSupport.makeModelContext()
         let reloader = WidgetReloaderSpy()

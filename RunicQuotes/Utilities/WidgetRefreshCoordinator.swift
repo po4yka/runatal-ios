@@ -31,7 +31,7 @@ final class WidgetRefreshCoordinator {
         self.reloader = reloader
         notifications.publisher(for: .preferencesDidChange)
             .merge(with: notifications.publisher(for: .libraryDidChange))
-            .debounce(for: .milliseconds(150), scheduler: RunLoop.main)
+            .throttle(for: .milliseconds(150), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] _ in
                 Task { @MainActor [weak self] in self?.reloader.reloadQuotes() }
             }
