@@ -126,6 +126,8 @@ Quote and share surfaces can prefer cached structured translations when availabl
 
 `STRICT` uses explicitly eligible inventories and cited lexical forms. Missing lexical support or an ineligible unverified formula returns `UNAVAILABLE`. A lexical gloss for unsupported sentence grammar may remain visible, but it is labeled partial/approximate with warnings and does not claim supported complete translation.
 
+Strict generated glyph output and every glyph trace also pass a service-boundary inventory check: Elder 24 graphs, the selected Younger 16-graph variant, or the licensed Cirth CSUR core. Only declared literal source numbers/symbols can accompany these graphs. A valid JSON record with a bad lemma or Latin gold glyph yields a typed unavailable result, never visible strict output.
+
 Strict results require provenance. `attestedOnly` additionally requires a complete attested phrase at the final service boundary; capitalized names, lexical composition, and readable fallbacks cannot bypass this cap. Confidence is a deterministic support heuristic, not a calibrated scholarly probability.
 
 `READABLE` and `DECORATIVE` may use curated paraphrase or phonological-preservation fallbacks, but those results must be marked as approximations.

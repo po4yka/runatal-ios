@@ -158,6 +158,7 @@
 		6FBA537C07FD9903C884C206 /* NotoSansRunic-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 32D3BA9B28CF8FB640C23F9F /* NotoSansRunic-Regular.ttf */; };
 		6FC7835955CE07ADF69A1FD0 /* ScreenScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA495FBD552E239690AAE1B /* ScreenScaffold.swift */; };
 		708E2282EE3EB38594BE7D4B /* TranslationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDF889421625DED6C4D079F /* TranslationProvider.swift */; };
+		71D017DA402FAAE26D6D1D5C /* HistoricalGlyphInventory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B5530EEC3C2846644B5287 /* HistoricalGlyphInventory.swift */; };
 		71D15CA19762A6F0A92998BD /* gold_corpus.json in Resources */ = {isa = PBXBuildFile; fileRef = 3F2281E0B7AF872C12BF47D6 /* gold_corpus.json */; };
 		71E10173CBB7BC2C3B7D379E /* RunicTipViewStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 564AEFC9FA3505F84ED738E7 /* RunicTipViewStyle.swift */; };
 		730EB1B3FCAC91086FB7CE28 /* RunicQuotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBEFFAC55FDA3C9150DBDF3 /* RunicQuotesApp.swift */; };
@@ -295,6 +296,7 @@
 		D444A1E35CBE2987E8288664 /* SettingsTypographySectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E61E0F369C75C40DB778C1 /* SettingsTypographySectionView.swift */; };
 		D4F0291867195E0A728E80D3 /* old_norse_lexicon.json in Resources */ = {isa = PBXBuildFile; fileRef = E51CC4F3CCD165695EB7E483 /* old_norse_lexicon.json */; };
 		D6049C13D90F761F115C96D8 /* CreateEditQuoteFeatureComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D03EF7D4EABE0B70AC7828 /* CreateEditQuoteFeatureComponent.swift */; };
+		D633B8263716DCE8FC2129E5 /* HistoricalGlyphInventory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B5530EEC3C2846644B5287 /* HistoricalGlyphInventory.swift */; };
 		D764DE51930A043E392F8A39 /* source_manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 051D10FB26786E9F8A6E5096 /* source_manifest.json */; };
 		D7AC853C8FB1F72E2A5D1C57 /* erebor_tables.json in Resources */ = {isa = PBXBuildFile; fileRef = FB402CDE6A9D2B1D79EAAD49 /* erebor_tables.json */; };
 		D7BCFAE31F052C09CC9A2ACE /* TranslationModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821A5A79BDA7AC1DBE2FEA4D /* TranslationModelTests.swift */; };
@@ -498,6 +500,7 @@
 		6E33E8BF19601454BA34EB60 /* TranslationDataset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationDataset.swift; sourceTree = "<group>"; };
 		6ED7FE45AAA9DE2FFD47BFB1 /* SavedQuotesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedQuotesViewModel.swift; sourceTree = "<group>"; };
 		729406B9BE8B742600821A96 /* legacy-quotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "legacy-quotes.json"; sourceTree = "<group>"; };
+		72B5530EEC3C2846644B5287 /* HistoricalGlyphInventory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalGlyphInventory.swift; sourceTree = "<group>"; };
 		7340ECEBC0AE69020E0C1F6B /* QuoteListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteListRow.swift; sourceTree = "<group>"; };
 		735E032A4D79140DE918EB09 /* HistoricalTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalTranslationService.swift; sourceTree = "<group>"; };
 		76975A20EA9C6F2539425F1F /* FeatureDiscoveryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureDiscoveryController.swift; sourceTree = "<group>"; };
@@ -1224,6 +1227,7 @@
 			isa = PBXGroup;
 			children = (
 				440CEEC8BF8D447EDB2E29DE /* AssetTranslationDatasetProvider.swift */,
+				72B5530EEC3C2846644B5287 /* HistoricalGlyphInventory.swift */,
 				735E032A4D79140DE918EB09 /* HistoricalTranslationService.swift */,
 				878AC839321EC4AABC6FE407 /* OldNorseSentenceGrammar.swift */,
 				F06533559E0AC832927BEDC9 /* TranslationAssetMetadata.swift */,
@@ -1604,6 +1608,7 @@
 				2559DBF5E8351F90F2AE81DC /* GlassScriptSelector.swift in Sources */,
 				1C088E7AC2C15936D79C820C /* Haptics.swift in Sources */,
 				CC551994D2EB77FB43FB5E61 /* HeroHeader.swift in Sources */,
+				D633B8263716DCE8FC2129E5 /* HistoricalGlyphInventory.swift in Sources */,
 				AFE0E1A32A6277A143E75C82 /* HistoricalTranslationService.swift in Sources */,
 				6DE03072F8C1936B967AC6B7 /* HomeAccessoryController.swift in Sources */,
 				6820F7504EF94D7BB75539D4 /* HomeBottomAccessoryView.swift in Sources */,
@@ -1742,6 +1747,7 @@
 				3A0DC1F17229491ADF1BF1FC /* DynamicTypeSupport.swift in Sources */,
 				6A680CF7E663F46CCF1D1DF3 /* ElderFutharkMap.swift in Sources */,
 				C62E741B21EFE0B002211A73 /* Haptics.swift in Sources */,
+				71D017DA402FAAE26D6D1D5C /* HistoricalGlyphInventory.swift in Sources */,
 				6F1991AA8FDF3FED15561301 /* HistoricalTranslationService.swift in Sources */,
 				076F723A78F6A09F6149BCE5 /* HomeAccessoryController.swift in Sources */,
 				3E5FEE54A68235C864A6A1CA /* LegacyCirthEncodingMigration.swift in Sources */,

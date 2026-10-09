@@ -145,6 +145,12 @@ final class HistoricalTranslationService: Sendable {
             return self.datasetUnavailableResult(for: normalizedRequest)
         }
         let result = engineFactory.create(request.script).translate(normalizedRequest)
+        if request.fidelity == .strict, result.isAvailable {
+            let unsupported = HistoricalGlyphInventory.unsupportedGlyphs(in: result, request: normalizedRequest)
+            if !unsupported.isEmpty {
+                return self.invalidGlyphResult(for: normalizedRequest, attempted: result, unsupported: unsupported)
+            }
+        }
         let isAttestedPhrase = result.resolutionStatus == .attested && result.evidenceTier == .attested && result.isAvailable
         guard request.evidenceCap != .attestedOnly || isAttestedPhrase else {
             return self.attestationUnavailableResult(for: normalizedRequest, attempted: result)
@@ -189,6 +195,20 @@ final class HistoricalTranslationService: Sendable {
                 evidenceCap: evidenceCap,
             )
         }
+    }
+
+    private func invalidGlyphResult(for request: TranslationRequest, attempted: TranslationResult, unsupported: [String]) -> TranslationResult {
+        TranslationResult(
+            sourceText: request.sourceText, script: request.script, fidelity: request.fidelity,
+            derivationKind: attempted.derivationKind, historicalStage: attempted.historicalStage,
+            normalizedForm: "", diplomaticForm: "", glyphOutput: "", requestedVariant: attempted.requestedVariant,
+            resolutionStatus: .unavailable, supportLevel: .unsupported, evidenceTier: .unsupported, confidence: 0,
+            notes: attempted.notes + ["Strict rendering rejected characters outside the selected runic inventory."],
+            unresolvedTokens: unsupported, provenance: attempted.provenance,
+            inputLanguage: attempted.inputLanguage,
+            userFacingWarnings: attempted.userFacingWarnings + ["The historical data contains unsupported rune glyphs for the selected script."],
+            engineVersion: attempted.engineVersion, datasetVersion: attempted.datasetVersion,
+        )
     }
 
     private func datasetUnavailableResult(for request: TranslationRequest) -> TranslationResult {
@@ -278,7 +298,7 @@ private struct TranslationEngineFactory: Sendable {
 
 private struct YoungerFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .younger
-    let engineVersion = "yf-translation-v16"
+    let engineVersion = "yf-translation-v17"
 
     private let parser = EnglishSyntaxParser()
     private let sourceCatalog: HistoricalSourceCatalog
@@ -488,7 +508,7 @@ private struct YoungerFutharkTranslationEngine: TranslationEngine {
 
 private struct ElderFutharkTranslationEngine: TranslationEngine {
     let script: RunicScript = .elder
-    let engineVersion = "ef-translation-v11"
+    let engineVersion = "ef-translation-v12"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver
@@ -620,7 +640,7 @@ private struct ElderFutharkTranslationEngine: TranslationEngine {
 
 private struct EreborCirthTranslationEngine: TranslationEngine {
     let script: RunicScript = .cirth
-    let engineVersion = "cirth-translation-v9"
+    let engineVersion = "cirth-translation-v10"
 
     private let parser = EnglishSyntaxParser()
     private let goldExampleResolver: TranslationGoldExampleResolver

@@ -95,6 +95,42 @@ final class StrictTranslationDatasetTests: XCTestCase {
         XCTAssertFalse(service.translate(text: "The wolf hunts at night", script: .elder).isAvailable)
     }
 
+    func testValidMetadataWithLatinGoldGlyphFailsStrictInventoryAtServiceBoundary() throws {
+        let directory = try self.copyDataset()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appendingPathComponent("gold_examples.json")
+        let examples = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url), options: [.mutableContainers]) as? NSMutableArray)
+        let example = try XCTUnwrap(examples.firstObject as? NSMutableDictionary)
+        let results = try XCTUnwrap(example["results"] as? NSMutableArray)
+        let result = try XCTUnwrap(results.firstObject as? NSMutableDictionary)
+        result["glyphOutput"] = "LATIN"
+        try JSONSerialization.data(withJSONObject: examples).write(to: url)
+        _ = try AssetTranslationDatasetProvider(resourceDirectory: directory)
+        let output = HistoricalTranslationService(resourceDirectory: directory).translate(text: "The wolf hunts at night", script: .younger)
+        XCTAssertEqual(output.resolutionStatus, .unavailable)
+        XCTAssertTrue(output.glyphOutput.isEmpty)
+        XCTAssertTrue(output.tokenBreakdown.isEmpty)
+        XCTAssertTrue(output.userFacingWarnings.contains { $0.contains("unsupported rune glyphs") })
+    }
+
+    func testValidMetadataWithUnknownLexicalLetterFailsStrictInventoryAtServiceBoundary() throws {
+        let directory = try self.copyDataset()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appendingPathComponent("old_norse_lexicon.json")
+        let rows = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url), options: [.mutableContainers]) as? NSMutableArray)
+        let negation = try XCTUnwrap(rows.compactMap { $0 as? NSMutableDictionary }.first { $0["english"] as? String == "not" })
+        negation["lemma"] = "λ"
+        try JSONSerialization.data(withJSONObject: rows).write(to: url)
+        _ = try AssetTranslationDatasetProvider(resourceDirectory: directory)
+        let service = HistoricalTranslationService(resourceDirectory: directory)
+        let output = service.translate(text: "not", script: .younger)
+        XCTAssertEqual(output.resolutionStatus, .unavailable)
+        XCTAssertEqual(output.unresolvedTokens, ["λ"])
+        XCTAssertTrue(output.glyphOutput.isEmpty)
+        XCTAssertTrue(output.userFacingWarnings.contains { $0.contains("unsupported rune glyphs") })
+        XCTAssertEqual(service.translate(text: "wolf 2 👩‍💻", script: .younger).glyphOutput, "ᚢᛚᚠᚱ 2 👩‍💻")
+    }
+
     private func copyDataset() throws -> URL {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
