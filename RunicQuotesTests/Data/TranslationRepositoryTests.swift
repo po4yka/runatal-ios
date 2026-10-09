@@ -91,4 +91,40 @@ struct TranslationRepositoryTests {
         #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<TranslationRecord>()) == 1)
     }
 
+    @Test
+    func corruptedPayloadRegeneratesFromQuoteWithoutLosingExactStoredOutput() throws {
+        let context = try TestSupport.makeModelContext()
+        let quotes = SwiftDataQuoteRepository(modelContext: context)
+        let text = "The wolf hunts at night"
+        let record = try quotes.createQuote(
+            textLatin: text, author: "Audit", source: nil, collection: .stoic,
+            storedRunic: RunicTextBundle(elder: nil, younger: "USER-EXACT-OUTPUT", cirth: nil),
+        )
+        let translations = SwiftDataTranslationRepository(modelContext: context)
+        let result = HistoricalTranslationService().translate(text: text, script: .younger, fidelity: .strict)
+        try translations.cache(result: result, for: record.id, sourceText: text)
+        let damageContext = ModelContext(context.container)
+        let payload = try #require(damageContext.fetch(FetchDescriptor<TranslationRecord>()).first)
+        payload.provenanceData = Data("invalid-json".utf8)
+        try damageContext.save()
+        let regenerated = try #require(translations.latestTranslation(for: record.id, script: .younger))
+        #expect(regenerated.glyphOutput == result.glyphOutput)
+        #expect(!regenerated.provenance.isEmpty)
+        #expect(try quotes.quote(id: record.id)?.runicYounger == "USER-EXACT-OUTPUT")
+        #expect(try ModelContext(context.container).fetchCount(FetchDescriptor<TranslationRecord>()) == 1)
+    }
+
+    @Test
+    func invalidResultMetadataCannotPartiallySaveStructuredQuote() throws {
+        let context = try TestSupport.makeModelContext()
+        let quotes = SwiftDataQuoteRepository(modelContext: context)
+        let invalid = TestSupport.makeTranslationResult(confidence: .nan)
+        #expect(throws: TranslationRecordError.self) {
+            try quotes.createQuote(textLatin: invalid.sourceText, author: "Audit", source: nil, collection: .stoic, translations: [invalid])
+        }
+        let persisted = ModelContext(context.container)
+        #expect(try persisted.fetchCount(FetchDescriptor<Quote>()) == 0)
+        #expect(try persisted.fetchCount(FetchDescriptor<TranslationRecord>()) == 0)
+    }
+
 }

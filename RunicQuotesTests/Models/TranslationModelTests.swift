@@ -100,7 +100,7 @@ struct TranslationRecordTests {
     }
 
     @Test
-    func recordRoundTripsStructuredResult() {
+    func recordRoundTripsStructuredResult() throws {
         let quoteID = UUID()
         let result = TestSupport.makeTranslationResult(
             script: .younger,
@@ -115,16 +115,16 @@ struct TranslationRecordTests {
             userFacingWarnings: ["warning"],
         )
 
-        let record = TranslationRecord(result: result, quoteID: quoteID)
+        let record = try TranslationRecord(result: result, quoteID: quoteID)
 
         #expect(record.quoteID == quoteID)
         #expect(record.script == RunicScript.younger)
         #expect(record.fidelity == TranslationFidelity.readable)
         #expect(record.requestedVariant == YoungerFutharkVariant.shortTwig)
-        #expect(record.result.glyphOutput == "ᚢᛚᚠᛦ")
-        #expect(record.result.notes == ["note"])
-        #expect(record.result.unresolvedTokens == ["signal"])
-        #expect(record.result.attestationRefs == ["ref-1"])
-        #expect(record.result.userFacingWarnings == ["warning"])
+        #expect(try record.decodedResult().glyphOutput == "ᚢᛚᚠᛦ")
+        #expect(try record.decodedResult().notes == ["note"])
+        #expect(try record.decodedResult().unresolvedTokens == ["signal"])
+        #expect(try record.decodedResult().attestationRefs == ["ref-1"])
+        #expect(try record.decodedResult().userFacingWarnings == ["warning"])
     }
 }

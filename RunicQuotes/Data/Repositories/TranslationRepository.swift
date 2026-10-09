@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 import SwiftData
 
 protocol TranslationRepository: Sendable {
@@ -17,6 +18,7 @@ protocol TranslationRepository: Sendable {
 }
 
 final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Sendable {
+    private static let logger = Logger(subsystem: AppConstants.loggingSubsystem, category: "TranslationCache")
     private let modelContainer: ModelContainer
     private let translationService: HistoricalTranslationService
 
@@ -46,7 +48,39 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         guard let record = try modelContext.fetch(descriptor).first else {
             return nil
         }
-        return record.result.withSourceText("")
+        do {
+            return try record.decodedResult()
+        } catch is DecodingError {
+            return try self.recoverInvalidRecord(record, in: modelContext)
+        } catch is TranslationRecordError {
+            return try self.recoverInvalidRecord(record, in: modelContext)
+        }
+    }
+
+    private func recoverInvalidRecord(_ record: TranslationRecord, in context: ModelContext) throws -> TranslationResult? {
+        Self.logger.error("Discarding malformed derived translation cache record")
+        let quoteID = record.quoteID
+        let script = record.script
+        let fidelity = record.fidelity
+        let variant = record.requestedVariant ?? .longBranch
+        context.delete(record)
+        var descriptor = FetchDescriptor<Quote>(predicate: #Predicate { $0.id == quoteID })
+        descriptor.fetchLimit = 1
+        var regenerated: TranslationResult?
+        if let quote = try context.fetch(descriptor).first {
+            quote.translationBackfillSignature = nil
+            quote.translationBackfillSourceText = nil
+            if !quote.isSoftDeleted {
+                let result = self.translationService.translate(text: quote.textLatin, script: script, fidelity: fidelity, youngerVariant: variant)
+                try Self.stage(results: [result], for: quoteID, sourceText: quote.textLatin, in: context)
+                if result.isAvailable {
+                    regenerated = result
+                }
+            }
+        }
+        try context.save()
+        NotificationCenter.default.post(name: .translationCacheUpdated, object: nil, userInfo: ["quoteID": quoteID])
+        return regenerated
     }
 
     func cache(result: TranslationResult, for quoteID: UUID, sourceText: String) throws {
@@ -68,6 +102,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
 
     private static func stage(result: TranslationResult, for quoteID: UUID, sourceText: String, in context: ModelContext) throws {
         guard result.resolutionStatus != .unavailable else { return }
+        guard result.confidence.isFinite else { throw TranslationRecordError.invalidMetadata }
 
         let cacheKey = TranslationRecord.makeCacheKey(
             quoteID: quoteID,
@@ -103,7 +138,7 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
             existing.userFacingWarningsData = try JSONEncoder().encode(result.userFacingWarnings)
             existing.updatedAt = Date()
         } else {
-            context.insert(TranslationRecord(result: result.withSourceText(sourceText), quoteID: quoteID))
+            try context.insert(TranslationRecord(result: result.withSourceText(sourceText), quoteID: quoteID))
         }
 
     }

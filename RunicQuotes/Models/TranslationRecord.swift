@@ -93,8 +93,8 @@ final class TranslationRecord {
 }
 
 extension TranslationRecord {
-    convenience init(result: TranslationResult, quoteID: UUID) {
-        self.init(
+    convenience init(result: TranslationResult, quoteID: UUID) throws {
+        try self.init(
             cacheKey: Self.makeCacheKey(
                 quoteID: quoteID,
                 script: result.script,
@@ -142,27 +142,38 @@ extension TranslationRecord {
         self.requestedVariantRaw.flatMap(YoungerFutharkVariant.init(rawValue:))
     }
 
-    var result: TranslationResult {
-        TranslationResult(
+    func decodedResult() throws -> TranslationResult {
+        guard let script = RunicScript(rawValue: self.scriptRaw),
+              let fidelity = TranslationFidelity(rawValue: self.fidelityRaw),
+              let derivation = TranslationDerivationKind(rawValue: self.derivationKindRaw),
+              let stage = HistoricalStage(rawValue: self.historicalStageRaw),
+              let status = TranslationResolutionStatus(rawValue: self.resolutionStatusRaw),
+              let support = TranslationSupportLevel(rawValue: self.supportLevelRaw),
+              let evidence = TranslationEvidenceTier(rawValue: self.evidenceTierRaw),
+              let language = TranslationSourceLanguage(rawValue: self.inputLanguageRaw), self.confidence.isFinite
+        else {
+            throw TranslationRecordError.invalidMetadata
+        }
+        return try TranslationResult(
             sourceText: "",
-            script: self.script,
-            fidelity: self.fidelity,
-            derivationKind: TranslationDerivationKind(rawValue: self.derivationKindRaw) ?? .tokenComposed,
-            historicalStage: HistoricalStage(rawValue: self.historicalStageRaw) ?? .modernEnglish,
+            script: script,
+            fidelity: fidelity,
+            derivationKind: derivation,
+            historicalStage: stage,
             normalizedForm: self.normalizedForm,
             diplomaticForm: self.diplomaticForm,
             glyphOutput: self.glyphOutput,
             requestedVariant: self.requestedVariantRaw,
-            resolutionStatus: TranslationResolutionStatus(rawValue: self.resolutionStatusRaw) ?? .unavailable,
-            supportLevel: TranslationSupportLevel(rawValue: self.supportLevelRaw) ?? .unsupported,
-            evidenceTier: TranslationEvidenceTier(rawValue: self.evidenceTierRaw) ?? .unsupported,
+            resolutionStatus: status,
+            supportLevel: support,
+            evidenceTier: evidence,
             confidence: self.confidence,
             notes: Self.decode([String].self, from: self.notesData),
             unresolvedTokens: Self.decode([String].self, from: self.unresolvedTokensData),
             provenance: Self.decode([TranslationProvenanceEntry].self, from: self.provenanceData),
             tokenBreakdown: Self.decode([TranslationTokenBreakdown].self, from: self.tokenBreakdownData),
             attestationRefs: Self.decode([String].self, from: self.attestationRefsData),
-            inputLanguage: TranslationSourceLanguage(rawValue: self.inputLanguageRaw) ?? .english,
+            inputLanguage: language,
             userFacingWarnings: Self.decode([String].self, from: self.userFacingWarningsData),
             engineVersion: self.engineVersion,
             datasetVersion: self.datasetVersion,
@@ -190,18 +201,15 @@ extension TranslationRecord {
         ].joined(separator: "|")
     }
 
-    private static func encode(_ value: some Encodable) -> Data {
-        (try? JSONEncoder().encode(value)) ?? Data("[]".utf8)
+    private static func encode(_ value: some Encodable) throws -> Data {
+        try JSONEncoder().encode(value)
     }
 
-    private static func decode<T: Decodable>(_ type: T.Type, from data: Data) -> T {
-        if let value = try? JSONDecoder().decode(type, from: data) {
-            return value
-        }
-        let fallback = String(data: data, encoding: .utf8) ?? ""
-        if type == [String].self, let value = try? JSONDecoder().decode(type, from: Data(fallback.utf8)) {
-            return value
-        }
-        fatalError("Invalid translation record payload for \(type)")
+    private static func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
+        try JSONDecoder().decode(type, from: data)
     }
+}
+
+enum TranslationRecordError: Error {
+    case invalidMetadata
 }
