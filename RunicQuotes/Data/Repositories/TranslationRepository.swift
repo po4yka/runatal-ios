@@ -126,7 +126,13 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         let state = try fetchOrCreateBackfillState(in: modelContext)
         let versionSignature = self.translationService.versionSignature
         let datasetVersion = self.translationService.datasetVersion
-        if state.isCompleted && state.engineVersion == versionSignature && state.datasetVersion == datasetVersion {
+        let signature = "\(versionSignature)|\(datasetVersion)"
+        let descriptor = FetchDescriptor<Quote>(sortBy: [SortDescriptor(\.createdAt)])
+        let quotes = try modelContext.fetch(descriptor).filter { !$0.isSoftDeleted }
+        let pending = quotes.filter {
+            $0.translationBackfillSignature != signature || $0.translationBackfillSourceText != $0.textLatin
+        }
+        if pending.isEmpty && state.isCompleted && state.engineVersion == versionSignature && state.datasetVersion == datasetVersion {
             return
         }
 
@@ -139,26 +145,25 @@ final class SwiftDataTranslationRepository: TranslationRepository, @unchecked Se
         state.isCompleted = false
         try modelContext.save()
 
-        let descriptor = FetchDescriptor<Quote>(sortBy: [SortDescriptor(\.createdAt)])
-        let quotes = try modelContext.fetch(descriptor)
-
-        for quote in quotes where !quote.isSoftDeleted {
-            let elder = translationService.translate(
+        for quote in pending {
+            let elder = self.translationService.translate(
                 text: quote.textLatin,
                 script: .elder,
                 fidelity: .strict,
             )
-            let younger = translationService.translate(
+            let younger = self.translationService.translate(
                 text: quote.textLatin,
                 script: .younger,
                 fidelity: .strict,
                 youngerVariant: .longBranch,
             )
-            try cache(results: [elder, younger], for: quote.id, sourceText: quote.textLatin)
-            state.processedCount += 1
+            try self.cache(results: [elder, younger], for: quote.id, sourceText: quote.textLatin)
+            quote.translationBackfillSignature = signature
+            quote.translationBackfillSourceText = quote.textLatin
             state.updatedAt = Date()
         }
 
+        state.processedCount = quotes.count
         state.isCompleted = true
         state.completedAt = Date()
         state.updatedAt = Date()

@@ -278,6 +278,8 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         let record = try self.transaction { context in
             let quote = try self.requireQuote(id: id, in: context)
             if quote.textLatin != textLatin {
+                quote.translationBackfillSignature = nil
+                quote.translationBackfillSourceText = nil
                 try SwiftDataTranslationRepository.stageDeletion(for: id, in: context)
             }
             quote.textLatin = textLatin

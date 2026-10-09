@@ -41,6 +41,10 @@ final class Quote {
     /// Explicit font encoding for Cirth; nil identifies records predating encoding metadata.
     var cirthEncodingRaw: String?
 
+    /// Per-quote maintenance receipt: an unavailable result is also a completed attempt for this source/version.
+    var translationBackfillSignature: String?
+    var translationBackfillSourceText: String?
+
     /// Timestamp when the quote was created
     var createdAt: Date
 
