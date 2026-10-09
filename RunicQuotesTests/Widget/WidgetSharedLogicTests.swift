@@ -66,8 +66,8 @@ struct WidgetTimelineGeneratorTests {
         service.preferences.selectedFont = .babelstone
         service.preferences.selectedTheme = .nordicDawn
         service.dailyQuotes = [
-            QuoteData(textLatin: "Today", author: "Runatal", runicElder: "ᛏ", runicYounger: nil, runicCirth: nil),
-            QuoteData(textLatin: "Tomorrow", author: "Runatal", runicElder: "ᛞ", runicYounger: nil, runicCirth: nil),
+            QuoteData(id: UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11)), textLatin: "Today", author: "Runatal", runicElder: "ᛏ", runicYounger: nil, runicCirth: nil),
+            QuoteData(id: UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12)), textLatin: "Tomorrow", author: "Runatal", runicElder: "ᛞ", runicYounger: nil, runicCirth: nil),
         ]
 
         let generator = WidgetTimelineGenerator(calendar: calendar, now: { now })
@@ -97,8 +97,8 @@ struct WidgetTimelineGeneratorTests {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let service = TestWidgetTimelineService()
         service.randomQuotes = [
-            QuoteData(textLatin: "First", author: "Runatal", runicElder: nil, runicYounger: "ᚠ", runicCirth: nil),
-            QuoteData(textLatin: "Second", author: "Runatal", runicElder: nil, runicYounger: "ᛋ", runicCirth: nil),
+            QuoteData(id: UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13)), textLatin: "First", author: "Runatal", runicElder: nil, runicYounger: "ᚠ", runicCirth: nil),
+            QuoteData(id: UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14)), textLatin: "Second", author: "Runatal", runicElder: nil, runicYounger: "ᛋ", runicCirth: nil),
         ]
 
         let generator = WidgetTimelineGenerator(now: { now })
