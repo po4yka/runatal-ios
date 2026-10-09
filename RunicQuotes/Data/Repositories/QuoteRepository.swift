@@ -141,7 +141,7 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
 
         guard existingQuotes.isEmpty else {
             try self.backfillCollectionsIfNeeded(for: existingQuotes)
-            try self.retransliterateCirthIfNeeded(for: existingQuotes)
+            try self.migrateLegacyCirthIfNeeded(for: existingQuotes)
             self.logger.info("Database already seeded with \(existingQuotes.count) quotes")
             return
         }
@@ -418,25 +418,21 @@ final class SwiftDataQuoteRepository: QuoteRepository, @unchecked Sendable {
         }
     }
 
-    /// Re-transliterate Cirth text when stale PUA codepoints are detected.
-    ///
-    /// Before commit acdc6a2 the Cirth mapping emitted Private Use Area
-    /// characters (U+E000-U+E02A) that the Angerthas Moria font does not
-    /// contain, causing emoji fallback rendering. Correct Cirth text only
-    /// contains ASCII (U+0000-U+007F) and Latin-1 Supplement digraphs
-    /// (max U+00FE). Any scalar above U+00FF signals stale data.
-    private func retransliterateCirthIfNeeded(for quotes: [Quote]) throws {
-        let needsMigration = quotes.contains { quote in
-            guard let cirth = quote.runicCirth else { return false }
-            return cirth.unicodeScalars.contains { $0.value > 0x00FF }
+    /// Repair only unversioned records emitted by the original U+E000–U+E02A mapping.
+    /// Explicitly encoded output and Unicode punctuation must never trigger this migration.
+    private func migrateLegacyCirthIfNeeded(for quotes: [Quote]) throws {
+        let legacyQuotes = quotes.filter { quote in
+            guard quote.cirthEncodingRaw == nil, let cirth = quote.runicCirth else { return false }
+            return cirth.unicodeScalars.contains { (0xE000 ... 0xE02A).contains($0.value) }
         }
-        guard needsMigration else { return }
+        guard !legacyQuotes.isEmpty else { return }
 
-        for quote in quotes {
+        for quote in legacyQuotes {
             quote.runicCirth = self.transliterator.transliterate(quote.textLatin, to: .cirth)
+            quote.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
         }
         try self.modelContext.save()
-        self.logger.info("Re-transliterated Cirth text for \(quotes.count) quotes (PUA migration)")
+        self.logger.info("Migrated legacy Cirth encoding for \(legacyQuotes.count) quotes")
     }
 
     private func backfillCollectionsIfNeeded(for existingQuotes: [Quote]) throws {

@@ -35,6 +35,9 @@ final class Quote {
     /// Precomputed Cirth transliteration (optional, computed on demand if nil)
     var runicCirth: String?
 
+    /// Explicit font encoding for Cirth; nil identifies records predating encoding metadata.
+    var cirthEncodingRaw: String?
+
     /// Timestamp when the quote was created
     var createdAt: Date
 
@@ -76,6 +79,7 @@ final class Quote {
         self.runicElder = nil
         self.runicYounger = nil
         self.runicCirth = nil
+        self.cirthEncodingRaw = "ANGERTHAS_LATIN_V1"
     }
 
     /// Collection membership for this quote.

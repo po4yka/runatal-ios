@@ -266,6 +266,37 @@ struct QuoteRepositoryTests {
         #expect(didThrow)
     }
 
+    @Test
+    func seedMigrationPreservesUnrelatedCirthOverridesAndUnicodePunctuation() throws {
+        let (repository, context) = try makeRepository()
+        let override = try repository.createQuote(
+            textLatin: "Custom text", author: "Audit", source: nil, collection: .motivation,
+            storedRunic: RunicTextBundle(elder: nil, younger: nil, cirth: "EXACT-OUTPUT"),
+        )
+        let punctuation = try repository.createQuote(
+            textLatin: "hello—world”,", author: "Audit", source: nil, collection: .motivation,
+            storedRunic: nil,
+        )
+        let legacy = Quote(textLatin: "the king", author: "Legacy")
+        legacy.runicCirth = "\u{E00B}\u{E003} \u{E004}"
+        legacy.cirthEncodingRaw = nil
+        context.insert(legacy)
+        let versioned = Quote(textLatin: "Different font", author: "Audit")
+        versioned.runicCirth = "\u{E001}"
+        versioned.cirthEncodingRaw = "OTHER_EXPLICIT_FONT"
+        context.insert(versioned)
+        try context.save()
+
+        try repository.seedIfNeeded()
+        #expect(try repository.quote(id: override.id)?.runicCirth == "EXACT-OUTPUT")
+        #expect(try repository.quote(id: punctuation.id)?.runicCirth == punctuation.runicCirth)
+        #expect(legacy.runicCirth == RunicTransliterator.transliterate(legacy.textLatin, to: .cirth))
+        #expect(legacy.cirthEncodingRaw == "ANGERTHAS_LATIN_V1")
+        #expect(versioned.runicCirth == "\u{E001}")
+        try repository.seedIfNeeded()
+        #expect(try repository.quote(id: override.id)?.runicCirth == "EXACT-OUTPUT")
+    }
+
     private func makeRepository(seedData: Bool = false) throws -> (SwiftDataQuoteRepository, ModelContext) {
         let context = try TestSupport.makeModelContext()
         let repository = SwiftDataQuoteRepository(modelContext: context)
