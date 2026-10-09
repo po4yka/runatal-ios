@@ -88,7 +88,7 @@ private struct ScriptButton: View {
                     .fontWeight(.medium)
 
                 // Script name
-                Text(self.script == .cirth ? "Cirth" : self.script.displayName)
+                Text(self.compactTitle)
                     .font(DesignTokens.Typography.metadata)
                     .fontWeight(self.isSelected ? .semibold : .regular)
             }
@@ -105,6 +105,14 @@ private struct ScriptButton: View {
 
     private var palette: AppThemePalette {
         AppThemePalette.themed(self.runicTheme, for: self.colorScheme)
+    }
+
+    private var compactTitle: String {
+        switch self.script {
+        case .elder: "Elder"
+        case .younger: "Younger"
+        case .cirth: "Cirth"
+        }
     }
 
     private var scriptSymbol: String {
