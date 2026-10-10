@@ -82,6 +82,69 @@ struct DailyReminderViewModelTests {
     }
 
     @Test
+    func disabledStartupAllowsMainActorProgressWhileCancellationIsPending() async {
+        let repository = ReminderPreferencesSpy()
+        let client = SuspendedReminderClient()
+        let model = DailyReminderViewModel(client: client, preferencesRepository: repository)
+        let startup = Task { await model.onAppear() }
+
+        await client.waitForCancellation()
+        // Reading UI state here requires the MainActor while the service is still pending.
+        #expect(model.state.isWorking)
+        #expect(!model.state.isEnabled)
+        #expect(!repository.value.dailyReminderEnabled)
+        #expect(await !model.setEnabled(true))
+
+        await client.finishCancellation()
+        await startup.value
+        #expect(!model.state.isWorking)
+        #expect(model.state.errorMessage == nil)
+    }
+
+    @Test
+    func disablingAwaitsCancellationBeforePersistingPreference() async {
+        let repository = ReminderPreferencesSpy()
+        repository.value.dailyReminderEnabled = true
+        let client = SuspendedReminderClient()
+        let model = DailyReminderViewModel(client: client, preferencesRepository: repository)
+        await model.onAppear()
+        let disable = Task { await model.setEnabled(false) }
+
+        await client.waitForCancellation()
+        #expect(model.state.isWorking)
+        #expect(model.state.isEnabled)
+        #expect(repository.value.dailyReminderEnabled)
+
+        await client.finishCancellation()
+        #expect(await disable.value)
+        #expect(!model.state.isWorking)
+        #expect(!model.state.isEnabled)
+        #expect(!repository.value.dailyReminderEnabled)
+    }
+
+    @Test
+    func failedDisablePersistenceWaitsForCancellationBeforeRestoringRequest() async {
+        let repository = ReminderPreferencesSpy()
+        repository.value.dailyReminderEnabled = true
+        let client = SuspendedReminderClient()
+        let model = DailyReminderViewModel(client: client, preferencesRepository: repository)
+        await model.onAppear()
+        repository.saveError = TestError.failure
+        let disable = Task { await model.setEnabled(false) }
+
+        await client.waitForCancellation()
+        #expect(await client.scheduledTimes == [.morning])
+        #expect(model.state.errorMessage == nil)
+
+        await client.finishCancellation()
+        #expect(await !disable.value)
+        #expect(await client.scheduledTimes == [.morning, .morning])
+        #expect(model.state.isEnabled)
+        #expect(repository.value.dailyReminderEnabled)
+        #expect(model.state.errorMessage != nil)
+    }
+
+    @Test
     func nativeRequestUsesOwnedIdentifierLocalHourAndHonestReminderContent() throws {
         let time = try DailyReminderTime(hour: 17, minute: 45)
         let request = SystemDailyReminderClient.request(at: time)
@@ -121,7 +184,7 @@ private final class ReminderClientSpy: DailyReminderClient {
         self.scheduledTimes.append(time)
     }
 
-    func cancel() {
+    func cancel() async {
         self.cancelCount += 1
     }
 }
@@ -143,5 +206,41 @@ private final class ReminderPreferencesSpy: UserPreferencesRepository, @unchecke
         }
         self.value = updated
         return updated
+    }
+}
+
+private actor SuspendedReminderClient: DailyReminderClient {
+    private(set) var scheduledTimes: [DailyReminderTime] = []
+    private var cancellationStarted = false
+    private var cancellationContinuation: CheckedContinuation<Void, Never>?
+    private var startContinuation: CheckedContinuation<Void, Never>?
+
+    func requestPermission() async throws -> Bool {
+        true
+    }
+
+    func isAuthorized() async -> Bool {
+        true
+    }
+
+    func schedule(at time: DailyReminderTime) async throws {
+        self.scheduledTimes.append(time)
+    }
+
+    func cancel() async {
+        self.cancellationStarted = true
+        self.startContinuation?.resume()
+        self.startContinuation = nil
+        await withCheckedContinuation { self.cancellationContinuation = $0 }
+    }
+
+    func waitForCancellation() async {
+        guard !self.cancellationStarted else { return }
+        await withCheckedContinuation { self.startContinuation = $0 }
+    }
+
+    func finishCancellation() {
+        self.cancellationContinuation?.resume()
+        self.cancellationContinuation = nil
     }
 }

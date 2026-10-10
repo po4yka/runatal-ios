@@ -8,16 +8,14 @@
 import Foundation
 import UserNotifications
 
-@MainActor
-protocol DailyReminderClient {
+protocol DailyReminderClient: Sendable {
     func requestPermission() async throws -> Bool
     func isAuthorized() async -> Bool
     func schedule(at time: DailyReminderTime) async throws
-    func cancel()
+    func cancel() async
 }
 
-@MainActor
-final class SystemDailyReminderClient: DailyReminderClient {
+actor SystemDailyReminderClient: DailyReminderClient {
     nonisolated static let requestIdentifier = "runatal.daily-reading-reminder"
     private let center: UNUserNotificationCenter
 
@@ -34,7 +32,7 @@ final class SystemDailyReminderClient: DailyReminderClient {
         return settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
     }
 
-    static func request(at time: DailyReminderTime) -> UNNotificationRequest {
+    nonisolated static func request(at time: DailyReminderTime) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()
         content.title = "Daily reading reminder"
         content.body = "Open today’s passage in Runatal."
@@ -52,7 +50,7 @@ final class SystemDailyReminderClient: DailyReminderClient {
         try await self.center.add(Self.request(at: time))
     }
 
-    func cancel() {
+    func cancel() async {
         self.center.removePendingNotificationRequests(withIdentifiers: [Self.requestIdentifier])
     }
 }

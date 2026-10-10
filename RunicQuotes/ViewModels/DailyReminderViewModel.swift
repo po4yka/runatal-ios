@@ -28,9 +28,9 @@ final class DailyReminderViewModel: ObservableObject {
             let preferences = try self.preferencesRepository.snapshot()
             self.state.time = preferences.dailyReminderTime
             self.state.isEnabled = false
-            guard preferences.dailyReminderEnabled else { self.client.cancel(); return }
+            guard preferences.dailyReminderEnabled else { await self.client.cancel(); return }
             guard await self.client.isAuthorized() else {
-                self.client.cancel()
+                await self.client.cancel()
                 throw DailyReminderError.permissionDenied
             }
             try await self.client.schedule(at: preferences.dailyReminderTime)
@@ -67,13 +67,13 @@ final class DailyReminderViewModel: ObservableObject {
             let previous = try self.preferencesRepository.snapshot()
             if enabled {
                 guard try await self.client.requestPermission(), await self.client.isAuthorized() else {
-                    self.client.cancel()
+                    await self.client.cancel()
                     self.state.isEnabled = false
                     throw DailyReminderError.permissionDenied
                 }
                 try await self.client.schedule(at: time)
             } else {
-                self.client.cancel()
+                await self.client.cancel()
             }
             do {
                 let saved = try self.preferencesRepository.apply([.dailyReminder(enabled: enabled, time: time)])
@@ -87,13 +87,13 @@ final class DailyReminderViewModel: ObservableObject {
                         try await self.client.schedule(at: previous.dailyReminderTime)
                         self.state.isEnabled = true
                     } else {
-                        self.client.cancel()
+                        await self.client.cancel()
                         self.state.isEnabled = false
                     }
                     self.state.time = previous.dailyReminderTime
                 } catch {
                     self.state.isEnabled = false
-                    self.client.cancel()
+                    await self.client.cancel()
                     throw DailyReminderError.reconciliationFailed("\(persistenceError.localizedDescription) \(error.localizedDescription)")
                 }
                 throw persistenceError
@@ -105,8 +105,7 @@ final class DailyReminderViewModel: ObservableObject {
     }
 }
 
-@MainActor
-private final class PreviewDailyReminderClient: DailyReminderClient {
+private struct PreviewDailyReminderClient: DailyReminderClient {
     func requestPermission() async throws -> Bool {
         true
     }
@@ -116,7 +115,7 @@ private final class PreviewDailyReminderClient: DailyReminderClient {
     }
 
     func schedule(at time: DailyReminderTime) async throws {}
-    func cancel() {}
+    func cancel() async {}
 }
 
 extension DailyReminderViewModel {
