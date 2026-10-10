@@ -79,40 +79,40 @@ struct TranslationView: View {
                 palette: self.palette,
             )
         }
-        #if canImport(UIKit)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if self.isInputFocused {
-                HStack {
-                    Spacer()
-                    Button("Done") { self.isInputFocused = false }
-                        .frame(minHeight: 44)
-                        .accessibilityIdentifier("translation_keyboard_done")
-                }
-                .padding(.horizontal, DesignTokens.Spacing.md)
-                .padding(.vertical, DesignTokens.Spacing.xs)
-                .background(.bar)
-            }
-        }
-        #endif
         .accessibilityIdentifier("translation_view")
-        .task {
-            guard !self.didInitialize else { return }
-            self.didInitialize = true
-            self.viewModel.onAppear()
-        }
-        .onDisappear {
-            self.feedbackTask?.cancel()
-        }
-        .onChange(of: self.viewModel.state.translationMode) { _, _ in
-            self.isInputFocused = false
-        }
-        .sheet(isPresented: self.$showProvenanceSheet) {
-            TranslationProvenanceDetailSheet(provenance: self.viewModel.state.provenance)
-        }
-        .navigationDestination(isPresented: self.$showAccuracyContext) {
-            TranslationAccuracyContextView()
-        }
-        .navigationTitle(String(localized: "translation.nav.title"))
+        #if canImport(UIKit)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if self.isInputFocused {
+                    HStack {
+                        Spacer()
+                        Button("Done") { self.isInputFocused = false }
+                            .frame(minHeight: 44)
+                            .accessibilityIdentifier("translation_keyboard_done")
+                    }
+                    .padding(.horizontal, DesignTokens.Spacing.md)
+                    .padding(.vertical, DesignTokens.Spacing.xs)
+                    .background(.bar)
+                }
+            }
+        #endif
+            .task {
+                guard !self.didInitialize else { return }
+                self.didInitialize = true
+                self.viewModel.onAppear()
+            }
+            .onDisappear {
+                self.feedbackTask?.cancel()
+            }
+            .onChange(of: self.viewModel.state.translationMode) { _, _ in
+                self.isInputFocused = false
+            }
+            .sheet(isPresented: self.$showProvenanceSheet) {
+                TranslationProvenanceDetailSheet(provenance: self.viewModel.state.provenance)
+            }
+            .navigationDestination(isPresented: self.$showAccuracyContext) {
+                TranslationAccuracyContextView()
+            }
+            .navigationTitle(String(localized: "translation.nav.title"))
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
         #endif
