@@ -25,7 +25,7 @@ final class QuoteNavigationCoordinator: ObservableObject {
     }
 
     func consumePendingRequest() -> QuoteNavigationRequest? {
-        let request = self.pendingRequest
+        guard let request = self.pendingRequest else { return nil }
         self.pendingRequest = nil
         return request
     }

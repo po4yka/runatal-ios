@@ -201,6 +201,20 @@ jobs:
             -resultBundlePath "$RESULTS_DIR/RunicQuotesBuild.xcresult" \
             2>&1 | tee "$LOGS_DIR/build.log"
 
+      - name: Package Simulator app for runtime validation
+        shell: bash
+        run: |
+          tar -czf "$RUNNER_TEMP/RunicQuotes-Simulator.app.tar.gz" \
+            -C "$DERIVED_DATA_PATH/Build/Products/Debug-iphonesimulator" \
+            RunicQuotes.app
+
+      - name: Upload Simulator app
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: runicquotes-simulator-app
+          path: ${{ runner.temp }}/RunicQuotes-Simulator.app.tar.gz
+          if-no-files-found: error
+
       - name: Run core tests
         shell: bash
         run: |
