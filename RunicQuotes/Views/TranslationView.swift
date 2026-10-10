@@ -79,6 +79,21 @@ struct TranslationView: View {
                 palette: self.palette,
             )
         }
+        #if canImport(UIKit)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if self.isInputFocused {
+                HStack {
+                    Spacer()
+                    Button("Done") { self.isInputFocused = false }
+                        .frame(minHeight: 44)
+                        .accessibilityIdentifier("translation_keyboard_done")
+                }
+                .padding(.horizontal, DesignTokens.Spacing.md)
+                .padding(.vertical, DesignTokens.Spacing.xs)
+                .background(.bar)
+            }
+        }
+        #endif
         .accessibilityIdentifier("translation_view")
         .task {
             guard !self.didInitialize else { return }
@@ -102,13 +117,6 @@ struct TranslationView: View {
             .navigationBarTitleDisplayMode(.inline)
         #endif
             .toolbar {
-                #if canImport(UIKit)
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button("Done") { self.isInputFocused = false }
-                            .accessibilityIdentifier("translation_keyboard_done")
-                    }
-                #endif
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         self.recordTranslationMethodExploration()

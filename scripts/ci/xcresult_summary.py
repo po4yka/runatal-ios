@@ -39,6 +39,19 @@ def main() -> int:
     print(f"- Skipped: {summary['skippedTests']}")
     print(f"- Duration: {duration:.1f}s")
 
+    invalid_frames = [
+        warning["message"]
+        for warning in summary.get("runtimeWarnings", [])
+        if "Invalid frame dimension" in warning["message"]
+    ]
+    print(f"- Invalid frame warnings: {len(invalid_frames)}")
+    if invalid_frames:
+        print(
+            f"{title}: {len(invalid_frames)} invalid frame runtime warning(s)",
+            file=sys.stderr,
+        )
+        return 1
+
     return 0
 
 
