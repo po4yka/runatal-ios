@@ -210,7 +210,19 @@ final class RunicQuotesUITests: RunicQuotesUITestCase {
 
         let accuracyTitle = app.navigationBars["Accuracy & Context"]
         XCTAssertTrue(accuracyTitle.waitForExistence(timeout: 5), "Accuracy screen should appear")
-        XCTAssertTrue(app.staticTexts["How to read the results"].exists, "Accuracy guidance should exist")
+        let initial = XCTAttachment(screenshot: app.screenshot())
+        initial.name = "Accuracy-context-before-guidance-scroll"
+        initial.lifetime = .keepAlways
+        self.add(initial)
+
+        let guidance = self.findStaticText(in: app, text: "How to read the results", maxSwipes: 4)
+        XCTAssertTrue(guidance.exists, "Accuracy guidance should exist")
+        self.tapElement(guidance)
+        XCTAssertTrue(guidance.isHittable, "Accuracy guidance should be visible")
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Visible-accuracy-guidance"
+        attachment.lifetime = .keepAlways
+        self.add(attachment)
     }
 
     func testTranslationScreenShowsEnglishOnlyBannerAndEvidenceBadges() {
